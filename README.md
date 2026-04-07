@@ -41,8 +41,12 @@ git clone https://github.com/YClawAI/yclaw.git
 cd yclaw
 cp .env.example .env
 # Edit .env — add ANTHROPIC_API_KEY (or OPENAI_API_KEY)
-docker compose up -d
+docker compose up -d --build
 ```
+
+> **First boot takes 2-3 minutes** while Docker builds the API and dashboard
+> images and the migrate one-shot runs against postgres. Watch progress with
+> `docker compose logs -f api`. Subsequent runs can drop the `--build` flag.
 
 ### Verify
 
@@ -59,6 +63,24 @@ curl -fsS -X POST http://localhost:3000/api/migrate
 ```
 
 Then open Mission Control at **http://localhost:3001**.
+
+### First login
+
+On first boot, the API auto-seeds a root operator and prints its API key to
+stdout (NOT to log files). Find it with:
+
+```bash
+docker compose logs api | grep -A 2 'ROOT OPERATOR API KEY'
+```
+
+Copy the `gzop_live_…` key. At the Mission Control login page, authenticate
+as the root operator using that key. The key is shown only once — store it
+in a password manager.
+
+> **Alternative**: set `ROOT_API_KEY=gzop_live_…` (your own pre-generated
+> key) or `YCLAW_SETUP_TOKEN=<32+ char token>` in `.env` before first boot
+> to skip auto-seeding and bootstrap via `POST /v1/operators/bootstrap`
+> instead. See [`docs/operators.md`](docs/operators.md).
 
 ### What "working" looks like
 

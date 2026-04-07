@@ -97,7 +97,10 @@ services:
       REDIS_URL: redis://redis:6379
       MEMORY_DATABASE_URL: postgresql://yclaw:${POSTGRES_PASSWORD:-yclaw_dev}@postgres:5432/yclaw_memory
     ports:
-      - "${API_PORT:-3000}:3000"
+      # Bind to loopback only — exposing on all interfaces would let anyone on
+      # the host network reach the unauthenticated /health endpoint and the
+      # /v1/operators/bootstrap setup window. Use a reverse proxy for public access.
+      - "127.0.0.1:${API_PORT:-3000}:3000"
     volumes:
       - ./departments:/app/departments:ro
       - ./prompts:/app/prompts:ro
@@ -110,6 +113,7 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+    # curl is installed via apt-get in deploy/docker-compose/Dockerfile (line 36).
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:3000/health"]
       interval: 15s
@@ -147,7 +151,10 @@ services:
       NEXT_PUBLIC_YCLAW_API_URL: http://localhost:${API_PORT:-3000}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3001}
     ports:
-      - "${MC_PORT:-3001}:3001"
+      # Bind to loopback only — Mission Control hosts the operator UI and is
+      # gated by NextAuth, but exposing publicly would put the login form in
+      # front of every host on the LAN. Use a reverse proxy for public access.
+      - "127.0.0.1:${MC_PORT:-3001}:3001"
     depends_on:
       api:
         condition: service_healthy
@@ -155,6 +162,7 @@ services:
     # the NextAuth middleware (PUBLIC_EXACT) and returns 200 the moment Next.js
     # is listening. /api/health is a *deep* check that 503s on a fresh boot
     # because the gateway WebSocket and operator API aren't connected yet.
+    # wget is installed via `apk add` in packages/mission-control/Dockerfile (line 51).
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/login"]
       interval: 15s
