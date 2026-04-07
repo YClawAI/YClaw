@@ -826,7 +826,7 @@ export class BuilderDispatcher {
     const retryable = Math.max(metrics.dlq.depth - permanent, 0);
 
     await this.deps.eventBus.publish('slack', 'alert', {
-      channel: 'C0AFA847NAD',
+      channel: 'C0000000007',
       text: `📋 Builder DLQ Daily Digest\n• Total: ${metrics.dlq.depth}\n• Retryable: ${retryable}\n• Permanent (need manual fix): ${permanent}\n• Top errors: ${this.topErrors(metrics.dlq.entries)}`,
     });
   }

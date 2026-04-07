@@ -99,7 +99,7 @@ describe('SlackExecutor dedup', () => {
     });
 
     it('uses channel-specific TTL for known channels', async () => {
-      await executor.isDuplicate('C0AFA847NAD', 'Alert'); // #yclaw-alerts → 7200s
+      await executor.isDuplicate('C0000000007', 'Alert'); // #yclaw-alerts → 7200s
       expect(redis.set).toHaveBeenCalledWith(
         expect.stringContaining('slack:dedup:'),
         expect.any(String),

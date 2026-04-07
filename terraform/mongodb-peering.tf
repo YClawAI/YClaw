@@ -3,7 +3,7 @@
 # PREREQUISITE: Atlas cluster must be M10+ (dedicated tier). Shared-tier clusters
 # (M0/M2/M5) do NOT support VPC Peering or Private Endpoints.
 #
-# Current state: MongoDB is secured via NAT Gateway IP whitelist (100.28.108.39/32)
+# Current state: MongoDB is secured via NAT Gateway IP whitelist (set your NAT EIP/32)
 # in the Atlas IP Access List. This is the shared-tier alternative.
 #
 # When ready to upgrade to M10+, use the automated setup script:

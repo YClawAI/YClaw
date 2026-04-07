@@ -287,7 +287,7 @@ nonce, and schema version. Labels the source as `verified: true`.
 
 ## Vulnerability Reporting
 
-Report via [GitHub Private Security Advisory](https://github.com/GravitonINC/YClaw/security/advisories/new).
+Report via [GitHub Private Security Advisory](https://github.com/YClawAI/yclaw/security/advisories/new).
 Do not open public issues. Response: 72-hour acknowledgment, 30-day fix target.
 
 See `/SECURITY.md` for full disclosure policy.

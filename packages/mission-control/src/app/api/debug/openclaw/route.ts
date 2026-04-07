@@ -20,7 +20,7 @@ export async function GET() {
   const denied = checkTier(auth.session, 'root');
   if (denied) return denied;
 
-  const BASE_URL = process.env.OPENCLAW_URL || 'http://10.0.6.101:53847';
+  const BASE_URL = process.env.OPENCLAW_URL || 'http://localhost:53847';
   const TOKEN = process.env.OPENCLAW_GATEWAY_TOKEN || '';
 
   const results: Record<string, unknown> = {

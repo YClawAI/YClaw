@@ -42,16 +42,16 @@ const AGENT_DEPARTMENT: Record<string, string> = {
 // Hard-coded channel IDs avoid API lookups at runtime.
 
 const DEPARTMENT_CHANNEL: Record<string, string> = {
-  executive: 'C0AETTBE893',   // #yclaw-executive
-  development: 'C0AEV8L9KTQ', // #yclaw-development
-  marketing: 'C0AEFSQV0RM',   // #yclaw-marketing
-  operations: 'C0AEXAJRSV8',  // #yclaw-operations
-  finance: 'C0AEXAJJ02W',     // #yclaw-finance
-  support: 'C0AETTB6ACV',     // #yclaw-support
-  alerts: 'C0AFA847NAD',      // #yclaw-alerts
+  executive: 'C0000000001',   // #yclaw-executive
+  development: 'C0000000002', // #yclaw-development
+  marketing: 'C0000000003',   // #yclaw-marketing
+  operations: 'C0000000004',  // #yclaw-operations
+  finance: 'C0000000005',     // #yclaw-finance
+  support: 'C0000000006',     // #yclaw-support
+  alerts: 'C0000000007',      // #yclaw-alerts
 };
 
-const FALLBACK_CHANNEL = 'C0AEQUE8C59'; // #yclaw-general
+const FALLBACK_CHANNEL = 'C0000000008'; // #yclaw-general
 
 /** Alerts channel ID for escalations/blockers. */
 export const ALERTS_CHANNEL = DEPARTMENT_CHANNEL.alerts!;

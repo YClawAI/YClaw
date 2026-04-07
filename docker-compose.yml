@@ -1,0 +1,183 @@
+# YCLAW — Full-stack local development / evaluation
+#
+# Brings up the entire YCLAW system on a single host:
+#   - mongo       Operational state store
+#   - redis       Event bus + caching
+#   - postgres    Agent memory store (@yclaw/memory)
+#   - api         YCLAW core engine (Node.js, port 3000)
+#   - dashboard   Mission Control UI (Next.js, port 3001)
+#   - migrate     One-shot init that runs DB migrations against the API
+#
+# Usage:
+#   cp .env.example .env       # then add your LLM API key
+#   docker compose up -d
+#   docker compose logs -f api
+#
+# Verify:
+#   curl http://localhost:3000/health        # API liveness
+#   open http://localhost:3001               # Mission Control
+#
+# Tear down (preserves volumes):
+#   docker compose down
+#
+# Tear down + delete data:
+#   docker compose down -v
+#
+# For ECS / Fargate production deployment, see deploy/aws/ and the root Dockerfile.
+
+services:
+  # ─── MongoDB — Operational state store ────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: yclaw-mongo
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  # ─── Redis — Event bus + cache ────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: yclaw-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ─── PostgreSQL — Agent memory store ──────────────────────────────────────
+  # Schema is created by /api/migrate after the API is healthy (see migrate service).
+  # init-memory.sh runs once on first boot to create pgcrypto + grants.
+  postgres:
+    image: postgres:16-alpine
+    container_name: yclaw-postgres
+    environment:
+      POSTGRES_DB: yclaw_memory
+      POSTGRES_USER: yclaw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yclaw_dev}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./deploy/docker-compose/scripts/init-memory.sh:/docker-entrypoint-initdb.d/init-memory.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yclaw -d yclaw_memory"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ─── YCLAW Core API ───────────────────────────────────────────────────────
+  # Built from the simplified compose Dockerfile (no codegen CLI bloat).
+  # Departments and prompts are bind-mounted so you can edit them live.
+  api:
+    build:
+      context: .
+      dockerfile: deploy/docker-compose/Dockerfile
+    image: yclaw/core:local
+    container_name: yclaw-api
+    env_file: [.env]
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: "3000"
+      MONGODB_URI: mongodb://mongo:27017/yclaw
+      REDIS_URL: redis://redis:6379
+      MEMORY_DATABASE_URL: postgresql://yclaw:${POSTGRES_PASSWORD:-yclaw_dev}@postgres:5432/yclaw_memory
+    ports:
+      # Bind to loopback only — exposing on all interfaces would let anyone on
+      # the host network reach the unauthenticated /health endpoint and the
+      # /v1/operators/bootstrap setup window. Use a reverse proxy for public access.
+      - "127.0.0.1:${API_PORT:-3000}:3000"
+    volumes:
+      - ./departments:/app/departments:ro
+      - ./prompts:/app/prompts:ro
+      - api-objects:/app/data/objects
+      - api-logs:/app/logs
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    # curl is installed via apt-get in deploy/docker-compose/Dockerfile (line 36).
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # ─── One-shot DB migration ────────────────────────────────────────────────
+  # Hits POST /api/migrate after the API is healthy. Idempotent.
+  # Replays packages/memory/migrations/*.sql against the postgres container.
+  migrate:
+    image: curlimages/curl:8.10.1
+    container_name: yclaw-migrate
+    depends_on:
+      api:
+        condition: service_healthy
+    command: ["-fsS", "-X", "POST", "http://api:3000/api/migrate"]
+    restart: "no"
+
+  # ─── Mission Control Dashboard ────────────────────────────────────────────
+  # Next.js standalone build, served on port 3001.
+  dashboard:
+    build:
+      context: .
+      dockerfile: packages/mission-control/Dockerfile
+    image: yclaw/mission-control:local
+    container_name: yclaw-dashboard
+    env_file: [.env]
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: "3001"
+      HOSTNAME: "0.0.0.0"
+      YCLAW_API_URL: http://api:3000
+      NEXT_PUBLIC_YCLAW_API_URL: http://localhost:${API_PORT:-3000}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3001}
+    ports:
+      # Bind to loopback only — Mission Control hosts the operator UI and is
+      # gated by NextAuth, but exposing publicly would put the login form in
+      # front of every host on the LAN. Use a reverse proxy for public access.
+      - "127.0.0.1:${MC_PORT:-3001}:3001"
+    depends_on:
+      api:
+        condition: service_healthy
+    # Liveness check uses /login because it's an exact-match public path in
+    # the NextAuth middleware (PUBLIC_EXACT) and returns 200 the moment Next.js
+    # is listening. /api/health is a *deep* check that 503s on a fresh boot
+    # because the gateway WebSocket and operator API aren't connected yet.
+    # wget is installed via `apk add` in packages/mission-control/Dockerfile (line 51).
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/login"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+networks:
+  default:
+    name: yclaw
+
+volumes:
+  mongo-data:
+  redis-data:
+  postgres-data:
+  api-objects:
+  api-logs:

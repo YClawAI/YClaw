@@ -19,7 +19,7 @@ const PR_POLL_ATTEMPTS = 4;
 const PR_POLL_INTERVAL_MS = 15_000;
 
 // ─── Slack Notifications ──────────────────────────────────────────────────────
-const AO_SLACK_CHANNEL = process.env.AO_SLACK_CHANNEL || 'C0AEV8L9KTQ'; // #yclaw-development
+const AO_SLACK_CHANNEL = process.env.AO_SLACK_CHANNEL || 'C0000000002'; // #yclaw-development
 
 const EVENT_SLACK_MAP: Record<string, { emoji: string; template: (e: AoCallbackEvent) => string }> = {
   'session.started': {

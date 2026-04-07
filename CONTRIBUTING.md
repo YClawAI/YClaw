@@ -16,8 +16,8 @@ Thanks for your interest in contributing. This guide covers setup, conventions, 
 ## Setup
 
 ```bash
-git clone https://github.com/GravitonINC/YClaw.git
-cd YClaw
+git clone https://github.com/YClawAI/yclaw.git
+cd yclaw
 npm install
 ```
 
