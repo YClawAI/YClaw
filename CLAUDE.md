@@ -1,9 +1,66 @@
-# CLAUDE.md — YClaw Agents
+# CLAUDE.md — YCLAW
 
-> Project-level instructions for AI coding tools (Claude Code, Codex, OpenCode).
+> Project-level instructions for AI coding tools (Claude Code, Codex, OpenCode, Cursor, Windsurf).
 > This file is loaded automatically when working in this repository.
 >
 > 📖 **For comprehensive system documentation, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — canonical reference for all 12 agents, actions, triggers, events, safety, costs, deploy governance, memory, and infrastructure.
+
+---
+
+## OSS Workflow Rules (Mandatory)
+
+These rules apply to ALL contributors — human and AI.
+
+### Branching & Merging
+- **Trunk-based development.** All PRs target `main`.
+- **Squash merges only.** One commit per PR in main's history.
+- **No direct pushes to `main`.** Everything goes through a PR. No exceptions.
+- **Branch naming:** `feat/description`, `fix/description`, `docs/description`, `chore/description`.
+
+### Versioning
+- **CalVer** — `YYYY.M.D` format (e.g., `2026.4.7`). Not SemVer.
+- No Changesets, no semantic-release, no release-please.
+- Releases are **manual** — a maintainer triggers the npm/Docker release workflow with a version tag.
+
+### PR Requirements
+- One logical change per PR. Don't bundle unrelated work.
+- PR title follows conventional format: `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`.
+- All CI checks must pass before merge.
+- Minimum 1 review required (human or AI reviewer).
+- AI-authored PRs must be marked with `ai-authored` label.
+- No refactor-only PRs unless they unblock a concrete feature.
+
+### Before You Code
+1. **Read this file first.** Understand the architecture before making changes.
+2. **Check existing systems.** Search the codebase before proposing new code. The CLI, onboarding service, validation runner, and deploy executors are already built.
+3. **Run the test suite** before opening a PR: `npm test`
+4. **Run typecheck**: `npx tsc -p packages/core/tsconfig.json --noEmit`
+
+### What Exists (DO NOT REINVENT)
+- **CLI:** `packages/cli/` — init, doctor, deploy, destroy, status, config validate
+- **Onboarding:** `packages/core/src/onboarding/` — 6-stage flow, artifact generation, ingestion
+- **Mission Control UI:** `packages/mission-control/src/app/onboarding/` — full onboarding UI
+- **Validation:** `packages/core/src/onboarding/validation.ts` — department config health
+- **Context Cache:** `packages/core/src/agent/context-cache.ts` — 4-layer prompt hierarchy
+- **Deploy Executors:** Docker Compose, Terraform, Manual in `packages/cli/src/deploy/`
+
+### Commit Messages
+```
+feat: add webhook retry logic
+fix: resolve race condition in event dispatcher  
+docs: update onboarding API reference
+chore: upgrade vitest to 3.x
+test: add integration tests for operator bootstrap
+refactor: extract HMAC signing to shared util
+```
+
+### Protected Paths (require admin approval)
+- `.github/workflows/**`
+- `packages/core/src/security/**`
+- `Dockerfile*`
+- `CLAUDE.md`
+- `SECURITY.md`
+- `LICENSE`
 
 ---
 
