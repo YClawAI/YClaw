@@ -151,8 +151,12 @@ services:
     depends_on:
       api:
         condition: service_healthy
+    # Liveness check uses /login because it's an exact-match public path in
+    # the NextAuth middleware (PUBLIC_EXACT) and returns 200 the moment Next.js
+    # is listening. /api/health is a *deep* check that 503s on a fresh boot
+    # because the gateway WebSocket and operator API aren't connected yet.
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/login"]
       interval: 15s
       timeout: 5s
       retries: 5
