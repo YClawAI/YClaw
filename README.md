@@ -1,9 +1,22 @@
-# YCLAW
+# 🦞 YCLAW
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](./LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D20-339933.svg)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
-[![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](https://docs.docker.com/compose/)
+<p align="center">
+  <strong>Your AI assistant just got a company to run.</strong>
+</p>
+
+<p align="center">
+  <a href="https://openclaw.ai"><img src="https://img.shields.io/badge/Built%20on-OpenClaw-blue?style=for-the-badge" alt="Built on OpenClaw"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=for-the-badge" alt="License"></a>
+  <a href="https://clawhub.com"><img src="https://img.shields.io/badge/Skills-ClawHub-orange?style=for-the-badge" alt="ClawHub"></a>
+  <a href="https://yclaw.ai"><img src="https://img.shields.io/badge/Web-yclaw.ai-purple?style=for-the-badge" alt="Website"></a>
+  <a href="https://x.com/YClaw_ai"><img src="https://img.shields.io/badge/𝕏-@YClaw%5Fai-black?style=for-the-badge" alt="Twitter"></a>
+  <a href="https://discord.gg/97Fvue9327"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
+</p>
+<p align="center">
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-20%2B-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"></a>
+</p>
 
 > **Open-source AI agent orchestration framework.**
 > Your AI assistant deploys it. Your AI assistant programs it. Your org gets a workforce.
