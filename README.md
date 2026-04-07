@@ -29,6 +29,89 @@ YCLAW is an open-source framework for running an organization of AI agents. Your
 
 ---
 
+## 💡 Your AI + Their AI + One Organization
+
+Everyone has a personal AI assistant now. But yours can't talk to theirs, and neither can actually *run* anything together.
+
+YCLAW is the shared operating layer. You decide the structure — departments, permissions, chain of command, treasury access — and configure how your AI works alongside your cofounder's, your team's, or your contractors'. Every action is logged: which AI did what, on behalf of which human.
+
+Agent frameworks let one developer orchestrate their own pipelines. YCLAW lets **multiple people, with their own AI assistants, co-operate a single organization** — configured however you want it to work.
+
+---
+
+## Customize Your Organization
+
+YCLAW ships with 12 agent roles. To make them yours, edit these 8 driver documents:
+
+| File | What It Defines | Example |
+|------|----------------|--------|
+| `prompts/mission_statement.md` | Why your org exists | Company mission, nonprofit charter, campaign platform |
+| `prompts/brand-voice.md` | How you sound | Tone, personality, language rules |
+| `prompts/chain-of-command.md` | Who's in charge | Authority structure, escalation rules |
+| `prompts/executive-directive.md` | Current priorities | Weekly goals, KPIs, operating rules |
+| `prompts/protocol-overview.md` | What you do | Product description, service overview |
+| `prompts/content-templates.md` | Content formats | Social media templates, posting schedule |
+| `prompts/design-system.md` | Visual identity | Colors, typography, component specs |
+| `prompts/review-rules.md` | Quality gates | What gets auto-published vs needs review |
+
+Edit a file. Push. Your AI org restructures itself. No redeployment. No config hell.
+
+---
+
+## The Organization
+
+```
+                         ┌──────────────┐
+                         │  EXECUTIVE   │
+                         │              │
+                         │  Strategist  │  Sets priorities, synthesizes reports
+                         │  Reviewer    │  Brand gate, quality control
+                         └──────┬───────┘
+                                │
+        ┌───────────────┬───────┼───────┬───────────────┬──────────────┐
+        │               │               │               │              │
+ ┌──────┴───────┐ ┌─────┴──────┐ ┌──────┴──────┐ ┌─────┴─────┐ ┌─────┴─────┐
+ │  MARKETING   │ │ OPERATIONS │ │ DEVELOPMENT │ │  FINANCE  │ │  SUPPORT  │
+ │              │ │            │ │             │ │           │ │           │
+ │  Ember       │ │  Sentinel  │ │  Architect  │ │ Treasurer │ │  Guide    │
+ │  Forge       │ │  Librarian │ │  Designer   │ │           │ │  Keeper   │
+ │  Scout       │ │            │ │             │ │           │ │           │
+ └──────────────┘ └────────────┘ └─────────────┘ └───────────┘ └───────────┘
+```
+
+Each agent is defined by a YAML config — model, temperature, system prompts, triggers, actions, and event subscriptions. Add a YAML file, add an agent.
+
+---
+
+## What Makes This Different
+
+| | Agent Frameworks (CrewAI, LangGraph, AutoGPT) | YCLAW |
+|---|---|---|
+| **What you get** | Agent tasks / chains | A full organization with departments |
+| **Configuration** | Python classes, JSON configs | 8 markdown files a human can read |
+| **Interface** | Your code calls the agent | Your AI assistant IS the operator |
+| **Treasury** | Not included | Multi-chain — Solana, ETH, L2s, TradFi |
+| **Governance** | Basic or none | 4-tier RBAC, HMAC-signed events, audit trails |
+| **Track record** | Mostly demos and prototypes | 12 agents, 1+ year, production |
+
+YCLAW is not an agent framework. It's closer to an operating system for an autonomous company.
+
+---
+
+## Key Features
+
+- **AI-operated** — Your [OpenClaw](https://openclaw.ai) assistant docks in as root operator. The assistant is the interface — it manages the fleet, not you. (More AI assistants coming soon — see roadmap.)
+- **Multi-chain treasury** — Track wallets across Solana, Ethereum, L2s, and traditional finance from one operating model.
+- **Self-aware agents** — Every agent knows its own config, source code, execution history, and the full org chart. They reason about their own software.
+- **Autonomous pipeline** — Issues get assigned → code gets written → PRs get reviewed → CI passes → code ships. No human in the loop (unless you want one).
+- **Event-driven coordination** — HMAC-signed Redis event bus. Strategist sends directives, Architect coordinates code changes, Reviewer gates content, Sentinel monitors deploys.
+- **Continuous learning** — Agents extract reusable skills from every non-trivial task. The org gets smarter over time (Claudeception system).
+- **Safety floors** — Immutable safety gates, protected config keys, brand review, outbound security scanning, full audit trails. Agents can evolve, but they can't override their guardrails.
+- **Conversational onboarding** — Guided setup generates org profile, department configs, and brand voice from your answers. Drop files, link repos, paste URLs.
+- **Built-in observability** — Health checks, 17 structured error codes, audit timeline, operator activity tracking.
+
+---
+
 ## The AI Handshake
 
 Every other agent framework asks **you** to write the agents.
