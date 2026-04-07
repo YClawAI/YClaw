@@ -1,0 +1,80 @@
+name: Bug Report
+description: Report a bug in YCLAW
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill out the sections below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Run `yclaw init --preset local-demo`
+        2. Run `yclaw deploy`
+        3. See error...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of YCLAW is affected?
+      options:
+        - CLI (yclaw init/deploy/doctor/status)
+        - Core Runtime
+        - Mission Control
+        - Docker Compose deployment
+        - AWS Terraform deployment
+        - Channel adapter (Slack/Discord/Telegram/Twitter)
+        - Onboarding
+        - Observability
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: YCLAW Version
+      description: Output of `npx yclaw --version` or git commit hash
+      placeholder: "0.1.0"
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - macOS
+        - Linux (Ubuntu/Debian)
+        - Linux (Other)
+        - Windows (WSL)
+        - Other
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Paste any error output, logs, or screenshots
+      render: shell
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: Paste your yclaw.config.yaml (remove any secrets)
+      render: yaml

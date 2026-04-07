@@ -1,0 +1,26 @@
+integration: xai
+name: xAI
+tier: 1
+credential_fields:
+  - key: api_key
+    label: API Key
+    type: password
+    placeholder: "xai-..."
+    help_url: https://console.x.ai/
+verify:
+  method: GET
+  url: https://api.x.ai/v1/models
+  auth_style: bearer
+  headers:
+    Authorization: "Bearer {api_key}"
+  expect_status: 200
+steps:
+  - id: collect
+    actor: human
+    label: Paste API key
+  - id: store
+    actor: system
+    label: Store credentials
+  - id: verify
+    actor: system
+    label: Verify connection

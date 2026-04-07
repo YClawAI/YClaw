@@ -1,0 +1,13 @@
+{
+  "description": "Packages previously approved by humans. Supplements the automated gate.",
+  "trustedScopes": [
+    "@auth/*", "@tanstack/*", "@radix-ui/*", "@t3-oss/*", "@vercel/*",
+    "@types/*", "@prisma/*", "@next/*", "@tailwindcss/*", "@aws-sdk/*"
+  ],
+  "blocklist": {
+    "event-stream": "Compromised 2018 — crypto wallet theft",
+    "node-ipc": "Protestware 2022",
+    "colors": "Sabotaged by maintainer 2022",
+    "faker": "Sabotaged by maintainer 2022"
+  }
+}

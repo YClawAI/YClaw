@@ -1,0 +1,38 @@
+# syntax=docker/dockerfile:1
+#
+# --- Shared Base Image with AI CLI Tools ---
+#
+# Purpose: Pre-bake the ~500MB of AI CLI tools into a base image so that
+# yclaw builds don't re-download them every time.
+#
+# Build schedule: Weekly, or when CLI tool versions change.
+#
+# Build & push:
+#   docker build -f Dockerfile.base -t <ECR_REGISTRY>/yclaw-base:latest .
+#   docker push <ECR_REGISTRY>/yclaw-base:latest
+#
+# To use in the main Dockerfile:
+#   1. Change the runner stage FROM line:
+#        FROM <ECR_REGISTRY>/yclaw-base:latest AS runner
+#   2. Remove the apt-get and npm install -g blocks from the runner stage.
+#   3. Keep everything else (COPY, ENV, HEALTHCHECK, etc.) the same.
+#
+# Estimated savings: 2-4 min per cold build (when GHA cache is evicted).
+# With warm GHA cache this base image provides no additional benefit,
+# since the CLI install layer is already cached.
+
+FROM node:20-slim
+
+# System packages used by yclaw and its codegen system
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl gosu git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# CLI coding tools — these are ~500MB and change infrequently.
+# Pre-building them here saves 2-4 min per app build on cache miss.
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g \
+      @anthropic-ai/claude-code \
+      @openai/codex \
+      opencode-ai \
+    2>/dev/null || true

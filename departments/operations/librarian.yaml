@@ -1,0 +1,62 @@
+name: librarian
+department: operations
+description: >-
+  Knowledge curator that maintains the Obsidian vault. Triages the
+  vault/05-inbox/ folder, files notes into correct areas, deduplicates
+  content, and ensures vault hygiene. Runs on daily and weekly cron
+  schedules.
+
+model:
+  provider: anthropic
+  model: claude-sonnet-4-6
+  temperature: 0.0
+  maxTokens: 8192
+
+system_prompts:
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
+  - chain-of-command.md
+
+triggers:
+  - type: cron
+    schedule: "0 14 * * *"
+    task: daily_curation
+  - type: cron
+    schedule: "0 8 * * 1"
+    task: weekly_curation
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+
+actions:
+  - vault:read
+  - vault:search
+  - vault:write
+  - vault:graph_query
+  - github:commit_file
+  - github:get_contents
+  - slack:message
+  - slack:thread_reply
+  - event:publish
+
+data_sources: []
+
+event_subscriptions:
+  - claudeception:reflect
+
+event_publications:
+  - standup:report
+  - librarian:curation_complete
+
+review_bypass: []
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 26

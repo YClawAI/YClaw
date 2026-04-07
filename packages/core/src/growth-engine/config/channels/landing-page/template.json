@@ -1,0 +1,16 @@
+{
+  "channel": "landing-page",
+  "version": "1.0.0",
+  "body": "{{headline}}\n\n{{subheadline}}\n\n{{hero_copy}}\n\n{{cta_text}}",
+  "variables": {
+    "headline": "Your Agent Fleet Deserves a Control Plane",
+    "subheadline": "YClaw is autonomous infrastructure for Web3 agent teams.",
+    "hero_copy": "Deploy, monitor, and coordinate your AI agents with full observability. No manual babysitting. No blind spots.",
+    "cta_text": "Request Early Access"
+  },
+  "metadata": {
+    "mutationVariable": null,
+    "mutationDescription": null,
+    "parentVersion": null
+  }
+}

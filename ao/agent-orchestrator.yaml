@@ -1,0 +1,74 @@
+# YClaw Agent Orchestrator Configuration
+# Managed by yclaw infra — do not edit on the container directly
+# ${AO_AUTH_TOKEN} is replaced by envsubst at container startup
+
+# Where to store session metadata (EBS-backed, survives restarts)
+dataDir: /data/ao-state
+
+# Where to create workspaces (git worktrees)
+worktreeDir: /data/worktrees
+
+# Web dashboard port (remapped from default 3000 to avoid conflict with yclaw)
+port: 3001
+
+defaults:
+  # Subprocess runtime — no tmux required (headless Fargate)
+  runtime: process
+  agent: claude-code
+  workspace: worktree
+  notifiers: [webhook]
+
+projects:
+  # Configure your projects here. Example:
+  # my-project:
+  #   name: My Project
+  #   repo: your-org/my-project
+  #   path: /data/worktrees/your-org__my-project
+  #   defaultBranch: main
+  #   sessionPrefix: myproject
+  #
+  #   agentConfig:
+  #     permissions: permissionless
+  #
+  #   scm:
+  #     plugin: github
+  #   tracker:
+  #     plugin: github
+  #
+  #   postCreate:
+  #     - npm install
+
+# Notification channels — webhook for callbacks to yclaw
+notifiers:
+  webhook:
+    plugin: webhook
+    # Configure this URL to point to your yclaw instance callback endpoint
+    url: http://localhost:3000/api/ao/callback
+    method: POST
+    headers:
+      X-AO-TOKEN: "${AO_AUTH_TOKEN}"
+
+notificationRouting:
+  urgent: [webhook]      # agent stuck, needs input, errored
+  action: [webhook]      # PR ready to merge
+  warning: [webhook]     # auto-fix failed
+  info: [webhook]        # summary, all done
+
+reactions:
+  ci-failed:
+    auto: true
+    action: send-to-agent
+    retries: 2
+    escalateAfter: 2
+  changes-requested:
+    auto: true
+    action: send-to-agent
+    escalateAfter: 30m
+  approved-and-green:
+    auto: true
+    action: auto-merge
+    priority: action
+  agent-stuck:
+    threshold: 10m
+    action: notify
+    priority: urgent

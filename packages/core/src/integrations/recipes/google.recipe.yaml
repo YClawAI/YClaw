@@ -1,0 +1,27 @@
+integration: google
+name: Google AI
+tier: 1
+credential_fields:
+  - key: api_key
+    label: API Key
+    type: password
+    placeholder: "AI..."
+    help_url: https://aistudio.google.com/apikey
+verify:
+  method: GET
+  url: https://generativelanguage.googleapis.com/v1beta/models
+  auth_style: custom-header
+  auth_header: x-goog-api-key
+  headers:
+    x-goog-api-key: "{api_key}"
+  expect_status: 200
+steps:
+  - id: collect
+    actor: human
+    label: Paste API key
+  - id: store
+    actor: system
+    label: Store credentials
+  - id: verify
+    actor: system
+    label: Verify connection

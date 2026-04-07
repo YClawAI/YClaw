@@ -1,0 +1,21 @@
+# SECURITY: These paths require human admin approval.
+# AI agents CANNOT self-approve changes to these files.
+#
+# NOTE: package.json and lockfiles are NOT here — they are governed by
+# the Dependency Security Gate (smart gate CI check) which auto-approves
+# safe deps and only blocks sketchy ones. See .github/workflows/dependency-gate.yml.
+/.github/workflows/                @yclaw-admins
+/.github/actions/                  @yclaw-admins
+/Dockerfile*                       @yclaw-admins
+/docker-compose*.yml               @yclaw-admins
+/.npmrc                            @yclaw-admins
+/.pnpmrc                           @yclaw-admins
+/renovate.json                     @yclaw-admins
+/socket.yml                        @yclaw-admins
+/SECURITY.md                       @yclaw-admins
+/packages/core/src/security/       @yclaw-admins
+/config/security/                  @yclaw-admins
+/.yclaw/approved-dependencies.json @yclaw-admins
+/prompts/                          @yclaw-admins
+/yclaw-event-policy.yaml           @yclaw-admins
+/CODEOWNERS                        @yclaw-admins

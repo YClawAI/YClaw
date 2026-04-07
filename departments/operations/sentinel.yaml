@@ -1,0 +1,81 @@
+name: sentinel
+department: operations
+description: >-
+  System health and developer operations agent. Owns code quality audits,
+  deployment pipeline health, and post-deploy verification. The sole Operations
+  agent — focused entirely on internal infrastructure.
+
+model:
+  provider: anthropic
+  model: claude-sonnet-4-6
+  temperature: 0.0
+  maxTokens: 8192
+
+system_prompts:
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
+  - chain-of-command.md
+  - daily-standup.md
+  - protocol-overview.md
+  - sentinel-quality-workflow.md
+
+triggers:
+  - type: cron
+    schedule: "15 13 * * *"
+    task: daily_standup
+  - type: cron
+    schedule: "0 */4 * * *"
+    task: deployment_health
+  - type: cron
+    schedule: "0 10 * * 1,4"
+    task: code_quality_audit
+  - type: cron
+    schedule: "0 17 * * 5"
+    task: weekly_repo_digest
+  - type: event
+    event: deployer:deploy_complete
+    task: post_deploy_verification
+  - type: event
+    event: strategist:sentinel_directive
+    task: handle_directive
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+
+actions:
+  - deploy:status
+  - codegen:execute
+  - codegen:status
+  - github:get_contents
+  - github:get_diff
+  - repo:list
+  - slack:message
+  - slack:alert
+  - slack:thread_reply
+  - event:publish
+
+data_sources: []
+
+event_subscriptions:
+  - strategist:sentinel_directive
+  - claudeception:reflect
+  - deployer:deploy_complete
+
+event_publications:
+  - standup:report
+  - sentinel:alert
+  - sentinel:status_report
+  - sentinel:quality_report
+
+review_bypass: []
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 6

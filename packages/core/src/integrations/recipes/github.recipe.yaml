@@ -1,0 +1,35 @@
+integration: github
+name: GitHub
+description: Connect your GitHub account to enable repository access, PR management, and code operations across your agents.
+tier: 2
+credential_fields:
+  - key: token
+    label: Personal Access Token
+    type: password
+    help_url: https://github.com/settings/tokens
+    help_text: Create a fine-grained PAT with repo, workflow, and admin:org scopes. Classic tokens also work.
+verify:
+  method: GET
+  url: https://api.github.com/user
+  auth_style: bearer
+  headers:
+    Authorization: "Bearer {token}"
+  expect_status: 200
+steps:
+  - id: guide
+    actor: openclaw
+    label: Guide token creation
+    instructions: Walk the user through creating a GitHub fine-grained personal access token. They need repo access (read/write), workflow access, and admin:org (read) scopes. Direct them to https://github.com/settings/tokens?type=beta
+  - id: collect
+    actor: openclaw
+    label: Collect token
+    instructions: Ask the user to paste their newly created token. Validate it starts with 'ghp_' or 'github_pat_'. Do not store or log the token yourself — just confirm they have it ready.
+  - id: store
+    actor: system
+    label: Store credentials
+  - id: verify
+    actor: system
+    label: Verify connection
+  - id: discover_repos
+    actor: fleet
+    label: Discover repositories

@@ -1,0 +1,70 @@
+name: forge
+department: marketing
+description: Creative studio that produces visual and video assets on demand.
+  Receives asset requests from Ember and other agents, creates media conforming
+  to the organization's design system, and delivers finished assets for publication.
+model:
+  provider: anthropic
+  model: claude-haiku-4-5
+  temperature: 0.5
+  maxTokens: 4096
+system_prompts:
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
+  - chain-of-command.md
+  - daily-standup.md
+  - design-system.md
+  - component-specs.md
+triggers:
+  - type: cron
+    schedule: 14 13 * * *
+    task: daily_standup
+  - type: event
+    event: ember:needs_asset
+    task: create_asset
+  - type: event
+    event: strategist:slack_delegation
+    task: handle_slack_delegation
+  - type: event
+    event: strategist:forge_directive
+    task: handle_directive
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+actions:
+  - github:commit_file
+  - github:get_contents
+  - github:create_branch
+  - flux:generate
+  - video:text_to_video
+  - video:image_to_video
+  - video:edit
+  - video:veo_generate
+  - twitter:media_upload
+  - twitter:update_profile_image
+  - twitter:update_profile_banner
+  - telegram:set_chat_photo
+  - slack:message
+  - slack:thread_reply
+  - event:publish
+data_sources: []
+event_subscriptions:
+  - strategist:forge_directive
+  - claudeception:reflect
+  - ember:needs_asset
+  - strategist:slack_delegation
+event_publications:
+  - standup:report
+  - forge:asset_ready
+review_bypass: []
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 6

@@ -1,0 +1,113 @@
+# YCLAW Docker Compose — Production Configuration
+# Uses pre-built images. For building from source, use docker-compose.dev.yml override.
+#
+# Usage:
+#   docker compose -f deploy/docker-compose/docker-compose.yml up -d
+#
+# Profiles:
+#   bundled  — local MongoDB, Redis, PostgreSQL (default for yclaw init)
+#   To use external databases, omit COMPOSE_PROFILES=bundled from .env
+#   and set MONGODB_URI, REDIS_URL, MEMORY_DATABASE_URL to your external hosts.
+
+services:
+  # ─── Core Runtime (always runs) ─────────────────────────────────────────
+  yclaw:
+    image: yclaw/core:${YCLAW_VERSION:-latest}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    env_file: [.env]
+    depends_on:
+      mongodb:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_healthy
+        required: false
+      postgres:
+        condition: service_healthy
+        required: false
+    volumes:
+      - yclaw-objects:/app/data/objects
+      - yclaw-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    restart: unless-stopped
+
+  # ─── Mission Control Dashboard (always runs) ───────────────────────────
+  mission-control:
+    image: yclaw/mission-control:${YCLAW_VERSION:-latest}
+    ports:
+      - "127.0.0.1:${MC_PORT:-3001}:3001"
+    environment:
+      YCLAW_API_URL: http://yclaw:3000
+      NEXT_PUBLIC_YCLAW_API_URL: http://localhost:${API_PORT:-3000}
+      HOSTNAME: "0.0.0.0"
+    depends_on:
+      yclaw:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    restart: unless-stopped
+
+  # ─── Bundled Infrastructure (profile: bundled) ─────────────────────────
+
+  mongodb:
+    image: mongo:7
+    profiles: ["bundled"]
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    profiles: ["bundled"]
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["bundled"]
+    environment:
+      POSTGRES_DB: yclaw_memory
+      POSTGRES_USER: yclaw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yclaw_dev}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-memory.sh:/docker-entrypoint-initdb.d/init-memory.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yclaw"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  default:
+    name: yclaw-network
+
+volumes:
+  mongodb-data:
+  redis-data:
+  postgres-data:
+  yclaw-objects:
+  yclaw-logs:

@@ -1,0 +1,121 @@
+name: treasurer
+department: finance
+description: Financial watchdog responsible for treasury monitoring, cost tracking,
+  and budget management across configured wallets and accounts.
+model:
+  provider: anthropic
+  model: claude-sonnet-4-6
+  temperature: 0
+  maxTokens: 8192
+system_prompts:
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
+  - chain-of-command.md
+  - daily-standup.md
+triggers:
+  - type: cron
+    schedule: 22 13 * * *
+    task: daily_standup
+  - type: cron
+    schedule: 0 7 * * *
+    task: treasury_check
+  - type: cron
+    schedule: 0 8 * * 1
+    task: weekly_spend
+  - type: cron
+    schedule: 0 8 1 * *
+    task: monthly_summary
+  - type: event
+    event: strategist:treasurer_directive
+    task: handle_directive
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+actions:
+  - github:commit_file
+  - github:get_contents
+  - github:create_branch
+  - slack:message
+  - slack:thread_reply
+  - slack:alert
+  - event:publish
+data_sources:
+  # ---- Solana wallets (example) ----
+  # - name: treasury_sol
+  #   type: solana_rpc
+  #   config:
+  #     rpcUrl: https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}
+  #     method: getBalance
+  #     params:
+  #       - <WALLET_ADDRESS>
+
+  # ---- EVM wallets (example) ----
+  # - name: treasury_eth
+  #   type: api
+  #   config:
+  #     url: https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}
+  #     method: POST
+  #     headers:
+  #       Content-Type: application/json
+  #     body: '{"jsonrpc":"2.0","id":1,"method":"eth_getBalance","params":["<WALLET_ADDRESS>","latest"]}'
+
+  # ---- Infrastructure cost sources ----
+  - name: litellm_spend
+    type: litellm_spend
+    config: {}
+  - name: openrouter_usage
+    type: openrouter_usage
+    config: {}
+  - name: aws_cost_monthly
+    type: aws_cost
+    config:
+      days: 30
+  - name: mongodb_atlas_billing
+    type: mongodb_atlas
+    config: {}
+  - name: redis_cloud_billing
+    type: redis_cloud
+    config: {}
+
+  # ---- Bank accounts (example) ----
+  # - name: bank_accounts
+  #   type: teller
+  #   config:
+  #     endpoint: /accounts
+  # - name: bank_balances
+  #   type: teller
+  #   config:
+  #     endpoint: /accounts/balances
+event_subscriptions:
+  - strategist:treasurer_directive
+  - claudeception:reflect
+event_publications:
+  - standup:report
+  - treasurer:low_balance
+  - treasurer:spend_report
+review_bypass: []
+# escalation_suppression:
+#   example_suppression:
+#     wallets:
+#       - <wallet_name>
+#     reason: Intentionally unfunded during maintenance — directive received YYYY-MM-DD
+#     rules:
+#       suppress_low_balance_alerts: true
+#       suppress_executive_escalation: true
+#       suppress_action_needed_flags: true
+#       include_in_weekly_spend_report: true
+#       include_in_daily_treasury_check: true
+#       note_in_reports_as: Intentionally unfunded (maintenance)
+#     effective_date: YYYY-MM-DD
+#     review_trigger: Re-enable escalation when maintenance ends — await further directive
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 6

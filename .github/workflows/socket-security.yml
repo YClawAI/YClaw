@@ -1,0 +1,25 @@
+name: Socket Security Analysis
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - '**/package.json'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  socket-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: SocketDev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
+        with:
+          enable_comment: true
+          enable_block: true

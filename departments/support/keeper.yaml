@@ -1,0 +1,79 @@
+name: keeper
+department: support
+description: >-
+  Community moderator across configured channels. Handles moderation actions,
+  FAQ responses, and escalates complex cases to Guide.
+
+model:
+  provider: anthropic
+  model: claude-sonnet-4-6
+  temperature: 0.5
+  maxTokens: 8192
+
+system_prompts:
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
+  - chain-of-command.md
+  - keeper-telegram-safety.md
+  - data-integrity.md
+
+triggers:
+  # Purely event-driven — enable crons below when ready
+  - type: event
+    event: telegram:message
+    task: handle_message
+  - type: event
+    event: strategist:keeper_directive
+    task: handle_directive
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+
+# ============================================================
+# Re-enable these crons when proactive community posting is desired
+# - type: cron
+#   schedule: "0 8 * * *"
+#   task: morning_stats
+# - type: cron
+#   schedule: "0 15 * * 5"
+#   task: community_highlights
+# - type: cron
+#   schedule: "20 13 * * *"
+#   task: daily_standup
+# ============================================================
+
+actions:
+  - telegram:message
+  - telegram:reply
+  - telegram:delete
+  - telegram:pin
+  - telegram:ban
+  - telegram:restrict
+  - telegram:set_permissions
+  - slack:message
+  - slack:alert
+  - event:publish
+
+data_sources: []
+
+event_subscriptions:
+  - claudeception:reflect
+  - telegram:message
+  - strategist:keeper_directive
+
+event_publications:
+  - keeper:support_case
+  - keeper:community_health
+
+review_bypass: []
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 6

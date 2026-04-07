@@ -1,0 +1,15 @@
+version: 2
+projectAlerts:
+  networkAccess: { action: error }
+  shellAccess: { action: error }
+  filesystemAccess: { action: error }
+  obfuscatedCode: { action: error }
+  telemetry: { action: error }
+  malware: { action: error }
+  typosquat: { action: error }
+  installScripts: { action: error }
+  unstableOwnership: { action: warn }
+  criticalCVE: { action: error }
+  envVars: { action: warn }
+  nativeCode: { action: warn }
+  deprecated: { action: warn }

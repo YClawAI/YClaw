@@ -1,0 +1,42 @@
+name: Dependency Security Gate
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - '**/package.json'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: Detect new dependencies
+        id: detect
+        run: |
+          # Extract newly added dependencies from package.json diff
+          git diff origin/${{ github.base_ref }}...HEAD -- '**/package.json' \
+            | grep '^+' | grep -E '"[^"]+": "\^?[0-9]' \
+            | sed 's/.*"\([^"]*\)".*/\1/' | sort -u > /tmp/new-deps.txt
+          echo "New dependencies:"
+          cat /tmp/new-deps.txt
+          echo "count=$(wc -l < /tmp/new-deps.txt | tr -d ' ')" >> $GITHUB_OUTPUT
+
+      - name: Evaluate dependency risk
+        if: steps.detect.outputs.count > 0
+        run: |
+          node .yclaw/scripts/dependency-gate.mjs /tmp/new-deps.txt

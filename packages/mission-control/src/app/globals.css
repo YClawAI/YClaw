@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0a0f;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a3a;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a4a;
+  }
+}
+
+/* Safe area for bottom nav on notched phones */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Prevent pull-to-refresh on graph canvas */
+.touch-none-graph {
+  touch-action: none;
+  -webkit-overflow-scrolling: auto;
+}
+
+/* Dynamic viewport height for mobile */
+.h-dvh {
+  height: 100dvh;
+}
+
+/* Audit timeline new-event highlight */
+@keyframes highlight-fade {
+  0% { background-color: rgba(59, 130, 246, 0.15); }
+  100% { background-color: transparent; }
+}
+.animate-highlight {
+  animation: highlight-fade 2s ease-out;
+}

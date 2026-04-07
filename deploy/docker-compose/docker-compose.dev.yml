@@ -1,0 +1,42 @@
+# YCLAW Docker Compose — Dev Override (build from source)
+# Requires source checkout. Use with the base compose file:
+#
+#   docker compose -f deploy/docker-compose/docker-compose.yml \
+#                  -f deploy/docker-compose/docker-compose.dev.yml up --build
+#
+# Changes from production:
+#   - Builds images from source instead of pulling
+#   - Exposes database ports on localhost for development
+#   - Mounts departments/ and prompts/ for live editing
+
+services:
+  yclaw:
+    image: !reset null
+    build:
+      context: ../..
+      dockerfile: deploy/docker-compose/Dockerfile
+    volumes:
+      - ../../departments:/app/departments:ro
+      - ../../prompts:/app/prompts:ro
+      - yclaw-objects:/app/data/objects
+      - yclaw-logs:/app/logs
+
+  mission-control:
+    image: !reset null
+    build:
+      context: ../..
+      dockerfile: packages/mission-control/Dockerfile
+    ports:
+      - "${MC_PORT:-3001}:3001"
+
+  mongodb:
+    ports:
+      - "127.0.0.1:27017:27017"
+
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"

@@ -1,0 +1,28 @@
+export const dynamic = 'force-dynamic';
+
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { fetchCoreApi } from '@/lib/core-api';
+import { requireSession, checkTier } from '@/lib/require-permission';
+
+/** DELETE: Cancel/reset onboarding session. (Council change #8) */
+export async function DELETE(req: NextRequest) {
+  const auth = await requireSession();
+  if (auth.error) return auth.error;
+  const denied = checkTier(auth.session, 'root');
+  if (denied) return denied;
+
+  const sessionId = req.nextUrl.searchParams.get('sessionId');
+  const orgId = req.nextUrl.searchParams.get('orgId') ?? 'default';
+
+  const path = sessionId
+    ? `/v1/onboarding/session?sessionId=${sessionId}`
+    : `/v1/onboarding/session?orgId=${orgId}`;
+
+  const result = await fetchCoreApi<unknown>(path, { method: 'DELETE' });
+
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status || 502 });
+  }
+  return NextResponse.json(result.data);
+}

@@ -1,0 +1,40 @@
+integration: slack
+name: Slack
+description: Connect Slack to enable agent messaging, channel management, and real-time notifications.
+tier: 2
+credential_fields:
+  - key: bot_token
+    label: Bot User OAuth Token
+    type: password
+    placeholder: xoxb-...
+    help_url: https://api.slack.com/apps
+    help_text: Found in your Slack app's OAuth & Permissions page. Requires chat:write, channels:read, and users:read scopes.
+  - key: app_token
+    label: App-Level Token
+    type: password
+    placeholder: xapp-...
+    help_url: https://api.slack.com/apps
+    help_text: Created in your Slack app's Basic Information page under App-Level Tokens. Requires connections:write scope for Socket Mode.
+verify:
+  method: POST
+  url: https://slack.com/api/auth.test
+  auth_style: bearer
+  headers:
+    Authorization: "Bearer {bot_token}"
+    Content-Type: application/x-www-form-urlencoded
+  expect_status: 200
+steps:
+  - id: guide
+    actor: openclaw
+    label: Guide app setup
+    instructions: Walk the user through creating a Slack app at https://api.slack.com/apps. They need to enable Socket Mode, add bot scopes (chat:write, channels:read, users:read, chat:write.customize), and create an app-level token with connections:write scope.
+  - id: collect
+    actor: openclaw
+    label: Collect tokens
+    instructions: Ask the user for both their Bot User OAuth Token (xoxb-...) and App-Level Token (xapp-...). Validate prefixes match expected formats.
+  - id: store
+    actor: system
+    label: Store credentials
+  - id: verify
+    actor: system
+    label: Verify connection

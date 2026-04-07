@@ -1,0 +1,38 @@
+name: yclaw
+github:
+  owner: yclaw-ai
+  repo: yclaw
+  default_branch: master
+  branch_prefix: "agent/"
+
+tech_stack:
+  language: typescript
+  framework: express
+  package_manager: npm
+  build_command: "npm run build"
+  test_command: "npm test"
+  lint_command: "npm run lint"
+
+risk_tier: critical
+trust_level: sandboxed
+
+deployment:
+  type: ecs
+  cluster: yclaw-cluster-production
+  service: yclaw-production
+  health_check_url: https://agents.yclaw.ai/health
+
+codegen:
+  preferred_backend: claude
+  timeout_minutes: 30
+  max_workspace_mb: 500
+  claude_md_path: CLAUDE.md
+
+secrets:
+  codegen_secrets: []
+  deploy_secrets: []
+  github_token_scope: contents_rw
+
+metadata:
+  description: "YClaw Agents core monorepo — 14 AI agents, ECS Fargate production"
+  primary_reviewers: [architect, reviewer]

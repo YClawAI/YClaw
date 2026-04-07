@@ -1,0 +1,113 @@
+name: ember
+department: marketing
+description: >-
+  Content engine responsible for creating and publishing posts across the organization's
+  configured social channels. Generates content batches based on Scout intelligence, brand
+  voice guidelines, and executive directives. Coordinates with Forge for visual assets and
+  submits all content through the Reviewer quality gate before publication.
+
+model:
+  provider: anthropic
+  model: claude-sonnet-4-6
+  temperature: 0.7
+  maxTokens: 8192
+
+system_prompts:
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
+  - chain-of-command.md
+  - daily-standup.md
+  - brand-voice.md
+  - review-submission.md
+  - content-templates.md
+
+triggers:
+  - type: cron
+    schedule: "10 13 * * *"
+    task: daily_standup
+  - type: cron
+    schedule: "0 14 * * 1-5"
+    task: daily_content_batch       # 10:00 AM ET — morning NA window
+  - type: cron
+    schedule: "30 16 * * 1-5"
+    task: midday_post               # 12:30 PM ET — lunch break window
+  - type: cron
+    schedule: "0 22 * * 1-5"
+    task: afternoon_engagement      # 6:00 PM ET — evening NA window
+  - type: cron
+    schedule: "0 15 * * 0,6"
+    task: weekend_content           # 11:00 AM ET — weekend late morning
+  - type: event
+    event: forge:asset_ready
+    task: publish_with_asset
+  - type: event
+    event: strategist:ember_directive
+    task: handle_directive
+  - type: event
+    event: reviewer:approved
+    task: publish_approved_content
+  - type: event
+    event: reviewer:flagged
+    task: revise_flagged_content
+
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+actions:
+  - github:commit_file
+  - github:get_contents
+  - github:create_branch
+  - twitter:post
+  - twitter:thread
+  - twitter:reply
+  - twitter:like
+  - twitter:retweet
+  - twitter:media_upload
+  - twitter:update_profile
+  - twitter:update_profile_image
+  - twitter:update_profile_banner
+  - x:search
+  - x:lookup
+  - x:user
+  - x:user_tweets
+  - telegram:message
+  - telegram:announce
+  - slack:message
+  - slack:thread_reply
+  - event:publish
+
+data_sources: []
+
+event_subscriptions:
+  - strategist:ember_directive
+  - claudeception:reflect
+  - forge:asset_ready
+  - reviewer:approved
+  - reviewer:flagged
+
+event_publications:
+  - standup:report
+  - ember:needs_asset
+  - ember:content_ready
+  - review:pending
+
+review_bypass: []
+
+humanize: true
+
+content_weights:
+  explainer_thread: 2
+  engagement_post: 2
+  market_observation: 1
+  news_commentary: 1
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 6

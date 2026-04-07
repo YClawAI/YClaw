@@ -1,0 +1,473 @@
+name: Build & Deploy YClaw Agents
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  # Configure these for your AWS environment
+  ECS_CLUSTER: yclaw-cluster-production
+
+# SECURITY: Default to read-only. Escalate per-job only when needed.
+permissions:
+  contents: read
+
+jobs:
+  # --- Change Detection ---
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      core: ${{ steps.filter.outputs.core }}
+      mc: ${{ steps.filter.outputs.mc }}
+      ao: ${{ steps.filter.outputs.ao }}
+    steps:
+      - uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3.0.3
+        id: filter
+        with:
+          filters: |
+            core:
+              - 'packages/core/**'
+              - 'packages/memory/**'
+              - 'departments/**'
+              - 'prompts/**'
+              - 'skills/**'
+              - 'memory/**'
+              - 'repos/**'
+              - 'vault/**'
+              - 'Dockerfile'
+              - 'entrypoint.sh'
+              - '.dockerignore'
+              - 'turbo.json'
+              - 'tsconfig.json'
+              - 'package.json'
+              - 'package-lock.json'
+            mc:
+              - 'packages/mission-control/**'
+              - 'packages/core/**'
+              - 'packages/memory/**'
+              - 'turbo.json'
+              - 'tsconfig.json'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.dockerignore'
+            ao:
+              - 'ao/**'
+
+  # --- Check (Lint + Test) ---
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+          allowed-endpoints: >
+            github.com:443
+            api.github.com:443
+            registry.npmjs.org:443
+            objects.githubusercontent.com:443
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache turbo
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('turbo.json') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('turbo.json') }}-
+            turbo-${{ runner.os }}-
+
+      - name: Verify lockfile exists
+        run: |
+          if [ ! -f "package-lock.json" ] && [ ! -f "pnpm-lock.yaml" ]; then
+            echo "::error::No lockfile found. Lockfile MUST be committed."
+            exit 1
+          fi
+
+      - name: Install dependencies (frozen lockfile)
+        run: npm ci --ignore-scripts
+
+      - name: Verify no lockfile mutations
+        run: |
+          if ! git diff --exit-code package-lock.json 2>/dev/null; then
+            echo "::error::Lockfile was modified during install. Supply chain integrity issue."
+            exit 1
+          fi
+
+      - name: Security audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Validate Dockerfile npm versions
+        run: |
+          ERRORS=0
+          for dockerfile in Dockerfile ao/Dockerfile packages/mission-control/Dockerfile; do
+            [ -f "$dockerfile" ] || continue
+            while IFS= read -r pkg; do
+              [ -z "$pkg" ] && continue
+              [[ "$pkg" == -* ]] && continue
+              if ! npm view "$pkg" version --json >/dev/null 2>&1; then
+                echo "::error file=$dockerfile::Package $pkg does not exist on npm"
+                ERRORS=1
+              fi
+            done < <(grep -oP 'npm\s+install\s+(?:-g|--global)\s+\K[^\\;&|#]+' "$dockerfile" | tr ' ' '\n' | grep -vE '^$|^[0-9]*[<>]|/dev/null')
+          done
+          if [ "$ERRORS" -eq 1 ]; then
+            echo "One or more Dockerfile npm packages failed validation"
+            exit 1
+          fi
+          echo "All Dockerfile npm package versions verified"
+
+      - name: Lint & Test
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "Running affected-only checks (PR mode)..."
+            npx turbo run lint test --filter="...[origin/${{ github.event.pull_request.base.ref }}...HEAD]"
+          else
+            echo "Running full check suite (deploy mode)..."
+            npx turbo run lint test
+          fi
+
+  # --- Deploy Core ---
+  deploy:
+    name: Deploy Core
+    needs: [check, changes]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.core == 'true')
+      || github.event_name == 'workflow_dispatch'
+    env:
+      ECR_REPOSITORY: yclaw-agents
+      ECS_SERVICE: yclaw-production
+      TASK_FAMILY: yclaw-production
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
+
+      - name: Login to GHCR (for buildkit image)
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3.9.0
+
+      - name: Build image (local only — scan before push)
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha,scope=core
+          cache-to: type=gha,mode=max,scope=core
+
+      - name: Trivy vulnerability scan (before push)
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+        with:
+          image-ref: '${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@f6c3d0fe42c3cf876e3462574e4c9416b5e0f07a # v0.9.0
+        with:
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sbom-core
+          path: sbom.spdx.json
+
+      - name: Push image to ECR (after scan passes)
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+      - name: Register new task definition and deploy
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          TASK_DEF=$(aws ecs describe-task-definition \
+            --task-definition $TASK_FAMILY \
+            --region $AWS_REGION \
+            --query 'taskDefinition')
+
+          NEW_TASK_DEF=$(echo "$TASK_DEF" | jq \
+            --arg IMAGE "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE |
+             del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                 .compatibilities, .registeredAt, .registeredBy)')
+
+          NEW_ARN=$(aws ecs register-task-definition \
+            --region $AWS_REGION \
+            --cli-input-json "$NEW_TASK_DEF" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          echo "Registered new task definition: $NEW_ARN"
+
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --task-definition "$NEW_ARN" \
+            --region $AWS_REGION
+
+      - name: Wait for deployment to stabilize
+        timeout-minutes: 12
+        run: |
+          echo "Waiting for ECS service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --region $AWS_REGION
+          echo "Deployment stable"
+
+  # --- Deploy Mission Control ---
+  deploy-mission-control:
+    name: Deploy Mission Control
+    needs: [check, changes]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.mc == 'true')
+      || github.event_name == 'workflow_dispatch'
+    env:
+      ECR_REPOSITORY: yclaw-mission-control
+      ECS_SERVICE: yclaw-mc-production
+      TASK_FAMILY: yclaw-mission-control-production
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
+
+      - name: Login to GHCR (for buildkit image)
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3.9.0
+
+      - name: Build and push image
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          context: .
+          file: packages/mission-control/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha,scope=mc
+          cache-to: type=gha,mode=max,scope=mc
+
+      - name: Register new task definition and deploy
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          MC_REDIS_SECRET: ${{ secrets.MC_REDIS_SECRET_ARN }}
+        run: |
+          TASK_DEF=$(aws ecs describe-task-definition \
+            --task-definition $TASK_FAMILY \
+            --region $AWS_REGION \
+            --query 'taskDefinition')
+
+          NEW_TASK_DEF=$(echo "$TASK_DEF" | jq \
+            --arg IMAGE "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            --arg MC_REDIS_SECRET "$MC_REDIS_SECRET" \
+            '.containerDefinitions[0].image = $IMAGE |
+             .containerDefinitions[0].secrets = ((.containerDefinitions[0].secrets // [])
+               | if any(.name == "REDIS_URL") then . else . + [{"name":"REDIS_URL","valueFrom":$MC_REDIS_SECRET}] end) |
+             del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                 .compatibilities, .registeredAt, .registeredBy)')
+
+          NEW_ARN=$(aws ecs register-task-definition \
+            --region $AWS_REGION \
+            --cli-input-json "$NEW_TASK_DEF" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          echo "Registered new task definition: $NEW_ARN"
+
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --task-definition "$NEW_ARN" \
+            --region $AWS_REGION
+
+      - name: Wait for deployment to stabilize
+        timeout-minutes: 12
+        run: |
+          echo "Waiting for MC service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --region $AWS_REGION
+          echo "MC deployment stable"
+
+  # --- Deploy Agent Orchestrator (AO) ---
+  deploy-ao:
+    name: Deploy AO
+    needs: [check, changes]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.ao == 'true')
+      || github.event_name == 'workflow_dispatch'
+    env:
+      ECR_REPOSITORY: yclaw-ao
+      ECS_SERVICE: yclaw-ao-production
+      TASK_FAMILY: yclaw-ao-production
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
+
+      - name: Login to GHCR (for buildkit image)
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3.9.0
+
+      - name: Build and push image
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          context: ao
+          file: ao/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha,scope=ao
+          cache-to: type=gha,mode=max,scope=ao
+
+      - name: Register new task definition and deploy
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          AO_REDIS_SECRET: ${{ secrets.AO_REDIS_SECRET_ARN }}
+        run: |
+          TASK_DEF=$(aws ecs describe-task-definition \
+            --task-definition $TASK_FAMILY \
+            --region $AWS_REGION \
+            --query 'taskDefinition')
+
+          NEW_TASK_DEF=$(echo "$TASK_DEF" | jq \
+            --arg IMAGE "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            --arg AO_REDIS_SECRET "$AO_REDIS_SECRET" \
+            '.containerDefinitions[0].image = $IMAGE |
+             .containerDefinitions[0].secrets = ((.containerDefinitions[0].secrets // [])
+               | if any(.name == "REDIS_URL") then . else . + [{"name":"REDIS_URL","valueFrom":$AO_REDIS_SECRET}] end) |
+             del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                 .compatibilities, .registeredAt, .registeredBy)')
+
+          NEW_ARN=$(aws ecs register-task-definition \
+            --region $AWS_REGION \
+            --cli-input-json "$NEW_TASK_DEF" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          echo "Registered new task definition: $NEW_ARN"
+
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --task-definition "$NEW_ARN" \
+            --region $AWS_REGION
+
+      - name: Wait for deployment to stabilize
+        timeout-minutes: 12
+        run: |
+          echo "Waiting for AO service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --region $AWS_REGION
+          echo "AO deployment stable"

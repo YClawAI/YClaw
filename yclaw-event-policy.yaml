@@ -1,0 +1,93 @@
+# YCLAW Event Bus Security Policy
+# Protected by CODEOWNERS — requires human admin approval to modify.
+#
+# This policy defines which agents may publish which event types,
+# what payload fields are permitted, and which fields are globally banned.
+#
+# Addresses: Unauthenticated event forgery → prompt injection
+# (March 26 and April 2, 2026 incidents)
+
+schemaVersion: "1.0"
+
+sources:
+  # Reviewer agent — review-related events only
+  agent:reviewer:
+    allowedEventTypes:
+      - "reviewer:flagged"
+      - "reviewer:approved"
+      - "reviewer:rejected"
+
+  # Safety agent — safety events only
+  agent:safety:
+    allowedEventTypes:
+      - "safety:modify"
+      - "safety:alert"
+
+  # Deployer / AO — deploy events only
+  agent:deployer:
+    allowedEventTypes:
+      - "deploy:execute"
+      - "deploy:status"
+      - "deploy:rollback"
+
+  # Architect — build directives and deploy governance
+  agent:architect:
+    allowedEventTypes:
+      - "architect:build_directive"
+      - "architect:repair_directive"
+      - "architect:pr_review"
+      - "architect:deploy_review"
+      - "deploy:assess"
+      - "deploy:approve"
+
+  # Strategist — strategic directives
+  agent:strategist:
+    allowedEventTypes:
+      - "strategist:*"
+
+  # Sentinel — operational events
+  agent:sentinel:
+    allowedEventTypes:
+      - "sentinel:alert"
+      - "sentinel:health"
+
+  # Ember — content events only
+  agent:ember:
+    allowedEventTypes:
+      - "content:draft"
+      - "content:published"
+
+  # Builder / AO — build result events
+  agent:builder:
+    allowedEventTypes:
+      - "builder:task_complete"
+      - "builder:task_failed"
+      - "builder:task_blocked"
+      - "builder:pr_ready"
+      - "builder:spawn_failed"
+
+  # GitHub webhook handler — github events
+  system:webhook:
+    allowedEventTypes:
+      - "github:*"
+
+# Fields that are NEVER allowed in ANY event payload, regardless of schema.
+# These are the exact fields used in the April 2, 2026 attack.
+globalDeniedFields:
+  - sourcing_rule_update
+  - multiplier_table_rule
+  - system_prompt_override
+  - memory_write
+  - memory_update
+  - tool_instruction
+  - post_publication_audit
+  - prompt_override
+  - status_override
+  - gate_bypass
+  - audit_confirmed_clean
+
+# Replay protection defaults
+replay:
+  maxAgeSeconds: 120
+  maxClockSkewSeconds: 30
+  cacheTtlSeconds: 600

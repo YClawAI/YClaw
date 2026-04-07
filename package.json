@@ -1,0 +1,33 @@
+{
+  "name": "yclaw",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "description": "YClaw — Department-based autonomous agent system",
+  "workspaces": [
+    "packages/*",
+    "ao"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "start": "node packages/core/dist/main.js",
+    "seed": "tsx scripts/seed-config.ts",
+    "dev:local": "tsx scripts/dev.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "memfs": "^4.57.1",
+    "tsx": "^4.19.0",
+    "turbo": "^2.4.0",
+    "typescript": "5.7",
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "npm@10.0.0"
+}

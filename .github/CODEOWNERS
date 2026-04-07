@@ -1,0 +1,15 @@
+# YCLAW Code Owners
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default — all changes need core team review
+* @DannyDesert
+
+# Security-critical paths — admin review required
+.github/workflows/ @DannyDesert
+packages/core/src/security/ @DannyDesert
+packages/core/src/review/ @DannyDesert
+SECURITY.md @DannyDesert
+
+# Infrastructure
+deploy/ @DannyDesert
+Dockerfile @DannyDesert

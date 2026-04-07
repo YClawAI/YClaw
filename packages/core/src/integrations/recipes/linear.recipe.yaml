@@ -1,0 +1,69 @@
+integration: linear
+name: Linear
+description: Connect Linear for issue tracking, project management, and two-way sync with GitHub issues. Requires webhook handler implementation for real-time event processing.
+tier: 3
+credential_fields:
+  - key: api_key
+    label: API Key
+    type: password
+    placeholder: lin_api_...
+    help_url: https://linear.app/settings/api
+    help_text: Create a personal API key in Linear Settings > API. This key needs read/write access to issues and projects.
+  - key: webhook_secret
+    label: Webhook Signing Secret
+    type: password
+    placeholder: lin_wh_...
+    help_text: Generated when you create a webhook in Linear Settings > API > Webhooks.
+verify:
+  method: POST
+  url: https://api.linear.app/graphql
+  auth_style: bearer
+  headers:
+    Content-Type: application/json
+  body: '{"query":"{ viewer { id name } }"}'
+steps:
+  - id: guide
+    actor: openclaw
+    label: Guide API key creation
+    instructions: Walk the user through creating a Linear API key at https://linear.app/settings/api. They need read/write access to issues and projects.
+  - id: collect
+    actor: openclaw
+    label: Collect credentials
+    instructions: Ask the user to paste their API key (starts with lin_api_) and webhook signing secret. Do not store or log credentials yourself.
+  - id: store
+    actor: system
+    label: Store credentials
+  - id: verify
+    actor: system
+    label: Verify API connection
+  - id: implement_webhook
+    actor: fleet
+    type: code_task
+    label: Implement webhook handler
+    builder_task:
+      description: |
+        Create a webhook handler for Linear events.
+        - Route: POST /webhooks/linear
+        - Validate webhook signature using the stored webhook_secret
+        - Parse event type from request body (Issue, Comment, Project updates)
+        - Emit to Redis event bus: linear:{event_type}
+      files_to_create:
+        - src/webhooks/linear-webhook.ts
+        - src/webhooks/linear-webhook.test.ts
+      files_to_modify:
+        - src/webhooks/index.ts
+  - id: configure_routing
+    actor: fleet
+    type: code_task
+    label: Configure event routing
+    builder_task:
+      description: |
+        Wire Linear webhook events to the agent event bus.
+        - Map linear:issue_created → github:issue_opened (two-way sync)
+        - Map linear:issue_updated → task status updates
+        - Add Linear-specific reaction rules for auto-assignment
+      files_to_modify:
+        - src/reactions/rules.ts
+  - id: smoke_test
+    actor: system
+    label: Smoke test

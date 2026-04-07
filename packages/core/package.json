@@ -1,0 +1,80 @@
+{
+  "name": "@yclaw/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/server.d.ts",
+      "default": "./dist/auth/server.js"
+    },
+    "./infrastructure": {
+      "types": "./dist/infrastructure/config-schema.d.ts",
+      "default": "./dist/infrastructure/config-schema.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc && cp -r src/integrations/recipes dist/integrations/recipes",
+    "dev": "tsx watch src/main.ts",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "validate-configs": "tsx src/config/validate-configs.ts",
+    "recipe:validate": "tsx src/integrations/recipe-cli.ts validate",
+    "recipe:list": "tsx src/integrations/recipe-cli.ts list",
+    "recipe:test": "tsx src/integrations/recipe-cli.ts test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@aws-sdk/client-cost-explorer": "^3.997.0",
+    "@aws-sdk/client-ecs": "^3.997.0",
+    "@aws-sdk/client-secrets-manager": "^3.997.0",
+    "@yclaw/memory": "*",
+    "@mariozechner/pi-ai": "0.62.0",
+    "@mariozechner/pi-coding-agent": "0.62.0",
+    "@octokit/rest": "^21.0.0",
+    "@slack/web-api": "^7.8.0",
+    "ajv": "^6.14.0",
+    "argon2": "^0.44.0",
+    "cron": "^3.3.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "glob": "^11.0.0",
+    "ioredis": "^5.4.0",
+    "mongodb": "^6.12.0",
+    "pg": "^8.13.0",
+    "telegraf": "^4.16.0",
+    "twitter-api-v2": "^1.18.0",
+    "winston": "^3.17.0",
+    "minimatch": "^10.0.0",
+    "mammoth": "^1.8.0",
+    "pdf-parse": "^1.1.1",
+    "yaml": "^2.8.3",
+    "zod": "^3.24.0"
+  },
+  "peerDependencies": {
+    "discord.js": ">=14.0.0",
+    "@aws-sdk/client-s3": ">=3.0.0",
+    "@aws-sdk/s3-request-presigner": ">=3.0.0",
+    "@aws-sdk/client-secrets-manager": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "discord.js": { "optional": true },
+    "@aws-sdk/client-s3": { "optional": true },
+    "@aws-sdk/s3-request-presigner": { "optional": true },
+    "@aws-sdk/client-secrets-manager": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "memfs": "^4.57.1",
+    "tsx": "^4.19.0",
+    "typescript": "5.7",
+    "vitest": "^4.0.18"
+  }
+}

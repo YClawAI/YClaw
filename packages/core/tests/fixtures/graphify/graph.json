@@ -1,0 +1,42 @@
+{
+  "nodes": [
+    { "id": "n1", "name": "Solana", "type": "Technology", "source_file": "vault/02-areas/blockchain/solana.md", "confidence": "EXTRACTED", "community": 0, "degree": 8 },
+    { "id": "n2", "name": "Bonding Curve", "type": "Concept", "source_file": "vault/01-projects/gaze/bonding-curves.md", "confidence": "EXTRACTED", "community": 0, "degree": 5 },
+    { "id": "n3", "name": "USDC", "type": "Token", "source_file": "vault/02-areas/finance/usdc.md", "confidence": "EXTRACTED", "community": 0, "degree": 4 },
+    { "id": "n4", "name": "Creator Rewards", "type": "Feature", "source_file": "vault/01-projects/gaze/creator-rewards.md", "confidence": "EXTRACTED", "community": 1, "degree": 3 },
+    { "id": "n5", "name": "Staking", "type": "Mechanism", "source_file": "vault/02-areas/blockchain/staking.md", "confidence": "INFERRED", "community": 0, "degree": 6 },
+    { "id": "n6", "name": "Options", "type": "Financial Instrument", "source_file": "vault/02-areas/finance/options.md", "confidence": "EXTRACTED", "community": 1, "degree": 3 },
+    { "id": "n7", "name": "Mayflower AMM", "type": "Protocol", "source_file": "vault/03-resources/mayflower.md", "confidence": "EXTRACTED", "community": 0, "degree": 2 },
+    { "id": "n8", "name": "Viewer Multipliers", "type": "Feature", "source_file": "vault/01-projects/gaze/viewer-multipliers.md", "confidence": "INFERRED", "community": 1, "degree": 2 },
+    { "id": "n9", "name": "MongoDB", "type": "Technology", "source_file": "vault/02-areas/infrastructure/mongodb.md", "confidence": "EXTRACTED", "community": 2, "degree": 3 },
+    { "id": "n10", "name": "Redis", "type": "Technology", "source_file": "vault/02-areas/infrastructure/redis.md", "confidence": "EXTRACTED", "community": 2, "degree": 2 },
+    { "id": "n11", "name": "Orphan Note", "type": "Note", "source_file": "vault/03-resources/orphan.md", "confidence": "AMBIGUOUS", "degree": 0 },
+    { "id": "n12", "name": "Leaderboard", "type": "Feature", "source_file": "vault/01-projects/gaze/leaderboard.md", "confidence": "EXTRACTED", "community": 1, "degree": 2 }
+  ],
+  "edges": [
+    { "source": "n1", "target": "n2", "relationship": "hosts", "confidence": "EXTRACTED", "source_file": "vault/01-projects/gaze/bonding-curves.md" },
+    { "source": "n2", "target": "n3", "relationship": "denominates_in", "confidence": "EXTRACTED", "source_file": "vault/01-projects/gaze/bonding-curves.md" },
+    { "source": "n1", "target": "n5", "relationship": "supports", "confidence": "INFERRED", "source_file": "vault/02-areas/blockchain/staking.md" },
+    { "source": "n5", "target": "n6", "relationship": "generates", "confidence": "EXTRACTED", "source_file": "vault/02-areas/finance/options.md" },
+    { "source": "n4", "target": "n12", "relationship": "uses", "confidence": "EXTRACTED", "source_file": "vault/01-projects/gaze/creator-rewards.md" },
+    { "source": "n4", "target": "n6", "relationship": "distributes", "confidence": "EXTRACTED", "source_file": "vault/01-projects/gaze/creator-rewards.md" },
+    { "source": "n1", "target": "n7", "relationship": "integrates", "confidence": "EXTRACTED", "source_file": "vault/03-resources/mayflower.md" },
+    { "source": "n8", "target": "n4", "relationship": "affects", "confidence": "INFERRED", "source_file": "vault/01-projects/gaze/viewer-multipliers.md" },
+    { "source": "n5", "target": "n8", "relationship": "enables", "confidence": "INFERRED", "source_file": "vault/01-projects/gaze/viewer-multipliers.md" },
+    { "source": "n9", "target": "n10", "relationship": "paired_with", "confidence": "EXTRACTED", "source_file": "vault/02-areas/infrastructure/mongodb.md" },
+    { "source": "n1", "target": "n3", "relationship": "uses", "confidence": "EXTRACTED", "source_file": "vault/02-areas/finance/usdc.md" },
+    { "source": "n2", "target": "n5", "relationship": "requires", "confidence": "AMBIGUOUS", "source_file": "vault/02-areas/blockchain/staking.md" },
+    { "source": "n12", "target": "n8", "relationship": "considers", "confidence": "INFERRED", "source_file": "vault/01-projects/gaze/leaderboard.md" }
+  ],
+  "communities": [
+    { "id": 0, "nodes": ["n1", "n2", "n3", "n5", "n7"], "label": "DeFi & Blockchain Core", "size": 5 },
+    { "id": 1, "nodes": ["n4", "n6", "n8", "n12"], "label": "Creator Economy", "size": 4 },
+    { "id": 2, "nodes": ["n9", "n10"], "label": "Infrastructure", "size": 2 }
+  ],
+  "metadata": {
+    "created_at": "2026-04-01T00:00:00Z",
+    "updated_at": "2026-04-06T00:00:00Z",
+    "files_processed": 12,
+    "version": "1.0"
+  }
+}

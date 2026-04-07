@@ -1,0 +1,51 @@
+# yclaw.config.yaml — YCLAW Infrastructure Configuration
+#
+# Defines which adapters to use for each infrastructure component.
+# All values fall back to environment variables when omitted.
+#
+# See packages/core/src/infrastructure/config-schema.ts for the full schema.
+
+storage:
+  # Primary document store (executions, operators, audit, etc.)
+  state:
+    type: mongodb
+    # uri: (reads from MONGODB_URI env var)
+    # database: (reads from MONGODB_DB env var, default: 'yclaw')
+
+  # Event transport + ephemeral KV store
+  events:
+    type: redis
+    # url: (reads from REDIS_URL env var)
+
+  # Agent memory (structured knowledge)
+  memory:
+    type: postgresql
+    # url: (reads from MEMORY_DATABASE_URL env var)
+
+  # File/asset storage
+  objects:
+    type: local
+    # path: (reads from YCLAW_OBJECT_STORE_PATH env var, default: ./data/objects)
+
+# Secrets provider for infrastructure configuration
+secrets:
+  provider: env
+  # For AWS: provider: aws-secrets-manager, prefix: yclaw/production/
+
+# Communication channels (enable the ones you use)
+channels:
+  slack:
+    enabled: false
+    # config:
+    #   token: (reads from SLACK_BOT_TOKEN env var)
+  telegram:
+    enabled: false
+    # config:
+    #   token: (reads from TELEGRAM_BOT_TOKEN env var)
+  twitter:
+    enabled: false
+    # config: (reads from TWITTER_* env vars)
+  discord:
+    enabled: false
+    # config:
+    #   token: (reads from DISCORD_BOT_TOKEN env var)

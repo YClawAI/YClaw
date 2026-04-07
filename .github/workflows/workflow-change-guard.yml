@@ -1,0 +1,30 @@
+name: Workflow Change Guard
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - 'Dockerfile*'
+      - 'docker-compose*.yml'
+      - '.npmrc'
+      - '.pnpmrc'
+      - 'renovate.json'
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Flag security-sensitive file changes
+        run: |
+          echo "::warning::This PR modifies security-sensitive files."
+          echo "::warning::Manual review by a human admin is REQUIRED before merge."
+          echo ""
+          echo "Changed security-sensitive files:"
+          git diff --name-only origin/${{ github.base_ref }}...HEAD -- \
+            '.github/workflows/**' '.github/actions/**' 'Dockerfile*' \
+            'docker-compose*.yml' '.npmrc' '.pnpmrc' 'renovate.json'

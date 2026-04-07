@@ -1,0 +1,25 @@
+# Terraform working directory
+.terraform/
+.terraform.lock.hcl
+
+# State files — NEVER commit. Contains secrets in plaintext.
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+
+# Plan files
+*.tfplan
+
+# Generated variable files (contain deployment-specific values)
+terraform.auto.tfvars.json
+terraform.tfvars
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Override files (user-local)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

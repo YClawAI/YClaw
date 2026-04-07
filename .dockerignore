@@ -1,0 +1,59 @@
+# --- Dependencies & Build ---
+node_modules
+dist
+.next
+.turbo
+coverage
+
+# --- Version Control ---
+.git
+.gitignore
+
+# --- Environment ---
+.env
+.env.*
+!.env.example
+
+# --- IDE ---
+.vscode
+.idea
+
+# --- Infrastructure (not needed in app containers) ---
+terraform
+infra
+.github
+
+# --- Documentation & Non-Runtime ---
+docs
+design
+scripts
+logs
+*.md
+!departments/**/*.md
+!prompts/**/*.md
+!memory/**/*.md
+!vault/**/*.md
+!skills/**/*.md
+!repos/**/*.md
+Makefile
+vitest.config.ts
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Docker (prevent self-inclusion in context) ---
+Dockerfile*
+docker-compose*
+
+# --- Claude Code config ---
+.claude
+
+# --- Test files ---
+**/*.test.ts
+**/*.spec.ts
+**/__tests__
+
+# --- AO (has its own Docker context at ao/) ---
+ao
+!ao/package.json

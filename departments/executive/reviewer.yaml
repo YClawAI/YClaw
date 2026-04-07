@@ -1,0 +1,68 @@
+name: reviewer
+department: executive
+description: Brand guardian that reviews all external-facing content against brand
+  voice, terminology standards, and compliance guidelines before publication.
+model:
+  provider: anthropic
+  model: claude-sonnet-4-6
+  temperature: 0
+  maxTokens: 8192
+system_prompts:
+- claudeception.md
+- skill-usage.md
+- mission_statement.md
+- chain-of-command.md
+- daily-standup.md
+- executive-directive.md
+- brand-voice.md
+- review-rules.md
+- reviewer-workflow.md
+- protocol-overview.md
+triggers:
+- type: cron
+  schedule: 0 13 * * *
+  task: daily_standup
+- type: event
+  event: review:pending
+  task: review_content
+- type: event
+  event: ember:content_ready
+  task: review_content
+- type: event
+  event: scout:outreach_ready
+  task: review_content
+- type: event
+  event: strategist:reviewer_directive
+  task: handle_directive
+- type: event
+  event: claudeception:reflect
+  task: self_reflection
+  model:
+    provider: anthropic
+    model: claude-sonnet-4-6
+    temperature: 0.5
+    maxTokens: 4096
+actions:
+- github:get_contents
+- x:search
+- slack:message
+- slack:thread_reply
+- slack:alert
+- event:publish
+data_sources: []
+event_subscriptions:
+- strategist:reviewer_directive
+- claudeception:reflect
+- review:pending
+- ember:content_ready
+- scout:outreach_ready
+event_publications:
+- standup:report
+- reviewer:approved
+- reviewer:flagged
+review_bypass: []
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 6

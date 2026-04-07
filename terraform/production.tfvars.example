@@ -1,0 +1,25 @@
+aws_region       = "us-east-1"
+environment      = "production"
+image_tag        = "latest"
+telegram_chat_id = "<TELEGRAM_CHAT_ID>"
+
+vpc_id = "<VPC_ID>"
+
+public_subnet_ids = [
+  "<SUBNET_ID_1>",
+  "<SUBNET_ID_2>",
+  "<SUBNET_ID_3>",
+]
+
+private_subnet_ids = [
+  "<SUBNET_ID_4>",
+  "<SUBNET_ID_5>",
+  "<SUBNET_ID_6>",
+]
+
+certificate_arn = "<ACM_CERTIFICATE_ARN>"
+
+# ALB access control — VPC-only (Tailscale traffic enters via subnet router).
+# Telegram uses polling (outbound), so no public webhook traffic hits the ALB.
+# When switching to Telegram webhooks, create a separate public webhook ALB.
+allowed_cidr_blocks = ["10.0.0.0/16"]

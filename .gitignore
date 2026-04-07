@@ -1,0 +1,32 @@
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+coverage/
+*.log
+.DS_Store
+
+# Obsidian workspace state
+vault/.obsidian/workspace.json
+vault/.obsidian/workspace-mobile.json
+vault/.trash/
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/**/*.tfvars
+!terraform/**/*.tfvars.example
+terraform/.terraform.lock.hcl
+terraform/tfplan
+*.plan
+
+# Graphify (knowledge graph)
+vault/.graphify/graph.html
+vault/.graphify/.cache/
+
+# Integration secrets (file backend)
+data/secrets/

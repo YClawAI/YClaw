@@ -1,0 +1,244 @@
+/**
+ * DiscordChannelAdapter — Discord adapter for IChannel.
+ *
+ * NEW implementation (not wrapping an existing executor).
+ * Uses discord.js for Discord bot API integration.
+ * Validates that the IChannel interface works for fresh implementations.
+ *
+ * Requires: discord.js (optional peer dependency).
+ */
+
+import type {
+  IChannel,
+  ChannelConfig,
+  ChannelTarget,
+  ChannelMessage,
+  MessageResult,
+  MessageRef,
+  ThreadRef,
+  FileUpload,
+  FileResult,
+  InboundMessage,
+  InboundMessageHandler,
+} from '../../interfaces/IChannel.js';
+import { createLogger } from '../../logging/logger.js';
+
+const logger = createLogger('discord-channel-adapter');
+
+/**
+ * Dynamic import helper that bypasses TypeScript module resolution.
+ * Used for optional peer dependencies that may not be installed.
+ */
+// eslint-disable-next-line @typescript-eslint/no-implied-eval
+const dynamicImport = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<any>;
+
+export class DiscordChannelAdapter implements IChannel {
+  readonly name = 'discord';
+  private client: any = null;
+  private discordModule: any = null;
+  private readonly handlers: InboundMessageHandler[] = [];
+  private connected = false;
+
+  async connect(config: ChannelConfig): Promise<void> {
+    const token = (config.token as string) || process.env.DISCORD_BOT_TOKEN;
+
+    if (!token) {
+      logger.warn('Discord bot token not configured. Set DISCORD_BOT_TOKEN environment variable.');
+      return;
+    }
+
+    try {
+      this.discordModule = await dynamicImport('discord.js');
+      const { Client, GatewayIntentBits, Events } = this.discordModule;
+
+      this.client = new Client({
+        intents: [
+          GatewayIntentBits.Guilds,
+          GatewayIntentBits.GuildMessages,
+          GatewayIntentBits.MessageContent,
+          GatewayIntentBits.DirectMessages,
+        ],
+      });
+
+      // Set up inbound message handling
+      this.client.on(Events.MessageCreate, async (message: any) => {
+        // Ignore bot messages to prevent loops
+        if (message.author.bot) return;
+
+        const inbound: InboundMessage = {
+          messageId: message.id,
+          channelId: message.channelId,
+          userId: message.author.id,
+          displayName: message.author.displayName || message.author.username,
+          text: message.content,
+          threadId: message.thread?.id,
+          timestamp: message.createdAt.toISOString(),
+          raw: message,
+        };
+
+        for (const handler of this.handlers) {
+          try {
+            await handler(inbound);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            logger.error('Discord message handler failed', { error: msg });
+          }
+        }
+      });
+
+      this.client.on(Events.ClientReady, () => {
+        logger.info('Discord bot connected', { user: this.client.user?.tag });
+        this.connected = true;
+      });
+
+      this.client.on('error', (err: Error) => {
+        logger.error('Discord client error', { error: err.message });
+      });
+
+      await this.client.login(token);
+      logger.info('DiscordChannelAdapter connected');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger.error('Failed to initialize Discord adapter', { error: msg });
+      this.client = null;
+    }
+  }
+
+  async disconnect(): Promise<void> {
+    if (this.client) {
+      this.client.destroy();
+      this.client = null;
+      this.connected = false;
+      logger.info('DiscordChannelAdapter disconnected');
+    }
+  }
+
+  async healthy(): Promise<boolean> {
+    return this.connected && this.client?.isReady() === true;
+  }
+
+  async send(target: ChannelTarget, message: ChannelMessage): Promise<MessageResult> {
+    if (!this.client || !this.connected) {
+      return { success: false, error: 'Discord adapter not connected' };
+    }
+
+    try {
+      let channel: any;
+
+      if (target.userId) {
+        // Send DM
+        const user = await this.client.users.fetch(target.userId);
+        channel = await user.createDM();
+      } else {
+        channel = await this.client.channels.fetch(target.channelId);
+      }
+
+      if (!channel) {
+        return { success: false, error: `Channel not found: ${target.channelId}` };
+      }
+
+      const sendOptions: any = { content: message.text };
+
+      // Thread support — fetch explicitly, don't rely on cache (M3)
+      if (message.threadId) {
+        try {
+          const thread = await this.client.channels.fetch(message.threadId);
+          if (thread) {
+            channel = thread;
+          } else {
+            return {
+              success: false,
+              error: `Thread not found: ${message.threadId}`,
+            };
+          }
+        } catch {
+          return {
+            success: false,
+            error: `Failed to fetch thread: ${message.threadId}`,
+          };
+        }
+      }
+
+      // Reply to message
+      if (message.replyTo) {
+        sendOptions.reply = { messageReference: message.replyTo.messageId };
+      }
+
+      // File attachments
+      if (message.attachments?.length) {
+        sendOptions.files = message.attachments.map((a: FileUpload) => ({
+          attachment: a.content,
+          name: a.filename,
+        }));
+      }
+
+      const sent = await channel.send(sendOptions);
+
+      return {
+        success: true,
+        messageId: sent.id,
+        threadId: sent.thread?.id,
+      };
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      logger.error('Failed to send Discord message', {
+        error: errorMsg,
+        channelId: target.channelId,
+      });
+      return { success: false, error: `Failed to send message: ${errorMsg}` };
+    }
+  }
+
+  async listen(handler: InboundMessageHandler): Promise<void> {
+    this.handlers.push(handler);
+    logger.info('Discord message handler registered', {
+      totalHandlers: this.handlers.length,
+    });
+  }
+
+  supportsInboundListening(): boolean { return true; }
+  supportsReactions(): boolean { return true; }
+  supportsThreads(): boolean { return true; }
+  supportsFileUpload(): boolean { return true; }
+  supportsIdentityOverride(): boolean { return false; }
+
+  async react(target: MessageRef, emoji: string): Promise<void> {
+    if (!this.client || !this.connected) return;
+
+    try {
+      const channel = await this.client.channels.fetch(target.channelId);
+      const message = await channel.messages.fetch(target.messageId);
+      await message.react(emoji);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger.error('Failed to add Discord reaction', { error: msg });
+    }
+  }
+
+  async createThread(target: MessageRef, threadName: string): Promise<ThreadRef> {
+    if (!this.client || !this.connected) {
+      throw new Error('Discord adapter not connected');
+    }
+
+    const channel = await this.client.channels.fetch(target.channelId);
+    const message = await channel.messages.fetch(target.messageId);
+    const thread = await message.startThread({ name: threadName });
+
+    return {
+      threadId: thread.id,
+      channelId: target.channelId,
+    };
+  }
+
+  async uploadFile(target: ChannelTarget, file: FileUpload): Promise<FileResult> {
+    const result = await this.send(target, {
+      text: '',
+      attachments: [file],
+    });
+
+    return {
+      success: result.success,
+      error: result.error,
+    };
+  }
+}

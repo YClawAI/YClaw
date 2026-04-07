@@ -1,0 +1,50 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "security:openssf-scorecard",
+    ":pinAllExceptPeerDependencies"
+  ],
+  "minimumReleaseAge": "7 days",
+  "prCreation": "not-pending",
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 10,
+  "rangeStrategy": "bump",
+  "commitMessagePrefix": "chore(deps): ",
+  "labels": ["dependencies", "security-review-required"],
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": "0 days",
+    "labels": ["security-critical", "auto-merge-eligible"]
+  },
+  "packageRules": [
+    {
+      "description": "Security patches bypass the cooldown",
+      "matchCategories": ["vulnerability"],
+      "minimumReleaseAge": "0 days",
+      "automerge": false,
+      "labels": ["security-patch"]
+    },
+    {
+      "description": "Major version bumps get 14-day soak + extra review",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "14 days",
+      "labels": ["breaking-change", "security-review-required"]
+    },
+    {
+      "description": "Pin GitHub Actions to SHA digests",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true
+    },
+    {
+      "description": "Pin Docker digests",
+      "matchManagers": ["dockerfile"],
+      "pinDigests": true
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 4am on monday"]
+  }
+}

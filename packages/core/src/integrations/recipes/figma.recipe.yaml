@@ -1,0 +1,33 @@
+integration: figma
+name: Figma
+description: Connect Figma to enable design file access, component inspection, and design-to-code workflows.
+tier: 2
+credential_fields:
+  - key: token
+    label: Personal Access Token
+    type: password
+    placeholder: figd_...
+    help_url: https://www.figma.com/developers/api#access-tokens
+    help_text: Generate a personal access token in Figma Settings > Account > Personal access tokens.
+verify:
+  method: GET
+  url: https://api.figma.com/v1/me
+  auth_style: bearer
+  headers:
+    Authorization: "Bearer {token}"
+  expect_status: 200
+steps:
+  - id: guide
+    actor: openclaw
+    label: Guide token creation
+    instructions: Walk the user through generating a Figma personal access token. Go to Figma Settings > Account > Personal access tokens. Name it descriptively (e.g., "YClaw Agents") and set appropriate expiration.
+  - id: collect
+    actor: openclaw
+    label: Collect token
+    instructions: Ask the user to paste their Figma personal access token. Validate it starts with 'figd_'.
+  - id: store
+    actor: system
+    label: Store credentials
+  - id: verify
+    actor: system
+    label: Verify connection

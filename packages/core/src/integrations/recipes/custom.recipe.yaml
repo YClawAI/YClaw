@@ -1,0 +1,80 @@
+integration: custom
+name: Custom Integration
+description: Build a custom integration from an OpenAPI spec or provider documentation URL. The Strategist reads the provider's API docs, generates a recipe, and Builder implements the integration code.
+tier: 3
+credential_fields:
+  - key: api_key
+    label: API Key
+    type: password
+    help_text: The API key or token for authenticating with your custom provider.
+  - key: webhook_secret
+    label: Webhook Secret (optional)
+    type: password
+    optional: true
+    help_text: If your provider sends webhooks, paste the signing secret here. Leave empty if not applicable.
+steps:
+  - id: guide
+    actor: openclaw
+    label: Gather provider details
+    instructions: |
+      Ask the user for:
+      1. The provider name and base API URL
+      2. An OpenAPI spec URL or documentation link
+      3. What events/data they want to integrate
+      4. Their API credentials
+      Validate that the documentation URL is accessible.
+  - id: collect
+    actor: openclaw
+    label: Collect credentials
+    instructions: Ask the user to paste their API key and optional webhook secret. Do not store or log credentials yourself.
+  - id: store
+    actor: system
+    label: Store credentials
+  - id: verify
+    actor: system
+    label: Verify API connection
+  - id: generate_recipe
+    actor: fleet
+    type: code_task
+    label: Generate integration recipe
+    builder_task:
+      description: |
+        Read the provider's OpenAPI spec or documentation.
+        Generate a provider-specific recipe YAML with:
+        - Webhook handler specification
+        - Event type mappings
+        - SDK wrapper requirements
+        Submit the generated recipe for human approval before proceeding.
+      files_to_create:
+        - src/integrations/recipes/{integration}.recipe.yaml
+  - id: implement_handler
+    actor: fleet
+    type: code_task
+    label: Implement webhook handler
+    builder_task:
+      description: |
+        Based on the approved recipe, implement:
+        - Webhook handler with signature validation
+        - Event parsing and normalization
+        - Redis event bus integration
+      files_to_create:
+        - src/webhooks/{integration}-webhook.ts
+        - src/webhooks/{integration}-webhook.test.ts
+      files_to_modify:
+        - src/webhooks/index.ts
+  - id: implement_client
+    actor: fleet
+    type: code_task
+    label: Implement API client
+    builder_task:
+      description: |
+        Create a typed API client wrapper for the provider.
+        - HTTP client with auth header injection
+        - Key API methods based on documentation
+        - Rate limiting and error handling
+      files_to_create:
+        - src/integrations/{integration}-client.ts
+        - src/integrations/{integration}-client.test.ts
+  - id: smoke_test
+    actor: system
+    label: Smoke test

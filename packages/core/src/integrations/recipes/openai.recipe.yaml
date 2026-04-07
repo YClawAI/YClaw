@@ -1,0 +1,26 @@
+integration: openai
+name: OpenAI
+tier: 1
+credential_fields:
+  - key: api_key
+    label: API Key
+    type: password
+    placeholder: "sk-..."
+    help_url: https://platform.openai.com/api-keys
+verify:
+  method: GET
+  url: https://api.openai.com/v1/models
+  auth_style: bearer
+  headers:
+    Authorization: "Bearer {api_key}"
+  expect_status: 200
+steps:
+  - id: collect
+    actor: human
+    label: Paste API key
+  - id: store
+    actor: system
+    label: Store credentials
+  - id: verify
+    actor: system
+    label: Verify connection

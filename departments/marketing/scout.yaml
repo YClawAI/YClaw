@@ -1,0 +1,87 @@
+name: scout
+department: marketing
+description: >-
+  Monitors the competitive landscape, relevant industry news, and community sentiment.
+  Produces intelligence briefs that feed the content pipeline and inform strategic
+  decisions. Secondary role: identifies partnership prospects, drafts outreach, and
+  manages follow-ups.
+
+model:
+  provider: anthropic
+  model: claude-sonnet-4-6
+  temperature: 0.7
+  maxTokens: 8192
+
+system_prompts:
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
+  - chain-of-command.md
+  - daily-standup.md
+  - review-submission.md
+
+triggers:
+  - type: cron
+    schedule: "12 13 * * *"
+    task: daily_standup
+  - type: cron
+    schedule: "0 8 * * 1-5"
+    task: daily_intel_scan
+  - type: cron
+    schedule: "0 10 * * 1"
+    task: weekly_prospecting
+  - type: cron
+    schedule: "0 10 * * 3"
+    task: follow_ups
+  - type: cron
+    schedule: "0 16 * * 5"
+    task: pipeline_report
+  - type: cron
+    schedule: "0 9 1 * *"
+    task: x_algorithm_research
+  - type: event
+    event: strategist:scout_directive
+    task: handle_directive
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+actions:
+  - vault:read
+  - vault:search
+  - vault:write
+  - x:search
+  - x:lookup
+  - x:user
+  - x:user_tweets
+  - twitter:read_metrics
+  - email:send
+  - slack:message
+  - slack:thread_reply
+  - event:publish
+
+data_sources: []
+
+event_subscriptions:
+  - strategist:scout_directive
+  - claudeception:reflect
+
+event_publications:
+  - standup:report
+  - scout:intel_report
+  - scout:outreach_ready
+  - scout:pipeline_report
+  - review:pending
+
+humanize: false
+
+review_bypass: []
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 6

@@ -1,0 +1,16 @@
+{
+  "channel": "twitter",
+  "version": "1.0.0",
+  "body": "{{hook}}\n\n{{body}}\n\n{{cta}}",
+  "variables": {
+    "hook": "Most Web3 teams have no idea what their agents are doing.",
+    "body": "We built YClaw — an autonomous agent control plane that gives you full observability into your agent fleet.\n\nReal-time monitoring. Automated coordination. Zero manual intervention.",
+    "cta": "Building with agents? Check out what we're building.",
+    "format": "single-post"
+  },
+  "metadata": {
+    "mutationVariable": null,
+    "mutationDescription": null,
+    "parentVersion": null
+  }
+}

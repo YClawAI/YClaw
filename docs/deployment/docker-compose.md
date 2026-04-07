@@ -1,0 +1,202 @@
+# Docker Compose Deployment
+
+Local and self-hosted deployment using Docker Compose.
+
+---
+
+## Prerequisites
+
+- **Docker Engine** 24+ with **Docker Compose v2** (`docker compose` — not the legacy `docker-compose` binary)
+- **Node.js 20 LTS** (only needed for `yclaw init`; the containers run their own Node)
+- Ports 3000 and 3001 available on the host
+
+## Quick Start
+
+```bash
+yclaw init --preset local-demo   # generates .env with bundled profile
+yclaw deploy                     # docker compose up -d
+```
+
+`yclaw init` copies `.env.example` into `.env`, generates `EVENT_BUS_SECRET` and `YCLAW_SETUP_TOKEN`, and sets `COMPOSE_PROFILES=bundled` so the local databases start automatically.
+
+---
+
+## Services
+
+The compose file (`deploy/docker-compose/docker-compose.yml`) defines five services across two groups.
+
+### Always Running
+
+| Service | Image | Port | Description |
+|---------|-------|------|-------------|
+| **yclaw** | `yclaw/core:${YCLAW_VERSION:-latest}` | `${API_PORT:-3000}` on all interfaces | Core agent runtime. Healthcheck: `GET /health` every 15s. |
+| **mission-control** | `yclaw/mission-control:${YCLAW_VERSION:-latest}` | `${MC_PORT:-3001}` on 127.0.0.1 only | Next.js dashboard. Connects to the core API at `http://yclaw:3000` (server-side) and `http://localhost:${API_PORT}` (client-side). |
+
+Mission Control binds to `127.0.0.1` by default (not publicly accessible). The `HOSTNAME=0.0.0.0` environment variable is set on the container so Next.js standalone server binds correctly inside the container.
+
+### Bundled Infrastructure (profile: `bundled`)
+
+These services only start when `COMPOSE_PROFILES=bundled` is set in `.env`. To use external databases instead, remove that line and set the connection strings directly.
+
+| Service | Image | Purpose |
+|---------|-------|---------|
+| **mongodb** | `mongo:7` | Agent state, task registry, repo configs |
+| **redis** | `redis:7-alpine` | Event bus, escalation timers, queue state. Runs with `--appendonly yes`. |
+| **postgres** | `postgres:16-alpine` | Memory/knowledge system (`yclaw_memory` database). Init script installs `pgcrypto` extension. |
+
+All three bundled services have health checks. The core service uses `depends_on` with `condition: service_healthy` (with `required: false`) so it waits for healthy databases when they exist but starts fine when using external services.
+
+---
+
+## Port Mapping
+
+| Port | Service | Bind Address | Notes |
+|------|---------|--------------|-------|
+| **3000** | yclaw (core API) | `0.0.0.0` | Configurable via `API_PORT` |
+| **3001** | mission-control | `127.0.0.1` | Configurable via `MC_PORT`. Localhost-only in production compose; all interfaces in dev override. |
+| 27017 | mongodb | Not exposed | Only exposed in dev mode (`127.0.0.1:27017`) |
+| 6379 | redis | Not exposed | Only exposed in dev mode (`127.0.0.1:6379`) |
+| 5432 | postgres | Not exposed | Only exposed in dev mode (`127.0.0.1:5432`) |
+
+---
+
+## Environment Variables
+
+All variables are defined in `deploy/docker-compose/.env.example`. Copy to `.env` and fill in your values.
+
+### Core Runtime
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NODE_ENV` | `production` | Node environment |
+| `PORT` / `API_PORT` | `3000` | Core API port |
+| `MC_PORT` | `3001` | Mission Control port |
+| `YCLAW_VERSION` | `latest` | Docker image tag (production mode) |
+
+### Compose Profiles
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `COMPOSE_PROFILES` | `bundled` | Set to `bundled` to start local MongoDB/Redis/PostgreSQL. Remove to use external services. |
+
+### Database Connection Strings
+
+| Variable | Bundled Default | Description |
+|----------|----------------|-------------|
+| `MONGODB_URI` | `mongodb://mongodb:27017/yclaw_agents` | MongoDB connection string |
+| `REDIS_URL` | `redis://redis:6379` | Redis connection string |
+| `MEMORY_DATABASE_URL` | `postgresql://yclaw:yclaw_dev@postgres:5432/yclaw_memory` | PostgreSQL connection string for memory system |
+| `POSTGRES_PASSWORD` | `yclaw_dev` | PostgreSQL password (bundled mode only) |
+
+### LLM Provider
+
+At least one API key is required. Only one provider needs to be configured.
+
+| Variable | Description |
+|----------|-------------|
+| `ANTHROPIC_API_KEY` | Anthropic API key (`sk-ant-...`) |
+| `OPENAI_API_KEY` | OpenAI API key (`sk-...`) |
+| `OPENROUTER_API_KEY` | OpenRouter API key |
+
+### Channel Tokens
+
+Fill in only the channels you have enabled.
+
+| Variable | Description |
+|----------|-------------|
+| `SLACK_BOT_TOKEN` | Slack bot token (`xoxb-...`) |
+| `TELEGRAM_BOT_TOKEN` | Telegram bot token |
+| `DISCORD_BOT_TOKEN` | Discord bot token |
+| `TWITTER_APP_KEY` / `TWITTER_APP_SECRET` | Twitter/X app credentials |
+| `TWITTER_ACCESS_TOKEN` / `TWITTER_ACCESS_SECRET` | Twitter/X user credentials |
+
+### Security
+
+| Variable | Description |
+|----------|-------------|
+| `EVENT_BUS_SECRET` | HMAC secret for event bus signatures. Auto-generated by `yclaw init`. |
+| `YCLAW_SETUP_TOKEN` | One-time bootstrap token for the root operator. Auto-generated by `yclaw init`. Used once during first deploy. |
+
+---
+
+## Development Mode
+
+Development mode builds images from source, exposes database ports on localhost, and mounts `departments/` and `prompts/` as read-only volumes for live editing.
+
+```bash
+yclaw deploy --dev
+```
+
+This is equivalent to:
+
+```bash
+docker compose -f deploy/docker-compose/docker-compose.yml \
+               -f deploy/docker-compose/docker-compose.dev.yml up --build
+```
+
+### What Changes in Dev Mode
+
+- **yclaw** and **mission-control** are built from local source (multi-stage Dockerfile) instead of pulling pre-built images.
+- `departments/` and `prompts/` are bind-mounted read-only into the core container, so YAML and prompt changes are picked up without rebuilding.
+- Database ports are exposed on `127.0.0.1` for direct access:
+  - MongoDB: `127.0.0.1:27017`
+  - Redis: `127.0.0.1:6379`
+  - PostgreSQL: `127.0.0.1:5432`
+- Mission Control port binds on all interfaces (not just localhost).
+
+### Dockerfile
+
+The dev build uses `deploy/docker-compose/Dockerfile` -- a simplified multi-stage build:
+
+1. **prod-deps** -- installs production npm dependencies
+2. **builder** -- installs all dependencies and runs `turbo build --filter=@yclaw/core...`
+3. **runner** -- `node:20-slim` with curl for health checks, runs as non-root `node` user
+
+The production ECS deployment uses a separate root Dockerfile.
+
+---
+
+## Volumes and Data Persistence
+
+All data is stored in named Docker volumes. Data persists across `docker compose down` and container restarts.
+
+| Volume | Mount Point | Contents |
+|--------|-------------|----------|
+| `yclaw-objects` | `/app/data/objects` | Object storage (artifacts, attachments) |
+| `yclaw-logs` | `/app/logs` | Application logs |
+| `mongodb-data` | `/data/db` | MongoDB data (bundled mode) |
+| `redis-data` | `/data` | Redis AOF persistence (bundled mode) |
+| `postgres-data` | `/var/lib/postgresql/data` | PostgreSQL data (bundled mode) |
+
+All services use `restart: unless-stopped` so they survive host reboots.
+
+---
+
+## Networking
+
+All services share a single Docker network named `yclaw-network`. Services reference each other by container name (e.g., `mongodb`, `redis`, `postgres`).
+
+---
+
+## Scaling Considerations
+
+- The compose setup runs a single instance of each service. It is designed for single-host deployments.
+- For horizontal scaling or high availability, use the AWS deployment (`deploy/aws/`).
+- MongoDB, Redis, and PostgreSQL should be replaced with managed services (Atlas, ElastiCache, RDS) for production workloads -- set `COMPOSE_PROFILES` to empty and provide external connection strings.
+- The core runtime is stateless (all state in databases) so it can scale horizontally if placed behind a load balancer.
+
+---
+
+## Tear Down
+
+```bash
+yclaw destroy              # stops containers, removes network
+yclaw destroy --volumes    # also deletes all named volumes (DATA LOSS)
+```
+
+Manual equivalent:
+
+```bash
+docker compose -f deploy/docker-compose/docker-compose.yml down           # keep data
+docker compose -f deploy/docker-compose/docker-compose.yml down -v        # delete volumes
+```

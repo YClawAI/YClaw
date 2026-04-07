@@ -1,0 +1,151 @@
+# LiteLLM Proxy Configuration
+# Deployed as ECS Fargate service in the yclaw-production cluster.
+# All API keys are loaded from environment variables (injected from Secrets Manager).
+#
+# ┌─────────────────────────────────────────────────────────────────────────────┐
+# │ RESILIENCE ARCHITECTURE                                                     │
+# │                                                                             │
+# │ Load Balancing:                                                             │
+# │   claude-opus-4-6 and claude-sonnet-4-6 each have TWO deployments:          │
+# │   Anthropic direct + OpenRouter. LiteLLM load-balances across both using    │
+# │   "least-busy" routing before any fallback kicks in.                        │
+# │                                                                             │
+# │ Fallback Chains (cross-provider, activate when ALL deployments fail):       │
+# │   claude-opus-4-6   → gpt-5.2 → claude-sonnet-4-6 → grok-4-1-fast-reason… │
+# │   claude-sonnet-4-6 → claude-sonnet-4-20250514 → gpt-5.2                   │
+# │                                                                             │
+# │ Router Settings:                                                            │
+# │   routing_strategy: least-busy (spreads load across healthy deployments)    │
+# │   allowed_fails: 3 (cooldown a deployment after 3 consecutive failures)     │
+# │   cooldown_time: 60s (how long a failed deployment stays out of rotation)   │
+# └─────────────────────────────────────────────────────────────────────────────┘
+
+model_list:
+  # ── Anthropic (load-balanced: Anthropic direct + OpenRouter) ─────────────────
+  #
+  # Each model has two deployments under the SAME model_name so LiteLLM
+  # automatically load-balances across them. If one provider returns
+  # overloaded_error, the router retries on the other before triggering
+  # the cross-provider fallback chain.
+
+  # claude-opus-4-6: Anthropic direct (primary)
+  - model_name: claude-opus-4-6
+    litellm_params:
+      model: anthropic/claude-opus-4-6
+      api_key: os.environ/ANTHROPIC_API_KEY
+    model_info:
+      id: opus-anthropic-direct
+
+  # claude-opus-4-6: OpenRouter (secondary, same model_name = load-balanced)
+  - model_name: claude-opus-4-6
+    litellm_params:
+      model: openrouter/anthropic/claude-opus-4-6
+      api_key: os.environ/OPENROUTER_API_KEY
+    model_info:
+      id: opus-openrouter
+
+  # claude-sonnet-4-6: Anthropic direct (primary)
+  - model_name: claude-sonnet-4-6
+    litellm_params:
+      model: anthropic/claude-sonnet-4-6
+      api_key: os.environ/ANTHROPIC_API_KEY
+    model_info:
+      id: sonnet-anthropic-direct
+
+  # claude-sonnet-4-6: OpenRouter (secondary, same model_name = load-balanced)
+  - model_name: claude-sonnet-4-6
+    litellm_params:
+      model: openrouter/anthropic/claude-sonnet-4-6
+      api_key: os.environ/OPENROUTER_API_KEY
+    model_info:
+      id: sonnet-openrouter
+
+  # Sonnet date-pinned alias (used by per-task model overrides in agent YAMLs)
+  - model_name: claude-sonnet-4-20250514
+    litellm_params:
+      model: anthropic/claude-sonnet-4-20250514
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # Haiku for lightweight tasks / council votes
+  - model_name: claude-haiku-4-5-20251001
+    litellm_params:
+      model: anthropic/claude-haiku-4-5-20251001
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+  # ── OpenAI ─────────────────────────────────────────────────────────────────
+  - model_name: gpt-5.2
+    litellm_params:
+      model: openai/gpt-5.2
+      api_key: os.environ/OPENAI_API_KEY
+
+  # Embeddings (text-embedding-3-large is the current production model)
+  - model_name: text-embedding-3-large
+    litellm_params:
+      model: openai/text-embedding-3-large
+      api_key: os.environ/OPENAI_API_KEY
+
+  # ── xAI / Grok (OpenAI-compatible endpoint at api.x.ai) ───────────────────
+  - model_name: grok-4-1-fast-reasoning
+    litellm_params:
+      model: openai/grok-4-1-fast-reasoning
+      api_key: os.environ/XAI_API_KEY
+      api_base: https://api.x.ai/v1
+
+  # ── Google / Gemini ────────────────────────────────────────────────────────
+  - model_name: gemini-3.1-pro-preview
+    litellm_params:
+      model: gemini/gemini-3.1-pro-preview
+      api_key: os.environ/GEMINI_API_KEY
+
+  # NOTE: Google Veo video generation is not yet supported by LiteLLM.
+  # Veo calls should continue to route directly to the Gemini API until
+  # LiteLLM adds /v1/videos support.
+
+  # ── OpenRouter (wildcard — passes model name through unchanged) ────────────
+  # Catches any model requested as "openrouter/<model>" that isn't listed above.
+  - model_name: openrouter/*
+    litellm_params:
+      model: openrouter/*
+      api_key: os.environ/OPENROUTER_API_KEY
+
+litellm_settings:
+  # Drop unsupported parameters instead of erroring (important for cross-provider routing)
+  drop_params: true
+  # Retry failed LLM calls before returning an error
+  num_retries: 3
+  # Timeout per LLM call (seconds) — raised from 120 to 180 for long-running Builder tasks
+  request_timeout: 180
+  # Cooldown failed models for 30s before retrying (applies per-deployment)
+  cooldown_time: 30
+  set_verbose: false
+
+# ── Router Settings ────────────────────────────────────────────────────────────
+# Controls how LiteLLM distributes requests across deployments and handles failures.
+#
+# Flow for a claude-opus-4-6 request:
+#   1. Router picks the least-busy deployment (Anthropic direct or OpenRouter)
+#   2. If it fails, retry on the other deployment (up to num_retries)
+#   3. If ALL deployments of claude-opus-4-6 fail, trigger fallback chain:
+#      → gpt-5.2 → claude-sonnet-4-6 → grok-4-1-fast-reasoning
+#   4. Failed deployments enter cooldown (60s) after 3 consecutive failures
+router_settings:
+  # Spread load across healthy deployments of the same model_name
+  routing_strategy: least-busy
+  # Number of consecutive failures before a deployment enters cooldown
+  allowed_fails: 3
+  # How long (seconds) a failed deployment stays out of rotation
+  cooldown_time: 60
+  # Cross-provider fallback chains — activate when ALL deployments of a model fail
+  fallbacks:
+    - claude-opus-4-6: [gpt-5.2, claude-sonnet-4-6, grok-4-1-fast-reasoning]
+    - claude-sonnet-4-6: [claude-sonnet-4-20250514, gpt-5.2]
+
+general_settings:
+  # Master API key — all yclaw calls use this as Bearer token
+  master_key: os.environ/LITELLM_MASTER_KEY
+  # Postgres database for spend logging (create the 'litellm' database first — see README)
+  database_url: os.environ/LITELLM_DATABASE_URL
+  # Keep model list managed in this file rather than database
+  store_model_in_db: false
+  # Health check endpoint
+  health_check_interval: 300

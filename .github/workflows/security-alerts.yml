@@ -1,0 +1,64 @@
+name: Security Alerts
+
+# Triggers on security-sensitive file changes that require extra attention.
+# Posts warnings and ensures human review for infrastructure changes.
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - '**/package.json'
+      - 'Dockerfile*'
+      - '.github/workflows/**'
+      - '.npmrc'
+      - 'renovate.json'
+      - 'socket.yml'
+      - 'CODEOWNERS'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  detect-security-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Detect lockfile-only changes (supply chain risk)
+        run: |
+          # Lockfile changed without package.json = suspicious
+          LOCK_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -c 'package-lock.json\|pnpm-lock.yaml' || true)
+          PKG_CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -c 'package.json' || true)
+
+          if [ "$LOCK_CHANGED" -gt 0 ] && [ "$PKG_CHANGED" -eq 0 ]; then
+            echo "::error::Lockfile was modified WITHOUT a corresponding package.json change."
+            echo "::error::This is a supply chain integrity risk — lockfile manipulation attack?"
+            echo "LOCKFILE_ONLY=true" >> $GITHUB_ENV
+          fi
+
+      - name: Summarize security-sensitive changes
+        run: |
+          echo "## Security-Sensitive File Changes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The following security-sensitive files were modified in this PR:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | while read file; do
+            case "$file" in
+              .github/workflows/*|.github/actions/*) echo "- \`$file\` (CI/CD)" >> $GITHUB_STEP_SUMMARY ;;
+              Dockerfile*) echo "- \`$file\` (Docker)" >> $GITHUB_STEP_SUMMARY ;;
+              package-lock.json|pnpm-lock.yaml) echo "- \`$file\` (lockfile)" >> $GITHUB_STEP_SUMMARY ;;
+              package.json|*/package.json) echo "- \`$file\` (dependencies)" >> $GITHUB_STEP_SUMMARY ;;
+              .npmrc|renovate.json|socket.yml|CODEOWNERS) echo "- \`$file\` (security config)" >> $GITHUB_STEP_SUMMARY ;;
+            esac
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**All changes to these files require human admin review.**" >> $GITHUB_STEP_SUMMARY

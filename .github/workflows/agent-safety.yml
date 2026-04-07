@@ -1,0 +1,87 @@
+name: Agent Safety Guard
+
+# Runs on ALL PRs to master — blocks changes to protected paths unless human-approved
+# Protected paths narrowed to "constitutional" files only (AI Council decision, 2026-03-03)
+# - .github/workflows/ — agents must not modify their own CI/safety checks
+# - packages/core/src/safety/ — outbound filtering, credential blocking
+# - packages/core/src/review/ — Architect review logic (circular trust risk)
+# Build-critical files added 2026-03-31 after AO PR #849 broke Docker build:
+# - Dockerfile — image structure changes can break all services
+# - entrypoint.sh — startup sequence, privilege drop, overlay
+# - package.json (root) — workspace changes reshuffle dependency hoisting
+# - package-lock.json — lockfile drift can cause ERR_MODULE_NOT_FOUND in Docker
+# - turbo.json — build pipeline configuration
+# All other paths rely on Architect review + CI + Sentinel for governance.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-protected-paths:
+    name: Protected Path Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Check for protected file changes
+        run: |
+          PROTECTED_PATTERNS=(
+            ".github/workflows/"
+            "packages/core/src/safety/"
+            "packages/core/src/review/"
+          )
+
+          # Build-critical files — workspace/lockfile changes can break Docker builds
+          # by reshuffling dependency hoisting (incident: PR #849, 2026-03-31)
+          BUILD_CRITICAL_FILES=(
+            "Dockerfile"
+            "entrypoint.sh"
+            "package.json"
+            "package-lock.json"
+            "turbo.json"
+          )
+
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+          BLOCKED_FILES=""
+
+          for file in $CHANGED_FILES; do
+            # Check directory-based protected patterns
+            for pattern in "${PROTECTED_PATTERNS[@]}"; do
+              if [[ "$file" == $pattern* ]]; then
+                BLOCKED_FILES="$BLOCKED_FILES\n  - $file (protected path: $pattern)"
+              fi
+            done
+            # Check exact build-critical files (root-level only)
+            for critical in "${BUILD_CRITICAL_FILES[@]}"; do
+              if [[ "$file" == "$critical" ]]; then
+                BLOCKED_FILES="$BLOCKED_FILES\n  - $file (build-critical: workspace/lockfile changes can break Docker builds)"
+              fi
+            done
+          done
+
+          if [ -n "$BLOCKED_FILES" ]; then
+            echo "Agent PR modifies protected or build-critical files:"
+            echo -e "$BLOCKED_FILES"
+            echo ""
+            echo "Protected paths govern agent safety, CI, and review logic."
+            echo "Build-critical files affect dependency resolution in Docker builds."
+            echo "Add the 'human-approved' label to proceed."
+
+            # Check for human-approved label
+            LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name')
+            if echo "$LABELS" | grep -q "human-approved"; then
+              echo "human-approved label found — allowing protected path changes."
+              exit 0
+            fi
+
+            exit 1
+          fi
+
+          echo "No protected paths modified."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

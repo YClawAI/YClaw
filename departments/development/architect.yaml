@@ -1,0 +1,160 @@
+name: architect
+department: development
+description: >-
+  Technical lead of the Development department. Receives all assigned GitHub
+  issues, plans project architecture, organizes work across repos, breaks down
+  issues into executable tasks for coding agents, and reviews all code for
+  quality and security.
+
+model:
+  provider: anthropic
+  model: claude-opus-4-6
+  temperature: 0.3
+  maxTokens: 16384
+
+system_prompts:
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
+  - chain-of-command.md
+  - daily-standup-dev.md
+  - engineering-standards.md
+  - architect-workflow.md
+
+triggers:
+  - type: cron
+    schedule: "2 13 * * *"
+    task: daily_standup
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      maxTokens: 4096
+      temperature: 0.2
+
+  - type: event
+    event: github:pr_opened
+    task: review_pr
+  - type: event
+    event: github:pr_updated
+    task: review_pr
+  - type: event
+    event: builder:pr_ready
+    task: review_pr
+
+  - type: cron
+    schedule: "0 20 * * 0"
+    task: tech_debt_scan
+  - type: event
+    event: strategist:architect_directive
+    task: architecture_directive
+
+  - type: event
+    event: github:issue_assigned
+    task: plan_and_delegate
+  - type: event
+    event: builder:task_complete
+    task: verify_completion
+  - type: event
+    event: builder:task_blocked
+    task: resolve_blocker
+  - type: event
+    event: builder:task_failed
+    task: handle_task_failure
+
+  # F1: Event-driven issue discovery — triage new issues (label only, no delegation)
+  - type: event
+    event: github:issue_opened
+    task: triage_new_issue
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      maxTokens: 4096
+      temperature: 0.2
+
+  # F1: Event-driven issue discovery — evaluate labeled issues for delegation
+  - type: event
+    event: github:issue_labeled
+    task: evaluate_and_delegate
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      maxTokens: 8192
+      temperature: 0.3
+
+  - type: event
+    event: designer:design_generated
+    task: verify_design_completion
+
+  # Deploy Governance v2: sole required reviewer for CRITICAL-tier deployments
+  - type: event
+    event: deploy:review
+    task: review_deploy
+
+  # Merge conflict resolution
+  - type: event
+    event: architect:rebase_needed
+    task: evaluate_rebase
+
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+
+actions:
+  - github:commit_file
+  - github:get_contents
+  - github:create_branch
+  - github:create_issue
+  - github:list_issues
+  - github:update_issue
+  - github:pr_comment
+  - github:pr_review
+  - github:get_diff
+  - codegen:execute
+  - codegen:status
+  - github:remove_label
+  - github:get_issue
+  - repo:list
+  - vault:read
+  - vault:search
+  - vault:write
+  - slack:message
+  - slack:thread_reply
+  - event:publish
+  - deploy:assess
+  - deploy:execute
+
+data_sources: []
+
+event_subscriptions:
+  - claudeception:reflect
+  - github:pr_opened
+  - github:issue_assigned
+  - github:issue_opened
+  - github:issue_labeled
+  - builder:pr_ready
+  - builder:task_complete
+  - builder:task_blocked
+  - builder:task_failed
+  - strategist:architect_directive
+  - deploy:review
+  - architect:rebase_needed
+
+event_publications:
+  - standup:report
+  - architect:pr_review
+  - architect:task_complete
+  - architect:deploy_review
+  - architect:build_directive
+  - architect:design_directive
+
+review_bypass: []
+
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 6

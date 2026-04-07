@@ -1,0 +1,17 @@
+{
+  "channel": "cold-email",
+  "version": "1.0.0",
+  "subject": "{{subject_line}}",
+  "body": "{{opening}}\n\n{{value_prop}}\n\n{{cta}}",
+  "variables": {
+    "subject_line": "Your agents are running blind",
+    "opening": "Hey {{first_name}},",
+    "value_prop": "Most Web3 teams deploy agents with zero observability. YClaw gives you a control plane for your entire agent fleet.",
+    "cta": "Want to see a 5-min demo?"
+  },
+  "metadata": {
+    "mutationVariable": null,
+    "mutationDescription": null,
+    "parentVersion": null
+  }
+}
