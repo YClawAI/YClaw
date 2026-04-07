@@ -3,7 +3,7 @@
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability in this project, please report it
-responsibly via [GitHub Private Security Advisory](https://github.com/GravitonINC/YClaw/security/advisories/new).
+responsibly via [GitHub Private Security Advisory](https://github.com/YClawAI/yclaw/security/advisories/new).
 
 **Do not open public GitHub issues for security vulnerabilities.** Public
 disclosure before a fix is available puts all users at risk. We ask that you

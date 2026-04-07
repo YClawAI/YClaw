@@ -484,14 +484,14 @@ coord.* event published to yclaw:stream:coord
 
 | Department | Channel ID | Agents |
 |------------|-----------|--------|
-| executive | `C0AETTBE893` | strategist, reviewer |
-| development | `C0AEV8L9KTQ` | architect, builder, deployer, designer |
-| marketing | `C0AEFSQV0RM` | ember, forge, scout |
-| operations | `C0AEXAJRSV8` | sentinel, signal |
-| finance | `C0AEXAJJ02W` | treasurer |
-| support | `C0AETTB6ACV` | guide, keeper |
-| alerts | `C0AFA847NAD` | escalations |
-| (fallback) | `C0AEQUE8C59` | unknown agents → `#yclaw-general` |
+| executive | `C0000000001` | strategist, reviewer |
+| development | `C0000000002` | architect, builder, deployer, designer |
+| marketing | `C0000000003` | ember, forge, scout |
+| operations | `C0000000004` | sentinel, signal |
+| finance | `C0000000005` | treasurer |
+| support | `C0000000006` | guide, keeper |
+| alerts | `C0000000007` | escalations |
+| (fallback) | `C0000000008` | unknown agents → `#yclaw-general` |
 
 ### Event Handling
 

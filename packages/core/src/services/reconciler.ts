@@ -273,7 +273,7 @@ export class PRReconciler {
           .map((d) => `• ${d.type}: #${d.target.number} — ${d.reason}`)
           .join("\n");
         await this.deps
-          .notifySlack("C0AEXAJRSV8", `🔄 Reconciler cycle ${cycleId}\n${summary}`)
+          .notifySlack("C0000000004", `🔄 Reconciler cycle ${cycleId}\n${summary}`)
           .catch(() => {});
       }
     } finally {

@@ -74,10 +74,10 @@ export class SlackExecutor implements ActionExecutor {
 
   /** Channel-specific dedup windows (seconds). */
   private static readonly CHANNEL_DEDUP_TTL: Record<string, number> = {
-    'C0AFA847NAD': 7200,  // #yclaw-alerts: 2 hours
-    'C0AETTBE893': 3600,  // #yclaw-executive: 1 hour
-    'C0AEV8L9KTQ': 1800,  // #yclaw-development: 30 min
-    'C0AEFSQV0RM': 1800,  // #yclaw-marketing: 30 min
+    'C0000000007': 7200,  // #yclaw-alerts: 2 hours
+    'C0000000001': 3600,  // #yclaw-executive: 1 hour
+    'C0000000002': 1800,  // #yclaw-development: 30 min
+    'C0000000003': 1800,  // #yclaw-marketing: 30 min
   };
 
   constructor(redis?: Redis | null) {

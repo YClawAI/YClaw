@@ -81,4 +81,4 @@ Initial open-source release. Phases 1-6 of the product framework.
 
 ---
 
-[Unreleased]: https://github.com/GravitonINC/YClaw/compare/main...HEAD
+[Unreleased]: https://github.com/YClawAI/yclaw/compare/main...HEAD

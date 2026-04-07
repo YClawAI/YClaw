@@ -15,9 +15,9 @@
 #   - Generate at: Atlas Console → Organization → Access Manager → API Keys
 #
 # Usage:
-#   export ATLAS_PUBLIC_KEY="oiuixyuo"
-#   export ATLAS_PRIVATE_KEY="772ab0f3-0e49-4d7b-990b-b24300900307"
-#   export ATLAS_PROJECT_ID="698ef5785832f6a035da8b5a"
+#   export ATLAS_PUBLIC_KEY="<your-atlas-public-key>"
+#   export ATLAS_PRIVATE_KEY="<your-atlas-private-key>"
+#   export ATLAS_PROJECT_ID="<your-atlas-project-id>"
 #   ./scripts/setup-atlas-peering.sh
 #
 set -euo pipefail

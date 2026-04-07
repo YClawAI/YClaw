@@ -38,7 +38,7 @@
 
 ## Internal Reference (from production system)
 
-These docs describe the internal agent runtime extracted from the production system. They may reference features specific to the Gaze Protocol deployment.
+These docs describe the internal agent runtime extracted from the production system that YCLAW was forked from. They may reference deployment-specific features that aren't part of the framework core.
 
 | Doc | Description |
 |-----|-------------|

@@ -68,4 +68,4 @@ Agents that get better at their jobs without human intervention.
 
 Timeline is approximate. We ship when it's ready, not when the calendar says so.
 
-Want to help shape the roadmap? [Join the Discord](https://discord.gg/97Fvue9327) or [open a discussion](https://github.com/GravitonINC/YClaw/discussions).
+Want to help shape the roadmap? [Open a discussion](https://github.com/YClawAI/yclaw/discussions).
