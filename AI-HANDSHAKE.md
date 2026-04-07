@@ -6,7 +6,7 @@
 
 You already have an AI assistant. It knows your business — your mission, your priorities, your brand, your tech stack, who's in charge. YCLAW agents need all that same context to be useful.
 
-The AI Handshake bridges the gap: your existing AI generates a structured onboarding packet that YCLAW consumes to program its agents. No forms, no 50-question wizards, no copying and pasting between docs.
+The AI Handshake bridges the gap: your existing AI sets up YCLAW using the built-in CLI and onboarding flow, programming the agents with your org's context. No forms, no 50-question wizards, no copying and pasting between docs.
 
 **Your AI already knows. YCLAW just needs it to write it down.**
 
@@ -16,132 +16,92 @@ The AI Handshake bridges the gap: your existing AI generates a structured onboar
 ```bash
 git clone https://github.com/YClawAI/yclaw.git && cd yclaw
 cp .env.example .env    # add your LLM API key
-docker compose up -d
+docker compose up -d --build
 ```
 
-### Step 2: Give Your AI the Handshake Prompt
-Copy the contents of `ONBOARDING_PROMPT.md` and paste it into whatever AI you already use — Claude, ChatGPT, Cursor, Codex, Gemini, OpenClaw, anything with context about your organization.
-
-Your AI will generate `yclaw-init.yaml` — a structured file containing everything YCLAW agents need to know about your org.
-
-### Step 3: Import and Boot
+### Step 2: Run the CLI Setup
 ```bash
-./scripts/onboard.sh --from yclaw-init.yaml
+npx yclaw init                    # Guided wizard — infrastructure, channels, LLM, networking
+npx yclaw doctor                  # Preflight validation — checks all prerequisites
+npx yclaw deploy                  # Deploy from generated config
 ```
 
-This generates all the prompt files your agents load on every execution:
-- `prompts/mission_statement.md` — what your org is and believes
-- `prompts/chain-of-command.md` — who's in charge, escalation rules
-- `prompts/protocol-overview.md` — what you build, technically
-- `prompts/brand-voice.md` — how agents communicate externally
-- `prompts/executive-directive.md` — current priorities and KPIs
-- `prompts/engineering-standards.md` — dev standards and conventions
-- `departments/*/agent.yaml` — agent configs with triggers, actions, prompts
-- `departments/*-workflow.md` — per-agent workflow instructions
+The `init` wizard walks through:
+1. **Purpose** — evaluate locally, small team, or production org
+2. **Infrastructure** — Docker Compose, AWS, GCP, K8s
+3. **Channels** — Discord, Slack, Telegram, Twitter/X
+4. **LLM Provider** — Anthropic, OpenAI, OpenRouter, local models
+5. **Networking** — local only, Tailscale, VPN, public
+6. **Review** — generates `yclaw.config.yaml` for approval
 
-### Step 4: Validate and Go Live
+### Step 3: Onboarding — Program Your Agents
+
+Once deployed, the onboarding API guides your AI through 6 stages:
+
+| Stage | What happens | What gets generated |
+|-------|-------------|-------------------|
+| 1. **Org Framing** | Mission, priorities, brand voice, departments, tools | `org_profile`, `priorities`, `brand_voice` artifacts |
+| 2. **Ingestion** | Upload docs, GitHub repos, URLs, text | Indexed context for agent memory |
+| 3. **Departments** | Review and customize department configs | Department YAML + workflow prompts |
+| 4. **Operators** | Invite additional operators | Operator accounts with RBAC tiers |
+| 5. **Validation** | Verify all configs are sound | Validation report |
+| 6. **Complete** | Agents boot with real context | Live agents |
+
+The onboarding service lives at `POST /v1/onboarding/*` and is driven by authenticated API calls. Your AI assistant hits these endpoints to progress through each stage.
+
+See [docs/onboarding.md](docs/onboarding.md) for the full API reference.
+
+### Step 4: First Operator Bootstrap
+
+On first boot with zero operators:
 ```bash
-./scripts/validate.sh     # structural + semantic + runtime checks
-./scripts/activate.sh     # agents boot with YOUR context
+curl -X POST http://localhost:3000/v1/operators/bootstrap \
+  -H "Authorization: Bearer $YCLAW_SETUP_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Your Name", "email": "you@example.com"}'
 ```
 
-## Why This Works
+This creates the root operator and returns an API key (shown once). The bootstrap endpoint self-disables after first use.
 
-Traditional onboarding asks YOU to fill in forms. But you hired an AI assistant precisely so you don't have to do that. The Handshake lets your AI do what it's good at — synthesizing everything it knows about you into a structured format another system can consume.
+## The 4-Layer Context Cache
 
-The result: YCLAW agents that actually understand your business from minute one.
+Every agent execution builds its system prompt from 4 layers:
 
-## The Onboarding Packet Schema
+| Layer | What | Source | Caching |
+|-------|------|--------|---------|
+| **Layer 1** | Global static — `mission_statement.md`, `chain-of-command.md`, `protocol-overview.md` | `prompts/` directory | Cached (ephemeral) |
+| **Layer 2** | Department/role — `brand-voice.md`, `executive-directive.md`, `*-workflow.md` | `prompts/` directory | Cached (ephemeral) |
+| **Layer 3** | Memory — org memory, department memory, agent memory | PostgreSQL | Cached (semi-static) |
+| **Layer 4** | Dynamic — auto-recall snippets, task payload, event data | Per-execution | Not cached |
 
-Your AI generates a YAML file matching this structure:
-
-```yaml
-org:
-  name: "Your Org Name"
-  mission: |
-    What your organization does, why it exists, what it believes.
-    This becomes mission_statement.md — loaded by every agent on every execution.
-    Be specific. This is the soul of your agents.
-  
-  chain_of_command: |
-    Who the human decision-makers are.
-    Authority hierarchy. Escalation rules.
-    What agents can decide autonomously vs what needs human approval.
-  
-  product_overview: |
-    Technical description of what you build.
-    Architecture, stack, key systems, APIs.
-    Agents reference this when making technical decisions.
-  
-  brand_voice: |
-    How agents should communicate externally.
-    Tone, vocabulary, examples of good/bad copy.
-    What to say, what never to say.
-  
-  priorities: |
-    Current strategic priorities. What matters THIS quarter.
-    KPIs, deadlines, constraints, risks.
-    Updated regularly — this is the executive directive.
-  
-  engineering_standards: |
-    Coding standards, testing requirements, PR process.
-    Architecture patterns, security rules, deployment practices.
-    What "good code" means in your org.
-
-departments:
-  - name: executive
-    agents:
-      - name: strategist
-        description: "Sets priorities, coordinates across departments"
-        model: claude-sonnet-4-20250514
-        
-  - name: development  
-    agents:
-      - name: architect
-        description: "Technical lead, plans and reviews"
-        model: claude-sonnet-4-20250514
-      - name: builder
-        description: "Executes code tasks from architect specs"
-        model: claude-sonnet-4-20250514
-
-  - name: marketing
-    agents:
-      - name: ember
-        description: "Social media, content creation"
-        model: claude-sonnet-4-20250514
-
-# Optional: sources for deeper context
-sources:
-  websites:
-    - https://yoursite.com
-  github_repos:
-    - https://github.com/your-org/your-repo
-  documents:
-    - path/to/brand-guide.pdf
-    - path/to/strategy-doc.md
-```
+The onboarding flow generates the Layer 1 and 2 prompt files and seeds Layer 3 memory. This is what makes agents actually understand your business instead of being generic shells.
 
 ## What Gets Generated
 
-The onboarding script reads your packet and generates the exact files the 4-layer context cache loads:
+After onboarding, your `prompts/` directory contains:
 
-| Layer | Files | Purpose |
-|-------|-------|---------|
-| **Layer 1 (Global)** | `mission_statement.md`, `chain-of-command.md`, `protocol-overview.md` | Loaded by EVERY agent, EVERY execution |
-| **Layer 2 (Role)** | `brand-voice.md`, `executive-directive.md`, `engineering-standards.md`, `*-workflow.md` | Per-department/agent prompts |
-| **Layer 3 (Memory)** | Postgres records | Org memory, department memory, agent memory |
-| **Layer 4 (Dynamic)** | Auto-recall + task data | Changes every execution |
+| File | Generated from | Loaded by |
+|------|---------------|-----------|
+| `mission_statement.md` | "What does your org do?" | Every agent, every execution |
+| `chain-of-command.md` | "Who's in charge?" | Every agent, every execution |
+| `protocol-overview.md` | "What do you build?" | Every agent, every execution |
+| `brand-voice.md` | "How should agents communicate?" | Marketing, support agents |
+| `executive-directive.md` | "Current priorities?" | Strategist + downstream |
+| `engineering-standards.md` | "Dev standards?" | Development department |
+| `*-workflow.md` | Per-agent role definition | Individual agents |
 
-## Alternate Paths
-
-Not every user's AI will have full org context. The Handshake also supports:
-
-- **Conversational fallback** — `./scripts/onboard.sh` asks questions interactively for any fields your AI couldn't fill
-- **Source ingestion** — point at GitHub repos, websites, or docs and let YCLAW extract context
-- **Direct editing** — all generated files are plain markdown and YAML. Edit them anytime.
+Each agent's YAML config in `departments/*/agent.yaml` lists exactly which prompts it loads.
 
 ## After Onboarding
 
-All context lives in `prompts/` and `departments/`. These are just files. Your AI assistant (or you) can edit them at any time. Changes are picked up on next agent execution or via reload.
+All context lives in `prompts/` and `departments/`. These are just files — your AI assistant (or you) can edit them at any time. Changes are picked up on next agent execution.
 
-The agents will continuously improve their own context through the Claudeception learning system — extracting reusable knowledge from their work and writing it back to memory and skills.
+The agents continuously improve their own context through the Claudeception learning system — extracting reusable knowledge from their work and writing it back to memory and skills.
+
+## Reference Files
+
+- [docs/onboarding.md](docs/onboarding.md) — Full onboarding API reference
+- [docs/quickstart.md](docs/quickstart.md) — Quick start guide
+- [docs/cli.md](docs/cli.md) — CLI command reference
+- [docs/operators.md](docs/operators.md) — Operator RBAC documentation
+- [docs/architecture.md](docs/architecture.md) — System architecture
