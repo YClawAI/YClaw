@@ -7,7 +7,13 @@ const API_KEY = process.env.YCLAW_API_KEY || '';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 /**
- * Check whether a request IP is from a loopback or RFC1918 private network.
+ * Check whether a request IP is internal-only:
+ *   - IPv4 loopback (127.0.0.1)
+ *   - IPv6 loopback (::1)
+ *   - RFC1918 private ranges (10/8, 172.16/12, 192.168/16)
+ *   - IPv4 link-local (169.254/16)
+ *   - IPv6 unique local addresses (fc00::/7)
+ *
  * Used to gate internal-only endpoints like /api/migrate, which must be
  * reachable from the sibling compose container (Docker bridge: 172.16/12)
  * but never from the public internet.
