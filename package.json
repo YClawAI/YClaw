@@ -12,11 +12,13 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "typecheck": "tsc -p packages/core/tsconfig.json --noEmit && tsc -p packages/cli/tsconfig.json --noEmit && tsc -p packages/memory/tsconfig.json --noEmit",
     "start": "node packages/core/dist/main.js",
     "seed": "tsx scripts/seed-config.ts",
     "dev:local": "tsx scripts/dev.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "ci": "npm run build && npm run typecheck && npm test"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
