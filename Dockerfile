@@ -2,12 +2,12 @@
 
 # SECURITY: Pin base images to SHA256 digests for immutable builds.
 # Tags are mutable — Renovate will auto-update digests via pinDigests: true.
-# To manually pin: docker manifest inspect node:20-slim | jq -r '.config.digest'
+# To manually pin: docker manifest inspect node:20-alpine | jq -r '.config.digest'
 
 # --- Stage 1: Production dependencies only ---
 # Separate stage so the runner gets a clean node_modules without devDependencies.
 # Saves ~200MB vs copying the full builder node_modules.
-FROM node:20-slim AS prod-deps
+FROM node:20-alpine AS prod-deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 # Copy ALL workspace manifests to satisfy lockfile workspace references.
@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --ignore-scripts \
     && npm rebuild argon2 2>/dev/null || true
 
 # --- Stage 2: Build (needs devDependencies for tsc, turbo, etc.) ---
-FROM node:20-slim AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json turbo.json tsconfig.json ./
 # Copy ALL workspace manifests (same rationale as prod-deps)
@@ -44,13 +44,11 @@ COPY packages/memory/migrations packages/memory/migrations
 RUN npx turbo build --filter=@yclaw/core...
 
 # --- Stage 3: Production runner ---
-FROM node:20-slim AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-# System packages: curl (health checks), gosu (privilege drop), git (codegen workspaces)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl gosu git ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# System packages: curl (health checks), su-exec (privilege drop), git (codegen workspaces)
+RUN apk add --no-cache curl su-exec git ca-certificates
 
 # CLI coding tools for codegen system.
 # This layer is ~500MB but cached by Docker — only rebuilds when this line changes.
@@ -92,7 +90,7 @@ COPY --chown=node:node skills skills
 # Ensure logs and tmp directories exist and are writable
 RUN mkdir -p logs tmp tmp/codegen && chown -R node:node logs tmp
 
-# Entrypoint runs as root to fix ephemeral volume ownership, then drops to node via gosu
+# Entrypoint runs as root to fix ephemeral volume ownership, then drops to node via su-exec
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 

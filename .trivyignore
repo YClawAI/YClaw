@@ -1,0 +1,4 @@
+# YCLAW Trivy Ignore List
+# Only add CVEs here with documented justification.
+# Each entry must include: CVE ID, affected package, reason for ignoring, review date.
+# Policy: exit-code=1 on CRITICAL/HIGH with fixes available. No blanket ignores.
