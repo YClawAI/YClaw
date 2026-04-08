@@ -247,10 +247,14 @@ export async function initServices(infrastructure?: Infrastructure, yclawConfig?
   const memoryDbUrl = process.env.MEMORY_DATABASE_URL;
   if (memoryDbUrl) {
     try {
-      const cleanDbUrl = memoryDbUrl.replace(/[?&]sslmode=[^&]+/, '');
+      // Respect sslmode=disable in the connection string so the bundled
+      // postgres container (which has no SSL) works out of the box. Any
+      // other sslmode — or no sslmode at all — falls back to relaxed SSL,
+      // which is what managed services like RDS need (self-signed certs).
+      const disableSsl = /[?&]sslmode=disable(?:&|$)/.test(memoryDbUrl);
       memoryPool = new Pool({
-        connectionString: cleanDbUrl,
-        ssl: { rejectUnauthorized: false },
+        connectionString: memoryDbUrl,
+        ssl: disableSsl ? false : { rejectUnauthorized: false },
         min: 2,
         max: 5,
         idleTimeoutMillis: 30_000,
@@ -416,9 +420,19 @@ export async function initServices(infrastructure?: Infrastructure, yclawConfig?
       const onboardingStore = new OnboardingStore(db);
       await onboardingStore.ensureIndexes();
 
-      // Fix: onboarding-specific override takes priority over global
-      const llmProvider = process.env.ONBOARDING_LLM_PROVIDER ?? process.env.LLM_PROVIDER ?? 'anthropic';
-      const llmModel = process.env.ONBOARDING_MODEL ?? process.env.LLM_MODEL ?? 'claude-sonnet-4-20250514';
+      // Onboarding-specific override takes priority over global.
+      // Use `||` (not `??`) so that empty strings — which are the common state
+      // when a user copies .env.example and leaves the override blank — fall
+      // back to the global LLM_PROVIDER / LLM_MODEL instead of being passed
+      // through as an unknown provider.
+      const llmProvider =
+        process.env.ONBOARDING_LLM_PROVIDER?.trim() ||
+        process.env.LLM_PROVIDER?.trim() ||
+        'anthropic';
+      const llmModel =
+        process.env.ONBOARDING_MODEL?.trim() ||
+        process.env.LLM_MODEL?.trim() ||
+        'claude-sonnet-4-20250514';
       const onboardingProvider = createProvider({
         provider: llmProvider as 'anthropic' | 'openrouter' | 'ollama',
         model: llmModel,

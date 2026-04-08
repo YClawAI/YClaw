@@ -6,6 +6,36 @@ import type { Server } from 'node:http';
 const API_KEY = process.env.YCLAW_API_KEY || '';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
+/**
+ * Check whether a request IP is internal-only:
+ *   - IPv4 loopback (127.0.0.1)
+ *   - IPv6 loopback (::1)
+ *   - RFC1918 private ranges (10/8, 172.16/12, 192.168/16)
+ *   - IPv4 link-local (169.254/16)
+ *   - IPv6 unique local addresses (fc00::/7)
+ *
+ * Used to gate internal-only endpoints like /api/migrate, which must be
+ * reachable from the sibling compose container (Docker bridge: 172.16/12)
+ * but never from the public internet.
+ */
+function isInternalIp(ip: string): boolean {
+  // Strip IPv6-mapped IPv4 prefix (::ffff:10.0.0.1 → 10.0.0.1)
+  const addr = ip.replace(/^::ffff:/, '');
+  if (addr === '127.0.0.1' || addr === '::1' || addr === 'localhost') return true;
+  if (addr.startsWith('10.')) return true;
+  if (addr.startsWith('192.168.')) return true;
+  if (addr.startsWith('169.254.')) return true;
+  // 172.16.0.0/12 (Docker default bridge range)
+  const m = /^172\.(\d+)\./.exec(addr);
+  if (m?.[1]) {
+    const second = parseInt(m[1], 10);
+    if (second >= 16 && second <= 31) return true;
+  }
+  // IPv6 unique local addresses fc00::/7
+  if (addr.startsWith('fc') || addr.startsWith('fd')) return true;
+  return false;
+}
+
 /** Middleware that requires a valid API key in the x-api-key header. */
 function requireApiKey(req: Request, res: Response, next: NextFunction): void {
   if (!API_KEY) {
@@ -88,6 +118,26 @@ export class WebhookServer {
       res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 
+    // Trust the first proxy hop so req.ip reflects the real client address
+    // when the API sits behind a reverse proxy (compose sidecar, ALB, etc).
+    this.app.set('trust proxy', 'loopback, linklocal, uniquelocal');
+
+    // ─── Internal-only gate for /api/migrate ────────────────────────────
+    // Schema migration is idempotent and triggered by the `migrate` sidecar
+    // in docker-compose. It must NOT require the operator API key (patient
+    // zero doesn't have one yet), but also must NOT be reachable from the
+    // public internet. Gate it to loopback / RFC1918 ranges only.
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
+      if (req.path !== '/api/migrate') return next();
+      const ip = req.ip || (req as unknown as { connection?: { remoteAddress?: string } }).connection?.remoteAddress || '';
+      if (!isInternalIp(ip)) {
+        this.log.warn('Rejected /api/migrate from non-internal IP', { ip });
+        res.status(403).json({ success: false, error: 'Forbidden: /api/migrate is internal-only' });
+        return;
+      }
+      next();
+    });
+
     // ─── API Key Authentication for all routes except /health ──────────
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       if (req.path === '/health' || req.path === '/health/infra') return next();
@@ -96,6 +146,7 @@ export class WebhookServer {
       if (req.path.startsWith('/slack/')) return next(); // Slack uses HMAC signature verification
       if (req.path.startsWith('/v1/')) return next(); // /v1/* uses operator Bearer auth, not legacy x-api-key
       if (req.path === '/api/ao/callback') return next(); // AO callback uses X-AO-TOKEN auth in its own middleware
+      if (req.path === '/api/migrate') return next(); // Gated by isInternalIp above — no API key required
       requireApiKey(req, res, next);
     });
 
