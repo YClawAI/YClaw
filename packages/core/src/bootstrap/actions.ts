@@ -10,6 +10,8 @@ import { ActionRegistryImpl } from '../actions/registry.js';
 import { TwitterExecutor } from '../actions/twitter.js';
 import { TelegramExecutor } from '../actions/telegram.js';
 import { SlackExecutor } from '../actions/slack.js';
+import { DiscordExecutor } from '../actions/discord.js';
+import type { DiscordChannelAdapter } from '../adapters/channels/DiscordChannelAdapter.js';
 import { GitHubExecutor } from '../actions/github/index.js';
 import { EmailExecutor } from '../actions/email.js';
 import { EventActionExecutor } from '../actions/event.js';
@@ -77,6 +79,23 @@ export async function initActions(services: ServiceContext): Promise<ActionConte
   }
 
   actionRegistry.register('slack', new SlackExecutor(slackDedupRedis));
+
+  // ─── Discord Executor ────────────────────────────────────────────────
+  // Reuse the shared DiscordChannelAdapter created by InfrastructureFactory
+  // so we do not open a second Discord gateway connection. The adapter is
+  // auto-enabled when DISCORD_BOT_TOKEN is set; when the token is absent we
+  // skip registration entirely. Redis (if available) is shared with Slack
+  // for dedup and rate-limit state.
+  const discordAdapter = services.infrastructure?.channels.get('discord') as
+    | DiscordChannelAdapter
+    | undefined;
+  if (discordAdapter) {
+    actionRegistry.register('discord', new DiscordExecutor(discordAdapter, slackDedupRedis));
+    logger.info('Discord executor registered (sharing adapter from infrastructure.channels)');
+  } else {
+    logger.info('Discord executor skipped — no shared DiscordChannelAdapter (set DISCORD_BOT_TOKEN to enable)');
+  }
+
   actionRegistry.register('github', new GitHubExecutor());
   actionRegistry.register('email', new EmailExecutor());
   actionRegistry.register('event', new EventActionExecutor(eventBus));

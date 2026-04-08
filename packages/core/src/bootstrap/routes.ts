@@ -4,6 +4,8 @@ import { WebhookServer } from '../triggers/webhook.js';
 import { GitHubWebhookHandler } from '../triggers/github-webhook.js';
 import { TelegramWebhookHandler } from '../triggers/telegram-webhook.js';
 import { SlackWebhookHandler } from '../triggers/slack-webhook.js';
+import { DiscordEventHandler } from '../triggers/discord-event-handler.js';
+import type { DiscordChannelAdapter } from '../adapters/channels/DiscordChannelAdapter.js';
 import { CacheObserver } from '../logging/cache-observer.js';
 import { GitHubExecutor } from '../actions/github/index.js';
 import type { SlackExecutor } from '../actions/slack.js';
@@ -1009,6 +1011,26 @@ export async function initRoutes(
       }
     });
     logger.info('Slack webhook mounted at /slack/events');
+  }
+
+  // ─── Discord Event Handler ───────────────────────────────────────────
+  // Unlike Slack, Discord uses a persistent gateway connection (discord.js)
+  // rather than HTTP webhooks. The handler registers an in-process listener
+  // on the shared DiscordChannelAdapter — no Express route to mount.
+  //
+  // Guarded by DISCORD_BOT_TOKEN presence: if the token is unset the
+  // adapter is never created by InfrastructureFactory, so we skip wiring.
+  const discordAdapter = services.infrastructure?.channels.get('discord') as
+    | DiscordChannelAdapter
+    | undefined;
+  if (!process.env.DISCORD_BOT_TOKEN) {
+    logger.info('Discord event handler skipped — DISCORD_BOT_TOKEN not set');
+  } else if (!discordAdapter) {
+    logger.warn('Discord event handler skipped — DISCORD_BOT_TOKEN set but no adapter in infrastructure.channels');
+  } else {
+    const discordHandler = new DiscordEventHandler(eventBus, discordAdapter);
+    await discordHandler.start();
+    logger.info('Discord event handler started (inbound messages → EventBus)');
   }
 
   await webhookServer.start();

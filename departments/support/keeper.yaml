@@ -24,6 +24,12 @@ triggers:
     event: telegram:message
     task: handle_message
   - type: event
+    event: discord:message
+    task: handle_discord_message
+  - type: event
+    event: discord:mention
+    task: handle_discord_message
+  - type: event
     event: strategist:keeper_directive
     task: handle_directive
   - type: event
@@ -58,6 +64,12 @@ actions:
   - telegram:set_permissions
   - slack:message
   - slack:alert
+  - discord:message
+  - discord:thread_reply
+  - discord:create_thread
+  - discord:get_channel_history
+  - discord:get_thread
+  - discord:react
   - event:publish
 
 data_sources: []
@@ -65,6 +77,8 @@ data_sources: []
 event_subscriptions:
   - claudeception:reflect
   - telegram:message
+  - discord:message
+  - discord:mention
   - strategist:keeper_directive
 
 event_publications:

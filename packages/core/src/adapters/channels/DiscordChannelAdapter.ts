@@ -130,11 +130,14 @@ export class DiscordChannelAdapter implements IChannel {
         const user = await this.client.users.fetch(target.userId);
         channel = await user.createDM();
       } else {
-        channel = await this.client.channels.fetch(target.channelId);
+        if (!target.channelId) {
+          return { success: false, error: 'No channelId or userId provided' };
+        }
+        channel = await this.requireNonDmChannel(target.channelId);
       }
 
       if (!channel) {
-        return { success: false, error: `Channel not found: ${target.channelId}` };
+        return { success: false, error: `Channel not found: ${target.channelId ?? '(none)'}` };
       }
 
       const sendOptions: any = { content: message.text };
@@ -206,7 +209,7 @@ export class DiscordChannelAdapter implements IChannel {
     if (!this.client || !this.connected) return;
 
     try {
-      const channel = await this.client.channels.fetch(target.channelId);
+      const channel = await this.requireNonDmChannel(target.channelId);
       const message = await channel.messages.fetch(target.messageId);
       await message.react(emoji);
     } catch (err) {
@@ -220,7 +223,7 @@ export class DiscordChannelAdapter implements IChannel {
       throw new Error('Discord adapter not connected');
     }
 
-    const channel = await this.client.channels.fetch(target.channelId);
+    const channel = await this.requireNonDmChannel(target.channelId);
     const message = await channel.messages.fetch(target.messageId);
     const thread = await message.startThread({ name: threadName });
 
@@ -240,5 +243,85 @@ export class DiscordChannelAdapter implements IChannel {
       success: result.success,
       error: result.error,
     };
+  }
+
+  // ─── Additional helpers (not part of IChannel) ──────────────────────────
+  // Exposed for DiscordExecutor which needs history fetches beyond what the
+  // shared interface supports. Kept as named methods on the concrete adapter
+  // so we don't widen IChannel with Discord-specific affordances.
+
+  /**
+   * Fetch recent messages from a channel (or thread). Returns a plain array
+   * of normalized message objects. Throws on failure (caller handles).
+   */
+  async fetchChannelHistory(channelId: string, limit = 50): Promise<Array<{
+    id: string;
+    author: { id: string; username: string; bot: boolean };
+    content: string;
+    createdAt: string;
+    threadId: string | null;
+  }>> {
+    if (!this.client || !this.connected) {
+      throw new Error('Discord adapter not connected');
+    }
+    const channel = await this.requireNonDmChannel(channelId);
+    if (!channel) throw new Error(`Channel not found: ${channelId}`);
+    if (typeof channel.messages?.fetch !== 'function') {
+      throw new Error(`Channel ${channelId} is not a text channel`);
+    }
+
+    const collection = await channel.messages.fetch({ limit: Math.min(Math.max(limit, 1), 100) });
+    const messages: Array<{
+      id: string;
+      author: { id: string; username: string; bot: boolean };
+      content: string;
+      createdAt: string;
+      threadId: string | null;
+    }> = [];
+    // discord.js returns a Collection; iterate with .values()
+    for (const msg of collection.values()) {
+      messages.push({
+        id: msg.id,
+        author: {
+          id: msg.author?.id ?? '',
+          username: msg.author?.username ?? '',
+          bot: msg.author?.bot === true,
+        },
+        content: msg.content ?? '',
+        createdAt: msg.createdAt?.toISOString?.() ?? new Date().toISOString(),
+        threadId: msg.thread?.id ?? null,
+      });
+    }
+    return messages;
+  }
+
+  /**
+   * Fetch messages from a thread by thread id. Threads are channels in
+   * Discord, so this delegates to fetchChannelHistory under the hood.
+   */
+  async fetchThreadReplies(threadId: string, limit = 50): Promise<Array<{
+    id: string;
+    author: { id: string; username: string; bot: boolean };
+    content: string;
+    createdAt: string;
+    threadId: string | null;
+  }>> {
+    return this.fetchChannelHistory(threadId, limit);
+  }
+
+  /** Expose readiness flag for the executor's health check. */
+  isConnected(): boolean {
+    return this.connected;
+  }
+
+  private async requireNonDmChannel(channelId: string): Promise<any> {
+    const channel = await this.client.channels.fetch(channelId);
+    if (!channel) {
+      throw new Error(`Channel not found: ${channelId}`);
+    }
+    if (channel.isDMBased?.() === true) {
+      throw new Error(`Discord DMs are not supported: ${channelId}`);
+    }
+    return channel;
   }
 }
