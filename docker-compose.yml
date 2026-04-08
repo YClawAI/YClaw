@@ -95,7 +95,12 @@ services:
       PORT: "3000"
       MONGODB_URI: mongodb://mongo:27017/yclaw
       REDIS_URL: redis://redis:6379
-      MEMORY_DATABASE_URL: postgresql://yclaw:${POSTGRES_PASSWORD:-yclaw_dev}@postgres:5432/yclaw_memory
+      # sslmode=disable — the bundled postgres:16-alpine image does not speak
+      # SSL. Without this the core API logs "Memory database unavailable
+      # (The server does not support SSL connections)" and runs without
+      # persistent memory. For managed services (RDS, Neon, etc) drop this
+      # parameter so the API connects with relaxed-cert SSL instead.
+      MEMORY_DATABASE_URL: postgresql://yclaw:${POSTGRES_PASSWORD:-yclaw_dev}@postgres:5432/yclaw_memory?sslmode=disable
     ports:
       # Bind to loopback only — exposing on all interfaces would let anyone on
       # the host network reach the unauthenticated /health endpoint and the

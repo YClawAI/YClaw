@@ -29,11 +29,13 @@ export class OperatorAuditLogger {
   }
 
   async ensureIndexes(): Promise<void> {
-    await this.collection.createIndex({ timestamp: 1 });
     await this.collection.createIndex({ operatorId: 1 });
     await this.collection.createIndex({ action: 1 });
     await this.collection.createIndex({ 'resource.type': 1, 'resource.id': 1 });
-    // TTL: auto-delete after 90 days
+    // TTL: auto-delete after 90 days. This also serves as the timestamp index
+    // for sort queries — no separate { timestamp: 1 } index needed, and defining
+    // both would conflict (MongoDB rejects two indexes on the same key with
+    // different names/options).
     await this.collection.createIndex(
       { timestamp: 1 },
       { expireAfterSeconds: 90 * 24 * 60 * 60, name: 'ttl_90d' },
