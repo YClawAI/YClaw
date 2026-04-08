@@ -7,9 +7,11 @@
 #
 # Run AFTER making the repo public.
 #
-# Required status check contexts must match the actual job names emitted by the
-# PR validation workflow (.github/workflows/pr-validate.yml). The job
-# `validate` reports as "validate" in the GitHub Checks API.
+# Required status check contexts must match exactly what GitHub reports for the
+# Checks API. Format is `<workflow name> / <job name>`. For
+# .github/workflows/pr-validate.yml (workflow `PR Validation`, job `validate`),
+# the context is `PR Validation / validate`. To verify after a PR runs:
+#   gh api "repos/$REPO/commits/$SHA/check-runs" -q '.check_runs[].name'
 
 set -euo pipefail
 
@@ -33,7 +35,7 @@ gh api "repos/$REPO/branches/main/protection" \
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["validate"]
+    "contexts": ["PR Validation / validate"]
   },
   "enforce_admins": false,
   "required_pull_request_reviews": {

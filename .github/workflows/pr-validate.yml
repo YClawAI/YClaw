@@ -1,8 +1,8 @@
 name: PR Validation
 
 # Fast feedback loop for community PRs:
-#   build → typecheck → test
-# Runs on every PR to main. Fail-fast: typecheck and test only run if build passes.
+#   build → typecheck → lint → test
+# Runs on every PR to main. Fail-fast: later steps only run if earlier steps pass.
 # Branch protection requires the `validate` job to pass before merge.
 
 on:
@@ -57,10 +57,10 @@ jobs:
         run: npm run build
 
       - name: Typecheck
-        run: |
-          npx tsc -p packages/core/tsconfig.json --noEmit
-          npx tsc -p packages/cli/tsconfig.json --noEmit
-          npx tsc -p packages/memory/tsconfig.json --noEmit
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
 
       - name: Test
         run: npm test

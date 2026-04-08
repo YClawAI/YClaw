@@ -22,6 +22,11 @@ on:
 permissions:
   contents: read
 
+# Prevent two concurrent releases for the same version from racing each other.
+concurrency:
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
+
 jobs:
   validate:
     name: Validate version
@@ -90,6 +95,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
 
       - name: Test
         run: npm test
