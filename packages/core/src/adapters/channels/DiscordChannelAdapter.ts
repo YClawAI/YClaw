@@ -130,11 +130,14 @@ export class DiscordChannelAdapter implements IChannel {
         const user = await this.client.users.fetch(target.userId);
         channel = await user.createDM();
       } else {
-        channel = await this.client.channels.fetch(target.channelId);
+        if (!target.channelId) {
+          return { success: false, error: 'No channelId or userId provided' };
+        }
+        channel = await this.requireNonDmChannel(target.channelId);
       }
 
       if (!channel) {
-        return { success: false, error: `Channel not found: ${target.channelId}` };
+        return { success: false, error: `Channel not found: ${target.channelId ?? '(none)'}` };
       }
 
       const sendOptions: any = { content: message.text };
@@ -206,7 +209,7 @@ export class DiscordChannelAdapter implements IChannel {
     if (!this.client || !this.connected) return;
 
     try {
-      const channel = await this.client.channels.fetch(target.channelId);
+      const channel = await this.requireNonDmChannel(target.channelId);
       const message = await channel.messages.fetch(target.messageId);
       await message.react(emoji);
     } catch (err) {
@@ -220,7 +223,7 @@ export class DiscordChannelAdapter implements IChannel {
       throw new Error('Discord adapter not connected');
     }
 
-    const channel = await this.client.channels.fetch(target.channelId);
+    const channel = await this.requireNonDmChannel(target.channelId);
     const message = await channel.messages.fetch(target.messageId);
     const thread = await message.startThread({ name: threadName });
 
@@ -261,7 +264,7 @@ export class DiscordChannelAdapter implements IChannel {
     if (!this.client || !this.connected) {
       throw new Error('Discord adapter not connected');
     }
-    const channel = await this.client.channels.fetch(channelId);
+    const channel = await this.requireNonDmChannel(channelId);
     if (!channel) throw new Error(`Channel not found: ${channelId}`);
     if (typeof channel.messages?.fetch !== 'function') {
       throw new Error(`Channel ${channelId} is not a text channel`);
@@ -309,5 +312,16 @@ export class DiscordChannelAdapter implements IChannel {
   /** Expose readiness flag for the executor's health check. */
   isConnected(): boolean {
     return this.connected;
+  }
+
+  private async requireNonDmChannel(channelId: string): Promise<any> {
+    const channel = await this.client.channels.fetch(channelId);
+    if (!channel) {
+      throw new Error(`Channel not found: ${channelId}`);
+    }
+    if (channel.isDMBased?.() === true) {
+      throw new Error(`Discord DMs are not supported: ${channelId}`);
+    }
+    return channel;
   }
 }

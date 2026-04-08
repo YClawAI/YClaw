@@ -82,6 +82,7 @@ const CHANNEL_COOLDOWN_S = 90;
 const THREAD_COOLDOWN_S = 30;
 /** Global per-agent hourly cap. */
 const HOURLY_CAP = 20;
+const HOURLY_WINDOW_S = 3600;
 /** Dedup window (seconds). */
 const DEDUP_TTL_S = 3600;
 
@@ -286,57 +287,82 @@ export class DiscordExecutor implements ActionExecutor {
    * on pass, or a string reason on rejection. Fails open if Redis is down.
    */
   private async checkChannelRateLimits(agentName: string, channelId: string): Promise<string | null> {
-    if (!this.redis) return null;
-    try {
-      // Global hourly cap
-      const hourKey = `${HOURLY_PREFIX}${agentName}:${this.hourBucket()}`;
-      const hourCount = parseInt((await this.redis.get(hourKey)) ?? '0', 10);
-      if (hourCount >= HOURLY_CAP) {
-        return `global hourly cap of ${HOURLY_CAP} msgs reached for ${agentName}`;
-      }
-
-      // Per-channel cooldown
-      const cooldownKey = `${COOLDOWN_PREFIX}${agentName}:${channelId}`;
-      const cooldownResult = await this.redis.set(cooldownKey, '1', 'EX', CHANNEL_COOLDOWN_S, 'NX');
-      if (cooldownResult === null) {
-        return `channel cooldown active (${CHANNEL_COOLDOWN_S}s) for ${agentName} in ${channelId}`;
-      }
-
-      // Increment hourly count; set expiry on first increment
-      await this.redis.incr(hourKey);
-      await this.redis.expire(hourKey, 3600);
-      return null;
-    } catch (err) {
-      logger.warn('Discord rate-limit check failed, allowing message (fail-open)', {
-        error: err instanceof Error ? err.message : String(err),
-      });
-      return null;
-    }
+    return this.checkRateLimits(
+      agentName,
+      `${COOLDOWN_PREFIX}${agentName}:${channelId}`,
+      CHANNEL_COOLDOWN_S,
+      `channel cooldown active (${CHANNEL_COOLDOWN_S}s) for ${agentName} in ${channelId}`,
+      'Discord rate-limit check failed, allowing message (fail-open)',
+    );
   }
 
   /**
    * Check thread reply rate limits (thread cooldown + hourly cap).
    */
   private async checkThreadRateLimits(agentName: string, threadId: string): Promise<string | null> {
+    return this.checkRateLimits(
+      agentName,
+      `${COOLDOWN_THREAD_PREFIX}${agentName}:${threadId}`,
+      THREAD_COOLDOWN_S,
+      `thread cooldown active (${THREAD_COOLDOWN_S}s) for ${agentName} in ${threadId}`,
+      'Discord thread rate-limit check failed, allowing message (fail-open)',
+    );
+  }
+
+  private async checkRateLimits(
+    agentName: string,
+    cooldownKey: string,
+    cooldownSeconds: number,
+    cooldownMessage: string,
+    failureLogMessage: string,
+  ): Promise<string | null> {
     if (!this.redis) return null;
+
+    const hourKey = `${HOURLY_PREFIX}${agentName}:${this.hourBucket()}`;
+
     try {
-      const hourKey = `${HOURLY_PREFIX}${agentName}:${this.hourBucket()}`;
-      const hourCount = parseInt((await this.redis.get(hourKey)) ?? '0', 10);
-      if (hourCount >= HOURLY_CAP) {
+      const result = await this.redis.eval(
+        `
+          local hourCount = tonumber(redis.call('GET', KEYS[1]) or '0')
+          if hourCount >= tonumber(ARGV[1]) then
+            return 'hourly_cap'
+          end
+
+          local cooldownSet = redis.call('SET', KEYS[2], '1', 'EX', ARGV[2], 'NX')
+          if not cooldownSet then
+            return 'cooldown'
+          end
+
+          local newHourCount = redis.call('INCR', KEYS[1])
+          if newHourCount == 1 then
+            redis.call('EXPIRE', KEYS[1], ARGV[3])
+          end
+
+          return 'ok'
+        `,
+        2,
+        hourKey,
+        cooldownKey,
+        HOURLY_CAP.toString(),
+        cooldownSeconds.toString(),
+        HOURLY_WINDOW_S.toString(),
+      );
+
+      if (result === 'ok') return null;
+      if (result === 'hourly_cap') {
         return `global hourly cap of ${HOURLY_CAP} msgs reached for ${agentName}`;
       }
-
-      const cooldownKey = `${COOLDOWN_THREAD_PREFIX}${agentName}:${threadId}`;
-      const cooldownResult = await this.redis.set(cooldownKey, '1', 'EX', THREAD_COOLDOWN_S, 'NX');
-      if (cooldownResult === null) {
-        return `thread cooldown active (${THREAD_COOLDOWN_S}s) for ${agentName} in ${threadId}`;
+      if (result === 'cooldown') {
+        return cooldownMessage;
       }
 
-      await this.redis.incr(hourKey);
-      await this.redis.expire(hourKey, 3600);
+      logger.warn('Discord rate-limit script returned unexpected result, allowing message (fail-open)', {
+        agentName,
+        result,
+      });
       return null;
     } catch (err) {
-      logger.warn('Discord thread rate-limit check failed, allowing message (fail-open)', {
+      logger.warn(failureLogMessage, {
         error: err instanceof Error ? err.message : String(err),
       });
       return null;

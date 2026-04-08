@@ -54,17 +54,22 @@ function createMockAdapter(): DiscordChannelAdapter & {
 }
 
 /**
- * In-memory Redis mock exposing just the subset DiscordExecutor uses:
+ * In-memory Redis mock exposing the subset DiscordExecutor uses:
  * - get(key)
  * - set(key, value, 'EX', ttl, 'NX')
  * - incr(key)
  * - expire(key, ttl)
+ * - eval(script, numKeys, ...keysAndArgs) — the rate-limit path runs a
+ *   Lua script with 2 keys (hourKey, cooldownKey) and 3 args (hourlyCap,
+ *   cooldownSeconds, hourlyWindowS). Only the check-and-consume logic is
+ *   simulated here; if you add new scripts, extend this mock.
  */
 function createMockRedis(): {
   get: ReturnType<typeof vi.fn>;
   set: ReturnType<typeof vi.fn>;
   incr: ReturnType<typeof vi.fn>;
   expire: ReturnType<typeof vi.fn>;
+  eval: ReturnType<typeof vi.fn>;
   _store: Map<string, string>;
 } {
   const store = new Map<string, string>();
@@ -83,7 +88,27 @@ function createMockRedis(): {
     return next;
   });
   const expire = vi.fn(async () => 1);
-  return { get, set, incr, expire, _store: store } as any;
+  const evalFn = vi.fn(async (
+    _script: string,
+    _numKeys: number,
+    hourKey: string,
+    cooldownKey: string,
+    hourlyCap: string,
+    cooldownSeconds: string,
+    _hourlyWindowS: string,
+  ) => {
+    const cap = parseInt(hourlyCap, 10);
+    const count = parseInt(store.get(hourKey) ?? '0', 10);
+    if (count >= cap) return 'hourly_cap';
+    if (store.has(cooldownKey)) return 'cooldown';
+    // Set cooldown with TTL (ignored in mock, just track presence)
+    store.set(cooldownKey, '1');
+    void cooldownSeconds; // kept for parity with prod signature
+    // Increment hour count
+    store.set(hourKey, String(count + 1));
+    return 'ok';
+  });
+  return { get, set, incr, expire, eval: evalFn, _store: store } as any;
 }
 
 // ─── Tests ──────────────────────────────────────────────────────────────────

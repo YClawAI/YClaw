@@ -7,6 +7,7 @@ const logger = createLogger('discord-event-handler');
 
 /** Max recent message IDs retained for dedup. */
 const MAX_EVENT_CACHE = 1000;
+const DISCORD_HANDLER_REGISTERED = '__yclawDiscordEventHandlerRegistered';
 
 // ─── Secret Redaction ──────────────────────────────────────────────────────
 // Match obvious token shapes and replace with [REDACTED] before publishing.
@@ -72,6 +73,15 @@ export class DiscordEventHandler {
 
   /** Register the inbound listener with the shared adapter. */
   async start(): Promise<void> {
+    const adapterWithRegistration = this.adapter as DiscordChannelAdapter & {
+      [DISCORD_HANDLER_REGISTERED]?: boolean;
+    };
+    if (adapterWithRegistration[DISCORD_HANDLER_REGISTERED]) {
+      logger.warn('DiscordEventHandler listener already registered on adapter; skipping duplicate start');
+      return;
+    }
+    adapterWithRegistration[DISCORD_HANDLER_REGISTERED] = true;
+
     await this.adapter.listen(async (inbound) => {
       try {
         await this.handleMessage(inbound);
