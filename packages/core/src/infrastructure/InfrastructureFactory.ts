@@ -102,13 +102,13 @@ export class InfrastructureFactory {
     try {
       const raw = await readFile(searchPath, 'utf-8');
       const parsed = parseYaml(raw);
-      const config = YclawConfigSchema.parse(parsed);
+      const config = YclawConfigSchema.parse(this.applyEnvChannelDefaults(parsed));
       logger.info('Loaded config from file', { path: searchPath });
-      return this.applyEnvChannelDefaults(config);
+      return config;
     } catch (err: any) {
       if (err.code === 'ENOENT') {
         logger.info('No yclaw.config.yaml found — using env var defaults');
-        return this.applyEnvChannelDefaults(YclawConfigSchema.parse({}));
+        return YclawConfigSchema.parse(this.applyEnvChannelDefaults({}));
       }
       throw new Error(`Failed to load yclaw.config.yaml: ${err.message}`);
     }
@@ -118,19 +118,27 @@ export class InfrastructureFactory {
    * Auto-enable channel adapters from environment variables. Users can
    * opt in to Slack and Discord by setting their bot tokens without
    * writing a `yclaw.config.yaml`. An explicit `enabled: false` in the
-   * config file always wins so operators can force a channel off.
+   * raw config file always wins so operators can force a channel off.
    */
-  private static applyEnvChannelDefaults(config: YclawConfig): YclawConfig {
-    const channels = { ...config.channels };
+  private static applyEnvChannelDefaults(config: unknown): Record<string, unknown> {
+    const source = (config && typeof config === 'object')
+      ? config as Record<string, unknown>
+      : {};
+    const rawChannels = (source.channels && typeof source.channels === 'object')
+      ? source.channels as Record<string, unknown>
+      : {};
+    const channels: Record<string, unknown> = { ...rawChannels };
 
     const maybeEnable = (
       name: 'slack' | 'discord',
       envVar: string,
     ): void => {
       if (!process.env[envVar]?.trim()) return;
-      const existing = channels[name];
-      // Respect explicit opt-out (`enabled: false`) from yclaw.config.yaml.
-      if (existing && existing.enabled === false) return;
+      const existing = (channels[name] && typeof channels[name] === 'object')
+        ? channels[name] as Record<string, unknown>
+        : undefined;
+      // Respect explicit opt-out (`enabled: false`) from the raw config.
+      if (existing?.enabled === false) return;
       channels[name] = {
         ...(existing ?? {}),
         enabled: true,
@@ -140,7 +148,7 @@ export class InfrastructureFactory {
     maybeEnable('slack', 'SLACK_BOT_TOKEN');
     maybeEnable('discord', 'DISCORD_BOT_TOKEN');
 
-    return { ...config, channels };
+    return { ...source, channels };
   }
 
   // ─── Factory Methods ──────────────────────────────────────────────────────

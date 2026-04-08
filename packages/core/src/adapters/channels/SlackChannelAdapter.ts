@@ -71,10 +71,14 @@ export class SlackChannelAdapter implements IChannel {
 
     // DM: route to the dm action when userId is provided (#8)
     if (target.userId && !target.channelId) {
-      const result = await this.executor.execute('dm', {
+      const dmParams: Record<string, unknown> = {
         userId: target.userId,
         text: message.text,
-      });
+      };
+      if (Array.isArray(blocks)) {
+        dmParams.blocks = blocks;
+      }
+      const result = await this.executor.execute('dm', dmParams);
       return {
         success: result.success,
         messageId: result.data?.ts as string | undefined,
