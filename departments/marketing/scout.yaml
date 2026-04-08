@@ -43,6 +43,9 @@ triggers:
     event: strategist:scout_directive
     task: handle_directive
   - type: event
+    event: discord:message
+    task: monitor_discord_intel
+  - type: event
     event: claudeception:reflect
     task: self_reflection
     model:
@@ -62,6 +65,7 @@ actions:
   - email:send
   - slack:message
   - slack:thread_reply
+  - discord:get_channel_history
   - event:publish
 
 data_sources: []
@@ -69,6 +73,7 @@ data_sources: []
 event_subscriptions:
   - strategist:scout_directive
   - claudeception:reflect
+  - discord:message
 
 event_publications:
   - standup:report

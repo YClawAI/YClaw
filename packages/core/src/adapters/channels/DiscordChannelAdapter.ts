@@ -241,4 +241,73 @@ export class DiscordChannelAdapter implements IChannel {
       error: result.error,
     };
   }
+
+  // ─── Additional helpers (not part of IChannel) ──────────────────────────
+  // Exposed for DiscordExecutor which needs history fetches beyond what the
+  // shared interface supports. Kept as named methods on the concrete adapter
+  // so we don't widen IChannel with Discord-specific affordances.
+
+  /**
+   * Fetch recent messages from a channel (or thread). Returns a plain array
+   * of normalized message objects. Throws on failure (caller handles).
+   */
+  async fetchChannelHistory(channelId: string, limit = 50): Promise<Array<{
+    id: string;
+    author: { id: string; username: string; bot: boolean };
+    content: string;
+    createdAt: string;
+    threadId: string | null;
+  }>> {
+    if (!this.client || !this.connected) {
+      throw new Error('Discord adapter not connected');
+    }
+    const channel = await this.client.channels.fetch(channelId);
+    if (!channel) throw new Error(`Channel not found: ${channelId}`);
+    if (typeof channel.messages?.fetch !== 'function') {
+      throw new Error(`Channel ${channelId} is not a text channel`);
+    }
+
+    const collection = await channel.messages.fetch({ limit: Math.min(Math.max(limit, 1), 100) });
+    const messages: Array<{
+      id: string;
+      author: { id: string; username: string; bot: boolean };
+      content: string;
+      createdAt: string;
+      threadId: string | null;
+    }> = [];
+    // discord.js returns a Collection; iterate with .values()
+    for (const msg of collection.values()) {
+      messages.push({
+        id: msg.id,
+        author: {
+          id: msg.author?.id ?? '',
+          username: msg.author?.username ?? '',
+          bot: msg.author?.bot === true,
+        },
+        content: msg.content ?? '',
+        createdAt: msg.createdAt?.toISOString?.() ?? new Date().toISOString(),
+        threadId: msg.thread?.id ?? null,
+      });
+    }
+    return messages;
+  }
+
+  /**
+   * Fetch messages from a thread by thread id. Threads are channels in
+   * Discord, so this delegates to fetchChannelHistory under the hood.
+   */
+  async fetchThreadReplies(threadId: string, limit = 50): Promise<Array<{
+    id: string;
+    author: { id: string; username: string; bot: boolean };
+    content: string;
+    createdAt: string;
+    threadId: string | null;
+  }>> {
+    return this.fetchChannelHistory(threadId, limit);
+  }
+
+  /** Expose readiness flag for the executor's health check. */
+  isConnected(): boolean {
+    return this.connected;
+  }
 }

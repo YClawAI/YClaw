@@ -27,6 +27,9 @@ triggers:
     event: keeper:support_case
     task: handle_support
   - type: event
+    event: discord:mention
+    task: handle_discord_support
+  - type: event
     event: strategist:guide_directive
     task: handle_directive
   - type: event
@@ -47,6 +50,9 @@ actions:
   - vault:search
   - slack:message
   - slack:thread_reply
+  - discord:thread_reply
+  - discord:get_thread
+  - discord:react
   - event:publish
 
 data_sources: []
@@ -55,6 +61,7 @@ event_subscriptions:
   - strategist:guide_directive
   - claudeception:reflect
   - keeper:support_case
+  - discord:mention
 
 event_publications:
   - standup:report
