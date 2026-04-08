@@ -102,16 +102,53 @@ export class InfrastructureFactory {
     try {
       const raw = await readFile(searchPath, 'utf-8');
       const parsed = parseYaml(raw);
-      const config = YclawConfigSchema.parse(parsed);
+      const config = YclawConfigSchema.parse(this.applyEnvChannelDefaults(parsed));
       logger.info('Loaded config from file', { path: searchPath });
       return config;
     } catch (err: any) {
       if (err.code === 'ENOENT') {
         logger.info('No yclaw.config.yaml found — using env var defaults');
-        return YclawConfigSchema.parse({});
+        return YclawConfigSchema.parse(this.applyEnvChannelDefaults({}));
       }
       throw new Error(`Failed to load yclaw.config.yaml: ${err.message}`);
     }
+  }
+
+  /**
+   * Auto-enable channel adapters from environment variables. Users can
+   * opt in to Slack and Discord by setting their bot tokens without
+   * writing a `yclaw.config.yaml`. An explicit `enabled: false` in the
+   * raw config file always wins so operators can force a channel off.
+   */
+  private static applyEnvChannelDefaults(config: unknown): Record<string, unknown> {
+    const source = (config && typeof config === 'object')
+      ? config as Record<string, unknown>
+      : {};
+    const rawChannels = (source.channels && typeof source.channels === 'object')
+      ? source.channels as Record<string, unknown>
+      : {};
+    const channels: Record<string, unknown> = { ...rawChannels };
+
+    const maybeEnable = (
+      name: 'slack' | 'discord',
+      envVar: string,
+    ): void => {
+      if (!process.env[envVar]?.trim()) return;
+      const existing = (channels[name] && typeof channels[name] === 'object')
+        ? channels[name] as Record<string, unknown>
+        : undefined;
+      // Respect explicit opt-out (`enabled: false`) from the raw config.
+      if (existing?.enabled === false) return;
+      channels[name] = {
+        ...(existing ?? {}),
+        enabled: true,
+      };
+    };
+
+    maybeEnable('slack', 'SLACK_BOT_TOKEN');
+    maybeEnable('discord', 'DISCORD_BOT_TOKEN');
+
+    return { ...source, channels };
   }
 
   // ─── Factory Methods ──────────────────────────────────────────────────────

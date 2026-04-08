@@ -26,18 +26,11 @@ const logger = createLogger('slack-executor');
 //
 
 // ─── Department → Channel Routing ───────────────────────────────────────────
+// Canonical source lives in utils/channel-routing.ts so Slack and other
+// notifiers share the same department map. Re-exported here for backward
+// compatibility with code that already imports from this module.
 
-export const SLACK_CHANNELS = {
-  general: '#yclaw-general',
-  executive: '#yclaw-executive',
-  marketing: '#yclaw-marketing',
-  development: '#yclaw-development',
-  operations: '#yclaw-operations',
-  finance: '#yclaw-finance',
-  support: '#yclaw-support',
-  alerts: '#yclaw-alerts',
-  audit: '#yclaw-audit',
-} as const;
+export { SLACK_CHANNELS } from '../utils/channel-routing.js';
 
 // ─── Agent Identity Map ─────────────────────────────────────────────────────
 // Maps agent name → display identity for Slack messages

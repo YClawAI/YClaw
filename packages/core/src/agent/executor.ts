@@ -42,7 +42,8 @@ import type { YclawConfig } from '../infrastructure/config-schema.js';
 import { resolveCommunicationStyle } from '../config/communication-style.js';
 import type { Redis as IORedis } from 'ioredis';
 import { createLogger } from '../logging/logger.js';
-import { AGENT_IDENTITIES, SLACK_CHANNELS } from '../actions/slack.js';
+import { AGENT_IDENTITIES } from '../actions/slack.js';
+import { SLACK_CHANNELS, getChannelForAgent as getRoutingChannelForAgent } from '../utils/channel-routing.js';
 
 const MAX_TOOL_ROUNDS = 25;
 
@@ -1030,11 +1031,21 @@ export class AgentExecutor {
         if (!args.username) args.username = identity.username;
         if (!args.icon_emoji) args.icon_emoji = identity.icon_emoji;
       }
-      // Default channel to the agent's department channel if not specified
+      // Default channel to the agent's department channel if not specified.
+      // Resolve via channel-routing so SLACK_CHANNEL_* env overrides apply.
       if (!args.channel) {
-        const deptChannel = SLACK_CHANNELS[config.department as keyof typeof SLACK_CHANNELS];
-        if (deptChannel) args.channel = deptChannel;
+        const fromEnv = getRoutingChannelForAgent(config.name, 'slack');
+        const fallback = SLACK_CHANNELS[config.department as keyof typeof SLACK_CHANNELS];
+        const resolved = fromEnv || fallback;
+        if (resolved) args.channel = resolved;
       }
+    }
+
+    // Same default-channel behavior for direct discord:* action calls so
+    // agents can emit `discord:message` without hardcoding a channel ID.
+    if (actionName.startsWith('discord:') && !args.channel) {
+      const resolved = getRoutingChannelForAgent(config.name, 'discord');
+      if (resolved) args.channel = resolved;
     }
 
     // Dedup read-only actions within a single execution (e.g., github:get_contents)

@@ -53,6 +53,14 @@ export class SlackChannelAdapter implements IChannel {
       text: message.text,
     };
 
+    // Slack Block Kit passthrough: callers (e.g. ChannelNotifier) can attach
+    // a `blocks` array to the ChannelMessage for rich formatting. It lives
+    // outside the IChannel contract so other adapters ignore it safely.
+    const blocks = (message as unknown as { blocks?: unknown }).blocks;
+    if (Array.isArray(blocks)) {
+      params.blocks = blocks;
+    }
+
     // Identity override
     if (message.identity?.displayName) {
       params.username = message.identity.displayName;
@@ -63,10 +71,14 @@ export class SlackChannelAdapter implements IChannel {
 
     // DM: route to the dm action when userId is provided (#8)
     if (target.userId && !target.channelId) {
-      const result = await this.executor.execute('dm', {
+      const dmParams: Record<string, unknown> = {
         userId: target.userId,
         text: message.text,
-      });
+      };
+      if (Array.isArray(blocks)) {
+        dmParams.blocks = blocks;
+      }
+      const result = await this.executor.execute('dm', dmParams);
       return {
         success: result.success,
         messageId: result.data?.ts as string | undefined,
