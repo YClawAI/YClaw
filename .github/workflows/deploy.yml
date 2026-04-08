@@ -21,6 +21,9 @@ jobs:
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       core: ${{ steps.filter.outputs.core }}
       mc: ${{ steps.filter.outputs.mc }}
