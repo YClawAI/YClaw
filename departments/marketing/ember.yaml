@@ -95,6 +95,8 @@ event_subscriptions:
   - reviewer:approved
   - reviewer:flagged
   - discord:message
+  - discord:thread_reply
+  - discord:react
 
 event_publications:
   - standup:report

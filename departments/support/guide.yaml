@@ -50,6 +50,7 @@ actions:
   - vault:search
   - slack:message
   - slack:thread_reply
+  - discord:message
   - discord:thread_reply
   - discord:get_thread
   - discord:react

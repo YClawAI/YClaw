@@ -95,7 +95,23 @@ export class DiscordChannelAdapter implements IChannel {
         logger.error('Discord client error', { error: err.message });
       });
 
-      await this.client.login(token);
+      // Wait for the Ready event before returning — login() resolves before
+      // the WebSocket handshake completes, which causes health checks to see
+      // an "unhealthy" adapter if they run immediately after connect().
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(
+          () => reject(new Error('Discord login timed out after 15 s')),
+          15_000,
+        );
+        this.client!.once(Events.ClientReady, () => {
+          clearTimeout(timeout);
+          resolve();
+        });
+        this.client!.login(token).catch((err: Error) => {
+          clearTimeout(timeout);
+          reject(err);
+        });
+      });
       logger.info('DiscordChannelAdapter connected');
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

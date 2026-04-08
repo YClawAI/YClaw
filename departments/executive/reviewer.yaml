@@ -48,6 +48,10 @@ actions:
 - slack:message
 - slack:thread_reply
 - slack:alert
+- discord:message
+- discord:thread_reply
+- discord:react
+- discord:alert
 - event:publish
 data_sources: []
 event_subscriptions:
