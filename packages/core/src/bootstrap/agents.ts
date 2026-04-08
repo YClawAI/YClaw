@@ -20,6 +20,7 @@ import type { CoordDeliverablePayload, CoordReviewPayload } from '../types/event
 import { shouldRunHeartbeat, recordHeartbeatRun } from '../services/heartbeat-precheck.js';
 import { Journaler } from '../modules/journaler.js';
 import { SlackNotifier } from '../modules/slack-notifier.js';
+import { ChannelNotifier } from '../modules/channel-notifier.js';
 import { registerExplorationModule } from '../exploration/index.js';
 import { registerGrowthEngine } from '../growth-engine/index.js';
 import type { ExplorationDispatcher } from '../exploration/index.js';
@@ -1588,19 +1589,36 @@ export async function initAgents(
     }
   });
 
-  // ─── Journaler + SlackNotifier ───────────────────────────────────────
+  // ─── Journaler + ChannelNotifier ─────────────────────────────────────
   if (eventStream && streamRedis) {
     const githubExec = actionRegistry.getExecutor('github') as GitHubExecutor;
     const journaler = new Journaler(streamRedis, eventStream, githubExec);
     await journaler.start();
     logger.info('Journaler started (milestone events → GitHub issue comments)');
 
-    const slackExec = actionRegistry.getExecutor('slack') as SlackExecutor;
-    const slackNotifier = new SlackNotifier(streamRedis, eventStream, slackExec);
-    await slackNotifier.start();
-    logger.info('SlackNotifier started (coord events → Slack Block Kit)');
+    // Prefer the unified ChannelNotifier when the infrastructure layer
+    // provides IChannel adapters. It fans coord events out to every
+    // enabled platform (Slack, Discord, …) using per-platform routing
+    // and formatting.
+    //
+    // Fall back to the legacy SlackNotifier when no infrastructure
+    // channels are wired — this is the old env-only path (SlackExecutor
+    // talking directly to Slack).
+    const infraChannels = services.infrastructure?.channels;
+    if (infraChannels && infraChannels.size > 0) {
+      const channelNotifier = new ChannelNotifier(streamRedis, eventStream, infraChannels);
+      await channelNotifier.start();
+      logger.info('ChannelNotifier started', {
+        platforms: Array.from(infraChannels.keys()),
+      });
+    } else {
+      const slackExec = actionRegistry.getExecutor('slack') as SlackExecutor;
+      const slackNotifier = new SlackNotifier(streamRedis, eventStream, slackExec);
+      await slackNotifier.start();
+      logger.info('SlackNotifier started (legacy path — no infrastructure channels)');
+    }
   } else {
-    logger.info('Journaler & SlackNotifier disabled — EventStream not available');
+    logger.info('Journaler & ChannelNotifier disabled — EventStream not available');
   }
 
   // ─── Exploration Module (AgentHub Phase 2) ───────────────────────────────

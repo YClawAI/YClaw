@@ -1,78 +1,35 @@
 import type { YClawEvent, CoordReviewPayload } from '../types/events.js';
-
-// ─── Agent Emoji Map ────────────────────────────────────────────────────────
-
-const AGENT_EMOJI: Record<string, string> = {
-  strategist: '\u{1F9E0}',       // 🧠
-  builder: '\u{1F6E0}\uFE0F',    // 🛠️
-  architect: '\u{1F4D0}',        // 📐
-  designer: '\u{1F3A8}',         // 🎨
-  deployer: '\u{1F680}',         // 🚀
-  reviewer: '\u{1F4CB}',         // 📋
-  scout: '\u{1F50D}',            // 🔍
-  ember: '\u{1F525}',            // 🔥
-  forge: '\u2692\uFE0F',         // ⚒️
-  sentinel: '\u{1F6E1}\uFE0F',   // 🛡️
-  treasurer: '\u{1F4B0}',        // 💰
-  keeper: '\u{1F3E0}',           // 🏠
-  guide: '\u{1F4DA}',            // 📚
-  signal: '\u{1F4E1}',           // 📡
-};
-
-// ─── Agent → Department Mapping ─────────────────────────────────────────────
-
-const AGENT_DEPARTMENT: Record<string, string> = {
-  strategist: 'executive',
-  reviewer: 'executive',
-  architect: 'development',
-  builder: 'development',
-  deployer: 'development',
-  designer: 'development',
-  ember: 'marketing',
-  forge: 'marketing',
-  scout: 'marketing',
-  sentinel: 'operations',
-  signal: 'operations',
-  treasurer: 'finance',
-  guide: 'support',
-  keeper: 'support',
-};
-
-// ─── Department → Slack Channel ID ──────────────────────────────────────────
-// Hard-coded channel IDs avoid API lookups at runtime.
-
-const DEPARTMENT_CHANNEL: Record<string, string> = {
-  executive: 'C0000000001',   // #yclaw-executive
-  development: 'C0000000002', // #yclaw-development
-  marketing: 'C0000000003',   // #yclaw-marketing
-  operations: 'C0000000004',  // #yclaw-operations
-  finance: 'C0000000005',     // #yclaw-finance
-  support: 'C0000000006',     // #yclaw-support
-  alerts: 'C0000000007',      // #yclaw-alerts
-};
-
-const FALLBACK_CHANNEL = 'C0000000008'; // #yclaw-general
-
-/** Alerts channel ID for escalations/blockers. */
-export const ALERTS_CHANNEL = DEPARTMENT_CHANNEL.alerts!;
+import {
+  getAgentEmoji as routingGetAgentEmoji,
+  getChannelForAgent as routingGetChannelForAgent,
+  getAlertsChannel,
+  getDepartmentForAgent as routingGetDepartmentForAgent,
+} from './channel-routing.js';
 
 // ─── Public Helpers ─────────────────────────────────────────────────────────
+// This module used to own hard-coded department/channel maps. Canonical
+// routing now lives in ./channel-routing.ts so every notifier (Slack,
+// Discord, …) shares the same source. These wrappers keep the legacy
+// single-argument shape for SlackNotifier and any other Slack-specific
+// callers that predate the multi-platform work.
+
+/** Alerts channel ID for escalations/blockers. Reads SLACK_CHANNEL_ALERTS. */
+export const ALERTS_CHANNEL: string =
+  getAlertsChannel('slack') ?? '#yclaw-alerts';
 
 /** Get the emoji for an agent. Returns 🔔 for unknown agents. */
 export function getAgentEmoji(agent: string): string {
-  return AGENT_EMOJI[agent] || '\u{1F514}'; // 🔔
+  return routingGetAgentEmoji(agent);
 }
 
 /** Get the Slack channel ID for an agent's department. */
 export function getChannelForAgent(agent: string): string {
-  const dept = AGENT_DEPARTMENT[agent];
-  if (!dept) return FALLBACK_CHANNEL;
-  return DEPARTMENT_CHANNEL[dept] || FALLBACK_CHANNEL;
+  return routingGetChannelForAgent(agent, 'slack') ?? '#yclaw-general';
 }
 
 /** Get the department name for an agent. */
 export function getDepartmentForAgent(agent: string): string | undefined {
-  return AGENT_DEPARTMENT[agent];
+  return routingGetDepartmentForAgent(agent);
 }
 
 // ─── Slack Block Kit Types ──────────────────────────────────────────────────

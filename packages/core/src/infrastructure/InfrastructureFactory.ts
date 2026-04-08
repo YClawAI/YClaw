@@ -104,14 +104,43 @@ export class InfrastructureFactory {
       const parsed = parseYaml(raw);
       const config = YclawConfigSchema.parse(parsed);
       logger.info('Loaded config from file', { path: searchPath });
-      return config;
+      return this.applyEnvChannelDefaults(config);
     } catch (err: any) {
       if (err.code === 'ENOENT') {
         logger.info('No yclaw.config.yaml found — using env var defaults');
-        return YclawConfigSchema.parse({});
+        return this.applyEnvChannelDefaults(YclawConfigSchema.parse({}));
       }
       throw new Error(`Failed to load yclaw.config.yaml: ${err.message}`);
     }
+  }
+
+  /**
+   * Auto-enable channel adapters from environment variables. Users can
+   * opt in to Slack and Discord by setting their bot tokens without
+   * writing a `yclaw.config.yaml`. An explicit `enabled: false` in the
+   * config file always wins so operators can force a channel off.
+   */
+  private static applyEnvChannelDefaults(config: YclawConfig): YclawConfig {
+    const channels = { ...config.channels };
+
+    const maybeEnable = (
+      name: 'slack' | 'discord',
+      envVar: string,
+    ): void => {
+      if (!process.env[envVar]?.trim()) return;
+      const existing = channels[name];
+      // Respect explicit opt-out (`enabled: false`) from yclaw.config.yaml.
+      if (existing && existing.enabled === false) return;
+      channels[name] = {
+        ...(existing ?? {}),
+        enabled: true,
+      };
+    };
+
+    maybeEnable('slack', 'SLACK_BOT_TOKEN');
+    maybeEnable('discord', 'DISCORD_BOT_TOKEN');
+
+    return { ...config, channels };
   }
 
   // ─── Factory Methods ──────────────────────────────────────────────────────

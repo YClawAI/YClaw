@@ -91,39 +91,39 @@ describe('slack-blocks', () => {
 
   describe('getChannelForAgent', () => {
     it('routes development agents to #yclaw-development', () => {
-      expect(getChannelForAgent('builder')).toBe('C0000000002');
-      expect(getChannelForAgent('architect')).toBe('C0000000002');
-      expect(getChannelForAgent('deployer')).toBe('C0000000002');
-      expect(getChannelForAgent('designer')).toBe('C0000000002');
+      expect(getChannelForAgent('builder')).toBe('#yclaw-development');
+      expect(getChannelForAgent('architect')).toBe('#yclaw-development');
+      expect(getChannelForAgent('deployer')).toBe('#yclaw-development');
+      expect(getChannelForAgent('designer')).toBe('#yclaw-development');
     });
 
     it('routes executive agents to #yclaw-executive', () => {
-      expect(getChannelForAgent('strategist')).toBe('C0000000001');
-      expect(getChannelForAgent('reviewer')).toBe('C0000000001');
+      expect(getChannelForAgent('strategist')).toBe('#yclaw-executive');
+      expect(getChannelForAgent('reviewer')).toBe('#yclaw-executive');
     });
 
     it('routes marketing agents to #yclaw-marketing', () => {
-      expect(getChannelForAgent('ember')).toBe('C0000000003');
-      expect(getChannelForAgent('forge')).toBe('C0000000003');
-      expect(getChannelForAgent('scout')).toBe('C0000000003');
+      expect(getChannelForAgent('ember')).toBe('#yclaw-marketing');
+      expect(getChannelForAgent('forge')).toBe('#yclaw-marketing');
+      expect(getChannelForAgent('scout')).toBe('#yclaw-marketing');
     });
 
     it('routes operations agents to #yclaw-operations', () => {
-      expect(getChannelForAgent('sentinel')).toBe('C0000000004');
-      expect(getChannelForAgent('signal')).toBe('C0000000004');
+      expect(getChannelForAgent('sentinel')).toBe('#yclaw-operations');
+      expect(getChannelForAgent('signal')).toBe('#yclaw-operations');
     });
 
     it('routes finance agents to #yclaw-finance', () => {
-      expect(getChannelForAgent('treasurer')).toBe('C0000000005');
+      expect(getChannelForAgent('treasurer')).toBe('#yclaw-finance');
     });
 
     it('routes support agents to #yclaw-support', () => {
-      expect(getChannelForAgent('guide')).toBe('C0000000006');
-      expect(getChannelForAgent('keeper')).toBe('C0000000006');
+      expect(getChannelForAgent('guide')).toBe('#yclaw-support');
+      expect(getChannelForAgent('keeper')).toBe('#yclaw-support');
     });
 
     it('returns fallback channel for unknown agents', () => {
-      expect(getChannelForAgent('unknown')).toBe('C0000000008');
+      expect(getChannelForAgent('unknown')).toBe('#yclaw-general');
     });
   });
 
@@ -214,8 +214,8 @@ describe('slack-blocks', () => {
   });
 
   describe('ALERTS_CHANNEL', () => {
-    it('is the correct channel ID for #yclaw-alerts', () => {
-      expect(ALERTS_CHANNEL).toBe('C0000000007');
+    it('resolves to the #yclaw-alerts channel by default', () => {
+      expect(ALERTS_CHANNEL).toBe('#yclaw-alerts');
     });
   });
 });
@@ -262,7 +262,7 @@ describe('SlackNotifier', () => {
     await new Promise(r => setTimeout(r, 50));
 
     expect(slack.execute).toHaveBeenCalledWith('message', expect.objectContaining({
-      channel: 'C0000000002', // #yclaw-development (builder's department)
+      channel: '#yclaw-development', // builder's department
       blocks: expect.any(Array),
     }));
   });
@@ -306,7 +306,7 @@ describe('SlackNotifier', () => {
     await new Promise(r => setTimeout(r, 50));
 
     expect(slack.execute).toHaveBeenCalledWith('thread_reply', expect.objectContaining({
-      channel: 'C0000000002',
+      channel: '#yclaw-development',
       threadTs: '1111111111.111111',
     }));
   });
@@ -323,8 +323,8 @@ describe('SlackNotifier', () => {
 
     const calls = slack.execute.mock.calls;
     const channels = calls.map((c: unknown[]) => (c[1] as Record<string, unknown>).channel);
-    expect(channels).toContain('C0000000002'); // #yclaw-development
-    expect(channels).toContain('C0000000007');  // #yclaw-alerts
+    expect(channels).toContain('#yclaw-development');
+    expect(channels).toContain('#yclaw-alerts');
   });
 
   it('does not double-post if department channel IS #yclaw-alerts', async () => {
@@ -353,7 +353,7 @@ describe('SlackNotifier', () => {
       .mockResolvedValueOnce({ success: false, error: 'thread_not_found' })
       .mockResolvedValueOnce({
         success: true,
-        data: { ts: '2222222222.222222', channel: 'C0000000002' },
+        data: { ts: '2222222222.222222', channel: '#yclaw-development' },
       });
 
     const event = makeEvent('coord.task.completed', 'builder', {
@@ -391,7 +391,7 @@ describe('SlackNotifier', () => {
     await new Promise(r => setTimeout(r, 50));
 
     expect(slack.execute).toHaveBeenCalledWith('message', expect.objectContaining({
-      channel: 'C0000000003', // #yclaw-marketing
+      channel: '#yclaw-marketing',
     }));
   });
 
@@ -405,7 +405,7 @@ describe('SlackNotifier', () => {
     await new Promise(r => setTimeout(r, 50));
 
     expect(slack.execute).toHaveBeenCalledWith('message', expect.objectContaining({
-      channel: 'C0000000008', // #yclaw-general
+      channel: '#yclaw-general',
     }));
   });
 });
