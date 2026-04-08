@@ -43,6 +43,9 @@ actions:
   - github:get_contents
   - slack:message
   - slack:thread_reply
+  - discord:message
+  - discord:thread_reply
+  - discord:react
   - event:publish
 
 data_sources: []

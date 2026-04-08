@@ -57,6 +57,9 @@ actions:
   - github:pr_review
   - slack:message
   - slack:thread_reply
+  - discord:message
+  - discord:thread_reply
+  - discord:react
   - event:publish
   - figma:get_file
   - figma:get_node

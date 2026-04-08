@@ -74,6 +74,8 @@ event_subscriptions:
   - strategist:scout_directive
   - claudeception:reflect
   - discord:message
+  - discord:thread_reply
+  - discord:react
 
 event_publications:
   - standup:report

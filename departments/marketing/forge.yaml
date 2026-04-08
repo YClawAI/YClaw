@@ -52,6 +52,9 @@ actions:
   - telegram:set_chat_photo
   - slack:message
   - slack:thread_reply
+  - discord:message
+  - discord:thread_reply
+  - discord:react
   - event:publish
 data_sources: []
 event_subscriptions:

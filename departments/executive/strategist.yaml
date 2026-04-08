@@ -108,6 +108,9 @@ actions:
 - telegram:set_description
 - slack:message
 - slack:thread_reply
+- discord:message
+- discord:thread_reply
+- discord:react
 - event:publish
 - deploy:assess
 - deploy:execute

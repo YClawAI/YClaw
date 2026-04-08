@@ -9,6 +9,71 @@ const logger = createLogger('discord-event-handler');
 const MAX_EVENT_CACHE = 1000;
 const DISCORD_HANDLER_REGISTERED = '__yclawDiscordEventHandlerRegistered';
 
+// ─── Inbound Rate Limiting ─────────────────────────────────────────────────
+// Prevents external users from draining LLM budget by spamming messages or
+// @mentions that trigger agent task executions.
+
+/** Max events published per user per rolling window. */
+const INBOUND_MAX_PER_USER = Number(process.env.DISCORD_INBOUND_RATE_LIMIT ?? 5);
+/** Rolling window in milliseconds (default 1 hour). */
+const INBOUND_WINDOW_MS = Number(process.env.DISCORD_INBOUND_WINDOW_MS ?? 3_600_000);
+/** Max events published globally per rolling window. */
+const INBOUND_GLOBAL_MAX = Number(process.env.DISCORD_INBOUND_GLOBAL_LIMIT ?? 30);
+
+interface RateBucket {
+  timestamps: number[];
+}
+
+class InboundRateLimiter {
+  private perUser = new Map<string, RateBucket>();
+  private globalTimestamps: number[] = [];
+
+  /** Returns true if the event should be allowed through. */
+  allow(userId: string): boolean {
+    const now = Date.now();
+    const cutoff = now - INBOUND_WINDOW_MS;
+
+    // Global limit
+    this.globalTimestamps = this.globalTimestamps.filter((t) => t > cutoff);
+    if (this.globalTimestamps.length >= INBOUND_GLOBAL_MAX) {
+      logger.warn('Inbound rate limit: global cap reached', {
+        limit: INBOUND_GLOBAL_MAX,
+        windowMs: INBOUND_WINDOW_MS,
+      });
+      return false;
+    }
+
+    // Per-user limit
+    let bucket = this.perUser.get(userId);
+    if (!bucket) {
+      bucket = { timestamps: [] };
+      this.perUser.set(userId, bucket);
+    }
+    bucket.timestamps = bucket.timestamps.filter((t) => t > cutoff);
+    if (bucket.timestamps.length >= INBOUND_MAX_PER_USER) {
+      logger.warn('Inbound rate limit: per-user cap reached', {
+        userId,
+        limit: INBOUND_MAX_PER_USER,
+        windowMs: INBOUND_WINDOW_MS,
+      });
+      return false;
+    }
+
+    // Record this event
+    bucket.timestamps.push(now);
+    this.globalTimestamps.push(now);
+
+    // Periodic cleanup of stale user buckets
+    if (this.perUser.size > 500) {
+      for (const [uid, b] of this.perUser) {
+        if (b.timestamps.length === 0) this.perUser.delete(uid);
+      }
+    }
+
+    return true;
+  }
+}
+
 // ─── Secret Redaction ──────────────────────────────────────────────────────
 // Match obvious token shapes and replace with [REDACTED] before publishing.
 // Keep patterns conservative — false positives on normal chat text are worse
@@ -56,6 +121,7 @@ function redact(text: string): string {
 export class DiscordEventHandler {
   private recentMessageIds = new Set<string>();
   private readonly allowedChannels: Set<string> | null;
+  private readonly rateLimiter = new InboundRateLimiter();
 
   constructor(
     private readonly eventBus: EventBus,
@@ -181,7 +247,17 @@ export class DiscordEventHandler {
       timestamp: inbound.timestamp,
     };
 
-    // 8. Publish to EventBus.
+    // 8. Inbound rate limit — prevent budget drain from spam.
+    if (!this.rateLimiter.allow(inbound.userId)) {
+      logger.warn('Dropping rate-limited Discord message', {
+        userId: inbound.userId,
+        messageId: inbound.messageId,
+        channelId: inbound.channelId,
+      });
+      return;
+    }
+
+    // 9. Publish to EventBus.
     const eventType = isMention ? 'mention' : 'message';
     logger.info('Publishing discord event', {
       type: `discord:${eventType}`,
