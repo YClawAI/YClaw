@@ -50,8 +50,6 @@ actions:
   - twitter:update_profile_image
   - twitter:update_profile_banner
   - telegram:set_chat_photo
-  - slack:message
-  - slack:thread_reply
   - discord:message
   - discord:thread_reply
   - discord:react

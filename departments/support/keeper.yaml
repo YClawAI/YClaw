@@ -62,9 +62,8 @@ actions:
   - telegram:ban
   - telegram:restrict
   - telegram:set_permissions
-  - slack:message
-  - slack:alert
   - discord:message
+  - discord:alert
   - discord:thread_reply
   - discord:create_thread
   - discord:get_channel_history

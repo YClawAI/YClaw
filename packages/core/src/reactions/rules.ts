@@ -6,6 +6,7 @@
  */
 
 import type { ReactionRule } from './types.js';
+import { getChannelForDepartment } from '../utils/channel-routing.js';
 
 /**
  * GitHub login(s) authorized for comment-based PR approval.
@@ -41,9 +42,9 @@ export const DEFAULT_REACTION_RULES: ReactionRule[] = [
     escalation: {
       afterMs: 30 * 60 * 1000, // 30 minutes
       action: {
-        type: 'slack:message',
+        type: 'discord:message',
         params: {
-          channel: 'C0000000007', // #yclaw-alerts
+          channel: getChannelForDepartment('alerts', 'discord') ?? '',
           text: '🚨 CI stuck on branch {{branch}} after 2 retries. Workflow: {{workflow}}. Needs human attention: {{url}}',
         },
       },
@@ -74,9 +75,9 @@ export const DEFAULT_REACTION_RULES: ReactionRule[] = [
     escalation: {
       afterMs: 30 * 60 * 1000,
       action: {
-        type: 'slack:message',
+        type: 'discord:message',
         params: {
-          channel: 'C0000000007',
+          channel: getChannelForDepartment('alerts', 'discord') ?? '',
           text: '🚨 Review comments unaddressed on PR #{{pr_number}} for 30+ minutes. Reviewer: {{reviewer}}. {{pr_url}}',
         },
       },
@@ -110,9 +111,9 @@ export const DEFAULT_REACTION_RULES: ReactionRule[] = [
         params: {},
       },
       {
-        type: 'slack:message',
+        type: 'discord:message',
         params: {
-          channel: 'C0000000002', // #yclaw-development
+          channel: getChannelForDepartment('development', 'discord') ?? '',
           text: '🔄 Auto-updating PR #{{pr_number}} branch — was behind master. CI will re-run.',
         },
       },
@@ -156,9 +157,9 @@ export const DEFAULT_REACTION_RULES: ReactionRule[] = [
         params: { stage: 'merged', status: 'completed' },
       },
       {
-        type: 'slack:message',
+        type: 'discord:message',
         params: {
-          channel: 'C0000000002', // #yclaw-development
+          channel: getChannelForDepartment('development', 'discord') ?? '',
           text: '✅ Auto-merged PR #{{pr_number}} ({{head_branch}}) — reviewed by {{reviewer}}',
         },
       },
@@ -197,9 +198,9 @@ export const DEFAULT_REACTION_RULES: ReactionRule[] = [
         params: { stage: 'merged', status: 'completed' },
       },
       {
-        type: 'slack:message',
+        type: 'discord:message',
         params: {
-          channel: 'C0000000002',
+          channel: getChannelForDepartment('development', 'discord') ?? '',
           text: '✅ Auto-merged PR #{{pr_number}} after approval by {{reviewer}}',
         },
       },
@@ -271,9 +272,9 @@ export const DEFAULT_REACTION_RULES: ReactionRule[] = [
         params: { stage: 'merged', status: 'completed' },
       },
       {
-        type: 'slack:message',
+        type: 'discord:message',
         params: {
-          channel: 'C0000000002', // #yclaw-development
+          channel: getChannelForDepartment('development', 'discord') ?? '',
           text: '✅ Auto-merged PR #{{pr_number}} — Architect comment [APPROVED], CI was green',
         },
       },
@@ -362,9 +363,9 @@ export const DEFAULT_REACTION_RULES: ReactionRule[] = [
         },
       },
       {
-        type: 'slack:message',
+        type: 'discord:message',
         params: {
-          channel: 'C0000000002',
+          channel: getChannelForDepartment('development', 'discord') ?? '',
           text: '🔄 Stale review detected on PR #{{pr_number}} — requesting Architect re-review after new commits.',
         },
       },

@@ -81,8 +81,6 @@ actions:
   - x:user_tweets
   - telegram:message
   - telegram:announce
-  - slack:message
-  - slack:thread_reply
   - discord:get_channel_history
   - event:publish
 

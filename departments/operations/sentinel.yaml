@@ -58,9 +58,6 @@ actions:
   - github:get_contents
   - github:get_diff
   - repo:list
-  - slack:message
-  - slack:alert
-  - slack:thread_reply
   - discord:message
   - discord:thread_reply
   - discord:get_channel_history

@@ -77,8 +77,8 @@ export interface ReactionsManagerDeps {
   publishEvent: (source: string, type: string, data: Record<string, unknown>, correlationId?: string) => Promise<void>;
   /** Callback to execute a GitHub action (merge_pr, close_issue, etc.). */
   executeGitHubAction: (action: string, params: Record<string, unknown>) => Promise<{ success: boolean; error?: string }>;
-  /** Callback to execute a Slack action. */
-  executeSlackAction: (channel: string, text: string) => Promise<void>;
+  /** Callback to execute a Discord notification action. */
+  executeDiscordAction?: (channel: string, text: string) => Promise<void>;
   /** Callback to create/update a task in the Task Registry. */
   executeTaskAction: (action: string, params: Record<string, unknown>) => Promise<void>;
   /** Optional: custom rules (overrides defaults). */
@@ -445,11 +445,11 @@ export class ReactionsManager {
         break;
       }
 
-      case 'slack:message': {
+      case 'discord:message': {
         const channel = params.channel as string;
         const text = params.text as string;
-        if (!channel || !text) throw new Error('slack:message requires channel and text');
-        await this.deps.executeSlackAction(channel, text);
+        if (!channel || !text) throw new Error('discord:message requires channel and text');
+        await this.deps.executeDiscordAction?.(channel, text);
         break;
       }
 

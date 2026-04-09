@@ -63,8 +63,6 @@ actions:
   - x:user_tweets
   - twitter:read_metrics
   - email:send
-  - slack:message
-  - slack:thread_reply
   - discord:get_channel_history
   - event:publish
 
