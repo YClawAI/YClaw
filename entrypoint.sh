@@ -21,4 +21,4 @@ chown -R node:node /app/departments /app/prompts /app/memory /app/logs /app/tmp
 chown -R node:node /app/tmp/codegen 2>/dev/null || true
 chown node:node /app/packages/core/src/actions/custom 2>/dev/null || true
 
-exec gosu node "$@"
+exec su-exec node "$@"
