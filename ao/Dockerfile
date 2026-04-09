@@ -25,10 +25,30 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
     && apt-get update && apt-get install -y --no-install-recommends gh && rm -rf /var/lib/apt/lists/*
 
+# Python 3 — required by UI UX Pro Max design system generator (search.py)
+RUN apt-get update && apt-get install -y --no-install-recommends python3 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Coding harnesses
 RUN npm install -g @anthropic-ai/claude-code
 RUN npm install -g @mariozechner/pi-coding-agent
 RUN npm install -g @composio/ao@0.2.1
+
+# Claude Code plugins — installed at build time for --bare mode
+# 1. Add official Anthropic marketplace (superpowers lives here)
+# 2. Add anthropics/claude-code repo marketplace (frontend-design lives here)
+# 3. Install both plugins to user scope
+RUN claude plugins marketplace add anthropics/claude-plugins-official \
+    && claude plugins marketplace add anthropics/claude-code \
+        --sparse .claude-plugin plugins \
+    && claude plugins install superpowers@claude-plugins-official \
+    && claude plugins install frontend-design@claude-code-plugins
+
+# UI UX Pro Max — third-party design intelligence skill
+# Installs to ~/.claude/skills/ via the uipro CLI
+RUN npm install -g uipro-cli \
+    && mkdir -p /root/.claude/skills \
+    && cd /root && uipro init --ai claude --global
 
 # Codex CLI: pre-PR code review gate (multi-model ensemble)
 RUN npm install -g @openai/codex@0.118.0
@@ -52,6 +72,12 @@ RUN useradd -m -s /bin/bash -u 999 ao
 # Create workspace and persistent home directories
 RUN mkdir -p /data/worktrees /data/ao-state /data/ao-home /data/logs /app \
     && chown -R ao:ao /data /app /home/ao
+
+# Make Claude Code plugins/skills accessible to ao user
+RUN cp -r /root/.claude/plugins /home/ao/.claude/plugins 2>/dev/null || true \
+    && cp -r /root/.claude/skills /home/ao/.claude/skills 2>/dev/null || true \
+    && cp -r /root/.claude/settings.json /home/ao/.claude/settings.json 2>/dev/null || true \
+    && chown -R ao:ao /home/ao/.claude
 
 WORKDIR /app
 
