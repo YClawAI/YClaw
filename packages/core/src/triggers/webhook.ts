@@ -144,6 +144,7 @@ export class WebhookServer {
       if (req.path === '/telegram/webhook') return next(); // Telegram has its own secret verification
       if (req.path.startsWith('/github/')) return next(); // GitHub uses HMAC signature verification
       if (req.path.startsWith('/slack/')) return next(); // Slack uses HMAC signature verification
+      if (req.path.startsWith('/public/v1/')) return next(); // Public showcase routes — no auth required
       if (req.path.startsWith('/v1/')) return next(); // /v1/* uses operator Bearer auth, not legacy x-api-key
       if (req.path === '/api/ao/callback') return next(); // AO callback uses X-AO-TOKEN auth in its own middleware
       if (req.path === '/api/migrate') return next(); // Gated by isInternalIp above — no API key required
