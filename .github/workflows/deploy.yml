@@ -254,7 +254,8 @@ jobs:
             --arg IMAGE "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
             '.containerDefinitions[0].image = $IMAGE |
              del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
-                 .compatibilities, .registeredAt, .registeredBy)')
+                 .compatibilities, .registeredAt, .registeredBy) |
+             del(.containerDefinitions[0].command)')
 
           NEW_ARN=$(aws ecs register-task-definition \
             --region $AWS_REGION \
@@ -387,7 +388,8 @@ jobs:
              .containerDefinitions[0].secrets = ((.containerDefinitions[0].secrets // [])
                | if any(.name == "REDIS_URL") then . else . + [{"name":"REDIS_URL","valueFrom":$MC_REDIS_SECRET}] end) |
              del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
-                 .compatibilities, .registeredAt, .registeredBy)')
+                 .compatibilities, .registeredAt, .registeredBy) |
+             del(.containerDefinitions[0].command)')
 
           NEW_ARN=$(aws ecs register-task-definition \
             --region $AWS_REGION \
@@ -524,7 +526,8 @@ jobs:
              .containerDefinitions[0].secrets = ((.containerDefinitions[0].secrets // [])
                | if any(.name == "REDIS_URL") then . else . + [{"name":"REDIS_URL","valueFrom":$AO_REDIS_SECRET}] end) |
              del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
-                 .compatibilities, .registeredAt, .registeredBy)')
+                 .compatibilities, .registeredAt, .registeredBy) |
+             del(.containerDefinitions[0].command)')
 
           NEW_ARN=$(aws ecs register-task-definition \
             --region $AWS_REGION \
