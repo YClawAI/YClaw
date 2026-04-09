@@ -1,0 +1,16 @@
+# YCLAW Trivy Ignore List
+# Only add CVEs here with documented justification.
+# Each entry must include: CVE ID, affected package, reason for ignoring, review date.
+# Policy: exit-code=1 on CRITICAL/HIGH with fixes available. No blanket ignores.
+
+# next@15.x — 4 HIGH CVEs. Fix requires upgrade to Next 16 (breaking major).
+# Tracked: upgrade to Next 16 is a separate workstream.
+# Review date: 2026-04-09
+# Risk: MC is internal dashboard, not public-facing. Core doesn't use Next.
+CVE-2025-59471
+GHSA-h25m-26qc-wcjf
+CVE-2026-29057
+CVE-2026-27980
+GHSA-9g9p-9gw9-jx7f
+GHSA-ggv3-7p47-pfv8
+GHSA-3x4c-7xq6-9pq8
