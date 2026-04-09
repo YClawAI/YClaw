@@ -67,6 +67,7 @@ jobs:
               - 'ao/**'
             showcase:
               - 'packages/showcase/**'
+              - 'turbo.json'
               - 'package.json'
               - 'package-lock.json'
 
