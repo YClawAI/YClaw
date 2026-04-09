@@ -48,7 +48,7 @@ RUN claude plugins marketplace add anthropics/claude-plugins-official \
 # Installs to ~/.claude/skills/ via the uipro CLI
 RUN npm install -g uipro-cli \
     && mkdir -p /root/.claude/skills \
-    && cd /root && uipro init --ai claude --global
+    && cd /root && uipro init --ai claude
 
 # Codex CLI: pre-PR code review gate (multi-model ensemble)
 RUN npm install -g @openai/codex@0.118.0
