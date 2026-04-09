@@ -1,6 +1,6 @@
 name: yclaw-test
 github:
-  owner: yclaw-ai
+  owner: YClawAI
   repo: yclaw-test
   default_branch: main
   branch_prefix: "agent/"

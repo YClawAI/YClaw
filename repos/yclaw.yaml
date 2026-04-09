@@ -1,8 +1,8 @@
 name: yclaw
 github:
-  owner: yclaw-ai
-  repo: yclaw
-  default_branch: master
+  owner: YClawAI
+  repo: YClaw
+  default_branch: main
   branch_prefix: "agent/"
 
 tech_stack:
