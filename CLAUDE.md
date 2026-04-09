@@ -481,7 +481,7 @@ Each repo config (`src/config/repo-schema.ts`) includes:
 ```yaml
 name: my-app              # Unique registry name (kebab-case)
 github:
-  owner: yclaw-ai
+  owner: YClawAI
   repo: my-app
   default_branch: main
   branch_prefix: agent/         # Prefix for agent-created branches

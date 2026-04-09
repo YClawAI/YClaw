@@ -270,6 +270,26 @@ aws elbv2 create-rule \
   --actions "Type=forward,TargetGroupArn=$CORE_TG"
 
 echo "Path rules: /api/*, /health, /github/webhook → Core"
+
+# live.yclaw.ai → Showcase TG (when showcase service is ready)
+# NOTE: yclaw-showcase-tg must be created first via infra/yclaw-showcase-setup.sh
+SHOWCASE_TG=$(aws elbv2 describe-target-groups \
+  --names "yclaw-showcase-tg" \
+  --region "$REGION" \
+  --query 'TargetGroups[0].TargetGroupArn' --output text 2>/dev/null || true)
+
+if [[ -z "$SHOWCASE_TG" || "$SHOWCASE_TG" == "None" ]]; then
+  echo "ERROR: Target group yclaw-showcase-tg not found. Run infra/yclaw-showcase-setup.sh first."
+  exit 1
+fi
+
+aws elbv2 create-rule \
+  --listener-arn "$PUB_HTTPS_LISTENER" \
+  --priority 5 \
+  --conditions Field=host-header,Values=live.yclaw.ai \
+  --actions "Type=forward,TargetGroupArn=$SHOWCASE_TG"
+
+echo "Host rule: live.yclaw.ai → Showcase"
 echo "Default: 404 (MC is NOT on the public ALB)"
 echo ""
 
@@ -327,6 +347,28 @@ aws route53 change-resource-record-sets \
   }'
 
 echo "agents.yclaw.ai → $PUB_ALB_DNS"
+
+# live.yclaw.ai → same public ALB (host-based routing handles it)
+aws route53 change-resource-record-sets \
+  --hosted-zone-id "$ZONE_ID" \
+  --change-batch '{
+    "Changes": [
+      {
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+          "Name": "live.yclaw.ai",
+          "Type": "A",
+          "AliasTarget": {
+            "DNSName": "'"$PUB_ALB_DNS"'",
+            "HostedZoneId": "'"$PUB_ALB_ZONE"'",
+            "EvaluateTargetHealth": true
+          }
+        }
+      }
+    ]
+  }'
+
+echo "live.yclaw.ai → $PUB_ALB_DNS"
 echo ""
 echo "Internal ALB DNS (for MC via Tailscale): $INT_ALB_DNS"
 echo "Optional: create private Route 53 record mc-internal.yclaw.ai → internal ALB"
@@ -372,5 +414,47 @@ in each ECS task definition via aws ecs register-task-definition:
   Workaround until then: use the public ALB for internal calls too:
   - YCLAW_API_URL=https://agents.yclaw.ai (adds ALB round-trip but stable)
   - AO_CALLBACK_URL=https://agents.yclaw.ai/api/ao/callback
+
+--- Showcase (yclaw-showcase-production) ---
+  YCLAW_PUBLIC_API_URL=https://agents.yclaw.ai    # Public Core API
+  NODE_ENV=production
+  PORT=3002
+  (No secrets. Zero secrets in task definition.)
+
+=== REDIS CLOUD CONNECTIVITY ===
+
+Issue: Core gets "connect ETIMEDOUT" on Redis Cloud.
+
+1. NAT Gateway IP Allowlist
+   ECS tasks in private subnets egress through NAT gateway.
+   NAT public IP: 100.28.108.39
+   ACTION: Add 100.28.108.39 to Redis Cloud database access list at:
+   https://app.redislabs.com → Database → Configuration → Security → Access Control
+
+2. TLS Requirement
+   Redis Cloud databases often require TLS. If connections still fail after
+   allowlist is updated, the REDIS_URL secret may need to change from:
+     redis://:password@host:port
+   to:
+     rediss://:password@host:port  (note double 's')
+
+   ioredis auto-detects TLS from the 'rediss://' URL scheme — no code change
+   needed, just update the secret value in AWS Secrets Manager:
+     aws secretsmanager put-secret-value \
+       --secret-id yclaw/production/secrets \
+       --secret-string '{"REDIS_URL":"rediss://:PASSWORD@HOST:PORT"}'
+
+=== SERVICE DISCOVERY (FOLLOW-UP) ===
+
+Current state: inter-service URLs use ECS task private IPs which change
+on every deployment. The ALB workaround adds latency.
+
+Recommended follow-up:
+  - Create AWS Cloud Map namespace: yclaw.local
+  - Enable ECS Service Connect on all 3 services
+  - Core → core.yclaw.local:3000
+  - MC → mc.yclaw.local:3001
+  - AO → ao.yclaw.local:8420
+  This gives stable DNS names that resolve to current task IPs.
 
 ENVDOC
