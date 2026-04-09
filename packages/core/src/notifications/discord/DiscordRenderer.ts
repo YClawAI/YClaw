@@ -59,10 +59,12 @@ export class DiscordRenderer {
       footer: { text: `${event.kind} \u2022 ${event.agent.name}` },
     };
 
-    // Fields
+    // Fields — reserve 1 slot for links if present (Discord max: 25 fields)
+    const hasLinks = event.links && event.links.length > 0;
+    const maxFields = hasLinks ? 24 : 25;
     if (event.fields && event.fields.length > 0) {
       embed.fields = [];
-      for (const field of event.fields.slice(0, 25)) {
+      for (const field of event.fields.slice(0, maxFields)) {
         embed.fields.push({
           name: truncate(field.name, 256),
           value: truncate(field.value || '\u200B', 1024),
@@ -72,7 +74,7 @@ export class DiscordRenderer {
     }
 
     // Links as a single field
-    if (event.links && event.links.length > 0) {
+    if (hasLinks && event.links) {
       const linkText = event.links
         .map(l => `[${l.label}](${l.url})`)
         .join(' \u2022 ');

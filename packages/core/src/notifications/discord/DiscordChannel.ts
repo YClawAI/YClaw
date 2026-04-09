@@ -181,10 +181,12 @@ export class DiscordChannel implements INotificationChannel {
     event: NotificationEvent,
     threadId: string | undefined,
   ): Promise<PublishResult> {
-    const channelId = getChannelForDepartment(
-      event.agent.department,
-      'discord',
-    );
+    // Route by the event's department (may be overridden, e.g. 'alerts'
+    // for escalation double-posts). Fall back to 'general' if unset.
+    const channelId = getChannelForDepartment(event.agent.department, 'discord')
+      ?? (event.agent.department !== 'general'
+        ? getChannelForDepartment('general', 'discord')
+        : undefined);
     if (!channelId) {
       log.debug('No Discord channel configured for department', {
         department: event.agent.department,

@@ -62,7 +62,11 @@ function resolveSeverity(event: YClawEvent<unknown>): Severity {
   if (event.type === 'coord.task.failed') return 'error';
   if (event.type === 'coord.task.blocked') return 'warning';
   if (event.type === 'coord.task.completed' || event.type === 'coord.project.completed') return 'success';
-  if (event.type === 'coord.deliverable.approved' || event.type === 'coord.review.completed') {
+  // Deliverable events — these use their own payload shape (no .status field)
+  if (event.type === 'coord.deliverable.approved') return 'success';
+  if (event.type === 'coord.deliverable.changes_requested') return 'warning';
+  // Review events — payload has .status field
+  if (event.type === 'coord.review.completed') {
     const payload = event.payload as Record<string, unknown>;
     const status = (payload as unknown as CoordReviewPayload).status;
     if (status === 'approved') return 'success';
@@ -105,6 +109,8 @@ function resolveTitle(event: YClawEvent<unknown>): string {
       return `Completed phase \u2014 ${(payload.phase as string) || ''}`;
     case 'coord.project.completed':
       return 'Completed project';
+    case 'coord.review.requested':
+      return `Review requested \u2014 ${desc || 'pending review'}`;
     default:
       return event.type.split('.').pop() || 'Event';
   }
@@ -122,7 +128,7 @@ function resolveSummary(event: YClawEvent<unknown>): string {
     return payload.message as string;
   }
 
-  return (payload.description as string) || '';
+  return (payload.summary as string) || (payload.description as string) || '';
 }
 
 function resolveFields(event: YClawEvent<unknown>): Array<{ name: string; value: string; inline?: boolean }> {
