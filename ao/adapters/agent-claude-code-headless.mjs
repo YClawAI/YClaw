@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * AO Agent Plugin: Claude Code (Headless one-shot)
@@ -7,6 +8,34 @@ import { readFileSync } from 'node:fs';
  * Each task is a separate subprocess. Context persists in the workspace.
  * For multi-turn (CI fixes, reviews): re-spawn with accumulated context.
  */
+
+/**
+ * Resolve the latest installed version directory for a Claude Code plugin.
+ * Plugin cache layout: basePath/<version>/ — returns the latest version path.
+ * Uses semver-aware sorting and filters out dotfiles/non-directories.
+ */
+function resolvePluginDir(basePath) {
+  try {
+    const entries = readdirSync(basePath, { withFileTypes: true });
+    const versions = entries
+      .filter(e => e.isDirectory() && !e.name.startsWith('.'))
+      .map(e => e.name);
+    if (versions.length > 0) {
+      // Semver-aware sort: split on '.', compare each segment numerically
+      versions.sort((a, b) => {
+        const pa = a.split('.').map(Number);
+        const pb = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+          const diff = (pa[i] || 0) - (pb[i] || 0);
+          if (diff !== 0) return diff;
+        }
+        return 0;
+      });
+      return join(basePath, versions[versions.length - 1]);
+    }
+  } catch { /* plugin not installed */ }
+  return null;
+}
 
 export const manifest = {
   name: 'claude-code-headless',
@@ -30,6 +59,16 @@ export function create() {
 
       // Permission bypass — required for autonomous operation
       parts.push('--dangerously-skip-permissions');
+
+      // ── Claude Code Plugins (loaded explicitly for --bare mode) ──────
+      // Superpowers: TDD, debugging methodology, brainstorming, code review
+      const superpowersDir = resolvePluginDir('/home/ao/.claude/plugins/cache/claude-plugins-official/superpowers');
+      if (superpowersDir) parts.push('--plugin-dir', superpowersDir);
+      // Frontend Design: Anthropic's official distinctive UI generation
+      const frontendDir = resolvePluginDir('/home/ao/.claude/plugins/cache/claude-code-plugins/frontend-design');
+      if (frontendDir) parts.push('--plugin-dir', frontendDir);
+      // Note: UI UX Pro Max is a skill (not a plugin) — auto-discovered
+      // from ~/.claude/skills/ via SKILL.md even in --bare mode.
 
       // Output format for structured parsing
       parts.push('--output-format', 'json');
