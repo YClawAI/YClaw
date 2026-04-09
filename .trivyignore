@@ -2,3 +2,12 @@
 # Only add CVEs here with documented justification.
 # Each entry must include: CVE ID, affected package, reason for ignoring, review date.
 # Policy: exit-code=1 on CRITICAL/HIGH with fixes available. No blanket ignores.
+
+# next@15.x — 4 HIGH CVEs. Fix requires upgrade to Next 16 (breaking major).
+# Tracked: upgrade to Next 16 is a separate workstream.
+# Review date: 2026-04-09
+# Risk: MC is internal dashboard, not public-facing. Core doesn't use Next.
+GHSA-9g9p-9gw9-jx7f
+GHSA-h25m-26qc-wcjf
+GHSA-ggv3-7p47-pfv8
+GHSA-3x4c-7xq6-9pq8
