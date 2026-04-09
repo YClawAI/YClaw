@@ -18,7 +18,7 @@ defaults:
   workspace: worktree
   notifiers: [webhook]
 
-projects:
+projects: {}
   # Configure your projects here. Example:
   # my-project:
   #   name: My Project
@@ -42,8 +42,7 @@ projects:
 notifiers:
   webhook:
     plugin: webhook
-    # Configure this URL to point to your yclaw instance callback endpoint
-    url: http://localhost:3000/api/ao/callback
+    url: "${AO_CALLBACK_URL}"
     method: POST
     headers:
       X-AO-TOKEN: "${AO_AUTH_TOKEN}"

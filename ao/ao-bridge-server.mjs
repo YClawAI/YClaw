@@ -26,6 +26,7 @@ import {
 
 const PORT = parseInt(process.env.AO_BRIDGE_PORT || '8420');
 const AUTH_TOKEN = process.env.AO_AUTH_TOKEN;
+const AO_CALLBACK_URL = process.env.AO_CALLBACK_URL || 'http://localhost:3000/api/ao/callback';
 const MAX_CONCURRENT = parseInt(process.env.AO_MAX_CONCURRENT || '2', 10);
 const MAX_QUEUE = parseInt(process.env.AO_MAX_QUEUE || '100');
 const AO_BIN = process.env.AO_BIN || '/usr/local/bin/ao';
@@ -766,7 +767,7 @@ async function refreshGitHubCliAuth() {
 async function postAoCallback(event) {
   try {
     console.log(`[ao-bridge] Posting AO callback ${event.type} for session ${event.sessionId || 'unknown'}${event.issueNumber ? ` (#${event.issueNumber})` : ''}`);
-    const res = await fetch('http://localhost:3000/api/ao/callback', {
+    const res = await fetch(AO_CALLBACK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1828,7 +1829,7 @@ async function executeSpawnJob(job) {
     }));
     // AO's webhook notifier handles failure notification to yclaw.
     // Safety net: manually call the callback endpoint
-    fetch('http://localhost:3000/api/ao/callback', {
+    fetch(AO_CALLBACK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

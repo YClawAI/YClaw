@@ -10,15 +10,13 @@
     ],
     "jsx": "react-jsx",
     "strict": true,
-    "noImplicitOverride": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "incremental": true,
-    "declaration": false,
-    "declarationMap": false,
+    "noEmit": true,
     "paths": {
       "@/*": [
         "./src/*"
@@ -29,8 +27,7 @@
         "name": "next"
       }
     ],
-    "allowJs": true,
-    "noEmit": true
+    "allowJs": true
   },
   "include": [
     "next-env.d.ts",

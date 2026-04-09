@@ -27,6 +27,7 @@ import { registerBootstrapRoute } from '../operators/bootstrap.js';
 import { registerOnboardingRoutes } from '../onboarding/routes.js';
 import { registerHealthRoutes } from '../observability/health-routes.js';
 import { registerObservabilityRoutes } from '../observability/observability-routes.js';
+import { registerPublicRoutes } from '../public/routes.js';
 
 const logger = createLogger('bootstrap:routes');
 
@@ -173,6 +174,9 @@ export async function initRoutes(
 
     // Phase 5: Observability routes (authenticated — after auth middleware)
     registerObservabilityRoutes(expressApp, services, healthAggregator);
+
+    // Phase 6: Public showcase routes (unauthenticated — /public/v1/*)
+    registerPublicRoutes(expressApp, agents, operatorEventStream, operatorTaskStore);
 
     // Maintenance: expire invitations (every 10 minutes)
     setInterval(() => {

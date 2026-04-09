@@ -28,6 +28,7 @@ jobs:
       core: ${{ steps.filter.outputs.core }}
       mc: ${{ steps.filter.outputs.mc }}
       ao: ${{ steps.filter.outputs.ao }}
+      showcase: ${{ steps.filter.outputs.showcase }}
     steps:
       - uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
         with:
@@ -64,6 +65,11 @@ jobs:
               - '.dockerignore'
             ao:
               - 'ao/**'
+            showcase:
+              - 'packages/showcase/**'
+              - 'turbo.json'
+              - 'package.json'
+              - 'package-lock.json'
 
   # --- Check (Lint + Test) ---
   check:
@@ -552,3 +558,132 @@ jobs:
             --services $ECS_SERVICE \
             --region $AWS_REGION
           echo "AO deployment stable"
+
+  # --- Deploy Showcase ---
+  deploy-showcase:
+    name: Deploy Showcase
+    needs: [check, changes]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    if: >-
+      github.repository == 'YClawAI/YClaw'
+      && (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.showcase == 'true')
+        || github.event_name == 'workflow_dispatch'
+      )
+    env:
+      ECR_REPOSITORY: yclaw-showcase
+      ECS_SERVICE: yclaw-showcase-production
+      TASK_FAMILY: yclaw-showcase-production
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
+
+      - name: Login to GHCR (for buildkit image)
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3.9.0
+
+      - name: Build image (local only — scan before push)
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          context: .
+          file: packages/showcase/Dockerfile
+          push: false
+          load: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha,scope=showcase
+          cache-to: type=gha,mode=max,scope=showcase
+
+      - name: Trivy vulnerability scan (before push)
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+        with:
+          image-ref: '${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-showcase-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
+          trivyignores: '.trivyignore'
+          limit-severities-for-sarif: true
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: YClaw-deploy-showcase-sbom
+          path: sbom.spdx.json
+
+      - name: Push image to ECR (after scan passes)
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+      - name: Register new task definition and deploy
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          TASK_DEF=$(aws ecs describe-task-definition \
+            --task-definition $TASK_FAMILY \
+            --region $AWS_REGION \
+            --query 'taskDefinition')
+
+          NEW_TASK_DEF=$(echo "$TASK_DEF" | jq \
+            --arg IMAGE "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE |
+             del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                 .compatibilities, .registeredAt, .registeredBy)')
+
+          NEW_ARN=$(aws ecs register-task-definition \
+            --region $AWS_REGION \
+            --cli-input-json "$NEW_TASK_DEF" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          echo "Registered new task definition: $NEW_ARN"
+
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --task-definition "$NEW_ARN" \
+            --region $AWS_REGION
+
+      - name: Wait for deployment to stabilize
+        timeout-minutes: 12
+        run: |
+          echo "Waiting for Showcase service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE \
+            --region $AWS_REGION
+          echo "Showcase deployment stable"

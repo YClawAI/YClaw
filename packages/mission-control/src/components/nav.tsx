@@ -129,7 +129,7 @@ function IconChat({ className }: { className?: string }) {
 }
 
 // Department icons (inline SVG instead of emoji)
-const DEPT_ICONS: Record<string, () => JSX.Element> = {
+const DEPT_ICONS: Record<string, () => React.JSX.Element> = {
   executive: () => (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
       <path d="M12 2l2.09 6.26L21 9.27l-5.18 4.73L17.82 21 12 17.27 6.18 21l1.82-7L3 9.27l6.91-1.01z" strokeLinecap="round" strokeLinejoin="round" />
