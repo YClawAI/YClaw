@@ -449,7 +449,13 @@ export class ReactionsManager {
         const channel = params.channel as string;
         const text = params.text as string;
         if (!channel || !text) throw new Error('discord:message requires channel and text');
-        await this.deps.executeDiscordAction?.(channel, text);
+        if (!this.deps.executeDiscordAction) {
+          logger.warn('discord:message action skipped — executeDiscordAction not wired', {
+            channel,
+          });
+          break;
+        }
+        await this.deps.executeDiscordAction(channel, text);
         break;
       }
 
