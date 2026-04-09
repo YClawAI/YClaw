@@ -33,10 +33,6 @@ COPY packages/mission-control/ packages/mission-control/
 RUN cp -r /app/node_modules/@yclaw/core/node_modules ./packages/core/node_modules 2>/dev/null || true
 
 ENV NEXT_TELEMETRY_DISABLED=1
-# Skip Next.js lockfile patcher — misparses packageManager "npm@10.0.0" as
-# "yarn@npm@10.0.0" and crashes with "Failed to patch lockfile". Known Next.js
-# bug in monorepo/workspace setups.
-ENV NEXT_PRIVATE_SKIP_LOCKFILE_PATCH=1
 
 # Turbo handles the build DAG (memory → core → mission-control) in parallel.
 # Replaces 3 sequential `npm run build --workspace=` commands.

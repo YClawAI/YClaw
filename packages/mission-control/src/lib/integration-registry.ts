@@ -129,9 +129,9 @@ function ensureLoaded(): IntegrationDef[] {
   if (typeof process !== 'undefined' && process.versions?.node) {
     try {
       // Dynamic require to avoid bundling fs in client code
-      const fs = require('fs'); // eslint-disable-line
-      const path = require('path'); // eslint-disable-line
-      const yaml = require('yaml'); // eslint-disable-line
+      const fs = require('fs');
+      const path = require('path');
+      const yaml = require('yaml');
 
       // Look for recipes in the core package's integrations/recipes dir
       const coreRecipesDir = path.resolve(
@@ -160,7 +160,7 @@ function ensureLoaded(): IntegrationDef[] {
             if (parsed?.integration && parsed?.name && parsed?.tier) {
               // Full validation (schema + tier mismatch + step uniqueness + verify consistency)
               try {
-                const { validateRecipe: vr } = require('@yclaw/core'); // eslint-disable-line
+                const { validateRecipe: vr } = require('@yclaw/core');
                 const vResult = vr(parsed);
                 if (!vResult.valid) {
                   console.warn(

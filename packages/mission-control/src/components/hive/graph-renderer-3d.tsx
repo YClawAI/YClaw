@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
 import * as THREE from 'three';
 import { createAgentMesh, updateAgentMesh } from './three-node-factory';
@@ -14,13 +14,10 @@ interface GraphRenderer3DProps {
   onNodeClick?: (node: any) => void;
 }
 
-export const GraphRenderer3D = forwardRef<any, GraphRenderer3DProps>(
-  function GraphRenderer3D({ graphData, agentStatusRef, width, height, onNodeClick }, ref) {
+export function GraphRenderer3D({ graphData, agentStatusRef, width, height, onNodeClick }: GraphRenderer3DProps) {
     const fgRef = useRef<any>(null);
     const meshCache = useRef(new Map<string, THREE.Mesh>());
     const lastInteraction = useRef(0);
-
-    useImperativeHandle(ref, () => fgRef.current);
 
     // Auto-orbit camera when idle + update mesh states
     useEffect(() => {
@@ -123,5 +120,4 @@ export const GraphRenderer3D = forwardRef<any, GraphRenderer3DProps>(
         controlType="orbit"
       />
     );
-  }
-);
+}
