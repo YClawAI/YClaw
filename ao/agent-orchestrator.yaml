@@ -1,3 +1,4 @@
+# Rebuilt: 2026-04-09 — trigger image update after go-live config fix
 # YClaw Agent Orchestrator Configuration
 # Managed by yclaw infra — do not edit on the container directly
 # ${AO_AUTH_TOKEN} is replaced by envsubst at container startup
