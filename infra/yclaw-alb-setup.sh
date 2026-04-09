@@ -17,7 +17,7 @@ VPC_ID="vpc-073bfb3fea4bf6c6e"
 ECS_SG="sg-0acd17c5db21318b8"
 
 # Public subnets (for ALB)
-PUBLIC_SUBNETS="subnet-0dfd5229751fb1535,subnet-00afaacdd2e258cb8,subnet-07e8b090cc8c0ac76"
+PUBLIC_SUBNETS="subnet-0dfd5229751fb1535 subnet-00afaacdd2e258cb8 subnet-07e8b090cc8c0ac76"
 
 # Private subnets (ECS tasks)
 PRIVATE_SUBNETS="subnet-048fa741545cd5571,subnet-09fdbcba9b85fee5c,subnet-095e4d44d6ab976c6"
@@ -61,11 +61,12 @@ aws ec2 authorize-security-group-ingress --group-id "$ALB_SG" \
     IpProtocol=tcp,FromPort=443,ToPort=443,IpRanges='[{CidrIp=0.0.0.0/0,Description="HTTPS from internet"}]' \
     IpProtocol=tcp,FromPort=80,ToPort=80,IpRanges='[{CidrIp=0.0.0.0/0,Description="HTTP redirect to HTTPS"}]'
 
-# Outbound: to ECS SG on ports 3000, 3001
+# Outbound: to ECS SG on ports 3000, 3001, 8420
 aws ec2 authorize-security-group-egress --group-id "$ALB_SG" \
   --ip-permissions \
     "IpProtocol=tcp,FromPort=3000,ToPort=3000,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=Core}]" \
-    "IpProtocol=tcp,FromPort=3001,ToPort=3001,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=MC}]"
+    "IpProtocol=tcp,FromPort=3001,ToPort=3001,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=MC}]" \
+    "IpProtocol=tcp,FromPort=8420,ToPort=8420,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=AO}]"
 
 echo ""
 
@@ -74,11 +75,12 @@ echo ""
 # ============================================================================
 echo "--- Step 3: Update ECS Security Group ---"
 
-# Allow inbound from ALB SG on ports 3000, 3001
+# Allow inbound from ALB SG on ports 3000, 3001, 8420
 aws ec2 authorize-security-group-ingress --group-id "$ECS_SG" \
   --ip-permissions \
     "IpProtocol=tcp,FromPort=3000,ToPort=3000,UserIdGroupPairs=[{GroupId=$ALB_SG,Description='ALB to Core'}]" \
-    "IpProtocol=tcp,FromPort=3001,ToPort=3001,UserIdGroupPairs=[{GroupId=$ALB_SG,Description='ALB to MC'}]"
+    "IpProtocol=tcp,FromPort=3001,ToPort=3001,UserIdGroupPairs=[{GroupId=$ALB_SG,Description='ALB to MC'}]" \
+    "IpProtocol=tcp,FromPort=8420,ToPort=8420,UserIdGroupPairs=[{GroupId=$ALB_SG,Description='ALB to AO'}]"
 
 # Allow inbound from self (inter-service comms: Core<->AO, MC->Core)
 aws ec2 authorize-security-group-ingress --group-id "$ECS_SG" \
