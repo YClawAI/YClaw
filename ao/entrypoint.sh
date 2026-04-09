@@ -238,13 +238,18 @@ if [ -d /root/.config/gh ]; then
   chown -R ao:ao "$AO_HOME/.config/gh"
 fi
 
-# Preserve build-time Claude Code plugins on first boot
+# Preserve build-time Claude Code plugins/skills on first boot (each checked independently)
+mkdir -p "$AO_HOME/.claude"
 if [ ! -d "$AO_HOME/.claude/plugins" ] && [ -d "/home/ao/.claude/plugins" ]; then
   echo "[ao-entrypoint] Copying build-time Claude Code plugins to persistent home..."
-  mkdir -p "$AO_HOME/.claude"
-  cp -r /home/ao/.claude/plugins "$AO_HOME/.claude/plugins"
-  cp -r /home/ao/.claude/skills "$AO_HOME/.claude/skills" 2>/dev/null || true
-  cp /home/ao/.claude/settings.json "$AO_HOME/.claude/settings.json" 2>/dev/null || true
+  cp -a /home/ao/.claude/plugins "$AO_HOME/.claude/plugins"
+fi
+if [ ! -d "$AO_HOME/.claude/skills" ] && [ -d "/home/ao/.claude/skills" ]; then
+  echo "[ao-entrypoint] Copying build-time Claude Code skills to persistent home..."
+  cp -a /home/ao/.claude/skills "$AO_HOME/.claude/skills"
+fi
+if [ ! -f "$AO_HOME/.claude/settings.json" ] && [ -f "/home/ao/.claude/settings.json" ]; then
+  cp /home/ao/.claude/settings.json "$AO_HOME/.claude/settings.json"
 fi
 
 # Symlink ao user's HOME directories to AO_HOME so Claude Code finds configs

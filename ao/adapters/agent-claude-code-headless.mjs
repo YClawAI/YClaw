@@ -12,12 +12,25 @@ import { join } from 'node:path';
 /**
  * Resolve the latest installed version directory for a Claude Code plugin.
  * Plugin cache layout: basePath/<version>/ — returns the latest version path.
+ * Uses semver-aware sorting and filters out dotfiles/non-directories.
  */
 function resolvePluginDir(basePath) {
   try {
-    const versions = readdirSync(basePath);
+    const entries = readdirSync(basePath, { withFileTypes: true });
+    const versions = entries
+      .filter(e => e.isDirectory() && !e.name.startsWith('.'))
+      .map(e => e.name);
     if (versions.length > 0) {
-      versions.sort();
+      // Semver-aware sort: split on '.', compare each segment numerically
+      versions.sort((a, b) => {
+        const pa = a.split('.').map(Number);
+        const pb = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+          const diff = (pa[i] || 0) - (pb[i] || 0);
+          if (diff !== 0) return diff;
+        }
+        return 0;
+      });
       return join(basePath, versions[versions.length - 1]);
     }
   } catch { /* plugin not installed */ }

@@ -74,9 +74,10 @@ RUN mkdir -p /data/worktrees /data/ao-state /data/ao-home /data/logs /app \
     && chown -R ao:ao /data /app /home/ao
 
 # Make Claude Code plugins/skills accessible to ao user
-RUN cp -r /root/.claude/plugins /home/ao/.claude/plugins 2>/dev/null || true \
+RUN mkdir -p /home/ao/.claude \
+    && cp -r /root/.claude/plugins /home/ao/.claude/plugins 2>/dev/null || true \
     && cp -r /root/.claude/skills /home/ao/.claude/skills 2>/dev/null || true \
-    && cp -r /root/.claude/settings.json /home/ao/.claude/settings.json 2>/dev/null || true \
+    && cp /root/.claude/settings.json /home/ao/.claude/settings.json 2>/dev/null || true \
     && chown -R ao:ao /home/ao/.claude
 
 WORKDIR /app
