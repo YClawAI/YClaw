@@ -41,7 +41,7 @@ COPY packages/memory/migrations packages/memory/migrations
 # Scope to core + its deps (memory). Without --filter, turbo would also try to
 # build mission-control (whose package.json is present for lockfile consistency
 # but whose source code is not in this context).
-RUN npx turbo build --filter=@yclaw/core...
+RUN npx turbo build --dangerously-disable-package-manager-check --filter=@yclaw/core...
 
 # --- Stage 3: Production runner ---
 FROM node:20-alpine AS runner

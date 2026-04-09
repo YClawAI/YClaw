@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci --ignore-scripts \
 COPY packages/core/src packages/core/src
 COPY packages/memory/src packages/memory/src
 COPY packages/memory/migrations packages/memory/migrations
-RUN npx turbo build --filter=@yclaw/core...
+RUN npx turbo build --dangerously-disable-package-manager-check --filter=@yclaw/core...
 
 # --- Stage 3: Production runner ---
 FROM node:20-slim AS runner
