@@ -41,9 +41,6 @@ actions:
   - github:commit_file
   - github:get_contents
   - github:create_branch
-  - slack:message
-  - slack:thread_reply
-  - slack:alert
   - discord:message
   - discord:thread_reply
   - discord:react

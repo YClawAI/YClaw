@@ -122,8 +122,6 @@ actions:
   - vault:read
   - vault:search
   - vault:write
-  - slack:message
-  - slack:thread_reply
   - discord:message
   - discord:thread_reply
   - discord:react

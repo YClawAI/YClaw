@@ -61,7 +61,7 @@ function createMockDeps(redis: any) {
     triggerAgent: vi.fn(async () => {}),
     publishEvent: vi.fn(async () => {}),
     executeGitHubAction: vi.fn(async () => ({ success: true })),
-    executeSlackAction: vi.fn(async () => {}),
+    executeDiscordAction: vi.fn(async () => {}),
     executeTaskAction: vi.fn(async () => {}),
   };
 }
@@ -109,7 +109,7 @@ describe('ReactionsManager', () => {
         id: 'test-approved',
         enabled: true,
         trigger: { event: 'github:pr_review_submitted', filter: { review_state: 'approved' } },
-        actions: [{ type: 'slack:message', params: { channel: 'C123', text: 'Approved!' } }],
+        actions: [{ type: 'discord:message', params: { channel: 'C123', text: 'Approved!' } }],
       }];
 
       manager = new ReactionsManager({ ...deps, rules });
@@ -120,7 +120,7 @@ describe('ReactionsManager', () => {
         review_state: 'changes_requested',
         pr_number: 42,
       });
-      expect(deps.executeSlackAction).not.toHaveBeenCalled();
+      expect(deps.executeDiscordAction).not.toHaveBeenCalled();
 
       // Should match
       await manager.handleEvent('github:pr_review_submitted', {
@@ -128,7 +128,7 @@ describe('ReactionsManager', () => {
         review_state: 'approved',
         pr_number: 42,
       });
-      expect(deps.executeSlackAction).toHaveBeenCalledWith('C123', 'Approved!');
+      expect(deps.executeDiscordAction).toHaveBeenCalledWith('C123', 'Approved!');
     });
 
     it('should skip disabled rules', async () => {

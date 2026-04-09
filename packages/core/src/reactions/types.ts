@@ -70,7 +70,7 @@ export interface ReactionAction {
     | 'task:update'
     | 'task:create'
     | 'event:publish'
-    | 'slack:message'
+    | 'discord:message'
     | 'github:update_branch';
   params: Record<string, unknown>;
 }

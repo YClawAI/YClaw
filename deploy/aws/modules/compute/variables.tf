@@ -79,6 +79,55 @@ variable "s3_bucket" {
   type = string
 }
 
+# ─── Discord channel routing ──────────────────────────────────────────────────
+# YCLAW is Discord-only. These channel IDs are injected into the core container
+# for agent notification routing via channel-routing.ts.
+
+variable "discord_channel_general" {
+  type    = string
+  default = ""
+}
+
+variable "discord_channel_executive" {
+  type    = string
+  default = ""
+}
+
+variable "discord_channel_development" {
+  type    = string
+  default = ""
+}
+
+variable "discord_channel_marketing" {
+  type    = string
+  default = ""
+}
+
+variable "discord_channel_operations" {
+  type    = string
+  default = ""
+}
+
+variable "discord_channel_finance" {
+  type    = string
+  default = ""
+}
+
+variable "discord_channel_support" {
+  type    = string
+  default = ""
+}
+
+variable "discord_channel_audit" {
+  type    = string
+  default = ""
+}
+
+variable "discord_channel_alerts" {
+  type    = string
+  default = ""
+}
+
 variable "secret_arns" {
   type        = map(string)
   description = "Map of env var name → Secrets Manager ARN"

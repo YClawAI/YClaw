@@ -250,6 +250,16 @@ resource "aws_ecs_task_definition" "core" {
       { name = "YCLAW_S3_BUCKET", value = var.s3_bucket },
       { name = "AWS_REGION", value = var.aws_region },
       { name = "REDIS_URL", value = var.redis_url },
+      # Discord channel routing — agents are Discord-only
+      { name = "DISCORD_CHANNEL_GENERAL", value = var.discord_channel_general },
+      { name = "DISCORD_CHANNEL_EXECUTIVE", value = var.discord_channel_executive },
+      { name = "DISCORD_CHANNEL_DEVELOPMENT", value = var.discord_channel_development },
+      { name = "DISCORD_CHANNEL_MARKETING", value = var.discord_channel_marketing },
+      { name = "DISCORD_CHANNEL_OPERATIONS", value = var.discord_channel_operations },
+      { name = "DISCORD_CHANNEL_FINANCE", value = var.discord_channel_finance },
+      { name = "DISCORD_CHANNEL_SUPPORT", value = var.discord_channel_support },
+      { name = "DISCORD_CHANNEL_AUDIT", value = var.discord_channel_audit },
+      { name = "DISCORD_CHANNEL_ALERTS", value = var.discord_channel_alerts },
     ]
 
     # Sensitive values injected from Secrets Manager by ARN

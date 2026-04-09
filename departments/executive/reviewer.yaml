@@ -45,9 +45,6 @@ triggers:
 actions:
 - github:get_contents
 - x:search
-- slack:message
-- slack:thread_reply
-- slack:alert
 - discord:message
 - discord:thread_reply
 - discord:react

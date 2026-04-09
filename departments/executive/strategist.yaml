@@ -68,9 +68,6 @@ triggers:
   task: reconcile_pipeline
   description: "Run PR/Issue reconciliation loop"
 - type: event
-  event: slack:app_mention
-  task: handle_slack_request
-- type: event
   event: claudeception:reflect
   task: self_reflection
   model:
@@ -106,8 +103,6 @@ actions:
 - telegram:announce
 - telegram:set_title
 - telegram:set_description
-- slack:message
-- slack:thread_reply
 - discord:message
 - discord:thread_reply
 - discord:react
@@ -120,7 +115,6 @@ data_sources: []
 event_subscriptions:
 - claudeception:reflect
 - standup:report
-- slack:app_mention
 - deploy:approved
 event_publications:
 - strategist:weekly_directive

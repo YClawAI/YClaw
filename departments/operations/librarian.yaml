@@ -41,8 +41,6 @@ actions:
   - vault:graph_query
   - github:commit_file
   - github:get_contents
-  - slack:message
-  - slack:thread_reply
   - discord:message
   - discord:thread_reply
   - discord:react

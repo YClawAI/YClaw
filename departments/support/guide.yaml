@@ -48,8 +48,6 @@ actions:
   - github:get_contents
   - vault:read
   - vault:search
-  - slack:message
-  - slack:thread_reply
   - discord:message
   - discord:thread_reply
   - discord:get_thread

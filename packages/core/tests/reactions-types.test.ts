@@ -49,7 +49,7 @@ describe('DEFAULT_REACTION_RULES', () => {
       'task:update',
       'task:create',
       'event:publish',
-      'slack:message',
+      'discord:message',
       'github:update_branch',
     ]);
 

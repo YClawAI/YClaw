@@ -55,8 +55,6 @@ actions:
   - github:create_issue
   - github:pr_comment
   - github:pr_review
-  - slack:message
-  - slack:thread_reply
   - discord:message
   - discord:thread_reply
   - discord:react
