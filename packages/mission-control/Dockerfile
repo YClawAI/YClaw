@@ -33,6 +33,11 @@ COPY packages/mission-control/ packages/mission-control/
 RUN cp -r /app/node_modules/@yclaw/core/node_modules ./packages/core/node_modules 2>/dev/null || true
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# Next.js 16 lockfile patcher misparses monorepo package-lock.json and tells
+# you to re-run "npm install" — which never happens inside Docker. The patched
+# lockfile is incomplete, leaving SWC binaries in a cache dir instead of
+# node_modules. Skip the patcher entirely; npm ci already installed everything.
+ENV NEXT_PRIVATE_SKIP_LOCKFILE_PATCH=1
 
 # Turbo handles the build DAG (memory → core → mission-control) in parallel.
 # Replaces 3 sequential `npm run build --workspace=` commands.
