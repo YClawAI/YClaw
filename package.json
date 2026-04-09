@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "license": "AGPL-3.0-or-later",
-  "description": "YClaw — Department-based autonomous agent system",
+  "description": "YClaw \u2014 Department-based autonomous agent system",
   "workspaces": [
     "packages/*",
     "ao"
   ],
   "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
+    "build": "turbo build --dangerously-disable-package-manager-check",
+    "dev": "turbo dev --dangerously-disable-package-manager-check",
+    "lint": "turbo lint --dangerously-disable-package-manager-check",
     "typecheck": "tsc -p packages/core/tsconfig.json --noEmit && tsc -p packages/cli/tsconfig.json --noEmit && tsc -p packages/memory/tsconfig.json --noEmit",
     "start": "node packages/core/dist/main.js",
     "seed": "tsx scripts/seed-config.ts",

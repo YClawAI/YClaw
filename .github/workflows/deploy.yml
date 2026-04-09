@@ -150,10 +150,10 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "Running affected-only checks (PR mode)..."
-            npx turbo run lint test --filter="...[origin/${{ github.event.pull_request.base.ref }}...HEAD]"
+            npx turbo run lint test --dangerously-disable-package-manager-check --filter="...[origin/${{ github.event.pull_request.base.ref }}...HEAD]"
           else
             echo "Running full check suite (deploy mode)..."
-            npx turbo run lint test
+            npx turbo run lint test --dangerously-disable-package-manager-check
           fi
 
   # --- Deploy Core ---

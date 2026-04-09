@@ -18,7 +18,7 @@ COPY turbo.json ./
 COPY packages/showcase/ packages/showcase/
 
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx turbo build --filter=@yclaw/showcase
+RUN npx turbo build --dangerously-disable-package-manager-check --filter=@yclaw/showcase
 
 # ─── Runtime ───────────────────────────────────────────────────────────────────
 FROM base AS runner

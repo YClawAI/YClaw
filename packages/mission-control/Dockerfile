@@ -36,7 +36,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Turbo handles the build DAG (memory → core → mission-control) in parallel.
 # Replaces 3 sequential `npm run build --workspace=` commands.
-RUN npx turbo build --filter=@yclaw/mission-control...
+RUN npx turbo build --dangerously-disable-package-manager-check --filter=@yclaw/mission-control...
 
 # ─── Runtime ───────────────────────────────────────────────────────────────────
 FROM base AS runner
