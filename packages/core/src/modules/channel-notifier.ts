@@ -14,6 +14,14 @@ import {
 } from '../utils/message-formatter.js';
 import { createLogger } from '../logging/logger.js';
 
+// ─── Notification Router integration ─────────────────────────────────────────
+import { NotificationRouter } from '../notifications/NotificationRouter.js';
+import { toNotificationEvent } from '../notifications/event-converter.js';
+import { DiscordChannel } from '../notifications/discord/DiscordChannel.js';
+import { SlackChannel } from '../notifications/slack/SlackChannel.js';
+import { ThreadRegistry } from '../notifications/state/ThreadRegistry.js';
+import type { INotificationChannel } from '../notifications/INotificationChannel.js';
+
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const THREAD_KEY_PREFIX = 'channel:thread:';
@@ -36,23 +44,21 @@ interface QueueItem {
  * adapter (Slack, Discord, etc.) using platform-specific routing and
  * formatting.
  *
- * Behaviour that matches the old SlackNotifier:
- *   - Thread grouping per `correlation_id` (scoped per platform so a
- *     Slack thread and a Discord thread can coexist without clashing).
- *   - Escalation events (`coord.task.blocked`, `coord.task.failed`,
- *     `coord.project.completed`) are also posted to the alerts channel
- *     as a top-level message.
- *   - Per-channel rate limiting: max 1 message per second.
+ * Now integrates the NotificationRouter for richer rendering:
+ *   - Discord gets embeds (via DiscordRenderer) with agent-identity webhooks
+ *   - Slack gets Block Kit (via SlackRenderer)
+ *   - Both share thread grouping via ThreadRegistry
  *
- * Channels are looked up in the injected Map. Only adapters that the
- * caller chose to include are used — if the caller omits Slack, nothing
- * is posted to Slack.
+ * The legacy direct-send path (formatSlackMessage/formatDiscordMessage)
+ * is preserved as a fallback when the router is not available.
  */
 export class ChannelNotifier {
   private readonly log = createLogger('channel-notifier');
   private readonly lastPostAt = new Map<string, number>();
   private readonly queue: QueueItem[] = [];
   private processing = false;
+  private router: NotificationRouter | null = null;
+  private threadRegistry: ThreadRegistry | null = null;
 
   constructor(
     private readonly redis: Redis,
@@ -66,12 +72,58 @@ export class ChannelNotifier {
       this.log.info('ChannelNotifier has no channels — skipping subscription');
       return;
     }
+
+    // Initialize the NotificationRouter with rich renderers
+    await this.initRouter();
+
     this.eventStream.subscribeStream('coord', 'channel-notifier', async (event) => {
       await this.handleEvent(event);
     });
     this.log.info('ChannelNotifier started', {
       platforms: Array.from(this.channels.keys()),
+      routerEnabled: this.router !== null,
     });
+  }
+
+  /**
+   * Initialize the NotificationRouter with platform-specific channels.
+   * Uses the injected IChannel adapters to create notification channels
+   * with richer rendering (embeds, Block Kit) and thread grouping.
+   */
+  private async initRouter(): Promise<void> {
+    try {
+      this.threadRegistry = new ThreadRegistry(this.redis);
+      this.router = new NotificationRouter();
+
+      // Wire up Slack notification channel
+      const slackAdapter = this.channels.get('slack');
+      if (slackAdapter) {
+        const slackChannel = new SlackChannel(slackAdapter, this.threadRegistry);
+        this.router.register(slackChannel);
+        this.log.info('Slack notification channel registered');
+      }
+
+      // Wire up Discord notification channel (with webhook support)
+      const discordAdapter = this.channels.get('discord');
+      const discordChannel = new DiscordChannel(
+        discordAdapter ?? null,
+        this.threadRegistry,
+      );
+      await discordChannel.init();
+      if (discordChannel.isEnabled()) {
+        this.router.register(discordChannel);
+        this.log.info('Discord notification channel registered');
+      }
+
+      if (this.router.size === 0) {
+        this.log.info('No notification channels registered — router disabled');
+        this.router = null;
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.log.warn('NotificationRouter init failed, using legacy path', { error: msg });
+      this.router = null;
+    }
   }
 
   // ─── Event Handling ─────────────────────────────────────────────────────
@@ -80,6 +132,30 @@ export class ChannelNotifier {
     // Skip coord.status.* events (heartbeats, etc.)
     if (event.type.startsWith('coord.status.')) return;
 
+    // Try the NotificationRouter first (richer rendering)
+    if (this.router) {
+      try {
+        const notificationEvent = toNotificationEvent(event);
+        await this.router.broadcast(notificationEvent);
+
+        // Escalations also broadcast to alerts (with different department)
+        if (isEscalation(event)) {
+          const alertEvent = toNotificationEvent(event);
+          alertEvent.agent = { ...alertEvent.agent, department: 'alerts' };
+          alertEvent.threadKey = undefined; // top-level in alerts channel
+          await this.router.broadcast(alertEvent);
+        }
+
+        return; // Router handled it — skip legacy path
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        this.log.warn('Router broadcast failed, falling back to legacy path', {
+          type: event.type, error: msg,
+        });
+      }
+    }
+
+    // ─── Legacy path (direct adapter sends) ────────────────────────────
     for (const [name, adapter] of this.channels.entries()) {
       const platform = name as ChannelPlatform;
       if (platform !== 'slack' && platform !== 'discord') continue;
@@ -93,19 +169,13 @@ export class ChannelNotifier {
           continue;
         }
 
-        // Only Slack supports thread grouping by correlation_id. Discord
-        // "threads" are full sub-channels that have to be created
-        // explicitly, which is heavyweight and noisy for a notifier that
-        // may fire dozens of events per project. Keep Discord flat.
         const threadable = platform === 'slack';
         await this.enqueuePost(platform, adapter, channelId, event, threadable);
 
-        // Escalations also go to the platform's alerts channel as a new
-        // top-level post, matching SlackNotifier semantics.
         if (isEscalation(event)) {
           const alertsId = getAlertsChannel(platform);
           if (alertsId && alertsId !== channelId) {
-            await this.enqueuePost(platform, adapter, alertsId, event, /*threadable*/ false);
+            await this.enqueuePost(platform, adapter, alertsId, event, false);
           }
         }
       } catch (err) {
@@ -120,7 +190,7 @@ export class ChannelNotifier {
     }
   }
 
-  // ─── Thread Grouping ──────────────────────────────────────────────────
+  // ─── Thread Grouping (legacy path) ─────────────────────────────────────
 
   private threadKey(platform: ChannelPlatform, correlationId: string): string {
     return `${THREAD_KEY_PREFIX}${platform}:${correlationId}`;
@@ -146,7 +216,7 @@ export class ChannelNotifier {
     );
   }
 
-  // ─── Rate-Limited Post Queue ──────────────────────────────────────────
+  // ─── Rate-Limited Post Queue (legacy path) ─────────────────────────────
 
   private async enqueuePost(
     platform: ChannelPlatform,
@@ -178,7 +248,6 @@ export class ChannelNotifier {
   ): Promise<void> {
     const correlationId = threadable ? event.correlation_id : undefined;
 
-    // Check for an existing thread on this platform
     let threadId: string | null = null;
     if (correlationId) {
       threadId = await this.getThreadId(platform, correlationId);
@@ -194,7 +263,6 @@ export class ChannelNotifier {
       );
 
       if (!result.success) {
-        // If a thread reply failed, retry as a fresh top-level post once
         if (threadId) {
           this.log.warn('Thread reply failed, posting as new message', {
             platform, channelId, error: result.error,
@@ -218,9 +286,6 @@ export class ChannelNotifier {
         return;
       }
 
-      // Success — persist the thread root for future events with the
-      // same correlation_id, using whichever identifier the adapter
-      // returned (Slack ts, Discord thread id, etc.).
       if (correlationId) {
         const newThread = result.threadId ?? result.messageId;
         if (newThread) {
@@ -245,15 +310,11 @@ export class ChannelNotifier {
   ): Promise<MessageResult> {
     if (platform === 'slack') {
       const { text, blocks } = formatSlackMessage(event);
-      // SlackChannelAdapter passes `blocks` through via extra fields.
       return adapter.send(
         { channelId, ...(threadId ? { threadId } : {}) },
         {
           text,
           ...(threadId ? { threadId } : {}),
-          // `blocks` is a Slack-specific extension on the ChannelMessage
-          // shape. The adapter picks it up if present; other adapters
-          // ignore it.
           ...({ blocks } as Record<string, unknown>),
         },
       );
