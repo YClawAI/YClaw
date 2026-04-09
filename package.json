@@ -32,7 +32,6 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "npm@10.0.0",
   "dependencies": {
     "discord.js": "^14.26.2"
   }

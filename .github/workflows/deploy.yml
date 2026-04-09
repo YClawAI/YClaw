@@ -10,9 +10,6 @@ on:
 env:
   AWS_REGION: us-east-1
   ECS_CLUSTER: yclaw-cluster-production
-  # Next.js lockfile patcher misparses "packageManager": "npm@10.0.0" as
-  # "yarn@npm@10.0.0" and crashes. Known Next.js bug in monorepo setups.
-  NEXT_PRIVATE_SKIP_LOCKFILE_PATCH: "1"
 
 # SECURITY: Default to read-only. Escalate per-job only when needed.
 permissions:

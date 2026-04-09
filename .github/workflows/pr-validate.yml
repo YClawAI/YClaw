@@ -16,11 +16,6 @@ concurrency:
   group: pr-validate-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
-env:
-  # Next.js lockfile patcher misparses "packageManager": "npm@10.0.0" as
-  # "yarn@npm@10.0.0" and crashes. Known Next.js bug in monorepo setups.
-  NEXT_PRIVATE_SKIP_LOCKFILE_PATCH: "1"
-
 jobs:
   validate:
     name: validate
