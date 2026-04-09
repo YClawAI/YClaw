@@ -273,7 +273,16 @@ echo "Path rules: /api/*, /health, /github/webhook → Core"
 
 # live.yclaw.ai → Showcase TG (when showcase service is ready)
 # NOTE: yclaw-showcase-tg must be created first via infra/yclaw-showcase-setup.sh
-SHOWCASE_TG="<SHOWCASE_TG_ARN>"  # TODO: Replace after running showcase setup
+SHOWCASE_TG=$(aws elbv2 describe-target-groups \
+  --names "yclaw-showcase-tg" \
+  --region "$REGION" \
+  --query 'TargetGroups[0].TargetGroupArn' --output text 2>/dev/null || true)
+
+if [[ -z "$SHOWCASE_TG" || "$SHOWCASE_TG" == "None" ]]; then
+  echo "ERROR: Target group yclaw-showcase-tg not found. Run infra/yclaw-showcase-setup.sh first."
+  exit 1
+fi
+
 aws elbv2 create-rule \
   --listener-arn "$PUB_HTTPS_LISTENER" \
   --priority 5 \
