@@ -8,7 +8,10 @@
 #   - ECS SG: sg-0acd17c5db21318b8
 #   - ECS cluster: yclaw-cluster-production (3 services running)
 #
-# This creates a DEDICATED YCLAW ALB — separate from Gaze for blast radius isolation.
+# Architecture (same pattern as Gaze):
+#   - PUBLIC ALB  (yclaw-lb-production)       → Core API at agents.yclaw.ai
+#   - INTERNAL ALB (yclaw-internal-production) → MC UI via Tailscale only
+#   - AO stays internal only (no ALB listener, TG for health tracking)
 
 set -euo pipefail
 
@@ -16,18 +19,20 @@ REGION="us-east-1"
 VPC_ID="vpc-073bfb3fea4bf6c6e"
 ECS_SG="sg-0acd17c5db21318b8"
 
-# Public subnets (for ALB)
+# Public subnets (for public ALB)
 PUBLIC_SUBNETS="subnet-0dfd5229751fb1535 subnet-00afaacdd2e258cb8 subnet-07e8b090cc8c0ac76"
 
-# Private subnets (ECS tasks)
-PRIVATE_SUBNETS="subnet-048fa741545cd5571,subnet-09fdbcba9b85fee5c,subnet-095e4d44d6ab976c6"
+# Private subnets (for internal ALB + ECS tasks)
+PRIVATE_SUBNETS="subnet-048fa741545cd5571 subnet-09fdbcba9b85fee5c subnet-095e4d44d6ab976c6"
+
+ACM_CERT_ARN="<ACM_CERT_ARN>"  # TODO: Replace after Step 1
+ZONE_ID="<HOSTED_ZONE_ID>"     # TODO: Replace with yclaw.ai Route 53 hosted zone ID
 
 # ============================================================================
 # Step 1: ACM Certificate
 # ============================================================================
 echo "--- Step 1: Request ACM wildcard certificate ---"
 
-# Request cert for *.yclaw.ai + yclaw.ai (bare domain)
 aws acm request-certificate \
   --domain-name "yclaw.ai" \
   --subject-alternative-names "*.yclaw.ai" \
@@ -35,38 +40,59 @@ aws acm request-certificate \
   --region "$REGION" \
   --tags Key=Project,Value=yclaw
 
-echo ">>> After running, note the CertificateArn."
-echo ">>> Run: aws acm describe-certificate --certificate-arn <ARN> --query 'Certificate.DomainValidationOptions'"
+echo ">>> Note the CertificateArn, then:"
+echo ">>> aws acm describe-certificate --certificate-arn <ARN> --query 'Certificate.DomainValidationOptions'"
 echo ">>> Add the CNAME records to Route 53 for DNS validation."
-echo ">>> Wait for certificate status to become ISSUED before proceeding."
+echo ">>> Wait for status ISSUED before proceeding."
 echo ""
 
 # ============================================================================
-# Step 2: ALB Security Group
+# Step 2: Security Groups
 # ============================================================================
-echo "--- Step 2: Create ALB Security Group ---"
+echo "--- Step 2a: Create Public ALB Security Group ---"
 
-ALB_SG=$(aws ec2 create-security-group \
+PUB_ALB_SG=$(aws ec2 create-security-group \
   --group-name "yclaw-alb-sg" \
-  --description "YCLAW ALB - internet-facing" \
+  --description "YCLAW public ALB - internet-facing, Core API only" \
   --vpc-id "$VPC_ID" \
   --tag-specifications 'ResourceType=security-group,Tags=[{Key=Name,Value=yclaw-alb-sg},{Key=Project,Value=yclaw}]' \
   --query 'GroupId' --output text)
 
-echo "Created ALB SG: $ALB_SG"
+echo "Public ALB SG: $PUB_ALB_SG"
 
 # Inbound: HTTPS + HTTP from anywhere
-aws ec2 authorize-security-group-ingress --group-id "$ALB_SG" \
+aws ec2 authorize-security-group-ingress --group-id "$PUB_ALB_SG" \
   --ip-permissions \
     IpProtocol=tcp,FromPort=443,ToPort=443,IpRanges='[{CidrIp=0.0.0.0/0,Description="HTTPS from internet"}]' \
     IpProtocol=tcp,FromPort=80,ToPort=80,IpRanges='[{CidrIp=0.0.0.0/0,Description="HTTP redirect to HTTPS"}]'
 
-# Outbound: to ECS SG on ports 3000, 3001, 8420
-aws ec2 authorize-security-group-egress --group-id "$ALB_SG" \
+# Outbound: to ECS SG on port 3000 only (Core API)
+aws ec2 authorize-security-group-egress --group-id "$PUB_ALB_SG" \
   --ip-permissions \
-    "IpProtocol=tcp,FromPort=3000,ToPort=3000,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=Core}]" \
-    "IpProtocol=tcp,FromPort=3001,ToPort=3001,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=MC}]" \
-    "IpProtocol=tcp,FromPort=8420,ToPort=8420,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=AO}]"
+    "IpProtocol=tcp,FromPort=3000,ToPort=3000,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=Core}]"
+
+echo ""
+echo "--- Step 2b: Create Internal ALB Security Group ---"
+
+INT_ALB_SG=$(aws ec2 create-security-group \
+  --group-name "yclaw-internal-alb-sg" \
+  --description "YCLAW internal ALB - MC UI via Tailscale" \
+  --vpc-id "$VPC_ID" \
+  --tag-specifications 'ResourceType=security-group,Tags=[{Key=Name,Value=yclaw-internal-alb-sg},{Key=Project,Value=yclaw}]' \
+  --query 'GroupId' --output text)
+
+echo "Internal ALB SG: $INT_ALB_SG"
+
+# Inbound: HTTPS + HTTP from VPC CIDR only (Tailscale access via EC2 bridge)
+aws ec2 authorize-security-group-ingress --group-id "$INT_ALB_SG" \
+  --ip-permissions \
+    IpProtocol=tcp,FromPort=443,ToPort=443,IpRanges='[{CidrIp=10.0.0.0/16,Description="HTTPS from VPC (Tailscale)"}]' \
+    IpProtocol=tcp,FromPort=80,ToPort=80,IpRanges='[{CidrIp=10.0.0.0/16,Description="HTTP redirect from VPC"}]'
+
+# Outbound: to ECS SG on port 3001 only (MC)
+aws ec2 authorize-security-group-egress --group-id "$INT_ALB_SG" \
+  --ip-permissions \
+    "IpProtocol=tcp,FromPort=3001,ToPort=3001,UserIdGroupPairs=[{GroupId=$ECS_SG,Description=MC}]"
 
 echo ""
 
@@ -75,12 +101,15 @@ echo ""
 # ============================================================================
 echo "--- Step 3: Update ECS Security Group ---"
 
-# Allow inbound from ALB SG on ports 3000, 3001, 8420
+# Allow inbound from public ALB SG on port 3000 (Core)
 aws ec2 authorize-security-group-ingress --group-id "$ECS_SG" \
   --ip-permissions \
-    "IpProtocol=tcp,FromPort=3000,ToPort=3000,UserIdGroupPairs=[{GroupId=$ALB_SG,Description='ALB to Core'}]" \
-    "IpProtocol=tcp,FromPort=3001,ToPort=3001,UserIdGroupPairs=[{GroupId=$ALB_SG,Description='ALB to MC'}]" \
-    "IpProtocol=tcp,FromPort=8420,ToPort=8420,UserIdGroupPairs=[{GroupId=$ALB_SG,Description='ALB to AO'}]"
+    "IpProtocol=tcp,FromPort=3000,ToPort=3000,UserIdGroupPairs=[{GroupId=$PUB_ALB_SG,Description='Public ALB to Core'}]"
+
+# Allow inbound from internal ALB SG on port 3001 (MC)
+aws ec2 authorize-security-group-ingress --group-id "$ECS_SG" \
+  --ip-permissions \
+    "IpProtocol=tcp,FromPort=3001,ToPort=3001,UserIdGroupPairs=[{GroupId=$INT_ALB_SG,Description='Internal ALB to MC'}]"
 
 # Allow inbound from self (inter-service comms: Core<->AO, MC->Core)
 aws ec2 authorize-security-group-ingress --group-id "$ECS_SG" \
@@ -136,92 +165,118 @@ AO_TG=$(aws elbv2 create-target-group \
   --tags Key=Project,Value=yclaw \
   --query 'TargetGroups[0].TargetGroupArn' --output text)
 
-echo "AO TG: $AO_TG (health tracking only, no public listener rule)"
+echo "AO TG: $AO_TG (health tracking only, no listener rule)"
 echo ""
 
 # ============================================================================
-# Step 5: Create Internet-Facing ALB
+# Step 5: Create Public ALB (internet-facing, Core API)
 # ============================================================================
-echo "--- Step 5: Create ALB ---"
+echo "--- Step 5a: Create Public ALB ---"
 
-ALB_ARN=$(aws elbv2 create-load-balancer \
+PUB_ALB_ARN=$(aws elbv2 create-load-balancer \
   --name "yclaw-lb-production" \
   --scheme internet-facing \
   --type application \
   --subnets $PUBLIC_SUBNETS \
-  --security-groups "$ALB_SG" \
+  --security-groups "$PUB_ALB_SG" \
   --tags Key=Project,Value=yclaw \
   --query 'LoadBalancers[0].LoadBalancerArn' --output text)
 
-echo "ALB ARN: $ALB_ARN"
-
-ALB_DNS=$(aws elbv2 describe-load-balancers \
-  --load-balancer-arns "$ALB_ARN" \
+PUB_ALB_DNS=$(aws elbv2 describe-load-balancers \
+  --load-balancer-arns "$PUB_ALB_ARN" \
   --query 'LoadBalancers[0].DNSName' --output text)
 
-ALB_ZONE=$(aws elbv2 describe-load-balancers \
-  --load-balancer-arns "$ALB_ARN" \
+PUB_ALB_ZONE=$(aws elbv2 describe-load-balancers \
+  --load-balancer-arns "$PUB_ALB_ARN" \
   --query 'LoadBalancers[0].CanonicalHostedZoneId' --output text)
 
-echo "ALB DNS: $ALB_DNS"
-echo "ALB Hosted Zone: $ALB_ZONE"
+echo "Public ALB ARN:  $PUB_ALB_ARN"
+echo "Public ALB DNS:  $PUB_ALB_DNS"
+echo "Public ALB Zone: $PUB_ALB_ZONE"
+
+echo ""
+echo "--- Step 5b: Create Internal ALB ---"
+
+INT_ALB_ARN=$(aws elbv2 create-load-balancer \
+  --name "yclaw-internal-production" \
+  --scheme internal \
+  --type application \
+  --subnets $PRIVATE_SUBNETS \
+  --security-groups "$INT_ALB_SG" \
+  --tags Key=Project,Value=yclaw \
+  --query 'LoadBalancers[0].LoadBalancerArn' --output text)
+
+INT_ALB_DNS=$(aws elbv2 describe-load-balancers \
+  --load-balancer-arns "$INT_ALB_ARN" \
+  --query 'LoadBalancers[0].DNSName' --output text)
+
+echo "Internal ALB ARN: $INT_ALB_ARN"
+echo "Internal ALB DNS: $INT_ALB_DNS"
 echo ""
 
 # ============================================================================
 # Step 6: Create Listeners
 # ============================================================================
 echo "--- Step 6: Create Listeners ---"
-echo ">>> Replace <ACM_CERT_ARN> with the certificate ARN from Step 1."
+
+# --- Public ALB listeners ---
 
 # HTTP:80 → redirect to HTTPS
 aws elbv2 create-listener \
-  --load-balancer-arn "$ALB_ARN" \
+  --load-balancer-arn "$PUB_ALB_ARN" \
   --protocol HTTP --port 80 \
   --default-actions 'Type=redirect,RedirectConfig={Protocol=HTTPS,Port=443,StatusCode=HTTP_301}'
 
-# HTTPS:443 → default fixed 404
-# Replace <ACM_CERT_ARN> with your certificate ARN
-ACM_CERT_ARN="<ACM_CERT_ARN>"  # TODO: Replace with actual ARN
-
-HTTPS_LISTENER=$(aws elbv2 create-listener \
-  --load-balancer-arn "$ALB_ARN" \
+# HTTPS:443 → default fixed 404 (only path-matched routes reach Core)
+PUB_HTTPS_LISTENER=$(aws elbv2 create-listener \
+  --load-balancer-arn "$PUB_ALB_ARN" \
   --protocol HTTPS --port 443 \
   --ssl-policy ELBSecurityPolicy-TLS13-1-2-2021-06 \
   --certificates CertificateArn="$ACM_CERT_ARN" \
   --default-actions 'Type=fixed-response,FixedResponseConfig={StatusCode=404,ContentType=text/plain,MessageBody=Not Found}' \
   --query 'Listeners[0].ListenerArn' --output text)
 
-echo "HTTPS Listener: $HTTPS_LISTENER"
+echo "Public HTTPS Listener: $PUB_HTTPS_LISTENER"
+
+# --- Internal ALB listeners ---
+
+# HTTP:80 → redirect to HTTPS
+aws elbv2 create-listener \
+  --load-balancer-arn "$INT_ALB_ARN" \
+  --protocol HTTP --port 80 \
+  --default-actions 'Type=redirect,RedirectConfig={Protocol=HTTPS,Port=443,StatusCode=HTTP_301}'
+
+# HTTPS:443 → default forward to MC
+aws elbv2 create-listener \
+  --load-balancer-arn "$INT_ALB_ARN" \
+  --protocol HTTPS --port 443 \
+  --ssl-policy ELBSecurityPolicy-TLS13-1-2-2021-06 \
+  --certificates CertificateArn="$ACM_CERT_ARN" \
+  --default-actions "Type=forward,TargetGroupArn=$MC_TG"
+
+echo "Internal HTTPS Listener: default → MC TG"
 echo ""
 
 # ============================================================================
-# Step 7: Listener Rules (host-based routing)
+# Step 7: Public ALB Listener Rules (path-based routing on agents.yclaw.ai)
 # ============================================================================
-echo "--- Step 7: Create Listener Rules ---"
+echo "--- Step 7: Public ALB Listener Rules ---"
 
-# app.yclaw.ai → Mission Control
+# /api/*, /health, /github/webhook → Core TG
 aws elbv2 create-rule \
-  --listener-arn "$HTTPS_LISTENER" \
+  --listener-arn "$PUB_HTTPS_LISTENER" \
   --priority 10 \
-  --conditions Field=host-header,Values=app.yclaw.ai \
-  --actions Type=forward,TargetGroupArn="$MC_TG"
+  --conditions '[{"Field":"path-pattern","Values":["/api/*","/health","/health/*","/github/webhook"]}]' \
+  --actions "Type=forward,TargetGroupArn=$CORE_TG"
 
-# api.yclaw.ai → Core
-aws elbv2 create-rule \
-  --listener-arn "$HTTPS_LISTENER" \
-  --priority 20 \
-  --conditions Field=host-header,Values=api.yclaw.ai \
-  --actions Type=forward,TargetGroupArn="$CORE_TG"
-
-echo "AO stays internal only — no public listener rule."
+echo "Path rules: /api/*, /health, /github/webhook → Core"
+echo "Default: 404 (MC is NOT on the public ALB)"
 echo ""
 
 # ============================================================================
 # Step 8: Attach ECS Services to Target Groups
 # ============================================================================
 echo "--- Step 8: Attach ECS Services to Target Groups ---"
-echo ">>> These commands update ECS services to register with ALB target groups."
-echo ">>> This will trigger a new deployment of each service."
 
 aws ecs update-service \
   --cluster yclaw-cluster-production \
@@ -250,14 +305,8 @@ echo ""
 # Step 9: DNS Records (Route 53)
 # ============================================================================
 echo "--- Step 9: DNS Records ---"
-echo ">>> Create these records in the yclaw.ai hosted zone."
-echo ">>> Replace <HOSTED_ZONE_ID> with your Route 53 hosted zone ID for yclaw.ai."
-echo ">>> ALB DNS: $ALB_DNS"
-echo ">>> ALB Hosted Zone ID: $ALB_ZONE"
 
-ZONE_ID="<HOSTED_ZONE_ID>"  # TODO: Replace with yclaw.ai hosted zone ID
-
-# app.yclaw.ai → ALB alias
+# agents.yclaw.ai → public ALB (Core API)
 aws route53 change-resource-record-sets \
   --hosted-zone-id "$ZONE_ID" \
   --change-batch '{
@@ -265,23 +314,11 @@ aws route53 change-resource-record-sets \
       {
         "Action": "UPSERT",
         "ResourceRecordSet": {
-          "Name": "app.yclaw.ai",
+          "Name": "agents.yclaw.ai",
           "Type": "A",
           "AliasTarget": {
-            "DNSName": "'"$ALB_DNS"'",
-            "HostedZoneId": "'"$ALB_ZONE"'",
-            "EvaluateTargetHealth": true
-          }
-        }
-      },
-      {
-        "Action": "UPSERT",
-        "ResourceRecordSet": {
-          "Name": "api.yclaw.ai",
-          "Type": "A",
-          "AliasTarget": {
-            "DNSName": "'"$ALB_DNS"'",
-            "HostedZoneId": "'"$ALB_ZONE"'",
+            "DNSName": "'"$PUB_ALB_DNS"'",
+            "HostedZoneId": "'"$PUB_ALB_ZONE"'",
             "EvaluateTargetHealth": true
           }
         }
@@ -289,12 +326,16 @@ aws route53 change-resource-record-sets \
     ]
   }'
 
+echo "agents.yclaw.ai → $PUB_ALB_DNS"
+echo ""
+echo "Internal ALB DNS (for MC via Tailscale): $INT_ALB_DNS"
+echo "Optional: create private Route 53 record mc-internal.yclaw.ai → internal ALB"
 echo ""
 echo "=== SETUP COMPLETE ==="
 echo ""
 echo "Verification:"
-echo "  curl -s https://app.yclaw.ai/api/health  # MC health"
-echo "  curl -s https://api.yclaw.ai/health       # Core health"
+echo "  curl -s https://agents.yclaw.ai/health         # Core health (public)"
+echo "  curl -s https://$INT_ALB_DNS/api/health         # MC health (Tailscale)"
 echo ""
 
 # ============================================================================
@@ -304,7 +345,7 @@ cat <<'ENVDOC'
 
 === TASK DEFINITION ENV VAR UPDATES ===
 
-After ALB is created and services are registered, update these env vars
+After ALBs are created and services are registered, update these env vars
 in each ECS task definition via aws ecs register-task-definition:
 
 --- Core (yclaw-production) ---
@@ -314,9 +355,9 @@ in each ECS task definition via aws ecs register-task-definition:
   Connect as a follow-up for stable internal DNS names.
 
 --- MC (yclaw-mission-control-production) ---
-  YCLAW_API_URL=http://<core-task-private-ip>:3000     # server-side (internal)
-  NEXT_PUBLIC_YCLAW_API_URL=https://api.yclaw.ai       # browser-side (public)
-  NEXTAUTH_URL=https://app.yclaw.ai                    # NextAuth callback base
+  YCLAW_API_URL=http://<core-task-private-ip>:3000               # server-side (internal)
+  NEXT_PUBLIC_YCLAW_API_URL=https://agents.yclaw.ai              # browser-side (public, /api/* path)
+  NEXTAUTH_URL=https://<internal-alb-dns>                        # NextAuth callback base (Tailscale)
 
 --- AO (yclaw-ao-production) ---
   AO_CALLBACK_URL=http://<core-task-private-ip>:3000/api/ao/callback
@@ -328,8 +369,8 @@ in each ECS task definition via aws ecs register-task-definition:
   - ECS Service Connect or service discovery
   This is a follow-up task, not part of this go-live.
 
-  Workaround until then: use the ALB for MC→Core (YCLAW_API_URL=https://api.yclaw.ai)
-  and for AO→Core (AO_CALLBACK_URL=https://api.yclaw.ai/api/ao/callback).
-  This adds a round-trip through the ALB but avoids IP instability.
+  Workaround until then: use the public ALB for internal calls too:
+  - YCLAW_API_URL=https://agents.yclaw.ai (adds ALB round-trip but stable)
+  - AO_CALLBACK_URL=https://agents.yclaw.ai/api/ao/callback
 
 ENVDOC
