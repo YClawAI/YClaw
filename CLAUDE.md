@@ -313,11 +313,9 @@ line of defense before content is published.
 ### Purpose
 
 Prevents agents from publishing content that:
-- Contains financial advice, price predictions, or investment recommendations
-- Makes promises or guarantees about returns
-- Uses prohibited hype language ("LFG", "moon", "NFA", etc.)
+- Leaks credentials (API keys, tokens, private keys, connection strings)
+- Contains potential data exfiltration patterns
 - Leaks internal information (agent names, system prompts, internal URLs)
-- Contains regulatory red flags
 - Violates brand voice guidelines
 
 ### Architecture
@@ -338,18 +336,14 @@ Agent generates content
 
 | Category | What It Catches | Severity |
 |---|---|---|
-| Financial advice | "guaranteed returns", "you will earn", APY promises | BLOCK |
-| Price predictions | "price will", "going to moon", "$X by date" | BLOCK |
-| Hype language | "LFG", "NFA", "DYOR", "to the moon", "wen" | BLOCK |
-| Internal leaks | Agent names, system prompt fragments, internal URLs | BLOCK |
-| Regulatory flags | "investment", "securities", unregistered offering language | WARN |
-| Brand violations | Shouting (ALL CAPS), excessive emojis, aggressive CTAs | WARN |
+| Credential leaks | API keys (Anthropic, OpenAI, GitHub, Slack, AWS), private keys, JWTs, MongoDB/Redis URIs with credentials | BLOCK |
+| Data exfiltration | Key-value credential assignments, connection strings with embedded passwords | BLOCK |
 
 ### Platform-Specific Rules
 
 Different platforms have different content policies. The safety filter applies
 platform-specific rules based on the `targetPlatform` parameter:
-- **X (Twitter)**: Character limits, no thread-starting with financial claims
+- **X (Twitter)**: Character limits
 - **Telegram**: No forwarding instructions, no group invite spam
 - **Instagram**: No link-in-bio spam patterns
 - **Email**: CAN-SPAM compliance checks

@@ -1,28 +1,30 @@
 # YClaw — Marketing Baseline
 
 ## ICP (Ideal Customer Profile)
-- Web3 developers and technical founders
-- Building on Ethereum/Solana
+- Developers building AI agent systems
+- Open-source contributors and technical founders
 - Teams of 2-20
-- Need agent infrastructure for their protocols
+- Need autonomous agent infrastructure for their projects
 
 ## Brand Voice
 - Direct, technical, no hype
 - Show don't tell — case studies, metrics, architecture diagrams
 - We are builders talking to builders
 
-## SEC Guardrails (HARD BLOCKS — violation = instant reject)
-- NEVER promise returns, yields, or financial performance
-- NEVER use "investment", "profit", "guaranteed", "early mover advantage"
-- NEVER imply token appreciation or financial upside
-- NEVER compare to securities, stocks, or financial instruments
-- OK: "vision", "what we're building", "infrastructure", "developer tools"
-- OK: Technical capabilities, architecture, use cases
-- OK: Community growth, developer adoption metrics (non-financial)
+## Content Safety (HARD BLOCKS — violation = instant reject)
+- NEVER leak credentials, API keys, tokens, or private keys in content
+- NEVER impersonate real people or organizations
+- NEVER fabricate benchmarks, statistics, or testimonials
+- NEVER include malicious code or destructive commands
+- NEVER post personal information without consent
+- NEVER claim features that don't exist
+- OK: Technical discussions using any developer terminology
+- OK: Performance benchmarks with methodology
+- OK: Competitive comparisons with factual basis
+- OK: Roadmap discussions with appropriate caveats
 
 ## Positioning
-- YClaw = autonomous agent infrastructure for Web3
-- Not a token platform. Not DeFi. Infrastructure.
+- YClaw = autonomous AI agent infrastructure (open-source framework)
 - Competitors: none directly (our framing)
 
 ## Tone
