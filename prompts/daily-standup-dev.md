@@ -65,7 +65,7 @@ Same schema as base protocol.
 ## Action Format
 
 `event:publish` — `source`, `type`, `payload` as top-level fields.
-`slack:message` — include `channel` ([your-development-channel]) and `text`. Skip if nothing to report.
+`discord:message` — include `channel` ([your-development-channel]) and `text`. Skip if nothing to report.
 
 ---
 

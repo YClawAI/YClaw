@@ -1,6 +1,6 @@
 import type { ActionResult } from '../types.js';
 import type { ToolDefinition } from '../../config/schema.js';
-import { GITHUB_API_BASE, GITHUB_DEFAULTS, type GitHubClient, logger } from './client.js';
+import { GITHUB_API_BASE, GITHUB_DEFAULTS, DEFAULT_BRANCH, type GitHubClient, logger } from './client.js';
 
 // ─── Tool Definitions ────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ export const REPO_TOOL_DEFINITIONS: ToolDefinition[] = [
       owner: { type: 'string', description: `Repository owner (default: ${GITHUB_DEFAULTS.owner})` },
       repo: { type: 'string', description: `Repository name (default: ${GITHUB_DEFAULTS.repo})` },
       branch: { type: 'string', description: 'New branch name (e.g., feature/add-caching)', required: true },
-      from_ref: { type: 'string', description: 'Source ref to branch from (default: master)' },
+      from_ref: { type: 'string', description: `Source ref to branch from (default: ${DEFAULT_BRANCH})` },
     },
   },
   {
@@ -40,7 +40,7 @@ export const REPO_TOOL_DEFINITIONS: ToolDefinition[] = [
 
 export const REPO_DEFAULTS: Record<string, Record<string, unknown>> = {
   'github:update_repo_settings': GITHUB_DEFAULTS,
-  'github:create_branch': GITHUB_DEFAULTS,
+  'github:create_branch': { ...GITHUB_DEFAULTS, from_ref: DEFAULT_BRANCH },
   'github:get_workflow_runs': { ...GITHUB_DEFAULTS, per_page: 10 },
 };
 
@@ -222,7 +222,7 @@ export async function createBranch(client: GitHubClient, params: Record<string, 
   const owner = params.owner as string | undefined;
   const repo = params.repo as string | undefined;
   const branch = params.branch as string | undefined;
-  const fromRef = (params.from_ref as string) || 'master';
+  const fromRef = (params.from_ref as string) || DEFAULT_BRANCH;
 
   if (!owner || !repo || !branch) {
     return { success: false, error: 'Missing required parameters: owner, repo, branch' };

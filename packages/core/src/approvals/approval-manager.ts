@@ -23,6 +23,29 @@ const logger = createLogger('approval-manager');
 const EXPIRY_HOURS = 24;
 
 /**
+ * Actions that only read state and never mutate. These are always exempt from
+ * cost-based approval gating — blocking a list_issues call because the agent
+ * spent $6 is never the right behavior.
+ */
+const READ_ONLY_ACTIONS = new Set([
+  'github:list_issues',
+  'github:list_prs',
+  'github:get_contents',
+  'github:get_multiple_files',
+  'github:get_diff',
+  'github:get_pr',
+  'github:get_workflow_runs',
+  'github:compare_commits',
+  'task:summary',
+  'task:query',
+  'task:get',
+  'memory:read',
+  'memory:search',
+  'discord:fetch_channel_history',
+  'discord:fetch_messages',
+]);
+
+/**
  * Known agent identities. Callers with these IDs are treated as agents
  * and cannot approve requests that requiresHuman: true.
  */
@@ -92,6 +115,9 @@ export class ApprovalManager {
    *
    * Action-type gates (deploy:execute, safety:modify, etc.) are ALWAYS enforced
    * regardless of budget mode — they are safety gates, not financial gates.
+   *
+   * Read-only actions are always exempt from cost-based gating — they don't
+   * mutate state and should never be blocked by budget enforcement.
    */
   requiresApproval(
     actionType: string,
@@ -103,6 +129,9 @@ export class ApprovalManager {
     // Action-type gates are always enforced (safety, not financial)
     const gate = this.getGate(actionType);
     if (gate) return gate;
+
+    // Read-only actions are exempt from cost-based gating
+    if (READ_ONLY_ACTIONS.has(actionType)) return undefined;
 
     // Cost-based gate — only enforce when budget mode is 'enforcing'.
     // If budgetEnforcer is null (disabled via BUDGET_ENFORCEMENT_ENABLED=false),

@@ -341,9 +341,27 @@ exec gosu ao /bin/bash -c '
   export BROWSER=none
   unset DISPLAY
 
-  # Configure YCLAW_AO_PROJECT to set which project ao starts with
+  # Configure YCLAW_AO_PROJECT to set which project ao starts with.
+  # If multiple projects exist in agent-orchestrator.yaml and no project
+  # is specified, ao start fails. Fail fast with a clear message.
   AO_PROJECT="${YCLAW_AO_PROJECT:-}"
+  if [ -z "$AO_PROJECT" ]; then
+    PROJECT_COUNT=$(awk "
+      BEGIN { in_projects = 0; count = 0 }
+      /^projects:[[:space:]]*$/ { in_projects = 1; next }
+      in_projects && /^[^[:space:]]/ { in_projects = 0 }
+      in_projects && /^  [^[:space:]#][^:]*:[[:space:]]*$/ { count++ }
+      END { print count + 0 }
+    " /app/agent-orchestrator.yaml 2>/dev/null || echo "0")
+    if [ "$PROJECT_COUNT" -gt 1 ]; then
+      echo "[ao-entrypoint] FATAL: Multiple projects configured but YCLAW_AO_PROJECT is not set." >&2
+      echo "[ao-entrypoint] Set YCLAW_AO_PROJECT to one of the project names in agent-orchestrator.yaml." >&2
+      exit 1
+    fi
+  fi
+
   if [ -n "$AO_PROJECT" ]; then
+    echo "[ao-entrypoint] Starting AO daemon with project: $AO_PROJECT"
     ao start "$AO_PROJECT" &
   else
     ao start &

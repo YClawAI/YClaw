@@ -104,7 +104,7 @@ Do NOT pad it.
 ## Action Format Reference
 
 `event:publish` — pass `source`, `type`, `payload` as **top-level fields** (not nested).
-`slack:message` — always include `channel` and `text`. Never send empty messages. If nothing to report, skip the action.
+`discord:message` — always include `channel` and `text`. Never send empty messages. If nothing to report, skip the action.
 
 Department channels: [your-executive-channel], [your-development-channel], [your-marketing-channel], [your-operations-channel], [your-finance-channel], [your-support-channel]
 

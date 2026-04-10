@@ -4,9 +4,9 @@ import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-aut
 const logger = createLogger('config-persister');
 
 const GITHUB_API = 'https://api.github.com';
-const OWNER = 'yclaw-ai';
-const REPO = 'yclaw';
-const BASE_BRANCH = 'master';
+const OWNER = process.env.GITHUB_OWNER || 'YClawAI';
+const REPO = process.env.GITHUB_REPO || 'YClaw';
+const BASE_BRANCH = process.env.DEFAULT_BRANCH || 'main';
 
 /**
  * Persists agent config changes to GitHub via the Contents API.

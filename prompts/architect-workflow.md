@@ -1130,9 +1130,9 @@ Use the GitHub API to check `mergeable`, `mergeStateStatus`, and CI status on th
 
 | Blocker | Action |
 |---------|--------|
-| **CI failing — unrelated to PR** | Identify the unrelated failure. If it's a master-level issue (broken config, flaky test), escalate to Strategist with `slack:message` to #yclaw-alerts requesting admin merge for P0 fixes. |
+| **CI failing — unrelated to PR** | Identify the unrelated failure. If it's a main-level issue (broken config, flaky test), escalate to Strategist with `discord:message` to #yclaw-alerts requesting admin merge for P0 fixes. |
 | **CI failing — related to PR** | Trigger AO to fix via build_directive, or re-plan the approach. |
-| **Branch behind master** | Trigger Mechanic with `update_branch` or `rebase_branch` task. |
+| **Branch behind main** | Trigger Mechanic with `update_branch` or `rebase_branch` task. |
 | **Merge conflicts** | Follow the Merge Conflict Resolution workflow above. |
 | **Missing status check** | Check if the required workflow ran. Re-trigger CI by pushing an empty commit or requesting Mechanic. |
 | **Branch protection rule** | Escalate to Strategist — may need admin override for critical fixes. |

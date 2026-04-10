@@ -73,6 +73,9 @@ function parseRetryAfterMs(headers: Headers): number {
 
 export const GITHUB_API_BASE = 'https://api.github.com';
 
+/** Default branch for all GitHub operations. Configurable via env var. */
+export const DEFAULT_BRANCH = process.env.DEFAULT_BRANCH || 'main';
+
 export const GITHUB_DEFAULTS = {
   owner: 'your-org',
   repo: 'yclaw',

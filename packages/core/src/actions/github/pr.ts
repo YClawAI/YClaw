@@ -1,6 +1,6 @@
 import type { ActionResult } from '../types.js';
 import type { ToolDefinition } from '../../config/schema.js';
-import { GITHUB_API_BASE, GITHUB_DEFAULTS, type GitHubClient, logger } from './client.js';
+import { GITHUB_API_BASE, GITHUB_DEFAULTS, DEFAULT_BRANCH, type GitHubClient, logger } from './client.js';
 
 // ─── Tool Definitions ────────────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@ export const PR_TOOL_DEFINITIONS: ToolDefinition[] = [
       title: { type: 'string', description: 'PR title', required: true },
       body: { type: 'string', description: 'PR description (markdown)' },
       head: { type: 'string', description: 'Source branch (the branch with changes)', required: true },
-      base: { type: 'string', description: 'Target branch to merge into (default: master)' },
+      base: { type: 'string', description: `Target branch to merge into (default: ${DEFAULT_BRANCH})` },
       closes_issues: { type: 'array', items: { type: 'number', description: 'GitHub issue number' }, description: 'Issue numbers this PR fixes. Auto-appends "Closes #NNN" to body for GitHub auto-close.' },
     },
   },
@@ -102,7 +102,7 @@ export const PR_TOOL_DEFINITIONS: ToolDefinition[] = [
 ];
 
 export const PR_DEFAULTS: Record<string, Record<string, unknown>> = {
-  'github:create_pr': { ...GITHUB_DEFAULTS, base: 'master' },
+  'github:create_pr': { ...GITHUB_DEFAULTS, base: DEFAULT_BRANCH },
   'github:merge_pr': { ...GITHUB_DEFAULTS, merge_method: 'squash' },
   'github:enable_pr_auto_merge': { ...GITHUB_DEFAULTS, merge_method: 'squash' },
   'github:update_pr_branch': GITHUB_DEFAULTS,
@@ -294,14 +294,14 @@ export async function createPR(client: GitHubClient, params: Record<string, unkn
   const title = params.title as string | undefined;
   let body = (params.body as string | undefined) ?? '';
   const head = params.head as string | undefined;
-  const base = params.base as string | undefined;
+  const base = (params.base as string | undefined) || DEFAULT_BRANCH;
   const draft = (params.draft as boolean) ?? false;
   const enableAutoMergeOnCreate = (params.enable_auto_merge as boolean | undefined) ?? true;
   const mergeMethod = (params.merge_method as string | undefined) ?? 'squash';
   const closesIssues = params.closes_issues as number[] | undefined;
 
-  if (!owner || !repo || !title || !head || !base) {
-    return { success: false, error: 'Missing required parameters: owner, repo, title, head, base' };
+  if (!owner || !repo || !title || !head) {
+    return { success: false, error: 'Missing required parameters: owner, repo, title, head' };
   }
 
   // ─── Deterministic issue linking: auto-append "Closes #NNN" ─────────
