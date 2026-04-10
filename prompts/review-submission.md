@@ -1,10 +1,8 @@
-<!-- CUSTOMIZE FOR YOUR ORGANIZATION -->
-
 # Review Submission Protocol
 
-## MANDATORY: Submit Content for Review
+## Submit Content for Review
 
-When you produce ANY external-facing content (social posts, announcements, marketing copy, outreach messages), you MUST submit it for review BEFORE publishing.
+When you produce external-facing content that is Tier 2 or above (see review-rules.md), submit it for review before publishing. Tier 1 content may be published directly.
 
 ### How to Submit
 

@@ -1,106 +1,83 @@
-<!-- CUSTOMIZE: Content review and approval rules -->
-# Content Review Rules
+# YCLAW Review Rules
 
-> Governs auto-publish permissions across content-producing agents.
-> Defines what gets published automatically vs what needs human review.
+> Version: 1.0
+> Last Updated: 2026-04-10
+> Applies to: All agents producing content for external channels
 
----
+## Review Routing
 
-## 1. Review Queue Architecture
+### Auto-publish (No Reviewer Needed)
 
-### Routing States
+These content types can be published autonomously by any agent with the appropriate channel action:
 
-```
-Agent generates content
-    ↓
-    Tags with: agent, confidence, template, platform
-    ↓
-    Routes based on rules below
-    ↓
-    ├─ AUTO: publishes immediately (no human intervention needed)
-    ├─ TIMED: queues for review window, auto-publishes if no rejection
-    ├─ REVIEW: holds until explicitly approved
-    └─ BLOCKED: never auto-publishes, always requires approval
-```
+- **Release announcements** derived from merged PRs or tagged releases
+- **Changelog and docs summaries** — factual descriptions of what shipped
+- **Contributor acknowledgements** — thanking specific contributors for PRs
+- **Technical replies** — answering user questions about YCLAW usage, configuration, or troubleshooting
+- **Issue/PR status updates** — "this is being worked on," "fix shipped in v1.2.3"
+- **Community event reminders** — Discord events, office hours, meetups already approved
+- **Emoji reactions** — always allowed, no review needed
+- **Thread replies** in existing discussions — factual, on-topic
 
-| Route | Behavior | Timeline |
-|-------|----------|----------|
-| **AUTO** | Publishes immediately | Real-time |
-| **TIMED** | Queued [X] minutes | Review window |
-| **REVIEW** | Held pending | Until approval |
-| **BLOCKED** | Never auto-publishes | Until approval |
+### Submit to Reviewer (Preferred but Non-Blocking)
 
----
+If Reviewer is available, submit these. If Reviewer doesn't respond within 30 minutes, publish autonomously:
 
-## 2. Per-Agent Rules
+- **Comparative claims** — "YCLAW vs [competitor]" framing
+- **Roadmap previews** — what's coming, with appropriate "plans may change" caveats
+- **Performance claims** — benchmark results, speed comparisons (must include methodology)
+- **Ecosystem commentary** — opinions on industry trends, AI agent landscape
+- **Blog post drafts** — longer-form content for docs site or Medium
 
-### Content Agent (e.g., Ember)
+### Mandatory Human Review (Always Hold)
 
-| Action | Platform | Confidence | Route |
-|--------|----------|------------|-------|
-| Short post | [Platform] | ≥85% | AUTO |
-| Medium post | [Platform] | ≥80% | TIMED |
-| Thread | Any | Any | REVIEW |
-| Official statement | Any | Any | BLOCKED |
+These MUST go through Reviewer and receive explicit `reviewer:approved` before publishing:
 
-### Community Agent (e.g., Keeper)
+- **Legal or compliance statements** — anything about licenses, terms, liability
+- **Security incident communications** — breach disclosures, vulnerability announcements
+- **Partnership announcements** — formal collaborations with named organizations
+- **Commercial terms** — pricing, enterprise offerings, contracts
+- **Statements about other organizations** — legal claims, accusations, formal positions
+- **Press releases** — formal media communications
+- **Content involving user data or privacy** — data handling claims, GDPR/privacy assertions
 
-| Action | Situation | Route |
-|--------|-----------|-------|
-| FAQ response | High match to KB | AUTO |
-| Spam deletion | Clear spam signature | AUTO |
-| Ban action | Any | REVIEW |
+### Never Publish (Block Always)
 
-### Growth Agent (e.g., Scout)
+- Content containing credentials, API keys, tokens, or internal infrastructure details
+- Impersonation of real people or organizations
+- Fabricated statistics, benchmarks, or testimonials
+- Content that could be construed as legal advice
+- Anything a reasonable person would not want made public
 
-| Action | Route | Notes |
-|--------|-------|-------|
-| Internal research | AUTO | Documentation only |
-| ALL outreach | BLOCKED | Requires executive approval |
+## Per-Agent Rules
 
----
+### Ember (Content Engine)
+- Primary channels: Discord, X/Twitter
+- Auto-publish: Tier 1 content (release notes, contributor thanks, event reminders)
+- Submit to Reviewer: Tier 2 (comparisons, roadmap, performance claims)
+- Escalate: Tier 3 (legal, security, partnerships)
 
-## 3. Forbidden Content
+### Scout (Research & Outreach)
+- Primary channels: Discord, X/Twitter
+- Auto-publish: Research summaries, industry commentary, competitive intel (factual)
+- Submit to Reviewer: Outreach DMs to specific individuals, partnership feelers
+- Escalate: Any formal outreach to named organizations
 
-**NEVER publish, regardless of route or confidence score:**
+### Keeper (Community Moderation)
+- Primary channels: Discord, Telegram
+- Auto-publish: Moderation actions, welcome messages, FAQ replies
+- No review needed for moderation — speed matters
 
-- Financial predictions or investment advice
-- Unverified partnership or endorsement claims
-- Competitive attacks by name
-- Banned terminology (define your list)
-- Security or privacy details
-- Political or controversial statements
+### Guide (Support)
+- Primary channels: Discord
+- Auto-publish: Support replies, documentation links, troubleshooting steps
+- Submit to Reviewer: Workarounds that involve security implications
 
----
+### Sentinel (Infrastructure)
+- Primary channels: Discord (#ops), Slack
+- Auto-publish: Status updates, deploy notifications, incident alerts
+- Escalate: Post-incident reports (Tier 3 — human review)
 
-## 4. Confidence Scoring
-
-```
-Confidence = (Relevance + Brand Fit + Quality + Sentiment) / 4
-```
-
-Each component 0-100%.
-
----
-
-## 5. Escalation
-
-| Time Since Posted | Action |
-|-------------------|--------|
-| 0-1 hour | Initial notification |
-| 1 hour | Reminder |
-| 4 hours | Second reminder |
-| 24 hours | Content expires |
-
----
-
-## 6. Emergency Controls
-
-```
-/pause_all    → All auto-publishing paused
-/resume_all   → Resume normal publishing
-/crisis_mode  → Only REVIEW/BLOCKED active
-```
-
----
-> See `examples/gaze-protocol/prompts/review-rules.md` for a comprehensive real-world example with per-agent routing tables.
+### All Other Agents
+- Default to Tier 1 rules for routine content
+- Escalate anything that doesn't clearly fit Tier 1
