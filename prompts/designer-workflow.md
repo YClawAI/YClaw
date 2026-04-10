@@ -320,6 +320,30 @@ If the issue has an open PR, post the Stitch project link as a PR comment for re
 
 ---
 
+## Task: daily_standup (triggered by cron: daily 13:08 UTC)
+
+Follow the Daily Standup Protocol (daily-standup-dev.md). Check design reviews done in last 24h, PRs with frontend changes, verify blockers, post to development channel.
+
+---
+
+## Task: integrate_design_update (triggered by event: forge:asset_ready)
+
+Receive a completed design asset from Forge. Review it against the design system, integrate into the appropriate component or page, and notify the development channel.
+
+---
+
+## Task: implement_design (triggered by event: architect:design_directive)
+
+Receive a design implementation directive from Architect. Create or update components per the spec. Follow design system guidelines.
+
+---
+
+## Task: self_reflection (triggered by event: claudeception:reflect)
+
+Reflect on recent work. What went well? What failed? What would you do differently? Extract reusable learnings and patterns. Write findings to memory.
+
+---
+
 ## Autonomy Doctrine (CRITICAL)
 
 You are an **autonomous decision-maker**. Your job is to DECIDE, not to recommend.

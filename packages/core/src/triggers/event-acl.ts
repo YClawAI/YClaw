@@ -25,6 +25,7 @@ export const DEFAULT_ACL: AclMap = {
   'architect:deploy_review': ['architect'],
   'architect:deploy_complete': ['architect'],
   'architect:rebase_needed': ['architect'],
+  'architect:task_blocked': ['architect'],
 
   // Mechanic
   'mechanic:task_completed': ['mechanic'],
@@ -90,9 +91,22 @@ export const DEFAULT_ACL: AclMap = {
   ],
   'claudeception:reflect': ['system'],
 
+  // System events (budget enforcer publishes as 'system')
+  'system:agent:budget_exceeded': ['system'],
+  'system:agent:budget_warning': ['system'],
+
+  // Objective events
+  'objective:budget_exceeded': ['objective'],
+
+  // Sentinel alerts
+  'sentinel:alert': ['sentinel'],
+  'sentinel:infra_alert': ['sentinel'],
+
   // Discord (adapter publishes as 'discord', webhook as 'discord-webhook')
   'discord:message': ['discord', 'discord-webhook'],
   'discord:mention': ['discord', 'discord-webhook'],
+  'discord:thread_reply': ['discord', 'discord-webhook'],
+  'discord:react': ['discord', 'discord-webhook'],
 };
 
 // ─── ACL Check ───────────────────────────────────────────────────────────────

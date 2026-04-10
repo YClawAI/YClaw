@@ -75,6 +75,38 @@ triggers:
     model: claude-sonnet-4-20250514
     temperature: 0.5
     maxTokens: 4096
+- type: event
+  event: sentinel:alert
+  task: handle_system_alert
+  model:
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    temperature: 0.3
+    maxTokens: 4096
+- type: event
+  event: ao:task_failed
+  task: handle_ao_failure
+  model:
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    temperature: 0.3
+    maxTokens: 4096
+- type: event
+  event: ao:spawn_failed
+  task: handle_ao_failure
+  model:
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    temperature: 0.3
+    maxTokens: 4096
+- type: event
+  event: architect:task_blocked
+  task: handle_blocked_task
+  model:
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    temperature: 0.3
+    maxTokens: 4096
 # Deploy Governance v2: execute approved CRITICAL-tier deployments
 - type: event
   event: deploy:approved
@@ -116,6 +148,10 @@ event_subscriptions:
 - claudeception:reflect
 - standup:report
 - deploy:approved
+- sentinel:alert
+- ao:task_failed
+- ao:spawn_failed
+- architect:task_blocked
 event_publications:
 - strategist:weekly_directive
 - strategist:midweek_adjustment

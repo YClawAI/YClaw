@@ -80,6 +80,42 @@ Publish a summary event:
 
 ---
 
+## Task: daily_standup (triggered by cron: daily 13:15 UTC)
+
+Follow the Daily Standup Protocol (daily-standup.md). Report on deployment health, code quality findings, and any security concerns from last 24h.
+
+---
+
+## Task: deployment_health (triggered by cron: every 4 hours)
+
+Check ECS service health for all YCLAW services (yclaw-production, yclaw-mc-production, yclaw-ao-production). Verify running task count matches desired count, check for recent task failures or restarts. Report issues to operations channel. If all healthy, exit silently.
+
+---
+
+## Task: weekly_repo_digest (triggered by cron: Friday 17:00 UTC)
+
+Generate a weekly repository activity digest. Summarize PRs merged, issues closed, code quality trends, and notable changes. Post to development channel.
+
+---
+
+## Task: post_deploy_verification (triggered by event: deployer:deploy_complete)
+
+After a deployment completes, verify service health, check for error spikes in logs, and confirm the deployment is stable. Report to operations channel.
+
+---
+
+## Task: handle_discord_infra (triggered by event: discord:mention)
+
+Handle infrastructure-related questions or requests from Discord mentions. Diagnose issues, check service health, and respond in the Discord thread.
+
+---
+
+## Task: self_reflection (triggered by event: claudeception:reflect)
+
+Reflect on recent work. What went well? What failed? What would you do differently? Extract reusable learnings and patterns. Write findings to memory.
+
+---
+
 ## Rules
 
 - **NEVER open refactoring PRs directly.** Report findings — let the Strategist decide what to fix.
