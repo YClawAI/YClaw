@@ -88,6 +88,11 @@ export async function GET() {
   }
 
   // ── Aggregate ────────────────────────────────────────────────────
+  // Core deps (mongodb, redis) must be up for a healthy ALB response.
+  // Optional deps (gateway, operators) can be down without failing the
+  // health check — they degrade functionality but the app still serves.
+  const CORE_DEPS = new Set(['mongodb', 'redis']);
+  const coreDown = checks.some((c) => CORE_DEPS.has(c.name) && c.status === 'down');
   const hasDown = checks.some((c) => c.status === 'down');
   const hasDegraded = checks.some((c) => c.status === 'degraded');
 
@@ -97,7 +102,7 @@ export async function GET() {
       ? 'degraded'
       : 'ok';
 
-  const httpStatus = overallStatus === 'ok' ? 200 : 503;
+  const httpStatus = coreDown ? 503 : 200;
 
   return NextResponse.json({ status: overallStatus, checks }, { status: httpStatus });
 }
