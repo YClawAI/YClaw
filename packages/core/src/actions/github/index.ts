@@ -8,6 +8,8 @@ import { ISSUES_TOOL_DEFINITIONS, ISSUES_DEFAULTS, createIssue, updateIssue, get
 
 // Re-export client for type imports
 export { GitHubClient } from './client.js';
+export { getGitHubToken, getOctokitAuth, isGitHubAuthAvailable, getAuthMethod, initGitHubAuth } from './app-auth.js';
+export type { AuthMethod } from './app-auth.js';
 
 export class GitHubExecutor implements ActionExecutor {
   readonly name = 'github';

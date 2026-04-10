@@ -114,19 +114,27 @@ async function exchangeForInstallationToken(
 ): Promise<InstallationToken> {
   const url = `https://api.github.com/app/installations/${installationId}/access_tokens`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/vnd.github+json',
-      'Authorization': `Bearer ${jwt}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': `Bearer ${jwt}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Failed to create installation token: network error: ${message}`);
+  }
 
   if (!response.ok) {
-    const body = await response.text();
+    const body = await response.text().catch(() => '');
     throw new Error(
-      `Failed to create installation token (${response.status}): ${body}`,
+      body
+        ? `Failed to create installation token (${response.status}): ${body}`
+        : `Failed to create installation token (${response.status})`,
     );
   }
 

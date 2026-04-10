@@ -656,12 +656,12 @@ export class GitHubWebhookHandler {
     runId: number,
   ): Promise<'ci_fail' | 'deploy_fail'> {
     try {
-      const ghToken2 = await getGitHubToken();
+      const ghToken = await getGitHubToken();
       const url = `https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}/jobs`;
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/vnd.github+json',
-          'Authorization': `Bearer ${ghToken2}`,
+          'Authorization': `Bearer ${ghToken}`,
           'X-GitHub-Api-Version': '2022-11-28',
         },
       });

@@ -25,14 +25,10 @@ const log = createLogger('agenthub-promoter');
  * The existing webhook pipeline handles everything from there.
  */
 export class AgentHubPromoter {
-  private readonly octokit: Octokit;
-
   constructor(
     private readonly agentHub: AgentHubClient,
     private readonly githubToken: string,
-  ) {
-    this.octokit = new Octokit({ auth: githubToken });
-  }
+  ) {}
 
   async promote(options: PromoteOptions): Promise<{ prNumber: number; prUrl: string }> {
     const {

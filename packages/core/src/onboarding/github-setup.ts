@@ -110,19 +110,21 @@ export function registerGitHubSetupRoutes(app: Express): void {
 
         // Return credentials — the user needs to store these
         // (we don't persist them automatically for security)
-        res.json({
+        // Intentionally omit the raw PEM from the browser response.
+        res.set('Cache-Control', 'no-store').json({
           success: true,
           message: 'GitHub App created. Store these credentials securely.',
           app_id: data.id,
           app_slug: data.slug,
-          pem: data.pem,
           webhook_secret: data.webhook_secret,
           client_id: data.client_id,
           html_url: data.html_url,
           next_step: `Install the app on your repositories: https://github.com/settings/apps/${data.slug}/installations`,
+          private_key_step:
+            'Generate/download a private key from the GitHub App settings page linked above. This endpoint does not return the PEM.',
           env_vars: {
             GITHUB_APP_ID: String(data.id),
-            GITHUB_APP_PRIVATE_KEY: '(PEM key returned above — base64-encode for env vars)',
+            GITHUB_APP_PRIVATE_KEY: '(generate/download from GitHub App settings; base64-encode for env vars)',
             GITHUB_APP_WEBHOOK_SECRET: data.webhook_secret,
           },
         });
