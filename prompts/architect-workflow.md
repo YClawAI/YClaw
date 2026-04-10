@@ -135,7 +135,7 @@ Post to Slack #yclaw-development:
 
 ---
 
-## Task: verify_completion (triggered by builder:task_complete)
+## Task: verify_completion (triggered by ao:task_completed)
 
 AO reports a task is done. Verify and close.
 
@@ -153,13 +153,13 @@ Check that the PR matches the original plan:
 - No scope creep?
 - PR exists and is in review/merged state?
 
-If verification passes, the normal PR review flow (`review_pr`) handles the rest.
+If verification passes, the normal PR audit flow (`audit_pr`) handles the rest.
 
 If verification fails, post a comment on the issue explaining what's missing.
 
 ---
 
-## Task: resolve_blocker (triggered by builder:task_blocked)
+## Task: resolve_blocker (triggered by ao:task_blocked)
 
 AO or the pipeline is blocked and needs help.
 
@@ -245,7 +245,7 @@ If the directive is wrong-headed, underspecified, or blocked by missing infrastr
 
 ---
 
-## Task: ack_pr (triggered by builder:pr_ready or github:pr_opened)
+## Task: ack_pr (triggered by ao:pr_ready or github:pr_opened)
 
 You received a new PR notification. Your ONLY job is to post a quick acknowledgment comment
 so the team knows the PR is seen and queued for review. Do NOT do a full review here.
@@ -271,11 +271,11 @@ Call `github:pr_comment`:
 }
 ```
 
-One comment, done. The full `review_pr` task runs in parallel.
+One comment, done. The full `audit_pr` task runs in parallel.
 
 ---
 
-## Task: audit_pr (triggered by builder:pr_ready or github:pr_opened)
+## Task: audit_pr (triggered by ao:pr_ready or github:pr_opened)
 
 > **VELOCITY MODE (2026-03-26):** PRs now auto-merge on CI pass. This task is
 > a NON-BLOCKING audit. Your comments are advisory — they do NOT gate merging.
@@ -746,7 +746,7 @@ When AO receives an `infra_provision` directive, the worker (Claude Code) must:
 
 ### After Infrastructure Provisioning
 
-When you receive an `builder:task_complete` event for an infra_provision directive:
+When you receive an `ao:task_completed` event for an infra_provision directive:
 
 1. **Verify** — Read each vault path to confirm outputs are stored
 2. **Record** — Update your own tracking in the vault: `vault/infra/{project}/inventory`
@@ -1054,7 +1054,7 @@ Assigned to: AO (CLAUDE.md + CI + Infra), Architect (Branch Protection + oversig
 
 ---
 
-## Task: handle_task_failure (triggered by builder:task_failed)
+## Task: handle_task_failure (triggered by ao:task_failed)
 
 An AO session or CI run has failed. Your job is to diagnose the failure and either provide a different approach or escalate.
 
@@ -1122,7 +1122,7 @@ Approving the same PR a second time accomplishes nothing. Your job is to **remov
 
 ---
 
-## Queue Priority Review (builder:queue_changed)
+## Queue Priority Review (ao:queue_changed)
 
 When the task queue state changes, you may receive a review request. Decide task ordering based on:
 

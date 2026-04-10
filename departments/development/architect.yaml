@@ -31,12 +31,14 @@ triggers:
       maxTokens: 4096
       temperature: 0.2
 
+  # VELOCITY FIX: Architect no longer gates PRs.
+  # PRs auto-merge on CI pass. Architect does post-merge audits.
   - type: event
     event: github:pr_opened
-    task: review_pr
+    task: audit_pr
   - type: event
     event: ao:pr_ready
-    task: review_pr
+    task: audit_pr
 
   - type: cron
     schedule: "0 20 * * 0"
@@ -98,19 +100,14 @@ triggers:
       maxTokens: 4096
 
 actions:
-  - github:commit_file
   - github:get_contents
-  - github:create_branch
+  - github:get_diff
+  - github:get_issue
   - github:create_issue
   - github:list_issues
   - github:update_issue
   - github:pr_comment
-  - github:pr_review
-  - github:get_diff
-  - codegen:execute
-  - codegen:status
   - github:remove_label
-  - github:get_issue
   - repo:list
   - vault:read
   - vault:search
