@@ -1,6 +1,6 @@
 import type { ActionResult } from '../types.js';
 import type { ToolDefinition } from '../../config/schema.js';
-import { GITHUB_API_BASE, GITHUB_DEFAULTS, type GitHubClient, logger } from './client.js';
+import { GITHUB_API_BASE, GITHUB_DEFAULTS, DEFAULT_BRANCH, type GitHubClient, logger } from './client.js';
 
 // ─── Tool Definitions ────────────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@ export const PR_TOOL_DEFINITIONS: ToolDefinition[] = [
       title: { type: 'string', description: 'PR title', required: true },
       body: { type: 'string', description: 'PR description (markdown)' },
       head: { type: 'string', description: 'Source branch (the branch with changes)', required: true },
-      base: { type: 'string', description: 'Target branch to merge into (default: master)' },
+      base: { type: 'string', description: `Target branch to merge into (default: ${DEFAULT_BRANCH})` },
       closes_issues: { type: 'array', items: { type: 'number', description: 'GitHub issue number' }, description: 'Issue numbers this PR fixes. Auto-appends "Closes #NNN" to body for GitHub auto-close.' },
     },
   },
@@ -102,7 +102,7 @@ export const PR_TOOL_DEFINITIONS: ToolDefinition[] = [
 ];
 
 export const PR_DEFAULTS: Record<string, Record<string, unknown>> = {
-  'github:create_pr': { ...GITHUB_DEFAULTS, base: 'master' },
+  'github:create_pr': { ...GITHUB_DEFAULTS, base: DEFAULT_BRANCH },
   'github:merge_pr': { ...GITHUB_DEFAULTS, merge_method: 'squash' },
   'github:enable_pr_auto_merge': { ...GITHUB_DEFAULTS, merge_method: 'squash' },
   'github:update_pr_branch': GITHUB_DEFAULTS,

@@ -1,6 +1,6 @@
 import type { ActionResult } from '../types.js';
 import type { ToolDefinition } from '../../config/schema.js';
-import { GITHUB_DEFAULTS, type GitHubClient, logger } from './client.js';
+import { GITHUB_DEFAULTS, DEFAULT_BRANCH, type GitHubClient, logger } from './client.js';
 
 // ─── Tool Definitions ────────────────────────────────────────────────────────
 
@@ -12,7 +12,7 @@ export const FILES_TOOL_DEFINITIONS: ToolDefinition[] = [
       owner: { type: 'string', description: `Repository owner (default: ${GITHUB_DEFAULTS.owner})` },
       repo: { type: 'string', description: `Repository name (default: ${GITHUB_DEFAULTS.repo})` },
       path: { type: 'string', description: 'File or directory path (no leading slash)', required: true },
-      ref: { type: 'string', description: 'Git ref — branch, tag, or SHA (default: master)' },
+      ref: { type: 'string', description: `Git ref — branch, tag, or SHA (default: ${DEFAULT_BRANCH})` },
     },
   },
   {
@@ -35,7 +35,7 @@ export const FILES_TOOL_DEFINITIONS: ToolDefinition[] = [
       owner: { type: 'string', description: `Repository owner (default: ${GITHUB_DEFAULTS.owner})` },
       repo: { type: 'string', description: `Repository name (default: ${GITHUB_DEFAULTS.repo})` },
       branch: { type: 'string', description: 'Target branch name (will be created if it does not exist)', required: true },
-      base_branch: { type: 'string', description: 'Base branch to branch from (default: master)' },
+      base_branch: { type: 'string', description: `Base branch to branch from (default: ${DEFAULT_BRANCH})` },
       message: { type: 'string', description: 'Commit message', required: true },
       files: { type: 'array', description: 'Array of {path, content} objects. Each path is the file path, content is the full file content as UTF-8 text.', required: true },
     },
@@ -47,7 +47,7 @@ export const FILES_TOOL_DEFINITIONS: ToolDefinition[] = [
       owner: { type: 'string', description: `Repository owner (default: ${GITHUB_DEFAULTS.owner})` },
       repo: { type: 'string', description: `Repository name (default: ${GITHUB_DEFAULTS.repo})` },
       paths: { type: 'array', description: 'Array of file paths to fetch', required: true },
-      ref: { type: 'string', description: 'Git ref (default: master)' },
+      ref: { type: 'string', description: `Git ref (default: ${DEFAULT_BRANCH})` },
     },
   },
 ];
@@ -55,8 +55,8 @@ export const FILES_TOOL_DEFINITIONS: ToolDefinition[] = [
 export const FILES_DEFAULTS: Record<string, Record<string, unknown>> = {
   'github:get_contents': GITHUB_DEFAULTS,
   'github:commit_file': GITHUB_DEFAULTS,
-  'github:commit_batch': { ...GITHUB_DEFAULTS, base_branch: 'master' },
-  'github:get_multiple_files': { ...GITHUB_DEFAULTS, ref: 'master' },
+  'github:commit_batch': { ...GITHUB_DEFAULTS, base_branch: DEFAULT_BRANCH },
+  'github:get_multiple_files': { ...GITHUB_DEFAULTS, ref: DEFAULT_BRANCH },
 };
 
 // ─── File Operations ────────────────────────────────────────────────────────
@@ -254,7 +254,7 @@ export async function commitBatch(client: GitHubClient, params: Record<string, u
   const owner = params.owner as string | undefined;
   const repo = params.repo as string | undefined;
   const branch = params.branch as string | undefined;
-  const baseBranch = (params.base_branch as string) || 'master';
+  const baseBranch = (params.base_branch as string) || DEFAULT_BRANCH;
   const message = params.message as string | undefined;
   const files = params.files as Array<{ path: string; content: string }> | undefined;
 

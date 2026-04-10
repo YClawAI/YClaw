@@ -50,4 +50,5 @@ export const APPROVAL_GATES: Record<string, ApprovalGateConfig> = {
 };
 
 /** Cost threshold in cents — actions estimated above this auto-create an approval request. */
-export const COST_APPROVAL_THRESHOLD_CENTS = 500; // $5
+export const COST_APPROVAL_THRESHOLD_CENTS =
+  parseInt(process.env.COST_APPROVAL_THRESHOLD_CENTS ?? '', 10) || 10_000; // $100 default

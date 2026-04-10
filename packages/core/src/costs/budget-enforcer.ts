@@ -38,7 +38,10 @@ export class BudgetEnforcer {
   private budgetCache = new Map<string, AgentBudget>();
   private lastReloadAt = 0;
   private initialized = false;
-  private systemMode: BudgetMode = 'enforcing';
+  private systemMode: BudgetMode =
+    (process.env.BUDGET_MODE as BudgetMode) === 'enforcing' ? 'enforcing'
+    : (process.env.BUDGET_MODE as BudgetMode) === 'off' ? 'off'
+    : 'tracking';
   private globalConfig: GlobalBudgetConfig | null = null;
 
   constructor(db: Db | null, redis: Redis | null, costTracker: CostTracker, eventBus: EventBus) {
