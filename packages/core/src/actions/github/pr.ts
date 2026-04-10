@@ -294,14 +294,14 @@ export async function createPR(client: GitHubClient, params: Record<string, unkn
   const title = params.title as string | undefined;
   let body = (params.body as string | undefined) ?? '';
   const head = params.head as string | undefined;
-  const base = params.base as string | undefined;
+  const base = (params.base as string | undefined) || DEFAULT_BRANCH;
   const draft = (params.draft as boolean) ?? false;
   const enableAutoMergeOnCreate = (params.enable_auto_merge as boolean | undefined) ?? true;
   const mergeMethod = (params.merge_method as string | undefined) ?? 'squash';
   const closesIssues = params.closes_issues as number[] | undefined;
 
-  if (!owner || !repo || !title || !head || !base) {
-    return { success: false, error: 'Missing required parameters: owner, repo, title, head, base' };
+  if (!owner || !repo || !title || !head) {
+    return { success: false, error: 'Missing required parameters: owner, repo, title, head' };
   }
 
   // ─── Deterministic issue linking: auto-append "Closes #NNN" ─────────

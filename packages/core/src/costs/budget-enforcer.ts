@@ -109,8 +109,8 @@ export class BudgetEnforcer {
       this.budgetCache.set(doc.agentId as string, doc as unknown as AgentBudget);
     }
 
-    // Load global budget config — use defaults when no doc exists so enforcement
-    // is active out-of-the-box (matches what the UI displays via getBudgetConfig)
+    // Load global budget config. If no mode is stored, keep the current
+    // process/default mode and only apply numeric/action defaults.
     try {
       const configDoc = await this.db.collection('budget_config').findOne({ _id: 'global' as unknown as import('mongodb').ObjectId });
       this.globalConfig = {

@@ -53,7 +53,7 @@ export const FILES_TOOL_DEFINITIONS: ToolDefinition[] = [
 ];
 
 export const FILES_DEFAULTS: Record<string, Record<string, unknown>> = {
-  'github:get_contents': GITHUB_DEFAULTS,
+  'github:get_contents': { ...GITHUB_DEFAULTS, ref: DEFAULT_BRANCH },
   'github:commit_file': GITHUB_DEFAULTS,
   'github:commit_batch': { ...GITHUB_DEFAULTS, base_branch: DEFAULT_BRANCH },
   'github:get_multiple_files': { ...GITHUB_DEFAULTS, ref: DEFAULT_BRANCH },

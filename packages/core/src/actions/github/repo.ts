@@ -40,7 +40,7 @@ export const REPO_TOOL_DEFINITIONS: ToolDefinition[] = [
 
 export const REPO_DEFAULTS: Record<string, Record<string, unknown>> = {
   'github:update_repo_settings': GITHUB_DEFAULTS,
-  'github:create_branch': GITHUB_DEFAULTS,
+  'github:create_branch': { ...GITHUB_DEFAULTS, from_ref: DEFAULT_BRANCH },
   'github:get_workflow_runs': { ...GITHUB_DEFAULTS, per_page: 10 },
 };
 
