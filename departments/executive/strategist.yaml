@@ -8,129 +8,165 @@ model:
   temperature: 0.7
   maxTokens: 8192
 system_prompts:
-- claudeception.md
-- skill-usage.md
-- mission_statement.md
-- chain-of-command.md
-- daily-standup.md
-- executive-directive.md
-- protocol-overview.md
-- model-review.md
-- strategist-workflow.md
-- strategist-heartbeat.md
-- strategist-objectives.md
-triggers:
-- type: cron
-  schedule: 45 13 * * *
-  task: standup_synthesis
-  model:
-    provider: anthropic
-    model: claude-sonnet-4-20250514
-    temperature: 0.3
-    maxTokens: 4096
-- type: cron
-  schedule: 0 14 * * 1
-  task: weekly_directive
-- type: cron
-  schedule: 0 14 * * 3
-  task: midweek_review
-- type: cron
-  schedule: 0 7 1 * *
-  task: monthly_strategy
-- type: cron
-  schedule: 0 14 1-7 * 1
-  task: model_review
-- type: cron
-  schedule: '*/30 * * * *'
-  task: heartbeat
-  model:
-    provider: anthropic
-    model: claude-sonnet-4-20250514
-    temperature: 0.3
-    maxTokens: 4096
-  prompts:
-  - strategist-heartbeat.md
-  - executive-directive.md
+  - claudeception.md
+  - skill-usage.md
+  - mission_statement.md
   - chain-of-command.md
-- type: batch_event
-  events:
-  - standup:report
-  min_count: 10
-  timeout_ms: 1800000
-  task: standup_synthesis
-  model:
-    provider: anthropic
-    model: claude-opus-4-6
-    temperature: 0.5
-    maxTokens: 8192
-- type: cron
-  schedule: '*/10 * * * *'
-  task: reconcile_pipeline
-  description: "Run PR/Issue reconciliation loop"
-- type: event
-  event: claudeception:reflect
-  task: self_reflection
-  model:
-    provider: anthropic
-    model: claude-sonnet-4-20250514
-    temperature: 0.5
-    maxTokens: 4096
-# Deploy Governance v2: execute approved CRITICAL-tier deployments
-- type: event
-  event: deploy:approved
-  task: execute_approved_deploy
-  model:
-    provider: anthropic
-    model: claude-sonnet-4-20250514
-    temperature: 0.2
-    maxTokens: 4096
+  - daily-standup.md
+  - executive-directive.md
+  - protocol-overview.md
+  - model-review.md
+  - strategist-workflow.md
+  - strategist-heartbeat.md
+  - strategist-objectives.md
+triggers:
+  - type: cron
+    schedule: 45 13 * * *
+    task: standup_synthesis
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.3
+      maxTokens: 4096
+  - type: cron
+    schedule: 0 14 * * 1
+    task: weekly_directive
+  - type: cron
+    schedule: 0 14 * * 3
+    task: midweek_review
+  - type: cron
+    schedule: 0 7 1 * *
+    task: monthly_strategy
+  - type: cron
+    schedule: 0 14 1-7 * 1
+    task: model_review
+  - type: cron
+    schedule: '*/30 * * * *'
+    task: heartbeat
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.3
+      maxTokens: 4096
+    prompts:
+      - strategist-heartbeat.md
+      - executive-directive.md
+      - chain-of-command.md
+  - type: batch_event
+    events:
+      - standup:report
+    min_count: 10
+    timeout_ms: 1800000
+    task: standup_synthesis
+    model:
+      provider: anthropic
+      model: claude-opus-4-6
+      temperature: 0.5
+      maxTokens: 8192
+  - type: cron
+    schedule: '*/10 * * * *'
+    task: reconcile_pipeline
+    description: "Run PR/Issue reconciliation loop"
+  - type: event
+    event: claudeception:reflect
+    task: self_reflection
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.5
+      maxTokens: 4096
+  - type: event
+    event: sentinel:alert
+    task: handle_system_alert
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.3
+      maxTokens: 4096
+  - type: event
+    event: ao:task_failed
+    task: handle_ao_failure
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.3
+      maxTokens: 4096
+  - type: event
+    event: ao:spawn_failed
+    task: handle_ao_failure
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.3
+      maxTokens: 4096
+  - type: event
+    event: architect:task_blocked
+    task: handle_blocked_task
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.3
+      maxTokens: 4096
+  # Deploy Governance v2: execute approved CRITICAL-tier deployments
+  - type: event
+    event: deploy:approved
+    task: execute_approved_deploy
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.2
+      maxTokens: 4096
 actions:
-- github:commit_file
-- github:get_contents
-- github:create_branch
-- github:get_diff
-- vault:read
-- vault:search
-- github:pr_review
-- github:pr_comment
-- github:get_issue
-- github:list_issues
-- twitter:update_profile
-- twitter:update_profile_image
-- twitter:update_profile_banner
-- x:search
-- x:user
-- telegram:announce
-- telegram:set_title
-- telegram:set_description
-- discord:message
-- discord:thread_reply
-- discord:react
-- event:publish
-- deploy:assess
-- deploy:execute
-- task:query
-- task:summary
+  - github:commit_file
+  - github:get_contents
+  - github:create_branch
+  - github:get_diff
+  - vault:read
+  - vault:search
+  - github:pr_review
+  - github:pr_comment
+  - github:get_issue
+  - github:list_issues
+  - twitter:update_profile
+  - twitter:update_profile_image
+  - twitter:update_profile_banner
+  - x:search
+  - x:user
+  - telegram:announce
+  - telegram:set_title
+  - telegram:set_description
+  - discord:message
+  - discord:thread_reply
+  - discord:react
+  - event:publish
+  - deploy:assess
+  - deploy:execute
+  - task:query
+  - task:summary
 data_sources: []
 event_subscriptions:
-- claudeception:reflect
-- standup:report
-- deploy:approved
+  - claudeception:reflect
+  - standup:report
+  - deploy:approved
+  - sentinel:alert
+  - ao:task_failed
+  - ao:spawn_failed
+  - architect:task_blocked
 event_publications:
-- strategist:weekly_directive
-- strategist:midweek_adjustment
-- strategist:architect_directive
-- strategist:builder_directive
-- strategist:deployer_directive
-- strategist:designer_directive
-- strategist:design_generate
-- strategist:standup_synthesis
-- strategist:sentinel_directive
-- strategist:keeper_directive
-- strategist:ember_directive
-- strategist:forge_directive
-- strategist:scout_directive
-- strategist:treasurer_directive
-- strategist:guide_directive
-- strategist:reviewer_directive
+  - strategist:weekly_directive
+  - strategist:midweek_adjustment
+  - strategist:architect_directive
+  - strategist:builder_directive
+  - strategist:deployer_directive
+  - strategist:designer_directive
+  - strategist:design_generate
+  - strategist:standup_synthesis
+  - strategist:sentinel_directive
+  - strategist:keeper_directive
+  - strategist:ember_directive
+  - strategist:forge_directive
+  - strategist:scout_directive
+  - strategist:treasurer_directive
+  - strategist:guide_directive
+  - strategist:reviewer_directive
 review_bypass: []

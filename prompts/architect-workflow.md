@@ -1165,3 +1165,15 @@ If you discover a **security-critical issue** (credentials in code, auth bypass,
 4. If already merged, create a P0 revert issue immediately
 
 The `do-not-merge` label is still checked by all auto-merge rules and will block the merge.
+
+---
+
+## Task: daily_standup (triggered by cron: daily 13:02 UTC)
+
+Follow the Daily Standup Protocol (daily-standup-dev.md). Check PRs opened/reviewed/merged in last 24h, verify blockers, post to development channel. Keep it SHORT.
+
+---
+
+## Task: self_reflection (triggered by event: claudeception:reflect)
+
+Reflect on recent work. What went well? What failed? What would you do differently? Extract reusable learnings and patterns. Write findings to memory.

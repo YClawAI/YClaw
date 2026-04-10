@@ -5,6 +5,35 @@
 
 ---
 
+## Task: heartbeat (triggered by cron: every 30 min)
+
+Follow the Strategist Heartbeat Protocol (strategist-heartbeat.md). Quick scan channels, check for stuck tasks, check PRs, unblock if needed, report only if noteworthy. Max 5 tool call rounds.
+
+---
+
+## Task: reconcile_pipeline (triggered by cron: every 10 min)
+
+Lightweight pipeline reconciliation. Check for:
+1. Open PRs with CI green + approved but not merged → merge them
+2. AO tasks that completed but weren't acknowledged → process callbacks
+3. Issues assigned to agents with no activity in 2+ hours → re-trigger
+
+Max 3 tool call rounds. If nothing to reconcile, exit silently.
+
+---
+
+## Task: model_review (triggered by cron: first Monday monthly)
+
+Review AI model performance and costs for the past month. Check execution cache stats, token usage patterns, and model effectiveness. Post summary to executive channel with recommendations.
+
+---
+
+## Task: self_reflection (triggered by event: claudeception:reflect)
+
+Reflect on recent work. What went well? What failed? What would you do differently? Extract reusable learnings and patterns. Write findings to memory.
+
+---
+
 ## Task: standup_synthesis (daily, 13:30 UTC)
 
 All agents submit standups between 13:00-13:25. You synthesize them.
@@ -237,6 +266,18 @@ Extract from event payload:
 **If AO infrastructure is down:**
 - Post to #yclaw-alerts with critical severity
 - Escalate to leadership
+
+---
+
+## Task: handle_blocked_task (triggered by event: architect:task_blocked)
+
+### Step 1: Read the blocker
+What is blocking the task? Missing access? Dependency on another task? Design decision needed?
+
+### Step 2: Unblock
+- Missing access/config: Check if you can resolve it directly, otherwise escalate to operations.
+- Dependency: Check if the dependency is in progress, re-prioritize if needed.
+- Decision needed: Make the decision if within your authority, otherwise escalate to executive channel.
 
 ---
 

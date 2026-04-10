@@ -77,6 +77,8 @@ actions:
   - stitch:list_screens
 
 data_sources:
+  # Requires a github_repo fetcher to be registered for this data source to resolve.
+  # Designer can also load design references on-demand via github:get_contents.
   - type: github_repo
     name: style-guide
     repo: your-org/STYLE-GUIDE
@@ -85,6 +87,7 @@ data_sources:
 event_subscriptions:
   - claudeception:reflect
   - ao:pr_ready
+  - forge:asset_ready
   - strategist:designer_directive
   - strategist:design_generate
   - architect:design_directive
