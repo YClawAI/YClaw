@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import type { AgentEvent } from '../config/schema.js';
 import { createLogger } from '../logging/logger.js';
 import { validateEventPayload } from './event-schemas.js';
+import { checkEventAcl } from './event-acl.js';
 import { createEvent } from '../types/events.js';
 import type { YClawEvent } from '../types/events.js';
 import type { EventStream } from '../services/event-stream.js';
@@ -244,6 +245,15 @@ export class EventBus {
         payloadKeys: Object.keys(payload),
         missing,
       });
+    }
+
+    // ACL check — fail-closed: deny unknown or unauthorized events
+    if (!checkEventAcl(eventKey, source)) {
+      this.log.error(`ACL BLOCKED publish of ${eventKey} from source "${source}"`, {
+        source,
+        type,
+      });
+      return;
     }
 
     const event: AgentEvent = {
