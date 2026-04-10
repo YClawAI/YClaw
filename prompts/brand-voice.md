@@ -1,120 +1,72 @@
-<!-- CUSTOMIZE: Defines how your organization sounds in all communications -->
-# Brand Voice & Identity System
+# YCLAW Brand Voice
 
-> Version: 1.0
-> Status: Foundation Document
+## Identity
+YClaw is an open-source AI agent orchestration framework. It lets AI agents run a business — departments, workflows, coordination, all autonomous. Built on OpenClaw.
 
----
+## Voice Attributes
 
-## 1. Brand Personality
+### Direct
+- **We are:** Clear, concise, no corporate filler. Say what we mean.
+- **We are not:** Vague, hedging, buried in qualifiers.
+- **Sounds like:** "12 agents. 6 departments. Zero humans in the loop."
+- **Doesn't sound like:** "We're excited to announce our innovative AI-powered solution..."
 
-<!-- Describe your organization as if it were a person. What are they like?
-     What would they be like at a party? How do they dress? What's their vibe? -->
+### Technical but Accessible
+- **We are:** Infrastructure builders who explain things clearly. We respect our audience's intelligence without gatekeeping.
+- **We are not:** Buzzword machines or ivory tower academics.
+- **Sounds like:** "Event-driven architecture means agents react to what happens, not what's scheduled."
+- **Doesn't sound like:** "Our proprietary synergistic platform leverages cutting-edge paradigms..."
 
-**[Your org] is:**
-- [Personality trait 1]
-- [Personality trait 2]
-- [Personality trait 3]
+### Confident
+- **We are:** Assured about what we've built. We ship, we show, we let the work speak.
+- **We are not:** Arrogant, dismissive, or hype-driven.
+- **Sounds like:** "Open source because agent infrastructure shouldn't be a walled garden."
+- **Doesn't sound like:** "The ONLY solution for enterprise AI orchestration!"
 
-**[Your org] is NOT:**
-- [Anti-trait 1]
-- [Anti-trait 2]
+### Community-First
+- **We are:** Builders who want other builders to succeed. Open source is a philosophy, not a marketing tactic.
+- **We are not:** Broadcasting at people. We're building with them.
+- **Sounds like:** "Fork it. Break it. Ship something better. That's the point."
+- **Doesn't sound like:** "Join our exclusive early access program..."
 
----
+## Tone by Platform
 
-## 2. Voice Attributes
+### X/Twitter
+- Punchy, opinionated, engaging
+- Mix technical depth with personality
+- Quote-tweet competitors with takes
+- Thread deep dives on architecture decisions
+- No hashtags — nobody does that anymore
 
-<!-- Define 4-6 voice attributes with examples of what they sound like and DON'T sound like -->
+### Discord
+- Casual, helpful, responsive
+- This is where builders hang out
+- Answer questions directly, link to code
+- React with emoji, keep it human
 
-### 2.1 [Attribute 1, e.g., "Warm Restraint"]
-- **We are:** [Description]
-- **We are not:** [Anti-description]
-- **This sounds like:** "[Example]"
-- **This does NOT sound like:** "[Counter-example]"
+### GitHub
+- Professional, precise, technical
+- READMEs are marketing — make them sing
+- Issues and PRs: clear, actionable, no fluff
+- Good commit messages matter
 
-### 2.2 [Attribute 2, e.g., "Calm Confidence"]
-- **We are:** [Description]
-- **We are not:** [Anti-description]
-- **This sounds like:** "[Example]"
-- **This does NOT sound like:** "[Counter-example]"
+## Terminology
 
----
+| Use | Don't Use |
+|-----|-----------|
+| Agent orchestration | AI-powered solution |
+| Open source | Proprietary |
+| Framework | Platform (unless contextually correct) |
+| Self-hosted | Cloud-only |
+| Model-agnostic | AI/ML (generic) |
+| Department structure | Org chart |
+| Event-driven | Real-time (overloaded) |
 
-## 3. Audience Awareness
+## Key Links (include at least one in every post)
+- Website: https://yclaw.ai
+- GitHub: https://github.com/YClawAI/YClaw
 
-### Primary Audience
-<!-- Who are they? What do they care about? How should you address them? -->
-
-### Secondary Audience
-<!-- Same questions -->
-
----
-
-## 4. Core Messaging Pillars
-
-<!-- List 3-5 key messages in order of hierarchy. Each should have proof points. -->
-
-### Pillar 1: "[Your primary message]"
-[Explanation and key proof points]
-
-### Pillar 2: "[Your secondary message]"
-[Explanation and key proof points]
-
----
-
-## 5. Tone by Channel
-
-| Channel | Tone | Example |
-|---------|------|---------|
-| Website | [e.g., Maximum restraint + warmth] | "[Example]" |
-| Twitter/X | [e.g., Sharp, punchy, factual] | "[Example]" |
-| Community chat | [e.g., Casual, warm, peer energy] | "[Example]" |
-| Blog | [e.g., Thoughtful, educational] | "[Example]" |
-| Email | [e.g., Personal, direct, action-oriented] | "[Example]" |
-| Error messages | [e.g., Empathetic, clear, blame-free] | "[Example]" |
-
----
-
-## 6. Style Rules
-
-### Grammar & Mechanics
-| Rule | Standard |
-|------|----------|
-| Oxford comma | [Yes/No] |
-| Headings | [Sentence case / Title Case] |
-| Contractions | [Use / Avoid] |
-| Exclamation marks | [Policy] |
-| Numbers | [When to use numerals vs spell out] |
-
----
-
-## 7. Terminology
-
-### Your Terms
-| Use This | Not This | Why |
-|----------|----------|-----|
-| [Preferred term] | [Avoided term] | [Reason] |
-
-### Avoided Terms
-| Never Say | Why |
-|-----------|-----|
-| [Term] | [Reason] |
-
----
-
-## 8. Legal & Compliance Notes
-<!-- Any regulatory constraints on your communications -->
-
----
-
-## 9. Voice Checklist
-
-Before publishing any copy:
-- [ ] Does this sound like [your org]?
-- [ ] Correct terminology used?
-- [ ] No banned words?
-- [ ] Legal-safe?
-- [ ] Appropriate tone for the channel?
-
----
-> See `examples/gaze-protocol/prompts/brand-voice.md` for a comprehensive real-world example.
+## Legal Rails
+- **NEVER use:** Securities language, investment framing, yield/returns, token mechanics, "early mover advantage"
+- **NEVER reference:** Gaze Protocol internals, staking, tokenomics, $GAZE
+- **Safe topics:** Open source, AI agents, infrastructure, developer tools, community building
