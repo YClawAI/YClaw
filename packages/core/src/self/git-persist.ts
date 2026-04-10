@@ -1,11 +1,12 @@
 import { createLogger } from '../logging/logger.js';
 import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-auth.js';
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 
 const logger = createLogger('config-persister');
 
 const GITHUB_API = 'https://api.github.com';
-const OWNER = process.env.GITHUB_OWNER || 'YClawAI';
-const REPO = process.env.GITHUB_REPO || 'YClaw';
+const OWNER = GITHUB_ORG_DEFAULTS.owner;
+const REPO = GITHUB_ORG_DEFAULTS.repo;
 const BASE_BRANCH = process.env.DEFAULT_BRANCH || 'main';
 
 /**

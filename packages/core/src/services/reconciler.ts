@@ -431,7 +431,7 @@ export class PRReconciler {
           number: pr.number,
           kind: "pr",
         },
-        reason: `Branch ${pr.head.ref} is behind master`,
+        reason: `Branch ${pr.head.ref} is behind ${pr.base.ref}`,
         metadata: { branch: pr.head.ref, mergeableState: pr.mergeable_state },
       });
     }

@@ -8,7 +8,7 @@ import { AgentRouter } from '../agent/router.js';
 import { SLACK_CHANNELS } from '../actions/slack.js';
 import type { SlackExecutor } from '../actions/slack.js';
 import type { GitHubExecutor } from '../actions/github/index.js';
-import { GitHubRateLimitError } from '../actions/github/client.js';
+import { DEFAULT_BRANCH, GitHubRateLimitError } from '../actions/github/client.js';
 import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-auth.js';
 import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 import type { DeployExecutor } from '../actions/deploy/index.js';
@@ -1024,7 +1024,7 @@ export async function initAgents(
     logger.info('[PRHygiene] periodic bot PR hygiene worker registered');
   }
 
-  // ─── Branch Refresh Worker: keep auto-merge PRs current with master ─────
+  // ─── Branch Refresh Worker: keep auto-merge PRs current with the base branch ─────
   {
     const githubExec = actionRegistry.getExecutor('github') as GitHubExecutor | undefined;
 
@@ -1041,7 +1041,7 @@ export async function initAgents(
         ? payload.repo_full
         : owner && repo ? `${owner}/${repo}` : undefined;
       const mergedPrNumber = typeof payload.pr_number === 'number' ? payload.pr_number : undefined;
-      const baseBranch = typeof payload.base_branch === 'string' ? payload.base_branch : 'master';
+      const baseBranch = typeof payload.base_branch === 'string' ? payload.base_branch : DEFAULT_BRANCH;
 
       if (!owner || !repo || !repoFull) {
         logger.warn('[BranchRefresh] Missing repo information on github:pr_merged payload', {
@@ -1446,7 +1446,7 @@ export async function initAgents(
       }
 
       if (!fullRepo) {
-        logger.warn('[AO] No repo in architect:build_directive — defaulting to your-org/yclaw');
+        logger.warn(`[AO] No repo in architect:build_directive — defaulting to ${targetRepo}`);
       }
 
       // F1: Issue-scoped claim — prevents duplicate delegation from concurrent
