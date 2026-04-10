@@ -90,9 +90,9 @@ export const DEFAULT_ACL: AclMap = {
   ],
   'claudeception:reflect': ['system'],
 
-  // Discord
-  'discord:message': ['discord-webhook'],
-  'discord:mention': ['discord-webhook'],
+  // Discord (adapter publishes as 'discord', webhook as 'discord-webhook')
+  'discord:message': ['discord', 'discord-webhook'],
+  'discord:mention': ['discord', 'discord-webhook'],
 };
 
 // ─── ACL Check ───────────────────────────────────────────────────────────────
