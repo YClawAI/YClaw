@@ -1,0 +1,52 @@
+name: mechanic
+department: development
+description: >-
+  Constrained mechanical task runner for shell-required repo operations.
+  Executes whitelisted commands only: lockfile sync, formatting, linting,
+  branch rebasing. Does not write feature code or plan architecture.
+
+model:
+  provider: anthropic
+  model: claude-sonnet-4-20250514
+  temperature: 0.1
+  maxTokens: 4096
+
+system_prompts:
+  - mission_statement.md
+  - chain-of-command.md
+  - engineering-standards.md
+
+triggers:
+  - type: event
+    event: architect:mechanic_task
+    task: execute_mechanic_task
+  - type: event
+    event: ci:lockfile_drift
+    task: execute_mechanic_task
+
+actions:
+  - github:commit_file
+  - github:commit_batch
+  - github:get_contents
+  - github:get_diff
+  - github:pr_comment
+  - github:create_branch
+  - discord:message
+  - discord:thread_reply
+  - event:publish
+
+data_sources: []
+
+event_subscriptions:
+  - architect:mechanic_task
+  - ci:lockfile_drift
+
+event_publications:
+  - mechanic:task_completed
+  - mechanic:task_failed
+
+review_bypass: []
+
+heartbeat:
+  precheck:
+    enabled: false

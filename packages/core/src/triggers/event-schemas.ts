@@ -99,6 +99,19 @@ export const EVENT_SCHEMAS: Record<string, EventSchema> = {
     required: ['eventKey', 'reason'],
     description: 'Builder/AO spawn failed (compat alias for ao:spawn_failed)',
   },
+  // ─── Mechanic ───────────────────────────────────────────────────────────────
+  'architect:mechanic_task': {
+    required: ['repo', 'task_type', 'instructions'],
+    description: 'Architect delegates a constrained mechanical task to Mechanic agent',
+  },
+  'mechanic:task_completed': {
+    required: ['repo', 'task_type'],
+    description: 'Mechanic completed a mechanical task',
+  },
+  'mechanic:task_failed': {
+    required: ['repo', 'task_type', 'error'],
+    description: 'Mechanic failed to complete a mechanical task',
+  },
   // ─── Deploy Governance v2 ──────────────────────────────────────────────────
   'deploy:review': {
     required: ['deployment_id', 'repo', 'environment'],

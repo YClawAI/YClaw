@@ -3,7 +3,7 @@
 > Project-level instructions for AI coding tools (Claude Code, Codex, OpenCode, Cursor, Windsurf).
 > This file is loaded automatically when working in this repository.
 >
-> 📖 **For comprehensive system documentation, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — canonical reference for all 12 agents, actions, triggers, events, safety, costs, deploy governance, memory, and infrastructure.
+> 📖 **For comprehensive system documentation, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — canonical reference for all 13 agents, actions, triggers, events, safety, costs, deploy governance, memory, and infrastructure.
 
 ---
 
@@ -69,9 +69,9 @@ refactor: extract HMAC signing to shared util
 **yclaw** is the autonomous AI agent system that operates the YClaw.
 It is a TypeScript monorepo (turborepo + npm) running on Node 20 LTS with ESM modules.
 
-The system consists of 12 agents organized into 6 departments:
+The system consists of 13 agents organized into 6 departments:
 - **Executive**: strategist, reviewer
-- **Development**: architect, designer
+- **Development**: architect, designer, mechanic
 - **Marketing**: ember, forge, scout
 - **Operations**: sentinel, librarian
 - **Finance**: treasurer
@@ -85,7 +85,7 @@ Each agent has a YAML config (`departments/<dept>/<agent>.yaml`), system prompts
 ```
 yclaw/
 ├── departments/           # Agent YAML configs (IMMUTABLE)
-│   ├── development/       # architect, builder, deployer, designer
+│   ├── development/       # architect, designer, mechanic
 │   ├── executive/         # strategist, reviewer
 │   ├── finance/           # treasurer
 │   ├── marketing/         # ember, forge, scout

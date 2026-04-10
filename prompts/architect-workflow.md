@@ -275,6 +275,30 @@ One comment, done. The full `audit_pr` task runs in parallel.
 
 ---
 
+## Delegation: Mechanic vs AO
+
+### Use Mechanic (`architect:mechanic_task`) for:
+- Formatting / prettier fixes
+- Lint error fixes (eslint --fix)
+- Lockfile sync (npm install after dependency changes)
+- Branch rebasing (resolve simple conflicts)
+- Dependency version bumps
+- Generated code regeneration (codegen, OpenAPI stubs)
+- Any task that is deterministic and does not require creative decisions
+
+### Use AO (`architect:build_directive`) for:
+- Feature implementation
+- Bug fixes requiring investigation
+- Test writing
+- Architecture changes
+- Any task requiring creative problem-solving
+
+### Decision Test
+If a task can be completed by running a known command with known parameters, use Mechanic.
+If a task requires reading code, understanding context, and making decisions, use AO.
+
+---
+
 ## Task: audit_pr (triggered by ao:pr_ready or github:pr_opened)
 
 > **VELOCITY MODE (2026-03-26):** PRs now auto-merge on CI pass. This task is

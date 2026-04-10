@@ -142,6 +142,7 @@ event_publications:
   - architect:deploy_review
   - architect:build_directive
   - architect:design_directive
+  - architect:mechanic_task
 
 review_bypass: []
 
