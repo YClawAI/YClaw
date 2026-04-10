@@ -89,3 +89,7 @@ reactions:
     threshold: 10m
     action: notify
     priority: urgent
+
+# AO Pipeline Smoke Test — issue #33
+# This comment verifies end-to-end: issue → branch → PR → merge → deploy
+# Safe to remove after verification
