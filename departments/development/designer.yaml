@@ -1,16 +1,13 @@
 name: designer
 department: development
-description: >-
-  Enforces design system compliance in frontend work. Reviews PRs for visual
-  consistency, accessibility, and brand alignment. Shares the design system
-  source of truth with Forge.
-
+description: Enforces design system compliance in frontend work. Reviews PRs for
+  visual consistency, accessibility, and brand alignment. Shares the design
+  system source of truth with Forge.
 model:
   provider: anthropic
   model: claude-sonnet-4-6
   temperature: 0.1
   maxTokens: 8192
-
 system_prompts:
   - claudeception.md
   - skill-usage.md
@@ -19,10 +16,9 @@ system_prompts:
   - daily-standup-dev.md
   - engineering-standards.md
   - designer-workflow.md
-
 triggers:
   - type: cron
-    schedule: "8 13 * * *"
+    schedule: 8 13 * * *
     task: daily_standup
   - type: event
     event: ao:pr_ready
@@ -75,15 +71,11 @@ actions:
   - stitch:generate_variants
   - stitch:get_screen
   - stitch:list_screens
-
 data_sources:
-  # Requires a github_repo fetcher to be registered for this data source to resolve.
-  # Designer can also load design references on-demand via github:get_contents.
   - type: github_repo
     name: style-guide
     repo: your-org/STYLE-GUIDE
-    description: "Brand voice, identity system, and design guidelines"
-
+    description: Brand voice, identity system, and design guidelines
 event_subscriptions:
   - claudeception:reflect
   - ao:pr_ready
@@ -91,15 +83,13 @@ event_subscriptions:
   - strategist:designer_directive
   - strategist:design_generate
   - architect:design_directive
-
 event_publications:
   - standup:report
   - designer:design_review
   - designer:design_generated
-
 review_bypass: []
-
 heartbeat:
   precheck:
     enabled: true
     maxSilenceHours: 6
+discord_channel_development: "1489421639274729502"
