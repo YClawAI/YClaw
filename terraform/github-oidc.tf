@@ -54,6 +54,12 @@ resource "aws_iam_role" "github_actions_deploy" {
 }
 
 # ─── ECR Permissions (push images) ──────────────────────────────────────────
+#
+# The deploy workflow pushes to multiple ECR repos (yclaw-agents,
+# yclaw-mission-control, yclaw-ao, yclaw-showcase). Use a wildcard ARN
+# so new services don't require a Terraform change to deploy.
+
+data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role_policy" "github_ecr" {
   name = "ecr-push"
@@ -82,13 +88,18 @@ resource "aws_iam_role_policy" "github_ecr" {
           "ecr:DescribeImageScanFindings",
           "ecr:DescribeImages"
         ]
-        Resource = [aws_ecr_repository.agents.arn]
+        Resource = [
+          "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/yclaw-*"
+        ]
       }
     ]
   })
 }
 
 # ─── ECS Permissions (deploy service) ───────────────────────────────────────
+#
+# The deploy workflow updates multiple ECS services (core, MC, AO, showcase).
+# Scope UpdateService to any service in the cluster rather than a single service.
 
 resource "aws_iam_role_policy" "github_ecs" {
   name = "ecs-deploy"
@@ -113,7 +124,7 @@ resource "aws_iam_role_policy" "github_ecs" {
           "ecs:UpdateService",
           "ecs:DescribeServices"
         ]
-        Resource = [aws_ecs_service.agents.id]
+        Resource = ["arn:aws:ecs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:service/${aws_ecs_cluster.yclaw.name}/*"]
       },
       {
         Sid    = "PassRole"
@@ -138,6 +149,16 @@ resource "aws_iam_role_policy" "github_ecs" {
             "ecs:cluster" = aws_ecs_cluster.yclaw.arn
           }
         }
+      },
+      {
+        Sid    = "HealthCheckFix"
+        Effect = "Allow"
+        Action = [
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:DescribeTargetHealth"
+        ]
+        Resource = ["*"]
       }
     ]
   })
