@@ -1,112 +1,100 @@
-<!-- CUSTOMIZE: Visual identity tokens for your organization -->
-# Design System
+# YClaw Design System
 
-> Code-ready design tokens, CSS custom properties, and styling specifications.
-> Used by Designer and Forge agents for visual consistency.
+## Brand Colors
 
----
+### Primary Palette
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--color-primary` | `#6366F1` | Primary actions, links, highlights (Indigo 500) |
+| `--color-primary-dark` | `#4F46E5` | Hover states, active elements (Indigo 600) |
+| `--color-primary-light` | `#818CF8` | Subtle highlights, badges (Indigo 400) |
 
-## 1. CSS Custom Properties
+### Neutral Palette
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--color-bg` | `#0F172A` | Page background (Slate 900) |
+| `--color-surface` | `#1E293B` | Card/panel backgrounds (Slate 800) |
+| `--color-border` | `#334155` | Borders, dividers (Slate 700) |
+| `--color-text` | `#F8FAFC` | Primary text (Slate 50) |
+| `--color-text-muted` | `#94A3B8` | Secondary text (Slate 400) |
 
-```css
-:root {
-  /* ======================== */
-  /* COLORS                   */
-  /* ======================== */
+### Semantic Colors
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--color-success` | `#22C55E` | Success states, healthy status |
+| `--color-warning` | `#F59E0B` | Warnings, attention needed |
+| `--color-error` | `#EF4444` | Errors, critical alerts |
+| `--color-info` | `#3B82F6` | Information, neutral highlights |
 
-  /* Backgrounds */
-  --brand-bg-primary: #YOUR_COLOR;
-  --brand-bg-card: #YOUR_COLOR;
-  --brand-bg-elevated: #YOUR_COLOR;
+## Typography
 
-  /* Accents */
-  --brand-primary: #YOUR_COLOR;
-  --brand-secondary: #YOUR_COLOR;
-  --brand-accent: #YOUR_COLOR;
+### Font Stack
+- **Headings:** `Inter, system-ui, -apple-system, sans-serif`
+- **Body:** `Inter, system-ui, -apple-system, sans-serif`
+- **Code:** `JetBrains Mono, Fira Code, monospace`
 
-  /* Text */
-  --brand-text-primary: #YOUR_COLOR;
-  --brand-text-body: #YOUR_COLOR;
-  --brand-text-secondary: #YOUR_COLOR;
-  --brand-text-muted: #YOUR_COLOR;
+### Scale
+| Level | Size | Weight | Line Height |
+|-------|------|--------|-------------|
+| H1 | 2.5rem (40px) | 700 | 1.2 |
+| H2 | 2rem (32px) | 600 | 1.25 |
+| H3 | 1.5rem (24px) | 600 | 1.3 |
+| Body | 1rem (16px) | 400 | 1.6 |
+| Small | 0.875rem (14px) | 400 | 1.5 |
+| Code | 0.875rem (14px) | 400 | 1.6 |
 
-  /* Borders */
-  --brand-border: #YOUR_COLOR;
-  --brand-border-hover: #YOUR_COLOR;
-
-  /* ======================== */
-  /* TYPOGRAPHY               */
-  /* ======================== */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
-  /* ======================== */
-  /* SPACING                  */
-  /* ======================== */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 40px;
-
-  /* ======================== */
-  /* RADII                    */
-  /* ======================== */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-
-  /* ======================== */
-  /* ANIMATION                */
-  /* ======================== */
-  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 400ms;
-}
-```
-
----
-
-## 2. Typography Scale
-
-| Role | Font | Weight | Size | Line Height |
-|------|------|--------|------|-------------|
-| Headline | [Font] | [Weight] | [Size] | [Line height] |
-| Subhead | [Font] | [Weight] | [Size] | [Line height] |
-| Body | [Font] | [Weight] | [Size] | [Line height] |
-| Data | [Font] | [Weight] | [Size] | [Line height] |
-| Label | [Font] | [Weight] | [Size] | [Line height] |
-
----
-
-## 3. Component Patterns
+## Component Tokens
 
 ### Cards
-<!-- Define card styling: background, border, radius, hover behavior -->
-
-### Buttons
-<!-- Define button variants: primary, secondary, ghost -->
-
-### Inputs
-<!-- Define form input styling -->
-
----
-
-## 4. Motion Principles
-
-<!-- Define animation rules: easing, duration, what animates and what doesn't -->
-
----
-
-## 5. Responsive Breakpoints
-
 ```css
-@media (min-width: 640px)  { /* sm */ }
-@media (min-width: 768px)  { /* md */ }
-@media (min-width: 1024px) { /* lg */ }
-@media (min-width: 1280px) { /* xl */ }
+border-radius: 0.75rem;
+border: 1px solid var(--color-border);
+background: var(--color-surface);
+padding: 1.5rem;
 ```
 
----
-> See `examples/gaze-protocol/prompts/design-system.md` for a comprehensive real-world example with Tailwind config, SVG logos, and full component tokens.
+### Buttons
+```css
+/* Primary */
+background: var(--color-primary);
+color: white;
+border-radius: 0.5rem;
+padding: 0.625rem 1.25rem;
+font-weight: 500;
+
+/* Secondary */
+background: transparent;
+border: 1px solid var(--color-border);
+color: var(--color-text);
+```
+
+### Status Badges
+```css
+border-radius: 9999px;
+padding: 0.25rem 0.75rem;
+font-size: 0.75rem;
+font-weight: 500;
+/* Colors from semantic palette */
+```
+
+## Visual Identity
+
+### Logo Usage
+- Primary: YClaw wordmark on dark background
+- Minimum clearspace: 1x logo height on all sides
+- Never stretch, rotate, or recolor
+
+### Aesthetic Direction
+- Dark-first UI (matches developer tooling conventions)
+- Clean, minimal, functional
+- Data-dense where appropriate (dashboards, status views)
+- Subtle animations (transitions, not decorations)
+
+## Responsive Breakpoints
+| Name | Width | Usage |
+|------|-------|-------|
+| `sm` | 640px | Mobile landscape |
+| `md` | 768px | Tablet |
+| `lg` | 1024px | Desktop |
+| `xl` | 1280px | Wide desktop |
+| `2xl` | 1536px | Ultra-wide |

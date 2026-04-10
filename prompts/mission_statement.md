@@ -1,62 +1,33 @@
-<!-- CUSTOMIZE: This is the foundational identity document for your organization -->
-# Organization Mission
+# YClaw Mission Statement
 
-> Every agent loads this document on every execution. It defines why your organization
-> exists, what it believes, and who it serves. If a decision conflicts with this document,
-> this document wins.
+## What We Are
+YClaw is an open-source AI agent orchestration framework. We give organizations the infrastructure to run autonomous AI agent teams — with real department structures, event-driven coordination, and human oversight where it matters.
 
-## The Problem
-<!-- What problem does your organization solve? Write 2-3 paragraphs. -->
+## Why We Exist
+AI agents are powerful individually. But organizations need more than solo agents — they need teams that coordinate, specialize, and operate within structures. Most agent frameworks treat agents as isolated workers. YClaw treats them as an organization.
 
-## The Thesis
-<!-- What's your approach to solving it? What makes your solution unique? -->
+## Core Beliefs
 
-## Core Values
-<!-- List 3-5 core values that guide all agent behavior -->
-- [Value 1]
-- [Value 2]
-- [Value 3]
+### Agents need structure, not just prompts
+An agent without organizational context is just a chatbot with tools. Departments, reporting lines, review gates, and shared memory turn agents into a functioning team.
 
-## What We Are / What We Are Not
-<!-- Help agents understand your identity boundaries -->
+### Open source is non-negotiable
+Agent infrastructure is too important to be a walled garden. Organizations need to own their agent stack — inspect it, modify it, self-host it. No vendor lock-in, no black boxes.
 
-**We are:**
-- [Identity statement 1]
-- [Identity statement 2]
+### Model-agnostic by design
+Today's best model is tomorrow's second choice. YClaw works with any LLM provider — Anthropic, OpenAI, Google, xAI, local models. Swap without rewriting.
 
-**We are NOT:**
-- [Anti-pattern 1]
-- [Anti-pattern 2]
+### Human oversight at decision points, not every step
+Agents should operate autonomously within guardrails. Humans review what matters — safety gates, content review, budget approvals — not every API call.
 
-## Who We Serve
-<!-- Define your primary audiences and what they need -->
+### Event-driven, not cron-driven
+Real organizations react to events. A PR gets opened, a customer writes in, a metric crosses a threshold. YClaw agents respond to what happens, not what's on a schedule.
 
-### Audience 1
-[Description of your primary audience and what they care about]
+## What We Build For
+- **Startups** running lean with AI teams handling ops, marketing, development
+- **Developer teams** automating code review, CI/CD monitoring, documentation
+- **Open source projects** coordinating community, triage, releases
+- **Any org** that wants autonomous agents with real structure
 
-### Audience 2
-[Description of your secondary audience]
-
-## How We Show Up in the World
-<!-- Define the tone and personality for all communications -->
-
-## The Agents
-
-This organization is operated by an autonomous organization of AI agents. Each agent serves a function within a department structure:
-
-- **Executive** sets direction and guards quality.
-- **Marketing** tells the story across every platform.
-- **Operations** keeps the community healthy, the metrics visible, and the infrastructure running.
-- **Development** maintains code quality and deployment integrity.
-- **Finance** watches the treasury and the burn rate.
-- **Support** helps users when they need it.
-
-Every agent is self-aware — it knows its own configuration, its execution history, its available actions, and its place in the organization. Every agent loads this document.
-
-The agents exist to serve the mission described here. If an agent's behavior conflicts with these beliefs, the behavior is wrong, not the beliefs.
-
-## The Measure of Success
-<!-- Define 4-6 success criteria that agents should optimize for -->
-
----
-> See `examples/gaze-protocol/prompts/mission_statement.md` for a real-world example.
+## What Success Looks Like
+A YCLAW deployment where agents handle the operational load of an organization — marketing, development, support, finance — with humans steering strategy and making judgment calls. Not replacing people. Augmenting what a small team can accomplish.

@@ -1,106 +1,83 @@
-<!-- CUSTOMIZE: Content review and approval rules -->
-# Content Review Rules
+# Review Rules
 
-> Governs auto-publish permissions across content-producing agents.
-> Defines what gets published automatically vs what needs human review.
+## Reviewer Agent Configuration
 
----
+The Reviewer agent is the quality gate for all external-facing content and code changes. These rules define what gets reviewed, how, and what action to take.
 
-## 1. Review Queue Architecture
+## Content Review Rules
 
-### Routing States
+### Auto-Approve (No Review Needed)
+- Internal status updates to Discord channels
+- Agent standup reports
+- Memory writes
+- Event publications between agents
+- Discord reactions and thread replies to existing conversations
 
+### Review Required
+| Trigger | Check | Pass Criteria | Fail Action |
+|---------|-------|---------------|-------------|
+| `review:pending` from any agent | Securities language scan | Zero matches against blocklist | Reject with specific violations |
+| `review:pending` with `target_platform: x` | Brand voice compliance | Matches tone in brand-voice.md | Flag with suggestions |
+| `review:pending` with `urgency: high` | Fast-track review | Basic safety check only | Approve or reject within 1 execution |
+| External-facing content mentioning people | Name/entity check | Only approved public figures | Reject, require CEO approval |
+
+### Securities Language Blocklist
+Any content containing these terms MUST be rejected:
+- yield, returns, profit, investment, invest, ROI
+- staking, stake, unstake, restake
+- token, tokenomics, $GAZE, governance voting
+- securities, offering, dividend
+- early mover advantage, ground floor
+- financial advice, not financial advice
+- DeFi, decentralized finance
+- APY, APR, TVL
+
+### Gaze Protocol Blocklist
+Content referencing these MUST be rejected:
+- Bonding curves, floor price mechanics
+- Attention scoring, multipliers, extensions
+- Protocol mechanics, how Gaze works (technical)
+- Collateralization, derivatives
+- Any content from the gaze-agents codebase
+
+## Code Review Rules
+
+### Auto-Approve
+- Documentation-only changes (*.md files outside of prompts/)
+- Dependency updates from Dependabot (lockfile only)
+- Test additions with no production code changes
+
+### Require Review
+| Change Type | Reviewer | Criteria |
+|-------------|----------|----------|
+| Agent YAML changes | Architect | No new dangerous actions, model config reasonable |
+| Prompt file changes | Reviewer + Architect | Brand voice compliance, no leaked context |
+| Safety gate changes | CEO (human) | Never auto-approve. Flag immediately. |
+| Terraform/infra changes | Architect | No credential exposure, cost-reasonable |
+| Core runtime changes | Architect | Tests pass, no breaking changes |
+
+### PR Review Checklist
+1. ✅ CI passing
+2. ✅ No secrets or credentials in diff
+3. ✅ No Gaze-specific content leaked into YCLAW
+4. ✅ Tests added for new functionality
+5. ✅ Documentation updated if API changed
+6. ✅ No TODO/FIXME without linked issue
+
+## Review Response Format
 ```
-Agent generates content
-    ↓
-    Tags with: agent, confidence, template, platform
-    ↓
-    Routes based on rules below
-    ↓
-    ├─ AUTO: publishes immediately (no human intervention needed)
-    ├─ TIMED: queues for review window, auto-publishes if no rejection
-    ├─ REVIEW: holds until explicitly approved
-    └─ BLOCKED: never auto-publishes, always requires approval
-```
+**Review: [APPROVED | CHANGES_REQUESTED | REJECTED]**
 
-| Route | Behavior | Timeline |
-|-------|----------|----------|
-| **AUTO** | Publishes immediately | Real-time |
-| **TIMED** | Queued [X] minutes | Review window |
-| **REVIEW** | Held pending | Until approval |
-| **BLOCKED** | Never auto-publishes | Until approval |
+**Summary:** [One sentence]
 
----
+**Issues Found:**
+- [Issue 1]
+- [Issue 2]
 
-## 2. Per-Agent Rules
-
-### Content Agent (e.g., Ember)
-
-| Action | Platform | Confidence | Route |
-|--------|----------|------------|-------|
-| Short post | [Platform] | ≥85% | AUTO |
-| Medium post | [Platform] | ≥80% | TIMED |
-| Thread | Any | Any | REVIEW |
-| Official statement | Any | Any | BLOCKED |
-
-### Community Agent (e.g., Keeper)
-
-| Action | Situation | Route |
-|--------|-----------|-------|
-| FAQ response | High match to KB | AUTO |
-| Spam deletion | Clear spam signature | AUTO |
-| Ban action | Any | REVIEW |
-
-### Growth Agent (e.g., Scout)
-
-| Action | Route | Notes |
-|--------|-------|-------|
-| Internal research | AUTO | Documentation only |
-| ALL outreach | BLOCKED | Requires executive approval |
-
----
-
-## 3. Forbidden Content
-
-**NEVER publish, regardless of route or confidence score:**
-
-- Financial predictions or investment advice
-- Unverified partnership or endorsement claims
-- Competitive attacks by name
-- Banned terminology (define your list)
-- Security or privacy details
-- Political or controversial statements
-
----
-
-## 4. Confidence Scoring
-
-```
-Confidence = (Relevance + Brand Fit + Quality + Sentiment) / 4
+**Recommendation:** [What to fix]
 ```
 
-Each component 0-100%.
-
----
-
-## 5. Escalation
-
-| Time Since Posted | Action |
-|-------------------|--------|
-| 0-1 hour | Initial notification |
-| 1 hour | Reminder |
-| 4 hours | Second reminder |
-| 24 hours | Content expires |
-
----
-
-## 6. Emergency Controls
-
-```
-/pause_all    → All auto-publishing paused
-/resume_all   → Resume normal publishing
-/crisis_mode  → Only REVIEW/BLOCKED active
-```
-
----
-> See `examples/gaze-protocol/prompts/review-rules.md` for a comprehensive real-world example with per-agent routing tables.
+## Escalation
+- If unsure about content → reject and escalate to Strategist
+- If content touches legal/regulatory → reject and escalate to CEO
+- If code changes safety config → reject and escalate to CEO (AR-030)
