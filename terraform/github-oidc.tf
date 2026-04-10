@@ -28,8 +28,6 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
 
 # ─── IAM Role for GitHub Actions ─────────────────────────────────────────────
 
-data "aws_caller_identity" "current" {}
-
 resource "aws_iam_role" "github_actions_deploy" {
   name = "yclaw-github-actions-deploy"
 

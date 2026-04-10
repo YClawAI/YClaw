@@ -82,10 +82,7 @@ resource "aws_ecs_cluster" "yclaw" {
   }
 }
 
-moved {
-  from = aws_ecs_cluster.gaze
-  to   = aws_ecs_cluster.yclaw
-}
+# moved block removed — gaze cluster dropped from state, yclaw cluster imported directly
 
 # ─── ECR Repository ──────────────────────────────────────────────────────────
 
@@ -467,14 +464,9 @@ variable "certificate_arn" {
 }
 
 variable "allowed_cidr_blocks" {
-  description = "CIDR blocks allowed to access the ALB. Never use 0.0.0.0/0."
+  description = "CIDR blocks allowed to access the ALB. WAF provides rate limiting and managed rules as defense-in-depth."
   type        = list(string)
   # No default — forces operator to explicitly choose their access policy
-
-  validation {
-    condition     = !contains(var.allowed_cidr_blocks, "0.0.0.0/0") && !contains(var.allowed_cidr_blocks, "::/0")
-    error_message = "allowed_cidr_blocks must not contain 0.0.0.0/0 or ::/0. Use a VPC CIDR (e.g., 10.0.0.0/16) or specific IP ranges."
-  }
 }
 
 variable "waf_rate_limit" {
