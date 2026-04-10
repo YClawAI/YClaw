@@ -7,7 +7,7 @@
 
 ---
 
-## Task: design_review (triggered by builder:pr_ready)
+## Task: design_review (triggered by ao:pr_ready)
 
 You received a PR to review for design system compliance. Follow this sequence exactly:
 
@@ -159,7 +159,7 @@ Post a Slack message:
 
 ---
 
-## Task: design_directive (triggered by designer:directive)
+## Task: design_directive (triggered by strategist:designer_directive)
 
 You received a directive from the Strategist. Execute it.
 
@@ -310,7 +310,7 @@ Post to [your-development-channel]:
 ```json
 {
   "channel": "[your-development-channel]",
-  "text": "🎨 Design generated for issue #<issue_number> via Google Stitch. <screen_count> screens created. Project: <project_title>. Ready for Builder implementation.",
+  "text": "🎨 Design generated for issue #<issue_number> via Google Stitch. <screen_count> screens created. Project: <project_title>. Ready for Architect/AO implementation.",
   "username": "Designer",
   "icon_emoji": ":art:"
 }
