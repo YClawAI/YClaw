@@ -375,6 +375,34 @@ jobs:
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
 
+      - name: Ensure ALB health check targets /api/health
+        run: |
+          # PR #28 added auth middleware that redirects unauthenticated requests
+          # on non-public paths (including /) with 307. The ALB health check must
+          # hit /api/health which is excluded from auth in middleware.ts.
+          TG_ARN=$(aws elbv2 describe-target-groups \
+            --region $AWS_REGION \
+            --query "TargetGroups[?TargetGroupName=='yclaw-mc-tg'].TargetGroupArn | [0]" \
+            --output text 2>/dev/null || true)
+          if [ -n "$TG_ARN" ] && [ "$TG_ARN" != "None" ] && [ "$TG_ARN" != "null" ]; then
+            CURRENT_PATH=$(aws elbv2 describe-target-groups \
+              --target-group-arns "$TG_ARN" \
+              --region $AWS_REGION \
+              --query 'TargetGroups[0].HealthCheckPath' \
+              --output text)
+            if [ "$CURRENT_PATH" != "/api/health" ]; then
+              echo "Updating health check path from '$CURRENT_PATH' to '/api/health'"
+              aws elbv2 modify-target-group \
+                --target-group-arn "$TG_ARN" \
+                --health-check-path "/api/health" \
+                --region $AWS_REGION
+            else
+              echo "Health check path already correct: /api/health"
+            fi
+          else
+            echo "::warning::Could not find target group yclaw-mc-tg"
+          fi
+
       - name: Register new task definition and deploy
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
