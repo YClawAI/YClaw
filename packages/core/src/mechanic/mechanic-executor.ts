@@ -8,7 +8,7 @@
  * - Command whitelist — never runs arbitrary shell commands
  * - Input sanitization — rejects fields with shell metacharacters
  * - execFileSync — no shell invocation, argument injection impossible
- * - Repository allowlist — your-org org only
+ * - Repository allowlist — configured org only (GITHUB_OWNER env var)
  * - File output filter — only commits files matching the task type's allowed patterns
  * - 5-minute timeout per task
  * - Rebase abort on conflict
@@ -17,6 +17,7 @@
 import { execFileSync, type ExecFileSyncOptions } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 import { tmpdir } from 'node:os';
 import { createLogger } from '../logging/logger.js';
 
@@ -121,7 +122,7 @@ export const TASK_CATALOG: Record<string, TaskCatalogEntry> = {
   },
 };
 
-const ALLOWED_ORG = 'your-org';
+const ALLOWED_ORG = GITHUB_ORG_DEFAULTS.owner;
 const TASK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 export interface MechanicResult {

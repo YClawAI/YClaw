@@ -76,10 +76,9 @@ export const GITHUB_API_BASE = 'https://api.github.com';
 /** Default branch for all GitHub operations. Configurable via env var. */
 export const DEFAULT_BRANCH = process.env.DEFAULT_BRANCH || 'main';
 
-export const GITHUB_DEFAULTS = {
-  owner: 'your-org',
-  repo: 'yclaw',
-} as const;
+import { GITHUB_ORG_DEFAULTS } from '../../config/github-defaults.js';
+
+export const GITHUB_DEFAULTS = GITHUB_ORG_DEFAULTS;
 
 // ─── Label Normalization ─────────────────────────────────────────────────────
 // Maps bare label names (as agents know them) to emoji-prefixed display names.

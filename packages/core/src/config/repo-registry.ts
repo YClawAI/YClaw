@@ -107,7 +107,7 @@ export class RepoRegistry {
     return this.configs.get(name);
   }
 
-  /** Get a repo config by GitHub full name (e.g., "yclaw-ai/my-app"). */
+  /** Get a repo config by GitHub full name (e.g., "YClawAI/my-app"). */
   getByFullName(fullName: string): RepoConfig | undefined {
     return this.byFullName.get(fullName);
   }

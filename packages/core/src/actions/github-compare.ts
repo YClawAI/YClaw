@@ -3,6 +3,7 @@ import { createLogger } from '../logging/logger.js';
 import { getGitHubToken } from './github/app-auth.js';
 import type { ActionResult } from './types.js';
 import type { ToolDefinition } from '../config/schema.js';
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 
 const logger = createLogger('github-compare');
 
@@ -50,8 +51,8 @@ export async function compareCommits(
   octokit: Octokit,
   params: CompareCommitsParams,
 ): Promise<ActionResult> {
-  const owner = params.owner ?? 'yclaw-ai';
-  const repo = params.repo ?? 'yclaw';
+  const owner = params.owner ?? GITHUB_ORG_DEFAULTS.owner;
+  const repo = params.repo ?? GITHUB_ORG_DEFAULTS.repo;
   const { base, head } = params;
 
   if (!base || !head) {
@@ -114,12 +115,12 @@ export const compareCommitsToolDefinition: ToolDefinition = {
   parameters: {
     owner: {
       type: 'string',
-      description: 'Repository owner (default: yclaw-ai)',
+      description: `Repository owner (default: ${GITHUB_ORG_DEFAULTS.owner})`,
       required: false,
     },
     repo: {
       type: 'string',
-      description: 'Repository name (default: yclaw)',
+      description: `Repository name (default: ${GITHUB_ORG_DEFAULTS.repo})`,
       required: false,
     },
     base: {

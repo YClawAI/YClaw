@@ -1,5 +1,6 @@
 import { createLogger } from "../logging/logger.js";
 import type { Redis } from "ioredis";
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 
 const logger = createLogger("reconciler");
 
@@ -21,8 +22,8 @@ export interface ReconcilerConfig {
 }
 
 export const DEFAULT_RECONCILER_CONFIG: ReconcilerConfig = {
-  owner: "yclaw-ai",
-  repo: "yclaw",
+  owner: GITHUB_ORG_DEFAULTS.owner,
+  repo: GITHUB_ORG_DEFAULTS.repo,
   maxActionsPerCycle: 5,
   cycleLockTTLSeconds: 720,
   stalePRThresholdHours: 48,

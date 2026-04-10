@@ -10,6 +10,7 @@ import type { SlackExecutor } from '../actions/slack.js';
 import type { GitHubExecutor } from '../actions/github/index.js';
 import { GitHubRateLimitError } from '../actions/github/client.js';
 import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-auth.js';
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 import type { DeployExecutor } from '../actions/deploy/index.js';
 import type { TaskExecutor } from '../actions/task.js';
 import { Redis as IORedis } from 'ioredis';
@@ -1386,7 +1387,7 @@ export async function initAgents(
       const issueUrl = typeof payload.issueUrl === 'string' ? payload.issueUrl
         : typeof payload.issue_url === 'string' ? payload.issue_url : undefined;
 
-      const targetRepo = fullRepo || 'your-org/yclaw';
+      const targetRepo = fullRepo || `${GITHUB_ORG_DEFAULTS.owner}/${GITHUB_ORG_DEFAULTS.repo}`;
       const degradedReason = await getAoDegradedReason(targetRepo);
       if (degradedReason) {
         logger.warn(`[AO] Degraded hold active for ${targetRepo} — skipping architect:build_directive`, {
@@ -1717,7 +1718,7 @@ export async function initAgents(
       }
       // F1: Release issue claim + remove in-progress label
       const completedIssueNumber = typeof p.issue_number === 'number' ? p.issue_number : undefined;
-      const completedRepo = typeof p.repo === 'string' ? p.repo : 'your-org/yclaw';
+      const completedRepo = typeof p.repo === 'string' ? p.repo : `${GITHUB_ORG_DEFAULTS.owner}/${GITHUB_ORG_DEFAULTS.repo}`;
       if (completedIssueNumber) {
         if (deployRedis) {
           const issueClaimKey = buildIssueClaimKey(completedRepo, completedIssueNumber);
@@ -1749,7 +1750,7 @@ export async function initAgents(
 
       // F1: Release issue claim + remove in-progress label BEFORE any early returns
       const failedIssueNumber = typeof p.issue_number === 'number' ? p.issue_number : undefined;
-      const failedRepo = typeof p.repo === 'string' ? p.repo : 'your-org/yclaw';
+      const failedRepo = typeof p.repo === 'string' ? p.repo : `${GITHUB_ORG_DEFAULTS.owner}/${GITHUB_ORG_DEFAULTS.repo}`;
       if (failedIssueNumber) {
         if (deployRedis) {
           const issueClaimKey = buildIssueClaimKey(failedRepo, failedIssueNumber);
