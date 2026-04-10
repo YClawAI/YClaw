@@ -57,6 +57,37 @@ services:
       retries: 3
     restart: unless-stopped
 
+  # ─── Agent Orchestrator (AO) ──────────────────────────────────────────
+  ao:
+    build:
+      context: ../../ao
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:${AO_BRIDGE_PORT:-8420}:8420"
+      - "127.0.0.1:${AO_DASHBOARD_PORT:-3002}:3001"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      AO_AUTH_TOKEN: ${AO_AUTH_TOKEN}
+      AO_CALLBACK_URL: http://yclaw:3000/api/ao/callback
+      GITHUB_APP_ID: ${GITHUB_APP_ID}
+      GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY}
+      GITHUB_APP_INSTALLATION_ID: ${GITHUB_APP_INSTALLATION_ID}
+      REDIS_URL: ${REDIS_URL:-}
+      YCLAW_REPOS: ${YCLAW_REPOS:-YClawAI/YClaw}
+      AO_MAX_CONCURRENT: ${AO_MAX_CONCURRENT:-2}
+    volumes:
+      - ao-data:/data
+    depends_on:
+      yclaw:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8420/health"]
+      interval: 15s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    restart: unless-stopped
+
   # ─── Bundled Infrastructure (profile: bundled) ─────────────────────────
 
   mongodb:
@@ -111,3 +142,4 @@ volumes:
   postgres-data:
   yclaw-objects:
   yclaw-logs:
+  ao-data:

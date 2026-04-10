@@ -218,6 +218,9 @@ Key env vars in the ECS task definition:
 | `MONGODB_URI` | Atlas connection string | required |
 | `REDIS_URL` | Managed Redis endpoint | required |
 | `REACTION_LOOP_ENABLED` | Enable/disable GitHub reaction pipeline | `false` |
+| `AO_SERVICE_URL` | AO bridge HTTP endpoint | `http://ao.yclaw.internal:8420` |
+| `AO_AUTH_TOKEN` | Shared auth token between Core and AO | required |
+| `AO_DEFAULT_AGENT` | Default coding harness: `claude-code`, `codex`, `pi-rpc` | `claude-code` |
 | `EXECUTOR_TYPE` | Executor routing: `cli` / `pi` | `cli` |
 | `FF_CONTEXT_COMPRESSION` | Haiku context compression at 85% threshold | `false` |
 | `FF_PROMPT_CACHING` | Frozen prompt snapshots + Anthropic cache_control | `true` |

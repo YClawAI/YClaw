@@ -19,25 +19,42 @@ defaults:
   workspace: worktree
   notifiers: [webhook]
 
-projects: {}
-  # Configure your projects here. Example:
-  # my-project:
-  #   name: My Project
-  #   repo: your-org/my-project
-  #   path: /data/worktrees/your-org__my-project
-  #   defaultBranch: main
-  #   sessionPrefix: myproject
-  #
-  #   agentConfig:
-  #     permissions: permissionless
-  #
-  #   scm:
-  #     plugin: github
-  #   tracker:
-  #     plugin: github
-  #
-  #   postCreate:
-  #     - npm install
+projects:
+  yclaw:
+    name: YClaw
+    repo: YClawAI/YClaw
+    path: /data/worktrees/YClawAI__YClaw
+    defaultBranch: main
+    sessionPrefix: yclaw
+
+    agentConfig:
+      permissions: permissionless
+
+    scm:
+      plugin: github
+    tracker:
+      plugin: github
+
+    postCreate:
+      - npm install
+
+  yclaw-test:
+    name: yclaw-test
+    repo: YClawAI/yclaw-test
+    path: /data/worktrees/YClawAI__yclaw-test
+    defaultBranch: main
+    sessionPrefix: yclawtest
+
+    agentConfig:
+      permissions: permissionless
+
+    scm:
+      plugin: github
+    tracker:
+      plugin: github
+
+    postCreate:
+      - npm install
 
 # Notification channels — webhook for callbacks to yclaw
 notifiers:
