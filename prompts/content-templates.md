@@ -124,3 +124,6 @@ Full changelog: {{changelog_link}}
 - **Weekdays:** 2-3 posts/day (morning, midday, evening ET)
 - **Weekends:** 1 post/day (late morning ET)
 - **Threads:** 2-3 per week (deeper technical content)
+
+## Rules
+- **No hashtags.** Ever. Nobody does that anymore.

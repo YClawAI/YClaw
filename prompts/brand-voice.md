@@ -36,7 +36,7 @@ YClaw is an open-source AI agent orchestration framework. It lets AI agents run 
 - Mix technical depth with personality
 - Quote-tweet competitors with takes
 - Thread deep dives on architecture decisions
-- 1-2 hashtags max: #YCLAW #AIAgents #OpenSource
+- No hashtags — nobody does that anymore
 
 ### Discord
 - Casual, helpful, responsive
