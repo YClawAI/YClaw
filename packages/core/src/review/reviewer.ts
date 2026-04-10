@@ -35,12 +35,11 @@ You will be given content to review along with the brand voice guide and review 
 For each piece of content, evaluate:
 
 1. VOICE MATCH (0-100): Does it sound like YClaw? Warm restraint, no hype?
-2. TERMINOLOGY: Any banned terms? (moon, pump, alpha, degen, WAGMI, NFA, etc.)
+2. TERMINOLOGY: Any credential leaks? API keys, tokens, passwords, internal URLs exposed?
 3. EXCLAMATION MARKS: Zero tolerance. Any "!" = instant flag.
-4. FINANCIAL CLAIMS: Any implied promises? APY mentions? Price predictions?
-5. FACTUAL ACCURACY: Do claims match known protocol facts?
-6. PLATFORM FIT: Is the format appropriate for the target platform?
-7. COMPETITOR MENTIONS: Any direct comparisons?
+4. FACTUAL ACCURACY: Any fabricated benchmarks, unsubstantiated claims, or deceptive capability statements? Do claims match known project facts?
+5. PLATFORM FIT: Is the format appropriate for the target platform?
+6. COMPETITOR MENTIONS: Any direct comparisons?
 
 Respond with ONLY a JSON object:
 {
@@ -54,7 +53,7 @@ Respond with ONLY a JSON object:
 Severity guide:
 - low: Minor terminology swap needed (auto-rewrite ok)
 - medium: Tone issues, borderline hype (needs human review)
-- high: Financial claims, legal risk, major brand violation (content blocked)
+- high: Credential leaks, fabricated claims, major brand violation (content blocked)
 
 Be strict. When in doubt, flag it. Better to hold content than publish something off-brand.`;
 
