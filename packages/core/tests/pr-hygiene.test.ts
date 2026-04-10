@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   hasNeedsHumanLabel,
   listPrHygieneCandidatesByBase,
@@ -6,6 +6,7 @@ import {
   shouldLabelNeedsHuman,
   type ListedPullRequestSummary,
 } from '../src/bootstrap/pr-hygiene.js';
+import { _resetForTesting as resetAuth } from '../src/actions/github/app-auth.js';
 import {
   GitHubClient,
   GitHubRateLimitError,
@@ -172,7 +173,15 @@ describe('GitHubRateLimitError — backoff calculation used in runPrHygieneCycle
 });
 
 describe('GitHubClient — module-level _rateLimitBackoffUntilMs pre-flight', () => {
+  beforeEach(() => {
+    // getGitHubToken() requires at least a PAT to be set
+    process.env.GITHUB_TOKEN = 'ghp_test_rate_limit';
+    resetAuth(); // Re-detect auth method after setting env var
+  });
+
   afterEach(() => {
+    delete process.env.GITHUB_TOKEN;
+    resetAuth();
     clearRateLimitBackoff();
     vi.restoreAllMocks();
   });

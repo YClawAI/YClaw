@@ -95,6 +95,11 @@ services:
       PORT: "3000"
       MONGODB_URI: mongodb://mongo:27017/yclaw
       REDIS_URL: redis://redis:6379
+      # GitHub App auth (leave blank to fall back to GITHUB_TOKEN from .env)
+      GITHUB_APP_ID: ${GITHUB_APP_ID:-}
+      GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY:-}
+      GITHUB_APP_INSTALLATION_ID: ${GITHUB_APP_INSTALLATION_ID:-}
+      YCLAW_EXTERNAL_URL: ${YCLAW_EXTERNAL_URL:-http://localhost:3000}
       # sslmode=disable — the bundled postgres:16-alpine image does not speak
       # SSL. Without this the core API logs "Memory database unavailable
       # (The server does not support SSL connections)" and runs without

@@ -4,6 +4,7 @@ import { createLogger } from '../logging/logger.js';
 import type { AuditLog } from '../logging/audit.js';
 import type { EventBus } from '../triggers/event.js';
 import type { AoCallbackEvent } from './types.js';
+import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-auth.js';
 
 const logger = createLogger('ao-callback');
 
@@ -182,11 +183,11 @@ async function findPRForIssue(
   repoName: string,
   issueNumber: number,
 ): Promise<GitHubPR | null> {
-  const githubToken = process.env.GITHUB_TOKEN;
-  if (!githubToken) {
-    logger.debug('[AO Callback] GITHUB_TOKEN not set — skipping PR lookup');
+  if (!isGitHubAuthAvailable()) {
+    logger.debug('[AO Callback] GitHub auth not configured — skipping PR lookup');
     return null;
   }
+  const githubToken = await getGitHubToken();
 
   // Search for PRs that mention the issue number in any field (title, body).
   // The query "#{issueNumber}" matches common patterns like "Closes #913".

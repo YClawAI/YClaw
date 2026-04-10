@@ -8,6 +8,8 @@ import { ISSUES_TOOL_DEFINITIONS, ISSUES_DEFAULTS, createIssue, updateIssue, get
 
 // Re-export client for type imports
 export { GitHubClient } from './client.js';
+export { getGitHubToken, getOctokitAuth, isGitHubAuthAvailable, getAuthMethod, initGitHubAuth } from './app-auth.js';
+export type { AuthMethod } from './app-auth.js';
 
 export class GitHubExecutor implements ActionExecutor {
   readonly name = 'github';
@@ -35,7 +37,7 @@ export class GitHubExecutor implements ActionExecutor {
 
   async execute(action: string, params: Record<string, unknown>): Promise<ActionResult> {
     if (!this.client.isReady()) {
-      return { success: false, error: 'GitHub not initialized: missing GITHUB_TOKEN' };
+      return { success: false, error: 'GitHub not initialized: configure GITHUB_APP_* or GITHUB_TOKEN' };
     }
 
     switch (action) {

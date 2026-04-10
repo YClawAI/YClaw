@@ -1,4 +1,5 @@
 import { createLogger } from '../logging/logger.js';
+import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-auth.js';
 
 const logger = createLogger('config-persister');
 
@@ -15,12 +16,9 @@ const BASE_BRANCH = 'master';
  * block the local filesystem write that already happened.
  */
 export class ConfigPersister {
-  private token: string | null;
-
   constructor() {
-    this.token = process.env.GITHUB_TOKEN || null;
-    if (!this.token) {
-      logger.warn('GITHUB_TOKEN not set — config changes will not persist to Git');
+    if (!isGitHubAuthAvailable()) {
+      logger.warn('GitHub auth not configured — config changes will not persist to Git');
     }
   }
 
@@ -33,8 +31,8 @@ export class ConfigPersister {
     fileContent: string;
     description: string;
   }): Promise<{ success: boolean; prUrl?: string; error?: string }> {
-    if (!this.token) {
-      return { success: false, error: 'No GITHUB_TOKEN available' };
+    if (!isGitHubAuthAvailable()) {
+      return { success: false, error: 'No GitHub auth available' };
     }
 
     const { agentName, department, fileContent, description } = opts;
@@ -156,9 +154,10 @@ export class ConfigPersister {
     path: string,
     body?: Record<string, unknown>,
   ): Promise<Response> {
+    const token = await getGitHubToken();
     const url = `${GITHUB_API}${path}`;
     const headers: Record<string, string> = {
-      Authorization: `Bearer ${this.token}`,
+      Authorization: `Bearer ${token}`,
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
     };

@@ -1,6 +1,7 @@
 import type { EventBus } from './event.js';
 import type { RepoRegistry } from '../config/repo-registry.js';
 import { createLogger } from '../logging/logger.js';
+import { getGitHubToken } from '../actions/github/app-auth.js';
 
 const logger = createLogger('github-webhook');
 
@@ -590,11 +591,12 @@ export class GitHubWebhookHandler {
     let pr_url: string | null = null;
     if (eventType === 'ci_pass' && isDefaultBranch) {
       try {
+        const ghToken = await getGitHubToken();
         const commitsUrl = `https://api.github.com/repos/${repository.owner.login}/${repository.name}/commits/${workflow_run.head_sha}/pulls`;
         const prResponse = await fetch(commitsUrl, {
           headers: {
             'Accept': 'application/vnd.github+json',
-            'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+            'Authorization': `Bearer ${ghToken}`,
             'X-GitHub-Api-Version': '2022-11-28',
           },
         });
@@ -654,11 +656,12 @@ export class GitHubWebhookHandler {
     runId: number,
   ): Promise<'ci_fail' | 'deploy_fail'> {
     try {
+      const ghToken = await getGitHubToken();
       const url = `https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}/jobs`;
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/vnd.github+json',
-          'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+          'Authorization': `Bearer ${ghToken}`,
           'X-GitHub-Api-Version': '2022-11-28',
         },
       });

@@ -8,6 +8,7 @@ import type { ToolDefinition } from '../config/schema.js';
 import { createLogger } from '../logging/logger.js';
 import type { RepoConfig } from '../config/repo-schema.js';
 import type { RepoRegistry } from '../config/repo-registry.js';
+import { getGitHubToken } from './github/app-auth.js';
 import type { AuditLog } from '../logging/audit.js';
 import type { DeploymentRecord } from '../logging/audit.js';
 import type { EventBus } from '../triggers/event.js';
@@ -1157,8 +1158,7 @@ export class DeployExecutor implements ActionExecutor {
     repo: string,
     _environment: string,
   ): Promise<{ url?: string; details?: string }> {
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) throw new Error('GITHUB_TOKEN not configured');
+    const token = await getGitHubToken();
 
     const repoConfig = this.registry.get(repo);
     if (!repoConfig) throw new Error(`Repo "${repo}" not found in registry`);

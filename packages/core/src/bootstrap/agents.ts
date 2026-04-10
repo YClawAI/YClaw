@@ -9,6 +9,7 @@ import { SLACK_CHANNELS } from '../actions/slack.js';
 import type { SlackExecutor } from '../actions/slack.js';
 import type { GitHubExecutor } from '../actions/github/index.js';
 import { GitHubRateLimitError } from '../actions/github/client.js';
+import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-auth.js';
 import type { DeployExecutor } from '../actions/deploy/index.js';
 import type { TaskExecutor } from '../actions/task.js';
 import { Redis as IORedis } from 'ioredis';
@@ -532,7 +533,7 @@ export async function initAgents(
                 requestedBy: (payload.requestedBy as string) || undefined,
                 prNumber: (payload.prNumber as number) || undefined,
               };
-              const ghToken = process.env.GITHUB_TOKEN || '';
+              const ghToken = await getGitHubToken();
               const result = await executeMechanicTask(mechanicTask, ghToken);
               await eventBus.publish(
                 'mechanic',
@@ -1628,10 +1629,11 @@ export async function initAgents(
   const agentHubUrl = process.env.AGENTHUB_URL;
   const agentHubDispatcherKey = process.env.AGENTHUB_DISPATCHER_KEY;
   const agentHubWorkerKeysJson = process.env.AGENTHUB_WORKER_KEYS; // JSON: {"worker-1":"key1","worker-2":"key2"}
-  const githubToken = process.env.GITHUB_TOKEN;
+  const githubTokenAvailable = isGitHubAuthAvailable();
 
-  if (agentHubUrl && agentHubDispatcherKey && agentHubWorkerKeysJson && githubToken) {
+  if (agentHubUrl && agentHubDispatcherKey && agentHubWorkerKeysJson && githubTokenAvailable) {
     try {
+      const githubToken = await getGitHubToken();
       const workerApiKeys = JSON.parse(agentHubWorkerKeysJson) as Record<string, string>;
       const result = registerExplorationModule({
         agentHubUrl,
@@ -1652,7 +1654,7 @@ export async function initAgents(
       logger.warn(`Exploration module failed to initialize — running without exploration (${msg})`);
     }
   } else {
-    logger.info('Exploration module disabled (AGENTHUB_URL, AGENTHUB_DISPATCHER_KEY, AGENTHUB_WORKER_KEYS, or GITHUB_TOKEN not set)');
+    logger.info('Exploration module disabled (AGENTHUB_URL, AGENTHUB_DISPATCHER_KEY, AGENTHUB_WORKER_KEYS, or GitHub auth not set)');
   }
 
   // ─── Growth Engine (AgentHub Phase 3) ──────────────────────────────────────

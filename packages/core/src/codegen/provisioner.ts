@@ -13,6 +13,7 @@ import {
 import { join, resolve, relative, sep } from 'node:path';
 import { spawn as nodeSpawn } from 'node:child_process';
 import { createLogger } from '../logging/logger.js';
+import { getGitHubToken } from '../actions/github/app-auth.js';
 import type { RepoConfig } from '../config/repo-schema.js';
 import type { Workspace } from './types.js';
 import { SESSION_RULES, REFLECTION_PROMPT } from './types.js';
@@ -80,7 +81,8 @@ export class WorkspaceProvisioner {
   async cloneRepo(workspace: Workspace): Promise<void> {
     workspace.state = 'cloning';
     const { github } = workspace.repoConfig;
-    const token = process.env.GITHUB_TOKEN || '';
+    let token = '';
+    try { token = await getGitHubToken(); } catch { /* no auth — clone public repos only */ }
 
     // Write git credentials file (outside repo dir, cleaned up with workspace)
     const credPath = join(workspace.basePath, '.git-credentials');

@@ -1,11 +1,11 @@
 import type { RepoRegistry } from '../../config/repo-registry.js';
+import { getGitHubToken } from '../github/app-auth.js';
 
 export async function deployGitHubPages(
   repo: string,
   registry: RepoRegistry,
 ): Promise<{ url?: string; details?: string }> {
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) throw new Error('GITHUB_TOKEN not configured');
+  const token = await getGitHubToken();
 
   const repoConfig = registry.get(repo);
   if (!repoConfig) throw new Error(`Repo "${repo}" not found in registry`);

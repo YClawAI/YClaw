@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { Octokit } from '@octokit/rest';
 import { createLogger } from '../logging/logger.js';
+import { getGitHubToken } from '../actions/github/app-auth.js';
 import { AgentHubClient } from './client.js';
 import type { PromoteOptions } from './types.js';
 
@@ -24,14 +25,10 @@ const log = createLogger('agenthub-promoter');
  * The existing webhook pipeline handles everything from there.
  */
 export class AgentHubPromoter {
-  private readonly octokit: Octokit;
-
   constructor(
     private readonly agentHub: AgentHubClient,
     private readonly githubToken: string,
-  ) {
-    this.octokit = new Octokit({ auth: githubToken });
-  }
+  ) {}
 
   async promote(options: PromoteOptions): Promise<{ prNumber: number; prUrl: string }> {
     const {
@@ -49,12 +46,15 @@ export class AgentHubPromoter {
     const tmpDir = mkdtempSync(join(tmpdir(), 'promote-'));
     const [owner, repo] = targetRepo.split('/') as [string, string];
 
+    // Refresh token — may have rotated since constructor for App auth
+    const currentToken = await getGitHubToken();
+
     // F14: Use git credential store file instead of embedding token in URL
     const credFile = join(tmpDir, '.git-credentials');
 
     try {
       // Write credential store file with restrictive permissions
-      writeFileSync(credFile, `https://x-access-token:${this.githubToken}@github.com\n`, { mode: 0o600 });
+      writeFileSync(credFile, `https://x-access-token:${currentToken}@github.com\n`, { mode: 0o600 });
 
       // 1. Clone target repo (shallow) using credential helper
       const cloneDir = join(tmpDir, 'target');
@@ -168,7 +168,9 @@ export class AgentHubPromoter {
         reviewDecision,
       });
 
-      const { data: pr } = await this.octokit.pulls.create({
+      // Use fresh token for API call (constructor token may have rotated)
+      const freshOctokit = new Octokit({ auth: currentToken });
+      const { data: pr } = await freshOctokit.pulls.create({
         owner,
         repo,
         title: taskDescription,
