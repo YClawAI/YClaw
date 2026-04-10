@@ -55,6 +55,11 @@ describe('env contract', () => {
       'HOSTNAME',                     // Hardcoded in compose
       'POSTGRES_DB',                  // Hardcoded in compose
       'POSTGRES_USER',                // Hardcoded in compose
+      'AO_BRIDGE_PORT',              // Compose default :-8420
+      'AO_DASHBOARD_PORT',           // Compose default :-3002
+      'YCLAW_REPOS',                 // Compose default :-YClawAI/YClaw
+      'AO_MAX_CONCURRENT',           // Compose default :-2
+      'AO_CALLBACK_URL',             // Hardcoded in compose (AO → core)
     ]);
 
     const missingVars: string[] = [];
@@ -90,6 +95,11 @@ describe('env contract', () => {
       'HOSTNAME',
       'POSTGRES_DB',
       'POSTGRES_USER',
+      'AO_BRIDGE_PORT',              // Compose default :-8420
+      'AO_DASHBOARD_PORT',           // Compose default :-3002
+      'YCLAW_REPOS',                 // Compose default :-YClawAI/YClaw
+      'AO_MAX_CONCURRENT',           // Compose default :-2
+      'AO_CALLBACK_URL',             // Hardcoded in compose (AO → core)
     ]);
 
     const missing: string[] = [];
