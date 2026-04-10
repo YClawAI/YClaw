@@ -53,8 +53,6 @@ triggers:
 
 actions:
   - deploy:status
-  - codegen:execute
-  - codegen:status
   - github:get_contents
   - github:get_diff
   - repo:list
