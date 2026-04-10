@@ -82,6 +82,9 @@ actions:
   - telegram:message
   - telegram:announce
   - discord:get_channel_history
+  - discord:message
+  - discord:thread_reply
+  - discord:react
   - event:publish
 
 data_sources: []

@@ -25,7 +25,7 @@ triggers:
     schedule: "8 13 * * *"
     task: daily_standup
   - type: event
-    event: builder:pr_ready
+    event: ao:pr_ready
     task: design_review
   - type: event
     event: forge:asset_ready
@@ -84,7 +84,7 @@ data_sources:
 
 event_subscriptions:
   - claudeception:reflect
-  - builder:pr_ready
+  - ao:pr_ready
   - strategist:designer_directive
   - strategist:design_generate
   - architect:design_directive

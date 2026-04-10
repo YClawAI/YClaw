@@ -18,10 +18,6 @@ export const EVENT_SCHEMAS: Record<string, EventSchema> = {
     required: ['pr_number', 'status'],
     description: 'Architect completed a PR review (approved or changes_requested)',
   },
-  'builder:pr_ready': {
-    required: ['pr_number', 'repo'],
-    description: 'Builder created a PR ready for review',
-  },
   'github:ci_fail': {
     required: ['repo', 'branch', 'commit_sha'],
     description: 'CI failed on a branch',
@@ -82,7 +78,11 @@ export const EVENT_SCHEMAS: Record<string, EventSchema> = {
     required: ['reason'],
     description: 'AO task blocked — needs human or external input',
   },
-  // ─── Builder compat aliases (yclaw generic naming) ──────────────────────────
+  // ─── Builder compat aliases (kept for backward compatibility) ───────────────
+  'builder:pr_ready': {
+    required: ['pr_number', 'repo'],
+    description: 'Builder PR ready (compat alias for ao:pr_ready)',
+  },
   'builder:task_complete': {
     required: [],
     description: 'Builder/AO task completed (compat alias for ao:task_completed)',

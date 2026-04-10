@@ -35,10 +35,7 @@ triggers:
     event: github:pr_opened
     task: review_pr
   - type: event
-    event: github:pr_updated
-    task: review_pr
-  - type: event
-    event: builder:pr_ready
+    event: ao:pr_ready
     task: review_pr
 
   - type: cron
@@ -52,13 +49,13 @@ triggers:
     event: github:issue_assigned
     task: plan_and_delegate
   - type: event
-    event: builder:task_complete
+    event: ao:task_completed
     task: verify_completion
   - type: event
-    event: builder:task_blocked
+    event: ao:task_blocked
     task: resolve_blocker
   - type: event
-    event: builder:task_failed
+    event: ao:task_failed
     task: handle_task_failure
 
   # F1: Event-driven issue discovery — triage new issues (label only, no delegation)
@@ -80,10 +77,6 @@ triggers:
       model: claude-sonnet-4-20250514
       maxTokens: 8192
       temperature: 0.3
-
-  - type: event
-    event: designer:design_generated
-    task: verify_design_completion
 
   # Deploy Governance v2: sole required reviewer for CRITICAL-tier deployments
   - type: event
@@ -137,10 +130,10 @@ event_subscriptions:
   - github:issue_assigned
   - github:issue_opened
   - github:issue_labeled
-  - builder:pr_ready
-  - builder:task_complete
-  - builder:task_blocked
-  - builder:task_failed
+  - ao:pr_ready
+  - ao:task_completed
+  - ao:task_blocked
+  - ao:task_failed
   - strategist:architect_directive
   - deploy:review
   - architect:rebase_needed

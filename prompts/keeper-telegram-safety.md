@@ -1,4 +1,4 @@
-<!-- CUSTOMIZE FOR YOUR ORGANIZATION — See examples/gaze-protocol/ for reference -->
+<!-- CUSTOMIZE FOR YOUR ORGANIZATION -->
 
 # Keeper Telegram Safety Rules — CRITICAL
 

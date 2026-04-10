@@ -104,7 +104,6 @@ yclaw/
 │   │   │   ├── data/          # Data resolvers
 │   │   │   ├── llm/           # LLM provider abstraction
 │   │   │   ├── logging/       # Structured logging
-│   │   │   ├── reactions/     # Declarative lifecycle automation
 │   │   │   ├── review/        # Review gate, outbound safety
 │   │   │   ├── self/          # Self-modification tools
 │   │   │   ├── services/      # Task registry, task store
@@ -188,8 +187,7 @@ packages/core/src/review/** # Review gate and outbound safety
 
 ### Convention-enforced (Architect review + CI)
 
-These paths are protected by convention — Architect review and the DoD gate
-(`packages/core/src/reactions/dod-gate.ts`) catch unauthorized changes at merge time:
+These paths are protected by convention and repository review practices at merge time:
 
 ```
 departments/**              # Agent YAML configs
@@ -228,7 +226,6 @@ Events follow the pattern `source:type` (e.g., `builder:pr_ready`, `architect:pr
 | Repo Registry | `src/config/repo-registry.ts` | Multi-repo config management |
 | Event Bus | `src/triggers/event.ts` | Inter-agent pub/sub |
 | GitHub Webhooks | `src/triggers/github-webhook.ts` | Webhook → normalized events |
-| Reactions | `src/reactions/` | Declarative lifecycle automation |
 | Task Registry | `src/services/task-registry.ts` | Task state machine |
 | Review Gate | `src/review/reviewer.ts` | Brand review for external content |
 | Outbound Safety | `src/review/outbound-safety.ts` | Content safety filtering |
@@ -272,10 +269,10 @@ Correlation IDs follow `owner/repo:context:epoch_ms`. IDs without a valid traili
 
 ---
 
-## GitHub Webhook Reaction Pipeline
+## GitHub Webhook Event Pipeline
 
-The webhook-to-reaction pipeline is the core automation loop. It processes GitHub
-events and triggers automated responses without human intervention.
+The GitHub webhook pipeline normalizes inbound events and publishes them onto
+the internal event bus for downstream consumers.
 
 ### Flow
 
@@ -285,13 +282,6 @@ GitHub Webhook (POST /github/webhook)
         → Signature verification (HMAC-SHA256)
         → Event normalization (webhook payload → internal event)
         → Event Bus publish
-    → ReactionsManager (src/reactions/manager.ts)
-        → Rule matching (event type + filters)
-        → Condition evaluation (pr_approved, ci_green, etc.)
-        → Safety gate checks (all_checks_passed, dod_gate_passed, etc.)
-        → Action execution (merge, trigger agent, post to Slack, etc.)
-        → Escalation scheduling (Redis ZSET timers)
-        → Audit logging
 ```
 
 ### Webhook Event Normalization
@@ -311,89 +301,6 @@ event types:
 
 Each normalized event includes: `owner`, `repo`, `repo_full`, `branch`,
 `pr_number`, `issue_number`, `commit_sha`, `url`, and a `correlationId`.
-
-### ReactionsManager
-
-The `ReactionsManager` (`src/reactions/manager.ts`) is the orchestration layer:
-
-1. **Subscribes** to all GitHub events on the event bus
-2. **Evaluates** each event against `DEFAULT_REACTION_RULES`
-3. **Checks conditions** via GitHub API (is PR approved? is CI green?)
-4. **Checks safety gates** (all checks passed? DoD gate? no merge conflicts?)
-5. **Executes actions** in order (merge PR, trigger agent, post to Slack)
-6. **Schedules escalations** via `EscalationManager` for timeout handling
-7. **Logs audit entries** for every rule evaluation
-
-Key features:
-- **Deduplication**: Same event + rule combination won't fire twice
-- **Ordered actions**: Actions execute sequentially, fail-fast on error
-- **Template interpolation**: Action params support `{{variable}}` placeholders
-  resolved from event payload
-- **Audit trail**: Every evaluation is logged with conditions, gates, and outcomes
-
-### Reaction Rules (10 Rules)
-
-Defined in `src/reactions/rules.ts`:
-
-| # | Rule ID | Trigger Event | What It Does |
-|---|---|---|---|
-| 1 | `ci-failed-on-pr` | `github:ci_fail` | Triggers Builder to fix CI. Escalates to #yclaw-alerts after 30min. |
-| 2 | `changes-requested` | `github:pr_review_submitted` (changes_requested) | Triggers Builder to address review. Escalates after 30min. |
-| 3 | `auto-update-behind-branch` | `github:ci_pass` | Auto-updates branch if CI green + comment approved + no conflicts. |
-| 4 | `auto-merge-on-ci-pass` | `github:ci_pass` | Auto-merges if PR is approved + CI green + DoD gate passes. |
-| 5 | `auto-merge-on-approval` | `github:pr_review_submitted` (approved) | Auto-merges if CI is already green + DoD gate passes. |
-| 6 | `pr-merged-close-issues` | `github:pr_merged` | Closes linked issues when PR merges. |
-| 7 | `auto-merge-on-architect-comment` | `github:pr_review_comment` (approved) | Auto-merges on Architect approval comment if CI green. |
-| 8 | `new-issue-auto-assign` | `github:issue_opened` | Auto-assigns issues to Builder (unless `human-only` label). |
-| 9 | `issue-closed-task-cleanup` | `github:issue_closed` | Updates task status to completed. |
-| 10 | `issue-labeled-auto-assign` | `github:issue_labeled` | Auto-assigns labeled issues to Builder (unless `human-only`). |
-
-### Escalation Timers
-
-The `EscalationManager` (`src/reactions/escalation.ts`) provides durable timers
-via Redis:
-
-**Data structures:**
-- **ZSET** (`reaction:escalations`): Members are `{ruleId}:{resource}`, scores are due timestamps
-- **Hash** (`reaction:escalation_data`): Full escalation entry payloads keyed by member
-
-**Operations:**
-- `schedule(ruleId, afterMs, action, ctx)` — ZADD + HSET
-- `cancel(ruleId, ctx)` — ZREM + HDEL
-- `processDue()` — ZRANGEBYSCORE + execute (polls every 30s)
-
-**Delivery guarantee:** At-most-once. ZSET entry is removed before action executes.
-Survives ECS task restarts because all state is in Redis.
-
-**Deduplication:** Re-scheduling the same `ruleId:resource` replaces the previous
-entry (ZADD overwrites the score, HSET overwrites the data).
-
-### Definition of Done (DoD) Gate
-
-The DoD gate (`src/reactions/dod-gate.ts`) is a safety gate that evaluates PR
-quality before automated merge. It runs as part of the `dod_gate_passed` safety
-gate in reaction rules 3 and 4.
-
-**Checks (all must pass):**
-
-| # | Check | What It Verifies |
-|---|---|---|
-| 1 | `ci_passing` | All CI checks are green |
-| 2 | `type_check` | TypeScript compilation succeeds |
-| 3 | `review_approval` | At least 1 approving review |
-| 4 | `tests_exist` | Tests exist for changed source files |
-| 5 | `no_immutable_changes` | No modifications to restricted paths |
-| 6 | `auto_retry_scope` | (auto-retry only) Max 5 files, max 200 lines |
-
-**Test coverage check:** `hasTestCoverage(filesChanged, allFilesInPR)` verifies
-that every changed `.ts` file (excluding `.test.ts` and `.d.ts`) has a
-corresponding test file. Supports two conventions:
-1. Colocated: `src/foo/bar.ts` → `src/foo/bar.test.ts`
-2. Tests directory: `packages/core/src/foo/bar.ts` → `packages/core/tests/bar.test.ts`
-
-**Auto-retry scope (fail-closed):** When `isAutoRetry` is true, enforces max 5
-files and max 200 lines changed. If `linesChanged` is undefined, the gate fails
-(fail-closed design).
 
 ---
 
@@ -614,7 +521,6 @@ Issue opened → correlationId generated
     → Builder triggered (correlationId in event payload)
     → PR created (correlationId in PR body)
     → CI runs (correlationId propagated)
-    → Reactions fire (correlationId in context)
     → Slack notifications (correlationId in metadata)
 ```
 
@@ -634,14 +540,6 @@ Builder tracks retry attempts per PR/branch in agent memory:
 - 60-second backoff between retries
 - Each retry includes previous failure context
 
-### Escalation Timers (Reactions)
-
-Rules 1 and 2 have 30-minute escalation timers:
-- If CI isn't fixed within 30 minutes → alert #yclaw-alerts
-- If review changes aren't addressed within 30 minutes → alert #yclaw-alerts
-- Timers are durable (Redis-backed, survive restarts)
-- Timers are deduplicated (re-triggering replaces, doesn't duplicate)
-
 ### Auto-Fix Scope Limits
 
 Automated fixes (CI failure, review changes) are bounded:
@@ -649,7 +547,6 @@ Automated fixes (CI failure, review changes) are bounded:
 - Max 200 lines changed per fix attempt
 - Cannot modify immutable paths
 - Cannot weaken tests, lint rules, or type checking
-- DoD gate enforces these limits at merge time
 
 ### Production URL Routing
 
