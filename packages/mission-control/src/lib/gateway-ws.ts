@@ -123,6 +123,8 @@ class GatewayClient {
       this.resolveReady = resolve;
       this.rejectReady = reject;
     });
+    // Prevent unhandled rejection when gateway token is not configured
+    this.ready.catch(() => {});
 
     // Wire state cache updates
     this.on('status', (payload) => {
