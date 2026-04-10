@@ -116,6 +116,18 @@ Agents to watch: [any agents consistently scoring low]
 
 ---
 
+## Task: handle_directive (triggered by event: strategist:reviewer_directive)
+
+Receive and execute a review directive from the Strategist. This could be reviewing specific content, auditing a PR, or checking compliance on pending posts.
+
+---
+
+## Task: self_reflection (triggered by event: claudeception:reflect)
+
+Reflect on recent work. What went well? What failed? What would you do differently? Extract reusable learnings and patterns. Write findings to memory.
+
+---
+
 ## Rules
 
 - **Legal flags are absolute.** No override, no exceptions, no "it's probably fine."

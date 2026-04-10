@@ -67,6 +67,8 @@ data_sources:
   #     body: '{"jsonrpc":"2.0","id":1,"method":"eth_getBalance","params":["<WALLET_ADDRESS>","latest"]}'
 
   # ---- Infrastructure cost sources ----
+  # NOTE: litellm_spend requires LiteLLM proxy to be configured (not active in YCLAW).
+  # Treasurer will skip this source gracefully if the fetcher is not registered.
   - name: litellm_spend
     type: litellm_spend
     config: {}

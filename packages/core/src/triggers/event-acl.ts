@@ -25,6 +25,7 @@ export const DEFAULT_ACL: AclMap = {
   'architect:deploy_review': ['architect'],
   'architect:deploy_complete': ['architect'],
   'architect:rebase_needed': ['architect'],
+  'architect:task_blocked': ['architect'],
 
   // Mechanic
   'mechanic:task_completed': ['mechanic'],
@@ -46,9 +47,19 @@ export const DEFAULT_ACL: AclMap = {
   'builder:spawn_failed': ['ao-callback'],
 
   // Strategist
+  'strategist:midweek_adjustment': ['strategist'],
   'strategist:architect_directive': ['strategist'],
   'strategist:ember_directive': ['strategist'],
   'strategist:designer_directive': ['strategist'],
+  'strategist:design_generate': ['strategist'],
+  'strategist:standup_synthesis': ['strategist'],
+  'strategist:sentinel_directive': ['strategist'],
+  'strategist:keeper_directive': ['strategist'],
+  'strategist:forge_directive': ['strategist'],
+  'strategist:scout_directive': ['strategist'],
+  'strategist:treasurer_directive': ['strategist'],
+  'strategist:guide_directive': ['strategist'],
+  'strategist:reviewer_directive': ['strategist'],
   'strategist:weekly_directive': ['strategist'],
 
   // Ember
@@ -60,16 +71,25 @@ export const DEFAULT_ACL: AclMap = {
   'reviewer:approved': ['reviewer'],
   'reviewer:flagged': ['reviewer'],
 
+  // Designer
+  'designer:design_review': ['designer'],
+  'designer:design_generated': ['designer'],
+
   // Forge
   'forge:asset_ready': ['forge'],
 
   // Keeper
   'keeper:support_case': ['keeper'],
 
+  // Treasurer
+  'treasurer:low_balance': ['treasurer'],
+  'treasurer:spend_report': ['treasurer'],
+
   // Deploy system
   'deploy:execute': ['deploy-system'],
   'deploy:review': ['deploy-system'],
   'deploy:approved': ['deploy-system'],
+  'deployer:deploy_complete': ['deployer'],
 
   // GitHub webhooks
   'github:pr_opened': ['github-webhook'],
@@ -90,9 +110,24 @@ export const DEFAULT_ACL: AclMap = {
   ],
   'claudeception:reflect': ['system'],
 
+  // System events (budget enforcer publishes as 'system')
+  'system:agent:budget_exceeded': ['system'],
+  'system:agent:budget_warning': ['system'],
+
+  // Objective events
+  'objective:budget_exceeded': ['objective'],
+
+  // Sentinel alerts
+  'sentinel:alert': ['sentinel'],
+  'sentinel:infra_alert': ['sentinel'],
+  'sentinel:status_report': ['sentinel'],
+  'sentinel:quality_report': ['sentinel'],
+
   // Discord (adapter publishes as 'discord', webhook as 'discord-webhook')
   'discord:message': ['discord', 'discord-webhook'],
   'discord:mention': ['discord', 'discord-webhook'],
+  'discord:thread_reply': ['discord', 'discord-webhook'],
+  'discord:react': ['discord', 'discord-webhook'],
 };
 
 // ─── ACL Check ───────────────────────────────────────────────────────────────
