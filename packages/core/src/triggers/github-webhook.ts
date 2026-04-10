@@ -105,13 +105,6 @@ export interface GitHubWebhookOptions {
   registry?: RepoRegistry;
   /** GitHub usernames whose issue assignments should trigger agents. */
   allowedAssignees?: Set<string>;
-  /**
-   * GitHub logins allowed to post Architect review comments.
-   * If provided, only comments from these accounts emit github:pr_review_comment.
-   * If absent, falls back to ARCHITECT_GITHUB_LOGINS env var (comma-separated).
-   * If neither is configured: emits a warning and allows all commenters (fail-open).
-   */
-  allowedArchitectLogins?: Set<string>;
 }
 
 // ─── Handler ────────────────────────────────────────────────────────────────
@@ -124,9 +117,6 @@ export class GitHubWebhookHandler {
 
   /** GitHub usernames that trigger issue_assigned events. */
   private allowedAssignees: Set<string>;
-
-  /** GitHub logins allowed to post Architect review comments. */
-  private allowedArchitectLogins: Set<string>;
 
   /** Recent X-GitHub-Delivery IDs for idempotency. */
   private recentDeliveries = new Set<string>();
@@ -142,15 +132,10 @@ export class GitHubWebhookHandler {
       (process.env.AGENT_ASSIGNEES || '').split(',').map(s => s.trim()).filter(Boolean),
     );
 
-    // Allowed architect logins from options or ARCHITECT_GITHUB_LOGINS env var
-    this.allowedArchitectLogins = options?.allowedArchitectLogins ?? new Set(
-      (process.env.ARCHITECT_GITHUB_LOGINS || '').split(',').map(s => s.trim()).filter(Boolean),
-    );
 
     logger.info('GitHubWebhookHandler initialized', {
       registeredRepos: this.registry?.size ?? 0,
       allowedAssignees: this.allowedAssignees.size,
-      allowedArchitectLogins: this.allowedArchitectLogins.size,
     });
   }
 
@@ -339,23 +324,6 @@ export class GitHubWebhookHandler {
 
     // Only process Architect review comments
     if (!comment.body.includes('## Architect Review')) return { processed: false };
-
-    // Commenter allowlist — prevent unauthorized users from triggering Builder work
-    if (this.allowedArchitectLogins.size === 0) {
-      logger.error('ARCHITECT_GITHUB_LOGINS not configured — rejecting Architect Review comment (fail-closed)', {
-        commenter: comment.user.login,
-        pr: issue.number,
-        repo: repository.full_name,
-      });
-      return { processed: false };
-    } else if (!this.allowedArchitectLogins.has(comment.user.login)) {
-      logger.info('## Architect Review comment from non-architect account, ignoring', {
-        commenter: comment.user.login,
-        pr: issue.number,
-        repo: repository.full_name,
-      });
-      return { processed: false };
-    }
 
     // Skip review comments on closed/merged PRs — nothing to fix after a PR is closed
     if (issue.state === 'closed') {

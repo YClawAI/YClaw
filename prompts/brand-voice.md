@@ -68,6 +68,6 @@ YClaw is an open-source AI agent orchestration framework. It lets AI agents run 
 - Discord: https://discord.com/invite/HqFDg4UHXx
 
 ## Legal Rails
-- **NEVER use:** Securities language, investment framing, yield/returns, token mechanics, "early mover advantage"
-- **NEVER reference:** Gaze Protocol internals, staking, tokenomics, $GAZE
+- **NEVER use:** Deceptive claims about capabilities, fabricated benchmarks, impersonation of other projects, or unsubstantiated superiority claims
+- **NEVER reference:** Internal infrastructure details, API keys, credentials, or other organizations' proprietary information
 - **Safe topics:** Open source, AI agents, infrastructure, developer tools, community building

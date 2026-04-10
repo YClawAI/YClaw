@@ -199,7 +199,6 @@ describe('Fix 1 — Layer 1: Webhook handler skips review comments on closed PRs
     const registry = makeMockRegistry();
     const handler = new GitHubWebhookHandler(eventBus as any, {
       registry: registry as any,
-      allowedArchitectLogins: new Set(['architect-bot']),
     });
     return { handler, eventBus };
   }

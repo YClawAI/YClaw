@@ -28,6 +28,7 @@ import { registerOnboardingRoutes } from '../onboarding/routes.js';
 import { registerHealthRoutes } from '../observability/health-routes.js';
 import { registerObservabilityRoutes } from '../observability/observability-routes.js';
 import { registerPublicRoutes } from '../public/routes.js';
+import { createAoCallbackMiddleware } from '../ao/callback.js';
 
 const logger = createLogger('bootstrap:routes');
 
@@ -86,6 +87,13 @@ export async function initRoutes(
 
     // Phase 5: Liveness + Readiness routes (before auth middleware)
     registerHealthRoutes(expressApp, healthAggregator);
+  }
+
+  // ─── AO Callback (uses its own X-AO-TOKEN auth, before operator middleware) ─
+  {
+    const expressApp = webhookServer.getExpressApp();
+    expressApp.post('/api/ao/callback', createAoCallbackMiddleware(eventBus, auditLog));
+    logger.info('AO callback route registered at POST /api/ao/callback');
   }
 
   // ─── Operator Auth Middleware & Routes ────────────────────────────────

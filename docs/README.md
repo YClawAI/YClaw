@@ -42,7 +42,6 @@ These docs describe the internal agent runtime extracted from the production sys
 
 | Doc | Description |
 |-----|-------------|
-| [AUTONOMOUS-PIPELINE.md](AUTONOMOUS-PIPELINE.md) | Issue-to-deploy pipeline, ReactionsManager rules |
 | [COORDINATION.md](COORDINATION.md) | Inter-agent event system, Redis Streams |
 | [DISPATCHER.md](DISPATCHER.md) | Builder Dispatcher-Worker architecture |
 | [PROMPT-SYSTEM.md](PROMPT-SYSTEM.md) | System prompt loading and mutability rules |

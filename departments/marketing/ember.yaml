@@ -27,17 +27,17 @@ triggers:
     schedule: "10 13 * * *"
     task: daily_standup
   - type: cron
-    schedule: "0 14 * * 1-5"
-    task: daily_content_batch       # 10:00 AM ET — morning NA window
+    schedule: "0 0 31 12 *"        # DISABLED — re-enable when review + publish pipeline works
+    task: daily_content_batch
   - type: cron
-    schedule: "30 16 * * 1-5"
-    task: midday_post               # 12:30 PM ET — lunch break window
+    schedule: "0 0 31 12 *"        # DISABLED
+    task: midday_post
   - type: cron
-    schedule: "0 22 * * 1-5"
-    task: afternoon_engagement      # 6:00 PM ET — evening NA window
+    schedule: "0 0 31 12 *"        # DISABLED
+    task: afternoon_engagement
   - type: cron
-    schedule: "0 15 * * 0,6"
-    task: weekend_content           # 11:00 AM ET — weekend late morning
+    schedule: "0 0 31 12 *"        # DISABLED
+    task: weekend_content
   - type: event
     event: forge:asset_ready
     task: publish_with_asset
@@ -82,6 +82,9 @@ actions:
   - telegram:message
   - telegram:announce
   - discord:get_channel_history
+  - discord:message
+  - discord:thread_reply
+  - discord:react
   - event:publish
 
 data_sources: []

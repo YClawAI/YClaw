@@ -64,6 +64,9 @@ actions:
   - twitter:read_metrics
   - email:send
   - discord:get_channel_history
+  - discord:message
+  - discord:thread_reply
+  - discord:react
   - event:publish
 
 data_sources: []
