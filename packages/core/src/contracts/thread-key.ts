@@ -10,7 +10,7 @@ import { z } from 'zod';
  * The thread key changes whenever any of these fields change.
  */
 export const ThreadKeyInputSchema = z.object({
-  /** Canonical repository URL (e.g., `https://github.com/yclaw-ai/my-app`). */
+  /** Canonical repository URL (e.g., `https://github.com/YClawAI/my-app`). */
   repoUrl: z.string().min(1),
 
   /**
@@ -40,7 +40,7 @@ export type ThreadKeyInput = z.infer<typeof ThreadKeyInputSchema>;
  *
  * @example
  * computeThreadKey({
- *   repoUrl: 'https://github.com/yclaw-ai/my-app',
+ *   repoUrl: 'https://github.com/YClawAI/my-app',
  *   prNumber: 42,
  *   taskType: 'implement_issue',
  * });

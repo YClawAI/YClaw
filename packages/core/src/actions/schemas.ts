@@ -12,13 +12,13 @@
 
 import type { ToolParameter } from '../config/schema.js';
 import { DEPLOY_SCHEMAS } from './deploy/schemas.js';
+import { DEFAULT_BRANCH } from './github/client.js';
+
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
-const GITHUB_DEFAULTS = {
-  owner: 'yclaw-ai',
-  repo: 'yclaw',
-} as const;
+const GITHUB_DEFAULTS = GITHUB_ORG_DEFAULTS;
 
 const TELEGRAM_PARSE_MODE_DESC =
   'Message parse mode: "HTML", "Markdown", or "MarkdownV2" (optional)';
@@ -32,7 +32,7 @@ const GITHUB_SCHEMAS: Record<string, { description: string; parameters: Record<s
       owner: { type: 'string', description: `Repository owner (default: ${GITHUB_DEFAULTS.owner})` },
       repo: { type: 'string', description: `Repository name (default: ${GITHUB_DEFAULTS.repo})` },
       path: { type: 'string', description: 'File or directory path (no leading slash)', required: true },
-      ref: { type: 'string', description: 'Git ref — branch, tag, or SHA (default: master)' },
+      ref: { type: 'string', description: `Git ref — branch, tag, or SHA (default: ${DEFAULT_BRANCH})` },
     },
   },
 
@@ -55,7 +55,7 @@ const GITHUB_SCHEMAS: Record<string, { description: string; parameters: Record<s
       owner: { type: 'string', description: `Repository owner (default: ${GITHUB_DEFAULTS.owner})` },
       repo: { type: 'string', description: `Repository name (default: ${GITHUB_DEFAULTS.repo})` },
       branch: { type: 'string', description: 'New branch name (e.g., feature/add-caching)', required: true },
-      from_ref: { type: 'string', description: 'Source ref to branch from (default: master)' },
+      from_ref: { type: 'string', description: `Source ref to branch from (default: ${DEFAULT_BRANCH})` },
     },
   },
 
@@ -67,7 +67,7 @@ const GITHUB_SCHEMAS: Record<string, { description: string; parameters: Record<s
       title: { type: 'string', description: 'PR title', required: true },
       body: { type: 'string', description: 'PR description (markdown)' },
       head: { type: 'string', description: 'Source branch (the branch with changes)', required: true },
-      base: { type: 'string', description: 'Target branch to merge into (default: master)' },
+      base: { type: 'string', description: `Target branch to merge into (default: ${DEFAULT_BRANCH})` },
       closes_issues: { type: 'array', items: { type: 'number', description: 'GitHub issue number' }, description: 'Issue numbers this PR fixes. Auto-appends "Closes #NNN" to body.' },
     },
   },
@@ -587,7 +587,7 @@ export const ACTION_DEFAULTS: Record<string, Record<string, unknown>> = {
   'github:get_contents': GITHUB_DEFAULTS,
   'github:commit_file': GITHUB_DEFAULTS,
   'github:create_branch': GITHUB_DEFAULTS,
-  'github:create_pr': { ...GITHUB_DEFAULTS, base: 'master' },
+  'github:create_pr': { ...GITHUB_DEFAULTS, base: DEFAULT_BRANCH },
   'github:merge_pr': { ...GITHUB_DEFAULTS, merge_method: 'squash' },
   'github:pr_review': GITHUB_DEFAULTS,
   'github:pr_comment': GITHUB_DEFAULTS,

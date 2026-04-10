@@ -7,6 +7,7 @@ import type {
   CoordProjectPayload,
 } from '../types/events.js';
 import { createLogger } from '../logging/logger.js';
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -17,8 +18,8 @@ const ISSUE_MAPPING_KEY = 'journaler:project_issues';
 const DEFAULT_ISSUE_KEY = 'journaler:default_issue';
 const MAPPING_TTL_S = 30 * 24 * 60 * 60; // 30 days
 const RATE_LIMIT_MS = 2000; // 1 comment per 2 seconds
-const DEFAULT_OWNER = 'yclaw-ai';
-const DEFAULT_REPO = 'yclaw';
+const DEFAULT_OWNER = GITHUB_ORG_DEFAULTS.owner;
+const DEFAULT_REPO = GITHUB_ORG_DEFAULTS.repo;
 
 // ─── Event Classification ───────────────────────────────────────────────────
 
