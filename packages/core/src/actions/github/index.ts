@@ -35,7 +35,7 @@ export class GitHubExecutor implements ActionExecutor {
 
   async execute(action: string, params: Record<string, unknown>): Promise<ActionResult> {
     if (!this.client.isReady()) {
-      return { success: false, error: 'GitHub not initialized: missing GITHUB_TOKEN' };
+      return { success: false, error: 'GitHub not initialized: configure GITHUB_APP_* or GITHUB_TOKEN' };
     }
 
     switch (action) {

@@ -1,4 +1,5 @@
 import { createLogger } from '../../logging/logger.js';
+import { getGitHubToken, isGitHubAuthAvailable, initGitHubAuth } from './app-auth.js';
 
 const logger = createLogger('github-executor');
 
@@ -175,24 +176,25 @@ const BLOCKED_BRANCHES = ['master', 'main', 'production', 'release'];
 // ─── GitHub Client ───────────────────────────────────────────────────────────
 
 export class GitHubClient {
-  readonly token: string | null;
+  /**
+   * @deprecated Use getGitHubToken() for dynamic token retrieval.
+   * Retained for backward compatibility — reads the current token synchronously
+   * (PAT only; returns null when only App auth is configured).
+   */
+  get token(): string | null {
+    return process.env.GITHUB_TOKEN || null;
+  }
 
   constructor() {
-    this.token = process.env.GITHUB_TOKEN || null;
-
-    if (!this.token) {
-      logger.warn(
-        'GitHub token not configured. Set GITHUB_TOKEN environment variable.',
-      );
-    }
+    initGitHubAuth();
   }
 
   isReady(): boolean {
-    return this.token !== null;
+    return isGitHubAuthAvailable();
   }
 
   async healthCheck(): Promise<boolean> {
-    if (!this.token) return false;
+    if (!isGitHubAuthAvailable()) return false;
     try {
       const response = await this.apiRequest('GET', '/user');
       return response.ok;
@@ -239,11 +241,12 @@ export class GitHubClient {
       throw new GitHubRateLimitError(_rateLimitBackoffUntilMs);
     }
 
+    const token = await getGitHubToken();
     const url = `${GITHUB_API_BASE}${path}`;
 
     const headers: Record<string, string> = {
       'Accept': 'application/vnd.github+json',
-      'Authorization': `Bearer ${this.token}`,
+      'Authorization': `Bearer ${token}`,
       'X-GitHub-Api-Version': '2022-11-28',
     };
 

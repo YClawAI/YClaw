@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/rest';
 import { createLogger } from '../logging/logger.js';
+import { getGitHubToken } from './github/app-auth.js';
 import type { ActionResult } from './types.js';
 import type { ToolDefinition } from '../config/schema.js';
 
@@ -31,6 +32,15 @@ export interface CompareCommitsResult {
   }>;
   total_commits: number;
   ahead_by: number;
+}
+
+/**
+ * Create an Octokit instance using the shared GitHub auth provider.
+ * Convenience factory for callers that don't have an Octokit instance handy.
+ */
+export async function createAuthenticatedOctokit(): Promise<Octokit> {
+  const token = await getGitHubToken();
+  return new Octokit({ auth: token });
 }
 
 /**

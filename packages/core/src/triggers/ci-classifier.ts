@@ -10,6 +10,7 @@
 
 import { createLogger } from '../logging/logger.js';
 import { buildCiRepairAttemptsKey, CI_REPAIR_ATTEMPTS_TTL_SEC } from '../bootstrap/event-claims.js';
+import { getGitHubToken } from '../actions/github/app-auth.js';
 
 const logger = createLogger('ci-classifier');
 const MAX_FAILURE_LOG_EXCERPT_CHARS = 1500;
@@ -69,11 +70,12 @@ export async function hasNewerSuccessfulRun(
   workflowName: string,
 ): Promise<boolean> {
   try {
+    const ghToken = await getGitHubToken();
     const url = `https://api.github.com/repos/${owner}/${repo}/actions/runs?head_sha=${headSha}&per_page=10`;
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+        'Authorization': `Bearer ${ghToken}`,
         'X-GitHub-Api-Version': '2022-11-28',
       },
     });
@@ -116,11 +118,12 @@ export async function classifyCIFailure(
 ): Promise<CIFailureClassification> {
   try {
     // Fetch failed job logs (last 200 lines of each failed job)
+    const ghToken = await getGitHubToken();
     const jobsUrl = `https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}/jobs?filter=latest`;
     const jobsResponse = await fetch(jobsUrl, {
       headers: {
         'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+        'Authorization': `Bearer ${ghToken}`,
         'X-GitHub-Api-Version': '2022-11-28',
       },
     });
@@ -158,7 +161,7 @@ export async function classifyCIFailure(
     const logResponse = await fetch(logUrl, {
       headers: {
         'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+        'Authorization': `Bearer ${ghToken}`,
         'X-GitHub-Api-Version': '2022-11-28',
       },
       redirect: 'follow',
@@ -297,12 +300,13 @@ export async function autoRetryWorkflowRun(
   runId: number,
 ): Promise<boolean> {
   try {
+    const ghToken = await getGitHubToken();
     const url = `https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}/rerun-failed-jobs`;
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+        'Authorization': `Bearer ${ghToken}`,
         'X-GitHub-Api-Version': '2022-11-28',
       },
     });

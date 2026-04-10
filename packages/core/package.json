@@ -33,12 +33,12 @@
     "@anthropic-ai/sdk": "^0.39.0",
     "@aws-sdk/client-cost-explorer": "^3.997.0",
     "@aws-sdk/client-ecs": "^3.997.0",
-    "@aws-sdk/client-secrets-manager": "^3.997.0",
-    "@yclaw/memory": "*",
+    "@aws-sdk/client-secrets-manager": ">=3.0.0",
     "@mariozechner/pi-ai": "0.62.0",
     "@mariozechner/pi-coding-agent": "0.62.0",
     "@octokit/rest": "^21.0.0",
     "@slack/web-api": "^7.8.0",
+    "@yclaw/memory": "*",
     "ajv": "^6.14.0",
     "argon2": "^0.44.0",
     "cron": "^3.3.0",
@@ -46,28 +46,37 @@
     "express": "^4.21.0",
     "glob": "^11.0.0",
     "ioredis": "^5.4.0",
+    "jose": "4.15.9",
+    "mammoth": "^1.8.0",
+    "minimatch": "^10.0.0",
     "mongodb": "^6.12.0",
+    "pdf-parse": "^1.1.1",
     "pg": "^8.13.0",
     "telegraf": "^4.16.0",
     "twitter-api-v2": "^1.18.0",
     "winston": "^3.17.0",
-    "minimatch": "^10.0.0",
-    "mammoth": "^1.8.0",
-    "pdf-parse": "^1.1.1",
     "yaml": "^2.8.3",
     "zod": "^3.24.0"
   },
   "peerDependencies": {
-    "discord.js": ">=14.0.0",
     "@aws-sdk/client-s3": ">=3.0.0",
+    "@aws-sdk/client-secrets-manager": ">=3.0.0",
     "@aws-sdk/s3-request-presigner": ">=3.0.0",
-    "@aws-sdk/client-secrets-manager": ">=3.0.0"
+    "discord.js": ">=14.0.0"
   },
   "peerDependenciesMeta": {
-    "discord.js": { "optional": true },
-    "@aws-sdk/client-s3": { "optional": true },
-    "@aws-sdk/s3-request-presigner": { "optional": true },
-    "@aws-sdk/client-secrets-manager": { "optional": true }
+    "discord.js": {
+      "optional": true
+    },
+    "@aws-sdk/client-s3": {
+      "optional": true
+    },
+    "@aws-sdk/s3-request-presigner": {
+      "optional": true
+    },
+    "@aws-sdk/client-secrets-manager": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
