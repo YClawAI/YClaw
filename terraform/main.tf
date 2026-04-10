@@ -102,6 +102,42 @@ resource "aws_ecr_repository" "agents" {
   }
 }
 
+resource "aws_ecr_repository" "showcase" {
+  name                 = "yclaw-showcase"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    Project = "yclaw"
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "showcase" {
+  repository = aws_ecr_repository.showcase.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep last 10 images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 10
+      }
+      action = {
+        type = "expire"
+      }
+    }]
+  })
+}
+
 # ─── Secrets ──────────────────────────────────────────────────────────────────
 #
 # Store API keys as individual key/value pairs in a single JSON secret.
