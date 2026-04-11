@@ -81,6 +81,11 @@ function createMockRedis(): {
     store.set(key, value);
     return 'OK';
   });
+
+vi.mock('../src/utils/channel-routing.js', () => ({
+  getChannelForDepartment: vi.fn().mockReturnValue(undefined),
+  getChannelForAgent: vi.fn().mockReturnValue(undefined),
+}));
   const get = vi.fn(async (key: string) => store.get(key) ?? null);
   const incr = vi.fn(async (key: string) => {
     const next = (parseInt(store.get(key) ?? '0', 10)) + 1;
