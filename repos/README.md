@@ -9,7 +9,7 @@ Static repository configuration files for the YClaw agent system's **Repo Regist
 | File | Repo | Risk Tier | Deployment | Description |
 |------|------|-----------|------------|-------------|
 | `yclaw.yaml` | `YClawAI/YClaw` | `critical` | ECS Fargate (`yclaw-cluster-production`) | The agents' own monorepo. 14 AI agents, TypeScript/Express, npm. Codegen-excluded (self-modification protection). |
-| `yclaw-test.yaml` | `YClawAI/yclaw-test` | `auto` | None | Smoke test repo for end-to-end pipeline validation. TypeScript/Express, npm. |
+
 
 ---
 
