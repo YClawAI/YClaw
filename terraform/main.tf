@@ -519,6 +519,14 @@ resource "aws_security_group" "agents" {
     description     = "Allow traffic from YClaw ALB only"
   }
 
+  ingress {
+    from_port   = 8420
+    to_port     = 8420
+    protocol    = "tcp"
+    self        = true
+    description = "AO bridge — CORE to AO (same SG)"
+  }
+
   # Egress restricted to required ports only (defense against exfil via non-standard ports)
   egress {
     from_port   = 443
@@ -741,6 +749,146 @@ output "alb_dns_name" {
   value = aws_lb.gaze.dns_name
 }
 
+# ─── Service Discovery (Cloud Map) ────────────────────────────────────────────
+#
+# Creates ao.yclaw.internal DNS that auto-resolves to the AO task's private IP.
+# When AO restarts, AWS updates the A-record automatically within ~10 seconds.
+# Cost: $0.10/month for the namespace + pennies for DNS queries.
+#
+# This makes the code default (http://ao.yclaw.internal:8420) work without
+# any hardcoded IPs or manual env var updates on AO restart.
+
+resource "aws_service_discovery_private_dns_namespace" "internal" {
+  name        = "yclaw.internal"
+  description = "YCLAW internal service discovery"
+  vpc         = var.vpc_id
+}
+
+resource "aws_service_discovery_service" "ao" {
+  name = "ao"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+# ─── AO (Agent Orchestrator) ──────────────────────────────────────────────────
+#
+# Runs Claude Code sessions for automated code changes. Separate from CORE
+# because AO needs different resource profiles (git worktrees, tmux, Claude CLI).
+# CORE reaches AO via Cloud Map DNS: http://ao.yclaw.internal:8420
+
+resource "aws_ecr_repository" "ao" {
+  name                 = "yclaw-ao"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_cloudwatch_log_group" "ao" {
+  name              = "/ecs/yclaw-ao"
+  retention_in_days = 30
+}
+
+resource "aws_ecs_task_definition" "ao" {
+  family                   = "yclaw-ao-${var.environment}"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "1024"
+  memory                   = "4096"
+  execution_role_arn       = aws_iam_role.task_execution.arn
+  task_role_arn            = aws_iam_role.task_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "yclaw-ao"
+      image     = "${aws_ecr_repository.ao.repository_url}:latest"
+      essential = true
+
+      portMappings = [
+        {
+          containerPort = 8420
+          hostPort      = 8420
+          protocol      = "tcp"
+          name          = "ao-bridge"
+        }
+      ]
+
+      environment = [
+        { name = "YCLAW_AO_PROJECT", value = "yclaw" },
+        { name = "NODE_ENV", value = "production" },
+      ]
+
+      secrets = [
+        {
+          name      = "GITHUB_TOKEN"
+          valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_TOKEN::"
+        }
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ao.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ao"
+        }
+      }
+    }
+  ])
+}
+
+resource "aws_ecs_service" "ao" {
+  name            = "yclaw-ao-${var.environment}"
+  cluster         = aws_ecs_cluster.yclaw.id
+  task_definition = aws_ecs_task_definition.ao.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = var.private_subnet_ids
+    security_groups  = [aws_security_group.agents.id]
+    assign_public_ip = false
+  }
+
+  # Cloud Map — registers ao.yclaw.internal automatically
+  service_registries {
+    registry_arn = aws_service_discovery_service.ao.arn
+  }
+
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+}
+
+# ─── Outputs ──────────────────────────────────────────────────────────────────
+
 output "service_url" {
   value = "https://${aws_lb.gaze.dns_name}"
+}
+
+output "ao_discovery_name" {
+  value = "ao.${aws_service_discovery_private_dns_namespace.internal.name}"
 }
