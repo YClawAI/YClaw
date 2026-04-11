@@ -4,6 +4,8 @@ import type { ActionResult, ActionExecutor } from './types.js';
 import type { ToolDefinition } from '../config/schema.js';
 import type { DiscordChannelAdapter } from '../adapters/channels/DiscordChannelAdapter.js';
 import { createLogger } from '../logging/logger.js';
+import { getChannelForDepartment, getChannelForAgent } from '../utils/channel-routing.js';
+import type { Department } from '../utils/channel-routing.js';
 
 const logger = createLogger('discord-executor');
 
@@ -294,12 +296,27 @@ export class DiscordExecutor implements ActionExecutor {
    */
   resolveChannelId(input: string): string {
     const trimmed = input.trim();
+    // 1. Try env-var-based routing first (DISCORD_CHANNEL_<DEPT>)
+    const fromEnv = getChannelForDepartment(trimmed as Department, 'discord');
+    if (fromEnv) return fromEnv;
+    // 2. Try as agent name → department → channel
+    const fromAgent = getChannelForAgent(trimmed, 'discord');
+    if (fromAgent) return fromAgent;
+    // 3. Legacy DISCORD_CHANNELS map (placeholder fallback)
     if (trimmed in DISCORD_CHANNELS) {
-      return DISCORD_CHANNELS[trimmed as DiscordChannelName];
+      const legacyId = DISCORD_CHANNELS[trimmed as DiscordChannelName];
+      // Skip placeholder IDs
+      if (!legacyId.startsWith('PLACEHOLDER_')) return legacyId;
     }
-    // Discord snowflakes are 17–20 digits
+    // 4. Raw Discord snowflake
     if (/^\d{17,20}$/.test(trimmed)) return trimmed;
-    throw new Error(`Unknown Discord channel: "${input}". Use a name from DISCORD_CHANNELS or a snowflake ID.`);
+    // 5. Last resort: try general channel
+    const general = getChannelForDepartment('general', 'discord');
+    if (general) {
+      logger.warn('Channel not found, falling back to general', { input: trimmed });
+      return general;
+    }
+    throw new Error(`Unknown Discord channel: "${input}". Set DISCORD_CHANNEL_<DEPT> env vars or use a snowflake ID.`);
   }
 
   // ─── Dedup ──────────────────────────────────────────────────────────────
