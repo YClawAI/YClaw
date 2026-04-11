@@ -268,7 +268,7 @@ export class DiscordExecutor implements ActionExecutor {
     if (fromAgent) return fromAgent;
     // 3. Raw Discord snowflake
     if (/^\d{17,20}$/.test(trimmed)) return trimmed;
-    // 5. Last resort: try general channel
+    // 4. Last resort: try general channel
     const general = getChannelForDepartment('general', 'discord');
     if (general) {
       logger.warn('Channel not found, falling back to general', { input: trimmed });
@@ -451,7 +451,9 @@ export class DiscordExecutor implements ActionExecutor {
     });
 
     // Try webhook path for agent identity
-    await this.initWebhooks();
+    try { await this.initWebhooks(); } catch (err) {
+      logger.warn('Webhook init failed, will use bot fallback', { error: err instanceof Error ? err.message : String(err) });
+    }
     const webhook = this.getWebhookForChannel(channelId);
     if (webhook) {
       try {
@@ -474,6 +476,8 @@ export class DiscordExecutor implements ActionExecutor {
         });
         // Fall through to bot send
       }
+    } else {
+      logger.debug('No webhook configured for channel, using bot fallback', { channelId, agentName });
     }
 
     // Bot fallback — prefix agent identity so it's visible even via bot
@@ -532,7 +536,9 @@ export class DiscordExecutor implements ActionExecutor {
 
     // Try webhook path for agent identity
     const identity = getAgentIdentity(agentName);
-    await this.initWebhooks();
+    try { await this.initWebhooks(); } catch (err) {
+      logger.warn('Webhook init failed, will use bot fallback', { error: err instanceof Error ? err.message : String(err) });
+    }
     const threadWebhook = this.getWebhookForChannel(channelId);
     if (threadWebhook) {
       try {
@@ -724,7 +730,9 @@ export class DiscordExecutor implements ActionExecutor {
 
     // Try webhook path for agent identity
     const identity = getAgentIdentity(agentName);
-    await this.initWebhooks();
+    try { await this.initWebhooks(); } catch (err) {
+      logger.warn('Webhook init failed, will use bot fallback', { error: err instanceof Error ? err.message : String(err) });
+    }
     const alertWebhook = this.getWebhookForChannel(channelId);
     if (alertWebhook) {
       try {
