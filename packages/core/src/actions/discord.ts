@@ -62,11 +62,19 @@ export const DISCORD_AGENT_IDENTITIES: Record<string, {
   department: string;
   color: string;
 }> = {
-  keeper:    { displayName: 'Keeper [AI]',    avatarUrl: '', department: 'support',    color: '#3B82F6' },
-  guide:     { displayName: 'Guide [AI]',     avatarUrl: '', department: 'support',    color: '#0EA5E9' },
-  sentinel:  { displayName: 'Sentinel [AI]',  avatarUrl: '', department: 'operations', color: '#EF4444' },
-  ember:     { displayName: 'Ember [AI]',     avatarUrl: '', department: 'marketing',  color: '#F97316' },
-  scout:     { displayName: 'Scout [AI]',     avatarUrl: '', department: 'marketing',  color: '#14B8A6' },
+  strategist: { displayName: 'Strategist [AI]', avatarUrl: '', department: 'executive',   color: '#8B5CF6' },
+  architect:  { displayName: 'Architect [AI]',  avatarUrl: '', department: 'development', color: '#6366F1' },
+  designer:   { displayName: 'Designer [AI]',   avatarUrl: '', department: 'development', color: '#EC4899' },
+  mechanic:   { displayName: 'Mechanic [AI]',   avatarUrl: '', department: 'development', color: '#78716C' },
+  reviewer:   { displayName: 'Reviewer [AI]',   avatarUrl: '', department: 'executive',   color: '#A855F7' },
+  ember:      { displayName: 'Ember [AI]',      avatarUrl: '', department: 'marketing',   color: '#F97316' },
+  scout:      { displayName: 'Scout [AI]',      avatarUrl: '', department: 'marketing',   color: '#14B8A6' },
+  forge:      { displayName: 'Forge [AI]',      avatarUrl: '', department: 'marketing',   color: '#F59E0B' },
+  keeper:     { displayName: 'Keeper [AI]',     avatarUrl: '', department: 'support',     color: '#3B82F6' },
+  guide:      { displayName: 'Guide [AI]',      avatarUrl: '', department: 'support',     color: '#0EA5E9' },
+  sentinel:   { displayName: 'Sentinel [AI]',   avatarUrl: '', department: 'operations',  color: '#EF4444' },
+  librarian:  { displayName: 'Librarian [AI]',  avatarUrl: '', department: 'operations',  color: '#8B5CF6' },
+  treasurer:  { displayName: 'Treasurer [AI]',  avatarUrl: '', department: 'finance',     color: '#22C55E' },
 };
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -91,12 +99,24 @@ const COOLDOWN_PREFIX = 'discord:cooldown:';
 const COOLDOWN_THREAD_PREFIX = 'discord:cooldown:thread:';
 const HOURLY_PREFIX = 'discord:hourly:';
 
+/** Departments that support webhook-based routing. */
+const WEBHOOK_DEPARTMENTS = [
+  'executive', 'development', 'operations', 'marketing',
+  'finance', 'support', 'audit', 'alerts', 'general',
+] as const;
+
 // ─── Executor ───────────────────────────────────────────────────────────────
 
 export class DiscordExecutor implements ActionExecutor {
   readonly name = 'discord';
   private readonly adapter: DiscordChannelAdapter;
   private readonly redis: Redis | null;
+
+  /** Per-department webhook clients for agent identity override. */
+  private webhookClients = new Map<string, any>();
+  /** Reverse map: channelId → department (for matching target channel to webhook). */
+  private channelToDept = new Map<string, string>();
+  private webhooksInitialized = false;
 
   constructor(adapter: DiscordChannelAdapter, redis?: Redis | null) {
     this.adapter = adapter;
@@ -106,6 +126,53 @@ export class DiscordExecutor implements ActionExecutor {
       logger.warn('DISCORD_BOT_TOKEN not configured; DiscordExecutor will be non-functional until the adapter connects.');
     }
     logger.info('DiscordExecutor initialized', { redisEnabled: !!this.redis });
+  }
+
+  /** Lazy-init webhook clients from DISCORD_WEBHOOK_* env vars. */
+  private async initWebhooks(): Promise<void> {
+    if (this.webhooksInitialized) return;
+    this.webhooksInitialized = true;
+
+    // Build reverse map: channelId → department
+    for (const dept of WEBHOOK_DEPARTMENTS) {
+      const channelId = process.env[`DISCORD_CHANNEL_${dept.toUpperCase()}`]?.trim();
+      if (channelId) {
+        this.channelToDept.set(channelId, dept);
+      }
+    }
+
+    let hasAny = false;
+    for (const dept of WEBHOOK_DEPARTMENTS) {
+      const url = process.env[`DISCORD_WEBHOOK_${dept.toUpperCase()}`]?.trim();
+      if (!url) continue;
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        const dynamicImport = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<any>;
+        const { WebhookClient } = await dynamicImport('discord.js');
+        this.webhookClients.set(dept, new WebhookClient({ url }));
+        hasAny = true;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        logger.error('Failed to create Discord webhook client', { department: dept, error: msg });
+      }
+    }
+
+    if (hasAny) {
+      logger.info('Discord webhooks initialized for executor', {
+        departments: [...this.webhookClients.keys()],
+      });
+    }
+  }
+
+  /**
+   * Find the webhook for a target channel. Looks up which department owns
+   * the channel, then returns the webhook for that department (if any).
+   */
+  private getWebhookForChannel(channelId: string): any | undefined {
+    const dept = this.channelToDept.get(channelId);
+    if (!dept) return undefined;
+    return this.webhookClients.get(dept);
   }
 
   async healthCheck(): Promise<boolean> {
@@ -408,14 +475,43 @@ export class DiscordExecutor implements ActionExecutor {
       channelId, agentName, textLength: text.length,
     });
 
+    // Try webhook path for agent identity
+    await this.initWebhooks();
+    if (identity) {
+      const webhook = this.getWebhookForChannel(channelId);
+      if (webhook) {
+        try {
+          const sendOptions: Record<string, unknown> = {
+            content: text,
+            username: identity.displayName,
+          };
+          if (identity.avatarUrl) {
+            sendOptions.avatarURL = identity.avatarUrl;
+          }
+          if (replyToMessageId) {
+            sendOptions.threadId = replyToMessageId;
+          }
+          const msg = await webhook.send(sendOptions);
+          return { success: true, data: { messageId: msg.id, channelId, agentName } };
+        } catch (err) {
+          logger.warn('Webhook send failed, falling back to bot', {
+            error: err instanceof Error ? err.message : String(err),
+            channelId, agentName,
+          });
+          // Fall through to bot send
+        }
+      }
+    }
+
+    // Bot fallback — prefix with agent name if identity exists
+    const prefix = identity ? `**${identity.displayName}**\n` : '';
+    const finalText = prefix + text;
+
     const result = await this.adapter.send(
       { channelId },
       {
-        text,
+        text: finalText,
         ...(replyToMessageId ? { replyTo: { messageId: replyToMessageId, channelId } } : {}),
-        ...(identity
-          ? { identity: { displayName: identity.displayName, avatarUrl: identity.avatarUrl || undefined } as { displayName?: string; avatarUrl?: string } }
-          : {}),
       },
     );
 
@@ -461,9 +557,39 @@ export class DiscordExecutor implements ActionExecutor {
       channelId, threadId, agentName, textLength: text.length,
     });
 
+    // Try webhook path for agent identity
+    const identity = DISCORD_AGENT_IDENTITIES[agentName];
+    await this.initWebhooks();
+    if (identity) {
+      const webhook = this.getWebhookForChannel(channelId);
+      if (webhook) {
+        try {
+          const sendOptions: Record<string, unknown> = {
+            content: text,
+            username: identity.displayName,
+            threadId,
+          };
+          if (identity.avatarUrl) {
+            sendOptions.avatarURL = identity.avatarUrl;
+          }
+          const msg = await webhook.send(sendOptions);
+          return { success: true, data: { messageId: msg.id, channelId, threadId, agentName } };
+        } catch (err) {
+          logger.warn('Webhook thread reply failed, falling back to bot', {
+            error: err instanceof Error ? err.message : String(err),
+            channelId, threadId, agentName,
+          });
+        }
+      }
+    }
+
+    // Bot fallback — prefix with agent name if identity exists
+    const prefix = identity ? `**${identity.displayName}**\n` : '';
+    const finalText = prefix + text;
+
     const result = await this.adapter.send(
       { channelId, threadId },
-      { text, threadId },
+      { text: finalText, threadId },
     );
 
     if (!result.success) {
@@ -625,15 +751,38 @@ export class DiscordExecutor implements ActionExecutor {
     const header = `${emoji} **${(title ?? `${severity.toUpperCase()} alert`)}**`;
     const formatted = `${header}\n${text}`;
 
+    // Try webhook path for agent identity
     const identity = DISCORD_AGENT_IDENTITIES[agentName];
+    await this.initWebhooks();
+    if (identity) {
+      const webhook = this.getWebhookForChannel(channelId);
+      if (webhook) {
+        try {
+          const sendOptions: Record<string, unknown> = {
+            content: formatted,
+            username: identity.displayName,
+          };
+          if (identity.avatarUrl) {
+            sendOptions.avatarURL = identity.avatarUrl;
+          }
+          const msg = await webhook.send(sendOptions);
+          return { success: true, data: { messageId: msg.id, channelId, severity, agentName } };
+        } catch (err) {
+          logger.warn('Webhook alert failed, falling back to bot', {
+            error: err instanceof Error ? err.message : String(err),
+            channelId, agentName,
+          });
+        }
+      }
+    }
+
+    // Bot fallback — prefix with agent name if identity exists
+    const prefix = identity ? `**${identity.displayName}**\n` : '';
+    const finalFormatted = prefix + formatted;
+
     const result = await this.adapter.send(
       { channelId },
-      {
-        text: formatted,
-        ...(identity
-          ? { identity: { displayName: identity.displayName, avatarUrl: identity.avatarUrl || undefined } as { displayName?: string; avatarUrl?: string } }
-          : {}),
-      },
+      { text: finalFormatted },
     );
 
     if (!result.success) {
