@@ -14,7 +14,7 @@ export default function EventsPage() {
     // Load initial events
     fetch(`${API_URL}/public/v1/events`)
       .then((r) => (r.ok ? r.json() : { events: [] }))
-      .then((data) => setEvents(data.events || []))
+      .then((data: { events?: PublicEvent[] }) => setEvents(data.events ?? []))
       .catch(() => {});
 
     // SSE stream
@@ -25,9 +25,11 @@ export default function EventsPage() {
     es.onerror = () => setConnected(false);
     es.onmessage = (msg) => {
       try {
-        const event = JSON.parse(msg.data) as PublicEvent;
+        const event = JSON.parse(msg.data as string) as PublicEvent;
         setEvents((prev) => [event, ...prev].slice(0, 100));
-      } catch {}
+      } catch {
+        // ignore malformed SSE frames
+      }
     };
 
     return () => {
@@ -37,15 +39,20 @@ export default function EventsPage() {
   }, []);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-terminal-text mb-2">Event Feed</h1>
           <p className="text-terminal-dim">Real-time agent activity stream</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${connected ? 'bg-terminal-green animate-live' : 'bg-terminal-dim'}`} />
-          <span className="text-xs text-terminal-dim">{connected ? 'Connected' : 'Reconnecting...'}</span>
+          <span
+            className={`w-2 h-2 rounded-full ${connected ? 'bg-terminal-green animate-live' : 'bg-terminal-dim'}`}
+            aria-hidden="true"
+          />
+          <span className="text-xs text-terminal-dim">
+            {connected ? 'Connected' : 'Reconnecting…'}
+          </span>
         </div>
       </div>
 
@@ -56,17 +63,22 @@ export default function EventsPage() {
               key={event.id}
               className="bg-terminal-surface border border-terminal-border rounded-lg px-4 py-3 flex items-start gap-4 animate-fade-in"
             >
-              <div className="flex-shrink-0 mt-0.5">
+              <div className="flex-shrink-0 mt-0.5" aria-hidden="true">
                 <span className="inline-block w-2 h-2 rounded-full bg-terminal-cyan" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-terminal-text capitalize">{event.agentName}</span>
+                  <span className="text-sm font-medium text-terminal-text capitalize">
+                    {event.agentName}
+                  </span>
                   <span className="text-xs text-terminal-dim">{event.type}</span>
                 </div>
                 <p className="text-sm text-terminal-dim truncate">{event.summary}</p>
               </div>
-              <time className="text-xs text-terminal-dim flex-shrink-0 whitespace-nowrap">
+              <time
+                className="text-xs text-terminal-dim flex-shrink-0 whitespace-nowrap"
+                dateTime={event.timestamp}
+              >
                 {new Date(event.timestamp).toLocaleTimeString()}
               </time>
             </div>
