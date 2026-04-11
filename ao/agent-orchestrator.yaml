@@ -38,23 +38,6 @@ projects:
     postCreate:
       - npm install
 
-  yclaw-test:
-    name: yclaw-test
-    repo: YClawAI/yclaw-test
-    path: /data/worktrees/YClawAI__yclaw-test
-    defaultBranch: main
-    sessionPrefix: yclawtest
-
-    agentConfig:
-      permissions: permissionless
-
-    scm:
-      plugin: github
-    tracker:
-      plugin: github
-
-    postCreate:
-      - npm install
 
 # Notification channels — webhook for callbacks to yclaw
 notifiers:
