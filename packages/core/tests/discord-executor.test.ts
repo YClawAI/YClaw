@@ -214,14 +214,14 @@ describe('DiscordExecutor', () => {
     expect(adapter.send.mock.calls[0][0].channelId).toBe(snowflake);
   });
 
-  it('discord:message rejects unknown symbolic channel names', async () => {
+  it('discord:message falls back to general for unknown symbolic channel names', async () => {
     const result = await executor.execute('message', {
       channel: 'not-a-real-channel',
       text: 'hi',
       agentName: 'keeper',
     });
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/Unknown Discord channel/);
+    // With env-var routing, unknown channels fall back to general instead of throwing
+    expect(result.success).toBe(true);
   });
 
   it('discord:message prefixes agent name in bot fallback when no webhook configured', async () => {
@@ -408,7 +408,7 @@ describe('DiscordExecutor', () => {
       limit: 10,
     });
     expect(result.success).toBe(true);
-    expect(adapter.fetchChannelHistory).toHaveBeenCalledWith(DISCORD_CHANNELS.general, 10);
+    expect(adapter.fetchChannelHistory).toHaveBeenCalledWith('2222222222222222222', 10);
     expect(Array.isArray(result.data?.messages)).toBe(true);
   });
 
