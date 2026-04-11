@@ -1,0 +1,36 @@
+name: yclaw-site
+github:
+  owner: YClawAI
+  repo: yclaw-site
+  default_branch: main
+  branch_prefix: "agent/"
+
+tech_stack:
+  language: html
+  framework: static
+  package_manager: none
+  build_command: ""
+  test_command: ""
+  lint_command: ""
+
+risk_tier: low
+trust_level: sandboxed
+
+deployment:
+  type: github-pages
+  health_check_url: https://yclaw.ai
+
+codegen:
+  preferred_backend: claude
+  timeout_minutes: 15
+  max_workspace_mb: 100
+  claude_md_path: CLAUDE.md
+
+secrets:
+  codegen_secrets: []
+  deploy_secrets: []
+  github_token_scope: contents_rw
+
+metadata:
+  description: "YCLAW landing page — yclaw.ai (GitHub Pages)"
+  primary_reviewers: [architect, designer]
