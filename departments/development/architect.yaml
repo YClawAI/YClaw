@@ -107,6 +107,7 @@ actions:
   - github:list_issues
   - github:update_issue
   - github:pr_comment
+  - github:add_labels
   - github:remove_label
   - repo:list
   - vault:read
