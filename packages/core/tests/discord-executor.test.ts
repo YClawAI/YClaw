@@ -205,14 +205,14 @@ describe('DiscordExecutor', () => {
     expect(result.error).toMatch(/Unknown Discord channel/);
   });
 
-  it('discord:message injects agent identity for known agents', async () => {
+  it('discord:message prefixes agent name in bot fallback when no webhook configured', async () => {
     await executor.execute('message', {
       channel: 'support',
       text: 'hello',
       agentName: 'keeper',
     });
     const [, msg] = adapter.send.mock.calls[0];
-    expect(msg.identity?.displayName).toBe(DISCORD_AGENT_IDENTITIES.keeper!.displayName);
+    expect(msg.text).toBe(`**${DISCORD_AGENT_IDENTITIES.keeper!.displayName}**\nhello`);
   });
 
   // ─── Rate limiting ─────────────────────────────────────────────────
