@@ -135,6 +135,35 @@ resource "aws_ecr_lifecycle_policy" "showcase" {
   })
 }
 
+resource "aws_ecr_repository" "ao" {
+  name                 = "yclaw-ao"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_lifecycle_policy" "ao" {
+  repository = aws_ecr_repository.ao.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep last 10 images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 10
+      }
+      action = {
+        type = "expire"
+      }
+    }]
+  })
+}
+
 # ─── Secrets ──────────────────────────────────────────────────────────────────
 #
 # Store API keys as individual key/value pairs in a single JSON secret.
@@ -254,7 +283,10 @@ resource "aws_iam_role_policy" "task_policy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = ["${aws_cloudwatch_log_group.agents.arn}:*"]
+        Resource = [
+          "${aws_cloudwatch_log_group.agents.arn}:*",
+          "${aws_cloudwatch_log_group.ao.arn}:*"
+        ]
       }
     ]
   })
@@ -264,6 +296,11 @@ resource "aws_iam_role_policy" "task_policy" {
 
 resource "aws_cloudwatch_log_group" "agents" {
   name              = "/ecs/yclaw"
+  retention_in_days = 30
+}
+
+resource "aws_cloudwatch_log_group" "ao" {
+  name              = "/ecs/yclaw-ao"
   retention_in_days = 30
 }
 
@@ -361,6 +398,7 @@ resource "aws_ecs_task_definition" "agents" {
         { name = "AGENT_ASSIGNEES", value = var.github_username },
         { name = "APPROVED_DEPLOYERS", value = var.github_username },
         { name = "OPENCLAW_URL", value = var.openclaw_url },
+        { name = "AO_SERVICE_URL", value = "http://ao.yclaw.internal:8420" },
       ]
 
       logConfiguration = {
@@ -427,6 +465,17 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow all outbound"
   }
+}
+
+# Standalone rule to avoid cycle: ALB SG ↔ agents SG both reference each other inline.
+resource "aws_security_group_rule" "alb_from_agents" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.alb.id
+  source_security_group_id = aws_security_group.agents.id
+  description              = "Allow HTTPS from ECS tasks (AO callbacks to CORE via ALB)"
 }
 
 resource "aws_lb" "gaze" {
@@ -519,6 +568,22 @@ resource "aws_security_group" "agents" {
     description     = "Allow traffic from YClaw ALB only"
   }
 
+  ingress {
+    from_port   = 8420
+    to_port     = 8420
+    protocol    = "tcp"
+    self        = true
+    description = "AO bridge from CORE (same SG)"
+  }
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    self        = true
+    description = "AO callback to CORE API (same SG)"
+  }
+
   # Egress restricted to required ports only (defense against exfil via non-standard ports)
   egress {
     from_port   = 443
@@ -558,6 +623,22 @@ resource "aws_security_group" "agents" {
     protocol    = "tcp"
     cidr_blocks = ["10.0.0.0/16"]
     description = "DNS over TCP (VPC resolver)"
+  }
+
+  egress {
+    from_port   = 8420
+    to_port     = 8420
+    protocol    = "tcp"
+    self        = true
+    description = "CORE to AO bridge (same SG)"
+  }
+
+  egress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    self        = true
+    description = "AO to CORE callback (same SG)"
   }
 }
 
@@ -715,6 +796,144 @@ resource "aws_ecs_service" "agents" {
   }
 }
 
+# ─── Service Discovery (Cloud Map) ───────────────────────────────────────────
+# Creates ao.yclaw.internal DNS that auto-resolves to the AO task's private IP.
+# When AO restarts, AWS updates the A-record automatically within seconds.
+
+resource "aws_service_discovery_private_dns_namespace" "internal" {
+  name        = "yclaw.internal"
+  description = "YCLAW internal service discovery"
+  vpc         = var.vpc_id
+}
+
+resource "aws_service_discovery_service" "ao" {
+  name = "ao"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+# ─── AO Task Definition ──────────────────────────────────────────────────────
+
+resource "aws_ecs_task_definition" "ao" {
+  family                   = "yclaw-ao-${var.environment}"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "1024"
+  memory                   = "4096"
+  execution_role_arn       = aws_iam_role.task_execution.arn
+  task_role_arn            = aws_iam_role.task_role.arn
+
+  # Ephemeral volume for repo clones, worktrees, AO state.
+  # Re-cloned from GitHub on every restart via entrypoint.sh.
+  volume { name = "ao-data" }
+
+  ephemeral_storage {
+    size_in_gib = 50
+  }
+
+  container_definitions = jsonencode([
+    {
+      name      = "yclaw-ao"
+      image     = "${aws_ecr_repository.ao.repository_url}:latest"
+      essential = true
+
+      portMappings = [
+        {
+          containerPort = 8420
+          hostPort      = 8420
+          protocol      = "tcp"
+          name          = "ao-bridge"
+        }
+      ]
+
+      environment = [
+        { name = "YCLAW_AO_PROJECT", value = "yclaw" },
+        { name = "NODE_ENV", value = var.environment },
+        { name = "YCLAW_REPOS", value = "YClawAI/YClaw" },
+        { name = "YCLAW_AO_OVERLAY_REPO", value = "YClawAI/YClaw" },
+        { name = "AO_CALLBACK_URL", value = "https://${aws_lb.gaze.dns_name}/api/ao/callback" },
+      ]
+
+      secrets = [
+        { name = "GITHUB_TOKEN", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_TOKEN::" },
+        { name = "ANTHROPIC_API_KEY", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:ANTHROPIC_API_KEY::" },
+        { name = "REDIS_URL", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:REDIS_URL::" },
+        { name = "OPENAI_API_KEY", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:OPENAI_API_KEY::" },
+        { name = "GITHUB_APP_ID", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_APP_ID::" },
+        { name = "GITHUB_APP_PRIVATE_KEY", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_APP_PRIVATE_KEY::" },
+        { name = "GITHUB_APP_INSTALLATION_ID", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_APP_INSTALLATION_ID::" },
+      ]
+
+      mountPoints = [
+        { sourceVolume = "ao-data", containerPath = "/data", readOnly = false },
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ao.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "ao"
+        }
+      }
+
+      healthCheck = {
+        command     = ["CMD-SHELL", "node -e \"fetch('http://localhost:8420/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\""]
+        interval    = 30
+        timeout     = 5
+        retries     = 3
+        startPeriod = 120
+      }
+    }
+  ])
+}
+
+# ─── AO ECS Service (with Cloud Map) ─────────────────────────────────────────
+
+resource "aws_ecs_service" "ao" {
+  name            = "yclaw-ao-${var.environment}"
+  cluster         = aws_ecs_cluster.yclaw.id
+  task_definition = aws_ecs_task_definition.ao.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = var.private_subnet_ids
+    security_groups  = [aws_security_group.agents.id]
+    assign_public_ip = false
+  }
+
+  # Cloud Map service discovery — registers ao.yclaw.internal automatically
+  service_registries {
+    registry_arn = aws_service_discovery_service.ao.arn
+  }
+
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+}
+
 # ─── Outputs ──────────────────────────────────────────────────────────────────
 
 output "ecr_repository_url" {
@@ -743,4 +962,17 @@ output "alb_dns_name" {
 
 output "service_url" {
   value = "https://${aws_lb.gaze.dns_name}"
+}
+
+output "ao_ecr_repository_url" {
+  value = aws_ecr_repository.ao.repository_url
+}
+
+output "ao_service_name" {
+  value = aws_ecs_service.ao.name
+}
+
+output "ao_internal_dns" {
+  value       = "ao.${aws_service_discovery_private_dns_namespace.internal.name}"
+  description = "Internal DNS name for AO service (resolves within VPC only)"
 }
