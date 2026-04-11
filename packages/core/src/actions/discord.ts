@@ -62,19 +62,19 @@ export const DISCORD_AGENT_IDENTITIES: Record<string, {
   department: string;
   color: string;
 }> = {
-  strategist: { displayName: 'Strategist [AI]', avatarUrl: '', department: 'executive',   color: '#8B5CF6' },
-  architect:  { displayName: 'Architect [AI]',  avatarUrl: '', department: 'development', color: '#6366F1' },
-  designer:   { displayName: 'Designer [AI]',   avatarUrl: '', department: 'development', color: '#EC4899' },
-  mechanic:   { displayName: 'Mechanic [AI]',   avatarUrl: '', department: 'development', color: '#78716C' },
-  reviewer:   { displayName: 'Reviewer [AI]',   avatarUrl: '', department: 'executive',   color: '#A855F7' },
-  ember:      { displayName: 'Ember [AI]',      avatarUrl: '', department: 'marketing',   color: '#F97316' },
-  scout:      { displayName: 'Scout [AI]',      avatarUrl: '', department: 'marketing',   color: '#14B8A6' },
-  forge:      { displayName: 'Forge [AI]',      avatarUrl: '', department: 'marketing',   color: '#F59E0B' },
-  keeper:     { displayName: 'Keeper [AI]',     avatarUrl: '', department: 'support',     color: '#3B82F6' },
-  guide:      { displayName: 'Guide [AI]',      avatarUrl: '', department: 'support',     color: '#0EA5E9' },
-  sentinel:   { displayName: 'Sentinel [AI]',   avatarUrl: '', department: 'operations',  color: '#EF4444' },
-  librarian:  { displayName: 'Librarian [AI]',  avatarUrl: '', department: 'operations',  color: '#8B5CF6' },
-  treasurer:  { displayName: 'Treasurer [AI]',  avatarUrl: '', department: 'finance',     color: '#22C55E' },
+  strategist: { displayName: 'Strategist', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=strategist&size=256', department: 'executive',   color: '#8B5CF6' },
+  architect:  { displayName: 'Architect', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=architect&size=256', department: 'development', color: '#6366F1' },
+  designer:   { displayName: 'Designer', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=designer&size=256', department: 'development', color: '#EC4899' },
+  mechanic:   { displayName: 'Mechanic', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=mechanic&size=256', department: 'development', color: '#78716C' },
+  reviewer:   { displayName: 'Reviewer', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=reviewer&size=256', department: 'executive',   color: '#A855F7' },
+  ember:      { displayName: 'Ember', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=ember&size=256', department: 'marketing',   color: '#F97316' },
+  scout:      { displayName: 'Scout', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=scout&size=256', department: 'marketing',   color: '#14B8A6' },
+  forge:      { displayName: 'Forge', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=forge&size=256', department: 'marketing',   color: '#F59E0B' },
+  keeper:     { displayName: 'Keeper', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=keeper&size=256', department: 'support',     color: '#3B82F6' },
+  guide:      { displayName: 'Guide', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=guide&size=256', department: 'support',     color: '#0EA5E9' },
+  sentinel:   { displayName: 'Sentinel', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=sentinel&size=256', department: 'operations',  color: '#EF4444' },
+  librarian:  { displayName: 'Librarian', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=librarian&size=256', department: 'operations',  color: '#8B5CF6' },
+  treasurer:  { displayName: 'Treasurer', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=treasurer&size=256', department: 'finance',     color: '#22C55E' },
 };
 
 // ─── Constants ──────────────────────────────────────────────────────────────
