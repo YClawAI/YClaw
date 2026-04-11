@@ -8,8 +8,9 @@ import { AgentRouter } from '../agent/router.js';
 import { SLACK_CHANNELS } from '../actions/slack.js';
 import type { SlackExecutor } from '../actions/slack.js';
 import type { GitHubExecutor } from '../actions/github/index.js';
-import { GitHubRateLimitError } from '../actions/github/client.js';
+import { DEFAULT_BRANCH, GitHubRateLimitError } from '../actions/github/client.js';
 import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-auth.js';
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 import type { DeployExecutor } from '../actions/deploy/index.js';
 import type { TaskExecutor } from '../actions/task.js';
 import { Redis as IORedis } from 'ioredis';
@@ -1023,7 +1024,7 @@ export async function initAgents(
     logger.info('[PRHygiene] periodic bot PR hygiene worker registered');
   }
 
-  // ─── Branch Refresh Worker: keep auto-merge PRs current with master ─────
+  // ─── Branch Refresh Worker: keep auto-merge PRs current with the base branch ─────
   {
     const githubExec = actionRegistry.getExecutor('github') as GitHubExecutor | undefined;
 
@@ -1040,7 +1041,7 @@ export async function initAgents(
         ? payload.repo_full
         : owner && repo ? `${owner}/${repo}` : undefined;
       const mergedPrNumber = typeof payload.pr_number === 'number' ? payload.pr_number : undefined;
-      const baseBranch = typeof payload.base_branch === 'string' ? payload.base_branch : 'master';
+      const baseBranch = typeof payload.base_branch === 'string' ? payload.base_branch : DEFAULT_BRANCH;
 
       if (!owner || !repo || !repoFull) {
         logger.warn('[BranchRefresh] Missing repo information on github:pr_merged payload', {
@@ -1386,7 +1387,7 @@ export async function initAgents(
       const issueUrl = typeof payload.issueUrl === 'string' ? payload.issueUrl
         : typeof payload.issue_url === 'string' ? payload.issue_url : undefined;
 
-      const targetRepo = fullRepo || 'your-org/yclaw';
+      const targetRepo = fullRepo || `${GITHUB_ORG_DEFAULTS.owner}/${GITHUB_ORG_DEFAULTS.repo}`;
       const degradedReason = await getAoDegradedReason(targetRepo);
       if (degradedReason) {
         logger.warn(`[AO] Degraded hold active for ${targetRepo} — skipping architect:build_directive`, {
@@ -1445,7 +1446,7 @@ export async function initAgents(
       }
 
       if (!fullRepo) {
-        logger.warn('[AO] No repo in architect:build_directive — defaulting to your-org/yclaw');
+        logger.warn(`[AO] No repo in architect:build_directive — defaulting to ${targetRepo}`);
       }
 
       // F1: Issue-scoped claim — prevents duplicate delegation from concurrent
@@ -1717,7 +1718,7 @@ export async function initAgents(
       }
       // F1: Release issue claim + remove in-progress label
       const completedIssueNumber = typeof p.issue_number === 'number' ? p.issue_number : undefined;
-      const completedRepo = typeof p.repo === 'string' ? p.repo : 'your-org/yclaw';
+      const completedRepo = typeof p.repo === 'string' ? p.repo : `${GITHUB_ORG_DEFAULTS.owner}/${GITHUB_ORG_DEFAULTS.repo}`;
       if (completedIssueNumber) {
         if (deployRedis) {
           const issueClaimKey = buildIssueClaimKey(completedRepo, completedIssueNumber);
@@ -1749,7 +1750,7 @@ export async function initAgents(
 
       // F1: Release issue claim + remove in-progress label BEFORE any early returns
       const failedIssueNumber = typeof p.issue_number === 'number' ? p.issue_number : undefined;
-      const failedRepo = typeof p.repo === 'string' ? p.repo : 'your-org/yclaw';
+      const failedRepo = typeof p.repo === 'string' ? p.repo : `${GITHUB_ORG_DEFAULTS.owner}/${GITHUB_ORG_DEFAULTS.repo}`;
       if (failedIssueNumber) {
         if (deployRedis) {
           const issueClaimKey = buildIssueClaimKey(failedRepo, failedIssueNumber);

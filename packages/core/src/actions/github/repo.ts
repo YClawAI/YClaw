@@ -290,8 +290,8 @@ export async function createBranch(client: GitHubClient, params: Record<string, 
 }
 
 export async function compareCommits(client: GitHubClient, params: Record<string, unknown>): Promise<ActionResult> {
-  const owner = (params.owner as string) || 'your-org';
-  const repo = (params.repo as string) || 'yclaw';
+  const owner = (params.owner as string) || GITHUB_DEFAULTS.owner;
+  const repo = (params.repo as string) || GITHUB_DEFAULTS.repo;
   const base = params.base as string | undefined;
   const head = params.head as string | undefined;
 

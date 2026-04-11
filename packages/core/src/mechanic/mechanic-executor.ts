@@ -8,7 +8,7 @@
  * - Command whitelist — never runs arbitrary shell commands
  * - Input sanitization — rejects fields with shell metacharacters
  * - execFileSync — no shell invocation, argument injection impossible
- * - Repository allowlist — your-org org only
+ * - Repository allowlist — configured org only (GITHUB_OWNER env var)
  * - File output filter — only commits files matching the task type's allowed patterns
  * - 5-minute timeout per task
  * - Rebase abort on conflict
@@ -17,6 +17,8 @@
 import { execFileSync, type ExecFileSyncOptions } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { DEFAULT_BRANCH } from '../actions/github/client.js';
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 import { tmpdir } from 'node:os';
 import { createLogger } from '../logging/logger.js';
 
@@ -103,8 +105,8 @@ export const TASK_CATALOG: Record<string, TaskCatalogEntry> = {
   },
   rebase_branch: {
     steps: [
-      { cmd: 'git', args: ['fetch', 'origin', 'master'] },
-      { cmd: 'git', args: ['rebase', 'origin/master'] },
+      { cmd: 'git', args: ['fetch', 'origin', DEFAULT_BRANCH] },
+      { cmd: 'git', args: ['rebase', `origin/${DEFAULT_BRANCH}`] },
     ],
     allowedFiles: null,
     shallowClone: false,
@@ -112,8 +114,8 @@ export const TASK_CATALOG: Record<string, TaskCatalogEntry> = {
   },
   update_branch: {
     steps: [
-      { cmd: 'git', args: ['fetch', 'origin', 'master'] },
-      { cmd: 'git', args: ['merge', 'origin/master', '--no-edit'] },
+      { cmd: 'git', args: ['fetch', 'origin', DEFAULT_BRANCH] },
+      { cmd: 'git', args: ['merge', `origin/${DEFAULT_BRANCH}`, '--no-edit'] },
     ],
     allowedFiles: null,
     shallowClone: false,
@@ -121,7 +123,8 @@ export const TASK_CATALOG: Record<string, TaskCatalogEntry> = {
   },
 };
 
-const ALLOWED_ORG = 'your-org';
+const ALLOWED_ORG = GITHUB_ORG_DEFAULTS.owner;
+const PROTECTED_BRANCHES = new Set(['master', 'main', DEFAULT_BRANCH]);
 const TASK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 export interface MechanicResult {
@@ -151,7 +154,7 @@ export function validateTask(task: MechanicTask): string | null {
   if (!task.repo.startsWith(`${ALLOWED_ORG}/`)) {
     return `Repository ${task.repo} is not in the ${ALLOWED_ORG} org`;
   }
-  if (!task.branch || task.branch === 'master' || task.branch === 'main') {
+  if (!task.branch || PROTECTED_BRANCHES.has(task.branch)) {
     return `Cannot run mechanic tasks on protected branch: ${task.branch || '(empty)'}`;
   }
   return null;

@@ -5,6 +5,7 @@ import type { AuditLog } from '../logging/audit.js';
 import type { EventBus } from '../triggers/event.js';
 import type { AoCallbackEvent } from './types.js';
 import { getGitHubToken, isGitHubAuthAvailable } from '../actions/github/app-auth.js';
+import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
 
 const logger = createLogger('ao-callback');
 
@@ -157,12 +158,12 @@ async function addSlackReaction(
  * Falls back to the default org when no owner is present.
  */
 function parseOwnerRepo(repo: string | undefined): { owner: string; repoName: string } {
-  if (!repo) return { owner: 'your-org', repoName: 'yclaw' };
+  if (!repo) return { owner: GITHUB_ORG_DEFAULTS.owner, repoName: GITHUB_ORG_DEFAULTS.repo };
   if (repo.includes('/')) {
     const [owner, ...rest] = repo.split('/');
-    return { owner: owner || 'your-org', repoName: rest.join('/') || 'yclaw' };
+    return { owner: owner || GITHUB_ORG_DEFAULTS.owner, repoName: rest.join('/') || GITHUB_ORG_DEFAULTS.repo };
   }
-  return { owner: 'your-org', repoName: repo };
+  return { owner: GITHUB_ORG_DEFAULTS.owner, repoName: repo };
 }
 
 interface GitHubPR {
