@@ -1,28 +1,29 @@
-name: yclaw-test
+name: yclaw-site
 github:
   owner: YClawAI
-  repo: yclaw-test
+  repo: yclaw-site
   default_branch: main
   branch_prefix: "agent/"
 
 tech_stack:
-  language: typescript
-  framework: express
-  package_manager: npm
-  build_command: "npm run build"
-  test_command: "npm test"
+  language: html
+  framework: static
+  package_manager: none
+  build_command: ""
+  test_command: ""
   lint_command: ""
 
-risk_tier: auto
+risk_tier: low
 trust_level: sandboxed
 
 deployment:
-  type: none
+  type: github-pages
+  health_check_url: https://yclaw.ai
 
 codegen:
   preferred_backend: claude
-  timeout_minutes: 30
-  max_workspace_mb: 500
+  timeout_minutes: 15
+  max_workspace_mb: 100
   claude_md_path: CLAUDE.md
 
 secrets:
@@ -31,5 +32,5 @@ secrets:
   github_token_scope: contents_rw
 
 metadata:
-  description: "Smoke test repo for E2E pipeline validation"
+  description: "YCLAW landing page — yclaw.ai (GitHub Pages)"
   primary_reviewers: [architect, designer]
