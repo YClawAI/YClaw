@@ -1064,6 +1064,12 @@ export class AgentExecutor {
       return actionResultCache.get(cacheKey);
     }
 
+    // Inject agent identity for Discord/Slack actions so messages post
+    // under the correct agent name rather than defaulting to 'system'.
+    if (actionName.startsWith('discord:') || actionName.startsWith('slack:')) {
+      if (!args.agentName) args.agentName = config.name;
+    }
+
     const result = await this.actionRegistry.execute(actionName, args);
 
     // Cache successful read-only results for dedup
