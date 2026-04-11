@@ -12,11 +12,7 @@ vi.mock('../src/logging/logger.js', () => ({
   }),
 }));
 
-const {
-  DiscordExecutor,
-  DISCORD_CHANNELS,
-  DISCORD_AGENT_IDENTITIES,
-} = await import('../src/actions/discord.js');
+const { DiscordExecutor } = await import('../src/actions/discord.js');
 
 // ─── Fixtures ──────────────────────────────────────────────────────────────
 
@@ -192,7 +188,7 @@ describe('DiscordExecutor', () => {
     expect(adapter.send).not.toHaveBeenCalled();
   });
 
-  it('discord:message accepts symbolic channel names from DISCORD_CHANNELS', async () => {
+  it('discord:message accepts symbolic department channel names via env-var routing', async () => {
     const result = await executor.execute('message', {
       channel: 'support',
       text: 'hello',
@@ -224,14 +220,15 @@ describe('DiscordExecutor', () => {
     expect(result.success).toBe(true);
   });
 
-  it('discord:message prefixes agent name in bot fallback when no webhook configured', async () => {
+  it('discord:message prefixes agent emoji+name in bot fallback when no webhook configured', async () => {
     await executor.execute('message', {
       channel: 'support',
       text: 'hello',
       agentName: 'keeper',
     });
     const [, msg] = adapter.send.mock.calls[0];
-    expect(msg.text).toBe(`**${DISCORD_AGENT_IDENTITIES.keeper!.displayName}**\nhello`);
+    // AgentRegistry: keeper → emoji 🛡️, name 'Keeper'
+    expect(msg.text).toBe(`**\u{1F6E1}\uFE0F Keeper**\nhello`);
   });
 
   // ─── Rate limiting ─────────────────────────────────────────────────
