@@ -6,6 +6,7 @@ import type { DiscordChannelAdapter } from '../adapters/channels/DiscordChannelA
 import { createLogger } from '../logging/logger.js';
 import { getChannelForDepartment, getChannelForAgent } from '../utils/channel-routing.js';
 import type { Department } from '../utils/channel-routing.js';
+import { getAgentIdentity } from '../notifications/AgentRegistry.js';
 
 const logger = createLogger('discord-executor');
 
@@ -38,46 +39,9 @@ const logger = createLogger('discord-executor');
 // (DiscordEventHandler).
 //
 
-// ─── Channel Map ────────────────────────────────────────────────────────────
-// Placeholder snowflake IDs. Operators must replace these with real channel
-// IDs after creating the server structure (see docs/discord-integration.md
-// when that file lands, and the post-implementation operator checklist).
-
-export const DISCORD_CHANNELS = {
-  general: 'PLACEHOLDER_GENERAL_ID',
-  support: 'PLACEHOLDER_SUPPORT_ID',
-  development: 'PLACEHOLDER_DEVELOPMENT_ID',
-  marketing: 'PLACEHOLDER_MARKETING_ID',
-  agent_observations: 'PLACEHOLDER_OBSERVATIONS_ID',
-  agent_escalations: 'PLACEHOLDER_ESCALATIONS_ID',
-  agent_review_queue: 'PLACEHOLDER_REVIEW_QUEUE_ID',
-  agent_audit_log: 'PLACEHOLDER_AUDIT_LOG_ID',
-} as const;
-
-export type DiscordChannelName = keyof typeof DISCORD_CHANNELS;
-
-// ─── Agent Identity Map ─────────────────────────────────────────────────────
-
-export const DISCORD_AGENT_IDENTITIES: Record<string, {
-  displayName: string;
-  avatarUrl: string;
-  department: string;
-  color: string;
-}> = {
-  strategist: { displayName: 'Strategist', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=strategist&size=256', department: 'executive',   color: '#8B5CF6' },
-  architect:  { displayName: 'Architect', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=architect&size=256', department: 'development', color: '#6366F1' },
-  designer:   { displayName: 'Designer', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=designer&size=256', department: 'development', color: '#EC4899' },
-  mechanic:   { displayName: 'Mechanic', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=mechanic&size=256', department: 'development', color: '#78716C' },
-  reviewer:   { displayName: 'Reviewer', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=reviewer&size=256', department: 'executive',   color: '#A855F7' },
-  ember:      { displayName: 'Ember', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=ember&size=256', department: 'marketing',   color: '#F97316' },
-  scout:      { displayName: 'Scout', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=scout&size=256', department: 'marketing',   color: '#14B8A6' },
-  forge:      { displayName: 'Forge', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=forge&size=256', department: 'marketing',   color: '#F59E0B' },
-  keeper:     { displayName: 'Keeper', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=keeper&size=256', department: 'support',     color: '#3B82F6' },
-  guide:      { displayName: 'Guide', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=guide&size=256', department: 'support',     color: '#0EA5E9' },
-  sentinel:   { displayName: 'Sentinel', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=sentinel&size=256', department: 'operations',  color: '#EF4444' },
-  librarian:  { displayName: 'Librarian', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=librarian&size=256', department: 'operations',  color: '#8B5CF6' },
-  treasurer:  { displayName: 'Treasurer', avatarUrl: 'https://api.dicebear.com/7.x/bottts/png?seed=treasurer&size=256', department: 'finance',     color: '#22C55E' },
-};
+// ─── Agent identity is sourced from AgentRegistry ───────────────────────────
+// Use getAgentIdentity(agentName) — covers all 13 agents with emoji, name,
+// department, and avatarUrl. No local identity map needed.
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -302,15 +266,9 @@ export class DiscordExecutor implements ActionExecutor {
     // 2. Try as agent name → department → channel
     const fromAgent = getChannelForAgent(trimmed, 'discord');
     if (fromAgent) return fromAgent;
-    // 3. Legacy DISCORD_CHANNELS map (placeholder fallback)
-    if (trimmed in DISCORD_CHANNELS) {
-      const legacyId = DISCORD_CHANNELS[trimmed as DiscordChannelName];
-      // Skip placeholder IDs
-      if (!legacyId.startsWith('PLACEHOLDER_')) return legacyId;
-    }
-    // 4. Raw Discord snowflake
+    // 3. Raw Discord snowflake
     if (/^\d{17,20}$/.test(trimmed)) return trimmed;
-    // 5. Last resort: try general channel
+    // 4. Last resort: try general channel
     const general = getChannelForDepartment('general', 'discord');
     if (general) {
       logger.warn('Channel not found, falling back to general', { input: trimmed });
@@ -487,41 +445,43 @@ export class DiscordExecutor implements ActionExecutor {
       return { success: true, data: { suppressed: true, reason: 'rate_limited', detail: rateLimitReason } };
     }
 
-    const identity = DISCORD_AGENT_IDENTITIES[agentName];
+    const identity = getAgentIdentity(agentName);
     logger.info('Posting Discord message', {
       channelId, agentName, textLength: text.length,
     });
 
     // Try webhook path for agent identity
-    await this.initWebhooks();
-    if (identity) {
-      const webhook = this.getWebhookForChannel(channelId);
-      if (webhook) {
-        try {
-          const sendOptions: Record<string, unknown> = {
-            content: text,
-            username: identity.displayName,
-          };
-          if (identity.avatarUrl) {
-            sendOptions.avatarURL = identity.avatarUrl;
-          }
-          if (replyToMessageId) {
-            sendOptions.threadId = replyToMessageId;
-          }
-          const msg = await webhook.send(sendOptions);
-          return { success: true, data: { messageId: msg.id, channelId, agentName } };
-        } catch (err) {
-          logger.warn('Webhook send failed, falling back to bot', {
-            error: err instanceof Error ? err.message : String(err),
-            channelId, agentName,
-          });
-          // Fall through to bot send
+    try { await this.initWebhooks(); } catch (err) {
+      logger.warn('Webhook init failed, will use bot fallback', { error: err instanceof Error ? err.message : String(err) });
+    }
+    const webhook = this.getWebhookForChannel(channelId);
+    if (webhook) {
+      try {
+        const sendOptions: Record<string, unknown> = {
+          content: text,
+          username: `${identity.emoji} ${identity.name}`,
+        };
+        if (identity.avatarUrl) {
+          sendOptions.avatarURL = identity.avatarUrl;
         }
+        if (replyToMessageId) {
+          sendOptions.threadId = replyToMessageId;
+        }
+        const msg = await webhook.send(sendOptions);
+        return { success: true, data: { messageId: msg.id, channelId, agentName } };
+      } catch (err) {
+        logger.warn('Webhook send failed, falling back to bot', {
+          error: err instanceof Error ? err.message : String(err),
+          channelId, agentName,
+        });
+        // Fall through to bot send
       }
+    } else {
+      logger.debug('No webhook configured for channel, using bot fallback', { channelId, agentName });
     }
 
-    // Bot fallback — prefix with agent name if identity exists
-    const prefix = identity ? `**${identity.displayName}**\n` : '';
+    // Bot fallback — prefix agent identity so it's visible even via bot
+    const prefix = `**${identity.emoji} ${identity.name}**\n`;
     const finalText = prefix + text;
 
     const result = await this.adapter.send(
@@ -575,33 +535,33 @@ export class DiscordExecutor implements ActionExecutor {
     });
 
     // Try webhook path for agent identity
-    const identity = DISCORD_AGENT_IDENTITIES[agentName];
-    await this.initWebhooks();
-    if (identity) {
-      const webhook = this.getWebhookForChannel(channelId);
-      if (webhook) {
-        try {
-          const sendOptions: Record<string, unknown> = {
-            content: text,
-            username: identity.displayName,
-            threadId,
-          };
-          if (identity.avatarUrl) {
-            sendOptions.avatarURL = identity.avatarUrl;
-          }
-          const msg = await webhook.send(sendOptions);
-          return { success: true, data: { messageId: msg.id, channelId, threadId, agentName } };
-        } catch (err) {
-          logger.warn('Webhook thread reply failed, falling back to bot', {
-            error: err instanceof Error ? err.message : String(err),
-            channelId, threadId, agentName,
-          });
+    const identity = getAgentIdentity(agentName);
+    try { await this.initWebhooks(); } catch (err) {
+      logger.warn('Webhook init failed, will use bot fallback', { error: err instanceof Error ? err.message : String(err) });
+    }
+    const threadWebhook = this.getWebhookForChannel(channelId);
+    if (threadWebhook) {
+      try {
+        const sendOptions: Record<string, unknown> = {
+          content: text,
+          username: `${identity.emoji} ${identity.name}`,
+          threadId,
+        };
+        if (identity.avatarUrl) {
+          sendOptions.avatarURL = identity.avatarUrl;
         }
+        const msg = await threadWebhook.send(sendOptions);
+        return { success: true, data: { messageId: msg.id, channelId, threadId, agentName } };
+      } catch (err) {
+        logger.warn('Webhook thread reply failed, falling back to bot', {
+          error: err instanceof Error ? err.message : String(err),
+          channelId, threadId, agentName,
+        });
       }
     }
 
-    // Bot fallback — prefix with agent name if identity exists
-    const prefix = identity ? `**${identity.displayName}**\n` : '';
+    // Bot fallback — prefix agent identity so it's visible even via bot
+    const prefix = `**${identity.emoji} ${identity.name}**\n`;
     const finalText = prefix + text;
 
     const result = await this.adapter.send(
@@ -769,32 +729,32 @@ export class DiscordExecutor implements ActionExecutor {
     const formatted = `${header}\n${text}`;
 
     // Try webhook path for agent identity
-    const identity = DISCORD_AGENT_IDENTITIES[agentName];
-    await this.initWebhooks();
-    if (identity) {
-      const webhook = this.getWebhookForChannel(channelId);
-      if (webhook) {
-        try {
-          const sendOptions: Record<string, unknown> = {
-            content: formatted,
-            username: identity.displayName,
-          };
-          if (identity.avatarUrl) {
-            sendOptions.avatarURL = identity.avatarUrl;
-          }
-          const msg = await webhook.send(sendOptions);
-          return { success: true, data: { messageId: msg.id, channelId, severity, agentName } };
-        } catch (err) {
-          logger.warn('Webhook alert failed, falling back to bot', {
-            error: err instanceof Error ? err.message : String(err),
-            channelId, agentName,
-          });
+    const identity = getAgentIdentity(agentName);
+    try { await this.initWebhooks(); } catch (err) {
+      logger.warn('Webhook init failed, will use bot fallback', { error: err instanceof Error ? err.message : String(err) });
+    }
+    const alertWebhook = this.getWebhookForChannel(channelId);
+    if (alertWebhook) {
+      try {
+        const sendOptions: Record<string, unknown> = {
+          content: formatted,
+          username: `${identity.emoji} ${identity.name}`,
+        };
+        if (identity.avatarUrl) {
+          sendOptions.avatarURL = identity.avatarUrl;
         }
+        const msg = await alertWebhook.send(sendOptions);
+        return { success: true, data: { messageId: msg.id, channelId, severity, agentName } };
+      } catch (err) {
+        logger.warn('Webhook alert failed, falling back to bot', {
+          error: err instanceof Error ? err.message : String(err),
+          channelId, agentName,
+        });
       }
     }
 
-    // Bot fallback — prefix with agent name if identity exists
-    const prefix = identity ? `**${identity.displayName}**\n` : '';
+    // Bot fallback — prefix agent identity so it's visible even via bot
+    const prefix = `**${identity.emoji} ${identity.name}**\n`;
     const finalFormatted = prefix + formatted;
 
     const result = await this.adapter.send(
