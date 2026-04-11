@@ -83,7 +83,21 @@ function createMockRedis(): {
   });
 
 vi.mock('../src/utils/channel-routing.js', () => ({
-  getChannelForDepartment: vi.fn().mockReturnValue(undefined),
+  getChannelForDepartment: vi.fn((dept) => {
+    // Return fake snowflake IDs for test channels so resolveChannelId works
+    const testChannels = {
+      support: '1111111111111111111',
+      general: '2222222222222222222',
+      development: '3333333333333333333',
+      marketing: '4444444444444444444',
+      executive: '5555555555555555555',
+      operations: '6666666666666666666',
+      finance: '7777777777777777777',
+      audit: '8888888888888888888',
+      alerts: '9999999999999999999',
+    };
+    return testChannels[dept] || undefined;
+  }),
   getChannelForAgent: vi.fn().mockReturnValue(undefined),
 }));
   const get = vi.fn(async (key: string) => store.get(key) ?? null);
@@ -186,7 +200,7 @@ describe('DiscordExecutor', () => {
     });
     expect(result.success).toBe(true);
     const [target] = adapter.send.mock.calls[0];
-    expect(target.channelId).toBe(DISCORD_CHANNELS.support);
+    expect(target.channelId).toBe('1111111111111111111');
   });
 
   it('discord:message accepts raw snowflake IDs', async () => {
