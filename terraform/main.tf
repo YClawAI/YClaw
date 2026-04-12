@@ -382,6 +382,7 @@ resource "aws_ecs_task_definition" "agents" {
         { name = "TELLER_PRIVATE_KEY", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:TELLER_PRIVATE_KEY::" },
         { name = "MEMORY_DATABASE_URL", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:MEMORY_DATABASE_URL::" },
         { name = "OPENCLAW_GATEWAY_TOKEN", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:OPENCLAW_GATEWAY_TOKEN::" },
+        { name = "AO_AUTH_TOKEN", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:AO_AUTH_TOKEN::" },
       ]
 
       environment = [
@@ -875,6 +876,7 @@ resource "aws_ecs_task_definition" "ao" {
         { name = "GITHUB_APP_ID", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_APP_ID::" },
         { name = "GITHUB_APP_PRIVATE_KEY", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_APP_PRIVATE_KEY::" },
         { name = "GITHUB_APP_INSTALLATION_ID", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_APP_INSTALLATION_ID::" },
+        { name = "AO_AUTH_TOKEN", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:AO_AUTH_TOKEN::" },
       ]
 
       mountPoints = [
