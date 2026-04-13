@@ -158,6 +158,11 @@ export class DiscordChannelAdapter implements IChannel {
 
       const sendOptions: any = { content: message.text };
 
+      // Support embeds if provided (used by notification bot fallback)
+      if (message.embeds?.length) {
+        sendOptions.embeds = message.embeds;
+      }
+
       // Thread support — fetch explicitly, don't rely on cache (M3)
       if (message.threadId) {
         try {

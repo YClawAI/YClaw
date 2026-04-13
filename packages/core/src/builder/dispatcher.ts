@@ -695,6 +695,13 @@ export class BuilderDispatcher {
       // Coordination event: task completed or failed
       const coordType = result.state === TaskState.COMPLETED ? COORD_TASK_COMPLETED : COORD_TASK_FAILED;
       const coordStatus = result.state === TaskState.COMPLETED ? 'completed' : 'failed';
+      // Build result summary from execution record actions
+      let resultSummary: string | undefined;
+      if (result.state === TaskState.COMPLETED && result.executionRecord) {
+        const actions = result.executionRecord.actionsTaken;
+        const successCount = actions.filter(a => a.result === 'success').length;
+        resultSummary = `${successCount} action${successCount !== 1 ? 's' : ''} completed`;
+      }
       void this.deps.eventBus.publishCoordEvent(createEvent<CoordTaskPayload>({
         type: coordType,
         source: 'builder',
@@ -705,6 +712,8 @@ export class BuilderDispatcher {
           status: coordStatus,
           assignee: 'builder',
           message: result.error,
+          summary: resultSummary,
+          description: task.taskName || undefined,
         },
       }));
 
