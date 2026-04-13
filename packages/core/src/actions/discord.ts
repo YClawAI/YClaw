@@ -25,9 +25,9 @@ const logger = createLogger('discord-executor');
 //   DISCORD_BOT_TOKEN — Discord bot token (read by DiscordChannelAdapter)
 //
 // Guardrails (all MUST be enforced):
-//   - 90s per-channel cooldown per agent, 30s per-thread cooldown per agent
+//   - 30s per-channel cooldown per agent, 15s per-thread cooldown per agent
 //   - 20 messages/hour/agent global cap
-//   - 600 char max on public-channel messages (threads exempt)
+//   - 2000 char max on public-channel messages (Discord's native limit)
 //   - Dedup fingerprinting (1h window, copied from SlackExecutor)
 //   - No DMs — any user-targeted action is rejected
 //   - Channel resolution: symbolic names in DISCORD_CHANNELS or raw snowflakes
@@ -48,12 +48,12 @@ const logger = createLogger('discord-executor');
 const DEFAULT_HISTORY_LIMIT = 50;
 const MAX_HISTORY_LIMIT = 100;
 
-const PUBLIC_MESSAGE_MAX_LEN = 600;
+const PUBLIC_MESSAGE_MAX_LEN = 2000;
 
 /** Per-agent, per-channel cooldown for top-level messages (seconds). */
-const CHANNEL_COOLDOWN_S = 90;
+const CHANNEL_COOLDOWN_S = 30;
 /** Per-agent, per-thread cooldown for thread replies (seconds). */
-const THREAD_COOLDOWN_S = 30;
+const THREAD_COOLDOWN_S = 15;
 /** Global per-agent hourly cap. */
 const HOURLY_CAP = 20;
 const HOURLY_WINDOW_S = 3600;
@@ -151,10 +151,10 @@ export class DiscordExecutor implements ActionExecutor {
     return [
       {
         name: 'discord:message',
-        description: 'Post a message to a Discord channel (max 600 chars). Use a thread for longer replies.',
+        description: 'Post a message to a Discord channel (max 2000 chars).',
         parameters: {
           channel: { type: 'string', description: 'Channel name from DISCORD_CHANNELS (e.g. "support") or raw snowflake ID. Omit to use department default.' },
-          text: { type: 'string', description: 'Message content (max 600 characters in public channels)', required: true },
+          text: { type: 'string', description: 'Message content (max 2000 characters)', required: true },
           replyToMessageId: { type: 'string', description: 'Optional message ID to reply to' },
           agentName: { type: 'string', description: 'Agent identity key for display name override (e.g. "keeper")' },
         },
@@ -205,7 +205,7 @@ export class DiscordExecutor implements ActionExecutor {
       },
       {
         name: 'discord:alert',
-        description: 'Post an alert message (colored embed) to a Discord channel. Bypasses the 600-char public limit since alerts use an embed body.',
+        description: 'Post an alert message (colored embed) to a Discord channel.',
         parameters: {
           channel: { type: 'string', description: 'Channel name or snowflake', required: true },
           text: { type: 'string', description: 'Alert body text', required: true },
