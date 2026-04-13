@@ -1041,11 +1041,38 @@ export class AgentExecutor {
       }
     }
 
-    // Same default-channel behavior for direct discord:* action calls so
-    // agents can emit `discord:message` without hardcoding a channel ID.
-    if (actionName.startsWith('discord:') && !args.channel) {
-      const resolved = getRoutingChannelForAgent(config.name, 'discord');
-      if (resolved) args.channel = resolved;
+    // ── Per-agent Discord channel enforcement ──────────────────────────────
+    // Read-only actions (get_channel_history, get_thread) are exempt.
+    const DISCORD_READ_ACTIONS = ['discord:get_channel_history', 'discord:get_thread'];
+    if (actionName.startsWith('discord:') && !DISCORD_READ_ACTIONS.includes(actionName)) {
+      const SUPPORT_AGENTS = ['keeper', 'guide'];
+      const departmentChannel = getRoutingChannelForAgent(config.name, 'discord');
+
+      if (SUPPORT_AGENTS.includes(config.name)) {
+        // Support agents: allow posting in support-related channels, otherwise force department
+        const supportChannelId = getRoutingChannelForAgent('keeper', 'discord');
+        const allowedChannels = new Set(
+          [
+            supportChannelId,
+            process.env.DISCORD_CHANNEL_GENERAL,
+            process.env.DISCORD_CHANNEL_SUPPORT,
+          ].filter((v): v is string => typeof v === 'string' && v.length > 0),
+        );
+
+        if (!args.channel || !allowedChannels.has(String(args.channel))) {
+          if (departmentChannel) args.channel = departmentChannel;
+        }
+      } else {
+        // All other agents: force department channel, ignore LLM's choice
+        if (departmentChannel) {
+          args.channel = departmentChannel;
+        } else {
+          return {
+            success: false,
+            error: `No department channel configured for agent ${config.name}. Cannot post to Discord.`,
+          };
+        }
+      }
     }
 
     // Dedup read-only actions within a single execution (e.g., github:get_contents)

@@ -51,10 +51,6 @@ triggers:
     event: reviewer:flagged
     task: revise_flagged_content
   - type: event
-    event: discord:message
-    task: monitor_discord_sentiment
-
-  - type: event
     event: claudeception:reflect
     task: self_reflection
     model:
@@ -95,9 +91,6 @@ event_subscriptions:
   - forge:asset_ready
   - reviewer:approved
   - reviewer:flagged
-  - discord:message
-  - discord:thread_reply
-  - discord:react
 
 event_publications:
   - standup:report

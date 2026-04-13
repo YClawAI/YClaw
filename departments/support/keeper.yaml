@@ -76,8 +76,6 @@ data_sources: []
 event_subscriptions:
   - claudeception:reflect
   - telegram:message
-  - discord:message
-  - discord:mention
   - strategist:keeper_directive
 
 event_publications:
