@@ -414,10 +414,27 @@ export class DiscordExecutor implements ActionExecutor {
   // ─── Actions ────────────────────────────────────────────────────────────
 
   private async postMessage(params: Record<string, unknown>): Promise<ActionResult> {
-    const channelInput = params.channel as string | undefined;
+    let channelInput = params.channel as string | undefined;
     const text = params.text as string | undefined;
     const replyToMessageId = params.replyToMessageId as string | undefined;
     const agentName = (params.agentName as string | undefined) ?? 'system';
+
+    // Belt-and-suspenders: enforce department channel routing inside DiscordExecutor.
+    // This catches cases where the executor-level enforcement didn't stick.
+    if (agentName && agentName !== 'system') {
+      const SUPPORT_AGENTS = ['keeper', 'guide'];
+      if (!SUPPORT_AGENTS.includes(agentName)) {
+        const deptChannel = getChannelForAgent(agentName, 'discord');
+        if (deptChannel && channelInput !== deptChannel) {
+          logger.info('[discord-executor-enforcement] overriding channel', {
+            agentName,
+            from: channelInput,
+            to: deptChannel,
+          });
+          channelInput = deptChannel;
+        }
+      }
+    }
 
     if (!channelInput || !text) {
       return { success: false, error: 'Missing required parameters: channel, text' };

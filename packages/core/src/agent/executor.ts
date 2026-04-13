@@ -1048,6 +1048,16 @@ export class AgentExecutor {
       const SUPPORT_AGENTS = ['keeper', 'guide'];
       const departmentChannel = getRoutingChannelForAgent(config.name, 'discord');
 
+      agentLogger.info('[discord-enforcement] check', {
+        actionName,
+        agentName: config.name,
+        departmentChannel,
+        argsChannel: args.channel,
+        argsChannelId: (args as any).channelId,
+        argsKeys: Object.keys(args),
+        isFrozen: Object.isFrozen(args),
+      });
+
       if (SUPPORT_AGENTS.includes(config.name)) {
         // Support agents: allow posting in support-related channels, otherwise force department
         const supportChannelId = getRoutingChannelForAgent('keeper', 'discord');
@@ -1065,14 +1075,29 @@ export class AgentExecutor {
       } else {
         // All other agents: force department channel, ignore LLM's choice
         if (departmentChannel) {
+          // Override both `channel` and `channelId` — LLM may use either field name
           args.channel = departmentChannel;
+          (args as any).channelId = departmentChannel;
+          agentLogger.info('[discord-enforcement] overrode channel', {
+            agentName: config.name,
+            forcedTo: departmentChannel,
+          });
         } else {
+          agentLogger.error('[discord-enforcement] no department channel!', {
+            agentName: config.name,
+            envDev: process.env.DISCORD_CHANNEL_DEVELOPMENT,
+          });
           return {
             success: false,
             error: `No department channel configured for agent ${config.name}. Cannot post to Discord.`,
           };
         }
       }
+
+      agentLogger.info('[discord-enforcement] final args', {
+        channel: args.channel,
+        channelId: (args as any).channelId,
+      });
     }
 
     // Dedup read-only actions within a single execution (e.g., github:get_contents)
