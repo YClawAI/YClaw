@@ -123,6 +123,65 @@ variable "llm_api_key" {
   description = "API key for the configured LLM provider"
 }
 
+# ─── Discord channel routing ──────────────────────────────────────────────────
+# YCLAW is Discord-only. These channel IDs are passed into the core container
+# so that channel-routing.ts can post to the correct department channel.
+# Defaults are the live production channel IDs — override via tfvars if needed.
+
+variable "discord_channel_general" {
+  type        = string
+  default     = "1489421589941325904"
+  description = "Discord channel ID for #yclaw-general"
+}
+
+variable "discord_channel_executive" {
+  type        = string
+  default     = "1489421619821809735"
+  description = "Discord channel ID for #yclaw-executive"
+}
+
+variable "discord_channel_development" {
+  type        = string
+  default     = "1489421639274729502"
+  description = "Discord channel ID for #yclaw-development"
+}
+
+variable "discord_channel_marketing" {
+  type        = string
+  default     = "1489421656781885631"
+  description = "Discord channel ID for #yclaw-marketing"
+}
+
+variable "discord_channel_operations" {
+  type        = string
+  default     = "1489421674276323368"
+  description = "Discord channel ID for #yclaw-operations"
+}
+
+variable "discord_channel_finance" {
+  type        = string
+  default     = "1491454930114973696"
+  description = "Discord channel ID for #yclaw-finance"
+}
+
+variable "discord_channel_support" {
+  type        = string
+  default     = "1489421693393965078"
+  description = "Discord channel ID for #yclaw-support"
+}
+
+variable "discord_channel_audit" {
+  type        = string
+  default     = "1489421718945661049"
+  description = "Discord channel ID for #yclaw-audit"
+}
+
+variable "discord_channel_alerts" {
+  type        = string
+  default     = "1489421877381304391"
+  description = "Discord channel ID for #yclaw-alerts"
+}
+
 # ─── Monitoring ───────────────────────────────────────────────────────────────
 
 variable "log_retention_days" {
