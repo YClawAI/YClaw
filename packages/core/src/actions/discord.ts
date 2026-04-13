@@ -441,15 +441,17 @@ export class DiscordExecutor implements ActionExecutor {
       return { success: false, error: 'Missing required parameters: channel, text' };
     }
 
-    if (text.length > PUBLIC_MESSAGE_MAX_LEN) {
-      return { success: false, error: `Message exceeds ${PUBLIC_MESSAGE_MAX_LEN} character limit for public channels. Use a thread for longer content.` };
-    }
-
     let channelId: string;
     try {
       channelId = this.resolveChannelId(channelInput);
     } catch (err) {
       return { success: false, error: err instanceof Error ? err.message : String(err) };
+    }
+
+    // Auto-overflow: if message exceeds Discord's limit, post a summary to the
+    // channel and the full content in an auto-created thread.
+    if (text.length > PUBLIC_MESSAGE_MAX_LEN) {
+      return this.postWithThreadOverflow(channelId, text, agentName);
     }
 
     if (await this.isDuplicate(channelId, text)) {
@@ -526,6 +528,178 @@ export class DiscordExecutor implements ActionExecutor {
     };
   }
 
+  // ─── Thread Helpers ──────────────────────────────────────────────────────
+
+  /**
+   * Create a thread from a message ID via the bot adapter.
+   * Returns the new thread ID, or throws if creation fails.
+   */
+  private async createThreadFromMessage(channelId: string, messageId: string, agentName: string): Promise<string> {
+    if (!this.adapter.createThread) {
+      throw new Error('Adapter does not support thread creation');
+    }
+    const identity = getAgentIdentity(agentName);
+    logger.info('Auto-creating thread from message', { channelId, messageId, agentName });
+    const threadRef = await this.adapter.createThread(
+      { channelId, messageId },
+      `${identity.emoji} ${identity.name} — Details`,
+    );
+    return threadRef.threadId;
+  }
+
+  /**
+   * Auto-overflow for messages exceeding the public channel limit.
+   * Posts a truncated summary to the channel, creates a thread, and posts
+   * the full content inside the thread — all with webhook identity.
+   */
+  private async postWithThreadOverflow(
+    channelId: string,
+    text: string,
+    agentName: string,
+  ): Promise<ActionResult> {
+    const identity = getAgentIdentity(agentName);
+    logger.info('Message exceeds limit, using thread overflow', {
+      channelId, agentName, textLength: text.length,
+    });
+
+    // Dedup + rate limit for the channel summary post
+    const summaryText = text.substring(0, 1900) + '\n\n*↓ Full details in thread*';
+    if (await this.isDuplicate(channelId, summaryText)) {
+      return { success: true, data: { suppressed: true, reason: 'duplicate_within_window' } };
+    }
+    const rateLimitReason = await this.checkChannelRateLimits(agentName, channelId);
+    if (rateLimitReason) {
+      logger.info('Discord overflow suppressed (rate limited)', { channelId, agentName, reason: rateLimitReason });
+      return { success: true, data: { suppressed: true, reason: 'rate_limited', detail: rateLimitReason } };
+    }
+
+    // Step 1: Post the summary to the channel
+    try { await this.initWebhooks(); } catch { /* ignore */ }
+    const webhook = this.getWebhookForChannel(channelId);
+    let parentMessageId: string | undefined;
+
+    if (webhook) {
+      try {
+        const sendOptions: Record<string, unknown> = {
+          content: summaryText,
+          username: `${identity.emoji} ${identity.name}`,
+        };
+        if (identity.avatarUrl) sendOptions.avatarURL = identity.avatarUrl;
+        const msg = await webhook.send(sendOptions);
+        parentMessageId = msg.id;
+      } catch (err) {
+        logger.warn('Webhook overflow summary failed', {
+          error: err instanceof Error ? err.message : String(err),
+          channelId, agentName,
+        });
+      }
+    }
+
+    if (!parentMessageId) {
+      // Webhook failed or not available — use bot for summary
+      if (agentName !== 'system') {
+        // Still try bot as last resort for overflow — better to show APP tag than lose content
+        const prefix = `**${identity.emoji} ${identity.name}**\n`;
+        const result = await this.adapter.send({ channelId }, { text: prefix + summaryText });
+        if (result.success) parentMessageId = result.messageId;
+      }
+    }
+
+    if (!parentMessageId) {
+      return { success: false, error: 'Failed to post overflow summary to channel' };
+    }
+
+    // Step 2: Create thread from the summary message
+    let threadId: string;
+    try {
+      const threadRef = await this.adapter.createThread(
+        { channelId, messageId: parentMessageId },
+        `${identity.emoji} ${identity.name} — Full Report`,
+      );
+      threadId = threadRef.threadId;
+    } catch (err) {
+      logger.warn('Failed to create overflow thread', {
+        error: err instanceof Error ? err.message : String(err),
+        channelId, parentMessageId, agentName,
+      });
+      // Summary was posted; thread creation failed. Still partial success.
+      return {
+        success: true,
+        data: { messageId: parentMessageId, channelId, agentName, threadCreationFailed: true },
+      };
+    }
+
+    // Step 3: Post full content in the thread via webhook
+    if (webhook) {
+      try {
+        // Split into 2000-char chunks if needed
+        const chunks = this.chunkText(text, 1950);
+        let lastMsgId: string | undefined;
+        for (const chunk of chunks) {
+          const sendOptions: Record<string, unknown> = {
+            content: chunk,
+            username: `${identity.emoji} ${identity.name}`,
+            threadId,
+          };
+          if (identity.avatarUrl) sendOptions.avatarURL = identity.avatarUrl;
+          const msg = await webhook.send(sendOptions);
+          lastMsgId = msg.id;
+        }
+        return {
+          success: true,
+          data: { messageId: parentMessageId, channelId, threadId, agentName, chunks: chunks.length },
+        };
+      } catch (err) {
+        logger.warn('Webhook thread content post failed', {
+          error: err instanceof Error ? err.message : String(err),
+          channelId, threadId, agentName,
+        });
+      }
+    }
+
+    // Bot fallback for thread content
+    const prefix = `**${identity.emoji} ${identity.name}**\n`;
+    const chunks = this.chunkText(text, 1900);
+    for (const chunk of chunks) {
+      await this.adapter.send({ channelId, threadId }, { text: prefix + chunk, threadId });
+    }
+    return {
+      success: true,
+      data: { messageId: parentMessageId, channelId, threadId, agentName, chunks: chunks.length, botFallback: true },
+    };
+  }
+
+  /**
+   * Split text into chunks of at most `maxLen` characters, breaking at
+   * newlines when possible.
+   */
+  private chunkText(text: string, maxLen: number): string[] {
+    if (text.length <= maxLen) return [text];
+    const chunks: string[] = [];
+    let remaining = text;
+    while (remaining.length > 0) {
+      if (remaining.length <= maxLen) {
+        chunks.push(remaining);
+        break;
+      }
+      // Try to break at a newline
+      let breakAt = remaining.lastIndexOf('\n', maxLen);
+      if (breakAt < maxLen * 0.5) {
+        // No good newline break — break at space
+        breakAt = remaining.lastIndexOf(' ', maxLen);
+      }
+      if (breakAt < maxLen * 0.3) {
+        // No good break point — hard break
+        breakAt = maxLen;
+      }
+      chunks.push(remaining.substring(0, breakAt));
+      remaining = remaining.substring(breakAt).trimStart();
+    }
+    return chunks;
+  }
+
+  // ─── Thread Reply ─────────────────────────────────────────────────────────
+
   private async threadReply(params: Record<string, unknown>): Promise<ActionResult> {
     const channelInput = params.channel as string | undefined;
     const threadId = params.threadId as string | undefined;
@@ -565,22 +739,41 @@ export class DiscordExecutor implements ActionExecutor {
     }
     const threadWebhook = this.getWebhookForChannel(channelId);
     if (threadWebhook) {
-      try {
-        const sendOptions: Record<string, unknown> = {
+      const buildSendOptions = (tid: string): Record<string, unknown> => {
+        const opts: Record<string, unknown> = {
           content: text,
           username: `${identity.emoji} ${identity.name}`,
-          threadId,
+          threadId: tid,
         };
-        if (identity.avatarUrl) {
-          sendOptions.avatarURL = identity.avatarUrl;
-        }
-        const msg = await threadWebhook.send(sendOptions);
+        if (identity.avatarUrl) opts.avatarURL = identity.avatarUrl;
+        return opts;
+      };
+
+      // First attempt: post to the threadId directly
+      try {
+        const msg = await threadWebhook.send(buildSendOptions(threadId));
         return { success: true, data: { messageId: msg.id, channelId, threadId, agentName } };
       } catch (err) {
-        logger.warn('Webhook thread reply failed, falling back to bot', {
-          error: err instanceof Error ? err.message : String(err),
-          channelId, threadId, agentName,
-        });
+        const errMsg = err instanceof Error ? err.message : String(err);
+        // "Unknown Channel" means the thread doesn't exist yet — the agent
+        // passed a messageId, not an actual thread. Create the thread and retry.
+        if (errMsg.includes('Unknown Channel')) {
+          logger.info('Thread does not exist, creating from message', { channelId, threadId, agentName });
+          try {
+            const realThreadId = await this.createThreadFromMessage(channelId, threadId, agentName);
+            const msg = await threadWebhook.send(buildSendOptions(realThreadId));
+            return { success: true, data: { messageId: msg.id, channelId, threadId: realThreadId, agentName, threadCreated: true } };
+          } catch (retryErr) {
+            logger.warn('Webhook thread reply failed after thread creation', {
+              error: retryErr instanceof Error ? retryErr.message : String(retryErr),
+              channelId, threadId, agentName,
+            });
+          }
+        } else {
+          logger.warn('Webhook thread reply failed, falling back to bot', {
+            error: errMsg, channelId, threadId, agentName,
+          });
+        }
       }
     }
 
