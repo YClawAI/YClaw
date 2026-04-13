@@ -31,6 +31,7 @@ import type { SettingsOverlay } from '../config/settings-overlay.js';
 import type { ServiceContext } from './services.js';
 import type { ActionContext } from './actions.js';
 import { AoBridge } from '../ao/bridge.js';
+import type { AoSpawnResponse } from '../ao/types.js';
 import type { AgentEvent } from '../config/schema.js';
 import type { YClawEvent } from '../types/events.js';
 import {
@@ -1478,15 +1479,50 @@ export async function initAgents(
         : typeof payload.description === 'string' ? payload.description
         : 'Event: architect:build_directive';
 
-      const result = await aoBridge.spawn({
-        issueUrl,
-        issueNumber,
-        repo: targetRepo,
-        directive,
-        orchestrator: aoOrchestrator,
-        context: JSON.stringify({ eventKey: 'architect:build_directive', correlationId: event.correlationId, ...payload }),
-        priority: typeof payload.priority === 'string' ? payload.priority as 'P0' | 'P1' | 'P2' | 'P3' : undefined,
-      });
+      // Helper: release issue claim immediately (spawn failed, ao:task_completed/failed won't fire)
+      const releaseIssueClaim = async () => {
+        if (issueNumber && deployRedis) {
+          const issueClaimKey = buildIssueClaimKey(targetRepo, issueNumber);
+          await deployRedis.del(issueClaimKey).catch((err: unknown) => {
+            logger.warn('[AO] Failed to release issue claim after spawn failure', {
+              issueNumber, error: err instanceof Error ? err.message : String(err),
+            });
+          });
+          logger.info('[AO] Released issue claim after spawn failure', { repo: targetRepo, issueNumber });
+        }
+      };
+
+      let result: AoSpawnResponse | null | undefined;
+      try {
+        result = await aoBridge.spawn({
+          issueUrl,
+          issueNumber,
+          repo: targetRepo,
+          directive,
+          orchestrator: aoOrchestrator,
+          context: JSON.stringify({ eventKey: 'architect:build_directive', correlationId: event.correlationId, ...payload }),
+          priority: typeof payload.priority === 'string' ? payload.priority as 'P0' | 'P1' | 'P2' | 'P3' : undefined,
+        });
+      } catch (spawnErr: unknown) {
+        // Spawn threw — release claim so the issue can be retried
+        await releaseIssueClaim();
+        logger.error('[AO] aoBridge.spawn() threw for architect:build_directive', {
+          repo: targetRepo, issueNumber, error: spawnErr instanceof Error ? spawnErr.message : String(spawnErr),
+        });
+        await markAoDegraded(targetRepo, 'ao_unreachable');
+        await emitAoSpawnFailure({
+          eventKey: 'architect:build_directive',
+          issueUrl,
+          issueNumber,
+          repo: targetRepo,
+          reason: 'ao_unreachable',
+          error: spawnErr instanceof Error ? spawnErr.message : String(spawnErr),
+          correlationId: event.correlationId,
+          summaryText: `AO degraded for ${targetRepo} — spawn threw: ${spawnErr instanceof Error ? spawnErr.message : String(spawnErr)}`,
+          degraded: true,
+        });
+        return;
+      }
 
       if (result?.status === 'spawned') {
         logger.info(`[AO] Routed architect:build_directive to AO: ${result.id}`, { repo: targetRepo, issueNumber });
@@ -1509,6 +1545,8 @@ export async function initAgents(
           }
         }
       } else {
+        // Spawn returned non-spawned status — release claim so the issue can be retried
+        await releaseIssueClaim();
         logger.error('[AO] Failed to spawn AO task for architect:build_directive', {
           status: result?.status, error: result?.error, repo: targetRepo, issueNumber,
         });

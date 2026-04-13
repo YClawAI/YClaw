@@ -410,7 +410,19 @@ async function ensureRepoMirror(repo) {
   return withRepoLock(repoName, async () => {
     await ensureFreeDiskSpace();
 
-    if (!existsSync(join(repoPath, '.git'))) {
+    if (existsSync(repoPath)) {
+      // Validate it's actually a working git repo
+      try {
+        await runCommand('git', ['-C', repoPath, 'rev-parse', '--is-inside-work-tree'], null, 10000);
+        console.log(`[ao-bridge] Valid repo mirror found at ${repoPath}`);
+      } catch {
+        // Directory exists but isn't a valid git repo — corrupt/partial clone
+        console.warn(`[ao-bridge] Invalid repo at ${repoPath}, removing and recloning...`);
+        rmSync(repoPath, { recursive: true, force: true });
+        console.log(`[ao-bridge] Bootstrapping fresh repo mirror for ${repo}`);
+        await runCommand('git', ['clone', '--depth', '50', repoUrl, repoPath], REPO_ROOT, 180000);
+      }
+    } else {
       console.log(`[ao-bridge] Bootstrapping missing repo mirror for ${repo}`);
       await runCommand('git', ['clone', '--depth', '50', repoUrl, repoPath], REPO_ROOT, 180000);
     }
