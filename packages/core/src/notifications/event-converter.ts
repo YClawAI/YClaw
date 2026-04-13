@@ -78,7 +78,7 @@ function resolveSeverity(event: YClawEvent<unknown>): Severity {
 
 function resolveTitle(event: YClawEvent<unknown>): string {
   const payload = (event.payload ?? {}) as Record<string, unknown>;
-  const desc = (payload.description as string) || '';
+  const desc = truncateStr((payload.description as string) || '', 150);
 
   switch (event.type) {
     case 'coord.deliverable.submitted':
@@ -102,7 +102,7 @@ function resolveTitle(event: YClawEvent<unknown>): string {
     case 'coord.task.completed':
       return `Completed task \u2014 ${desc || 'done'}`;
     case 'coord.task.failed':
-      return `Task failed \u2014 ${(payload.message as string) || desc || 'error'}`;
+      return `Task failed \u2014 ${truncateStr((payload.message as string) || '', 150) || desc || 'error'}`;
     case 'coord.project.kicked_off':
       return 'Kicked off project';
     case 'coord.project.phase_completed':
@@ -119,16 +119,20 @@ function resolveTitle(event: YClawEvent<unknown>): string {
 function resolveSummary(event: YClawEvent<unknown>): string {
   const payload = (event.payload ?? {}) as Record<string, unknown>;
 
+  // "Started" should be terse — no repeat of the task description
+  if (event.type === 'coord.task.started') return '';
+
   if (event.type === 'coord.review.completed') {
     const review = payload as unknown as CoordReviewPayload;
-    if (review.feedback) return review.feedback;
+    if (review.feedback) return truncateStr(review.feedback, 500);
   }
 
   if (event.type === 'coord.task.blocked' && payload.message) {
-    return payload.message as string;
+    return truncateStr(payload.message as string, 500);
   }
 
-  return (payload.summary as string) || (payload.description as string) || '';
+  const raw = (payload.summary as string) || (payload.description as string) || '';
+  return truncateStr(raw, 500);
 }
 
 function resolveFields(event: YClawEvent<unknown>): Array<{ name: string; value: string; inline?: boolean }> {
@@ -159,4 +163,8 @@ function resolveLinks(payload: Record<string, unknown>): Array<{ label: string; 
   const artifactUrl = payload.artifact_url as string | undefined;
   if (!artifactUrl) return undefined;
   return [{ label: 'View', url: artifactUrl }];
+}
+
+function truncateStr(str: string, max: number): string {
+  return str.length > max ? str.slice(0, max - 3) + '...' : str;
 }

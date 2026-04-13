@@ -132,6 +132,10 @@ export class ChannelNotifier {
     // Skip coord.status.* events (heartbeats, etc.)
     if (event.type.startsWith('coord.status.')) return;
 
+    // Skip coord.task.requested — too similar to "started" for human consumption.
+    // Keep only "started" + "completed/failed" as visible lifecycle updates.
+    if (event.type === 'coord.task.requested') return;
+
     // Try the NotificationRouter first (richer rendering)
     if (this.router) {
       try {

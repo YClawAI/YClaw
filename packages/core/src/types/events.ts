@@ -79,6 +79,8 @@ export interface CoordTaskPayload {
   assignee?: string;
   artifact_url?: string;
   message?: string;
+  /** Agent's result summary for completed tasks. */
+  summary?: string;
 }
 
 export type CoordReviewStatus =

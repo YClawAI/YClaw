@@ -69,6 +69,8 @@ export interface ChannelMessage {
     avatarUrl?: string;
     avatarEmoji?: string;
   };
+  /** Optional Discord embeds for rich fallback messages. Ignored by non-Discord adapters. */
+  embeds?: unknown[];
 }
 
 /** Result of sending a message. */

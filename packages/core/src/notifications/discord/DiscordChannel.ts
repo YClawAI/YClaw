@@ -163,10 +163,19 @@ export class DiscordChannel implements INotificationChannel {
         platform: 'discord',
       };
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      log.error('Discord webhook send failed', {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      const httpStatus = (err as Record<string, unknown>)?.status ?? (err as Record<string, unknown>)?.httpStatus ?? (err as Record<string, unknown>)?.code;
+      const responseBody = (err as Record<string, unknown>)?.rawError ?? (err as { response?: { data?: unknown } })?.response?.data;
+      log.error('Discord webhook send failed — falling back to bot', {
         department: event.agent.department,
-        error: msg,
+        error: errMsg,
+        httpStatus,
+        responseBody: responseBody ? JSON.stringify(responseBody).slice(0, 500) : undefined,
+        embedTitleLength: embed.title?.length,
+        embedDescLength: embed.description?.length,
+        totalEmbedSize: JSON.stringify(embed).length,
+        agentName: event.agent.name,
+        eventKind: event.kind,
       });
       // Fall back to bot adapter on webhook failure
       if (this.botAdapter) {
@@ -194,12 +203,18 @@ export class DiscordChannel implements INotificationChannel {
       return { messageId: '', platform: 'discord' };
     }
 
-    // Build a text fallback with embed info (bot adapter uses IChannel.send)
-    const text = `${event.agent.emoji} **${event.agent.name}** \u2014 ${event.title}\n${event.summary}`;
+    // Add fallback marker to the embed footer
+    const fallbackEmbed = {
+      ...embed,
+      footer: { text: `webhook fallback \u2022 ${event.kind} \u2022 ${event.agent.name}` },
+    };
+
+    // Send with embed via bot (richer than plain text)
+    const text = `${event.agent.emoji} **${event.agent.name}** \u2014 ${event.title}`;
 
     const result = await this.botAdapter!.send(
       { channelId, ...(threadId ? { threadId } : {}) },
-      { text, ...(threadId ? { threadId } : {}) },
+      { text, embeds: [fallbackEmbed], ...(threadId ? { threadId } : {}) },
     );
 
     return {
