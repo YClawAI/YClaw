@@ -129,4 +129,14 @@ module "compute" {
   log_group_name        = module.monitoring.log_group_name
   acm_certificate_arn   = var.acm_certificate_arn
   domain_name           = var.domain_name
+  # Discord channel routing
+  discord_channel_general     = var.discord_channel_general
+  discord_channel_executive   = var.discord_channel_executive
+  discord_channel_development = var.discord_channel_development
+  discord_channel_marketing   = var.discord_channel_marketing
+  discord_channel_operations  = var.discord_channel_operations
+  discord_channel_finance     = var.discord_channel_finance
+  discord_channel_support     = var.discord_channel_support
+  discord_channel_audit       = var.discord_channel_audit
+  discord_channel_alerts      = var.discord_channel_alerts
 }
