@@ -37,9 +37,6 @@ triggers:
     event: deployer:deploy_complete
     task: post_deploy_verification
   - type: event
-    event: discord:mention
-    task: handle_discord_infra
-  - type: event
     event: strategist:sentinel_directive
     task: handle_directive
   - type: event
@@ -70,7 +67,6 @@ event_subscriptions:
   - strategist:sentinel_directive
   - claudeception:reflect
   - deployer:deploy_complete
-  - discord:mention
 
 event_publications:
   - standup:report

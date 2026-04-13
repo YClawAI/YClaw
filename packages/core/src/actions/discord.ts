@@ -153,7 +153,7 @@ export class DiscordExecutor implements ActionExecutor {
         name: 'discord:message',
         description: 'Post a message to a Discord channel (max 600 chars). Use a thread for longer replies.',
         parameters: {
-          channel: { type: 'string', description: 'Channel name from DISCORD_CHANNELS (e.g. "support") or raw snowflake ID', required: true },
+          channel: { type: 'string', description: 'Channel name from DISCORD_CHANNELS (e.g. "support") or raw snowflake ID. Omit to use department default.' },
           text: { type: 'string', description: 'Message content (max 600 characters in public channels)', required: true },
           replyToMessageId: { type: 'string', description: 'Optional message ID to reply to' },
           agentName: { type: 'string', description: 'Agent identity key for display name override (e.g. "keeper")' },
@@ -477,10 +477,16 @@ export class DiscordExecutor implements ActionExecutor {
         // Fall through to bot send
       }
     } else {
-      logger.debug('No webhook configured for channel, using bot fallback', { channelId, agentName });
+      logger.debug('No webhook configured for channel', { channelId, agentName });
     }
 
-    // Bot fallback — prefix agent identity so it's visible even via bot
+    // Agent posts require webhook identity — block bot fallback to prevent "APP" tag
+    if (agentName !== 'system') {
+      logger.warn('Blocking agent Discord post — no webhook available', { channelId, agentName });
+      return { success: false, error: `No webhook configured for channel ${channelId}. Agent ${agentName} cannot post without webhook identity.` };
+    }
+
+    // Bot fallback — only for system/orchestrator messages
     const prefix = `**${identity.emoji} ${identity.name}**\n`;
     const finalText = prefix + text;
 
@@ -560,7 +566,13 @@ export class DiscordExecutor implements ActionExecutor {
       }
     }
 
-    // Bot fallback — prefix agent identity so it's visible even via bot
+    // Agent posts require webhook identity — block bot fallback to prevent "APP" tag
+    if (agentName !== 'system') {
+      logger.warn('Blocking agent Discord thread reply — no webhook available', { channelId, threadId, agentName });
+      return { success: false, error: `No webhook configured for channel ${channelId}. Agent ${agentName} cannot reply without webhook identity.` };
+    }
+
+    // Bot fallback — only for system/orchestrator messages
     const prefix = `**${identity.emoji} ${identity.name}**\n`;
     const finalText = prefix + text;
 
@@ -753,7 +765,13 @@ export class DiscordExecutor implements ActionExecutor {
       }
     }
 
-    // Bot fallback — prefix agent identity so it's visible even via bot
+    // Agent posts require webhook identity — block bot fallback to prevent "APP" tag
+    if (agentName !== 'system') {
+      logger.warn('Blocking agent Discord alert — no webhook available', { channelId, agentName });
+      return { success: false, error: `No webhook configured for channel ${channelId}. Agent ${agentName} cannot post alert without webhook identity.` };
+    }
+
+    // Bot fallback — only for system/orchestrator messages
     const prefix = `**${identity.emoji} ${identity.name}**\n`;
     const finalFormatted = prefix + formatted;
 
