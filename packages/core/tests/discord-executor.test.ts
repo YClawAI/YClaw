@@ -210,6 +210,26 @@ describe('DiscordExecutor', () => {
     expect(adapter.send.mock.calls[0][0].channelId).toBe(snowflake);
   });
 
+  it('discord:message does not misinterpret snowflakes as agent names (regression test)', async () => {
+    // This test prevents the bug where enforcement-provided snowflakes
+    // were treated as unknown agent names and defaulted to general.
+    // Uses agentName='system' to bypass webhook-required gate (testing
+    // resolution, not webhook routing).
+    const developmentChannelId = '1489421639274729502';
+    const generalChannelId = '2222222222222222222'; // mock general
+    
+    const result = await executor.execute('message', {
+      channel: developmentChannelId, // Should be used as-is, not treated as agent name
+      text: 'test message',
+      agentName: 'system',
+    });
+    
+    expect(result.success).toBe(true);
+    // The message should go to the development channel, NOT general
+    expect(adapter.send.mock.calls[0][0].channelId).toBe(developmentChannelId);
+    expect(adapter.send.mock.calls[0][0].channelId).not.toBe(generalChannelId);
+  });
+
   it('discord:message falls back to general for unknown symbolic channel names', async () => {
     const result = await executor.execute('message', {
       channel: 'not-a-real-channel',
