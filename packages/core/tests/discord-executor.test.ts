@@ -176,16 +176,17 @@ describe('DiscordExecutor', () => {
     expect(noText.error).toMatch(/text/);
   });
 
-  it('discord:message rejects text over 2000 characters', async () => {
+  it('discord:message auto-threads text over 2000 characters', async () => {
     const long = 'x'.repeat(2001);
     const result = await executor.execute('message', {
       channel: 'general',
       text: long,
-      agentName: 'keeper',
+      agentName: 'system',
     });
-    expect(result.success).toBe(false);
-    expect(result.error).toContain('2000 character limit');
-    expect(adapter.send).not.toHaveBeenCalled();
+    // Long messages get auto-threaded (teaser in channel, full content in thread)
+    // rather than rejected. Bot fallback posts the teaser via adapter.send().
+    expect(result.success).toBe(true);
+    expect(adapter.send).toHaveBeenCalled();
   });
 
   it('discord:message allows text up to 2000 characters', async () => {
