@@ -192,7 +192,7 @@ describe('DiscordExecutor', () => {
     const result = await executor.execute('message', {
       channel: 'support',
       text: 'hello',
-      agentName: 'keeper',
+      agentName: 'system',
     });
     expect(result.success).toBe(true);
     const [target] = adapter.send.mock.calls[0];
@@ -204,7 +204,7 @@ describe('DiscordExecutor', () => {
     const result = await executor.execute('message', {
       channel: snowflake,
       text: 'hello',
-      agentName: 'keeper',
+      agentName: 'system',
     });
     expect(result.success).toBe(true);
     expect(adapter.send.mock.calls[0][0].channelId).toBe(snowflake);
@@ -214,21 +214,21 @@ describe('DiscordExecutor', () => {
     const result = await executor.execute('message', {
       channel: 'not-a-real-channel',
       text: 'hi',
-      agentName: 'keeper',
+      agentName: 'system',
     });
     // With env-var routing, unknown channels fall back to general instead of throwing
     expect(result.success).toBe(true);
   });
 
-  it('discord:message prefixes agent emoji+name in bot fallback when no webhook configured', async () => {
-    await executor.execute('message', {
+  it('discord:message blocks agent posts when no webhook configured', async () => {
+    const result = await executor.execute('message', {
       channel: 'support',
       text: 'hello',
       agentName: 'keeper',
     });
-    const [, msg] = adapter.send.mock.calls[0];
-    // AgentRegistry: keeper → emoji 🛡️, name 'Keeper'
-    expect(msg.text).toBe(`**\u{1F6E1}\uFE0F Keeper**\nhello`);
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/No webhook configured/);
+    expect(adapter.send).not.toHaveBeenCalled();
   });
 
   // ─── Rate limiting ─────────────────────────────────────────────────
@@ -237,7 +237,7 @@ describe('DiscordExecutor', () => {
     const first = await executor.execute('message', {
       channel: '1489421589941325904',
       text: 'hello world',
-      agentName: 'keeper',
+      agentName: 'system',
     });
     expect(first.success).toBe(true);
     expect(first.data?.suppressed).toBeUndefined();
@@ -245,7 +245,7 @@ describe('DiscordExecutor', () => {
     const second = await executor.execute('message', {
       channel: '1489421589941325904',
       text: 'different text',
-      agentName: 'keeper',
+      agentName: 'system',
     });
     expect(second.success).toBe(true);
     expect(second.data?.suppressed).toBe(true);
@@ -257,7 +257,7 @@ describe('DiscordExecutor', () => {
       channel: 'support',
       threadId: '1489421600000000000',
       text: 'first reply',
-      agentName: 'guide',
+      agentName: 'system',
     });
     expect(first.success).toBe(true);
     expect(first.data?.suppressed).toBeUndefined();
@@ -266,7 +266,7 @@ describe('DiscordExecutor', () => {
       channel: 'support',
       threadId: '1489421600000000000',
       text: 'different reply',
-      agentName: 'guide',
+      agentName: 'system',
     });
     expect(second.success).toBe(true);
     expect(second.data?.suppressed).toBe(true);
@@ -304,7 +304,7 @@ describe('DiscordExecutor', () => {
       channel: 'support',
       threadId: '1489421600000000001',
       text: long,
-      agentName: 'guide',
+      agentName: 'system',
     });
     expect(result.success).toBe(true);
     expect(result.data?.suppressed).toBeUndefined();
@@ -316,7 +316,7 @@ describe('DiscordExecutor', () => {
     const first = await executor.execute('message', {
       channel: '1489421581111111111',
       text: 'same content',
-      agentName: 'sentinel',
+      agentName: 'system',
     });
     expect(first.success).toBe(true);
     expect(first.data?.suppressed).toBeUndefined();
@@ -324,7 +324,7 @@ describe('DiscordExecutor', () => {
     const second = await executor.execute('message', {
       channel: '1489421581111111111',
       text: 'same content',
-      agentName: 'sentinel',
+      agentName: 'system',
     });
     expect(second.success).toBe(true);
     expect(second.data?.suppressed).toBe(true);
@@ -358,11 +358,12 @@ describe('DiscordExecutor', () => {
     const adapterNoRedis = createMockAdapter();
     const execNoRedis = new DiscordExecutor(adapterNoRedis as unknown as DiscordChannelAdapter, null);
     // Post 25 messages to distinct channels — should all pass since redis is null
+    // Uses agentName: 'system' because no webhooks are configured in test
     for (let i = 0; i < 25; i++) {
       const res = await execNoRedis.execute('message', {
         channel: `148942158${String(i).padStart(9, '0')}`,
         text: `msg ${i}`,
-        agentName: 'keeper',
+        agentName: 'system',
       });
       expect(res.success).toBe(true);
       expect(res.data?.suppressed).toBeUndefined();
@@ -418,19 +419,31 @@ describe('DiscordExecutor', () => {
     expect(adapter.fetchThreadReplies).toHaveBeenCalledWith('1489421584444444444', 5);
   });
 
-  it('discord:alert posts a formatted embed-style message', async () => {
+  it('discord:alert posts a formatted embed-style message via bot for system caller', async () => {
     const result = await executor.execute('alert', {
       channel: '1489421585555555555',
       text: 'System is down',
       severity: 'critical',
       title: 'Outage',
-      agentName: 'sentinel',
+      agentName: 'system',
     });
     expect(result.success).toBe(true);
     const [, msg] = adapter.send.mock.calls[0];
     expect(msg.text).toContain('Outage');
     expect(msg.text).toContain('System is down');
     expect(msg.text).toContain('🚨'); // critical emoji
+  });
+
+  it('discord:alert blocks agent posts when no webhook configured', async () => {
+    const result = await executor.execute('alert', {
+      channel: '1489421585555555555',
+      text: 'System is down',
+      severity: 'critical',
+      agentName: 'sentinel',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/No webhook configured/);
+    expect(adapter.send).not.toHaveBeenCalled();
   });
 
   // ─── Health check ───────────────────────────────────────────────────
