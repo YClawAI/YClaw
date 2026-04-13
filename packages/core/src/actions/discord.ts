@@ -260,14 +260,24 @@ export class DiscordExecutor implements ActionExecutor {
    */
   resolveChannelId(input: string): string {
     const trimmed = input.trim();
+    logger.info('[resolveChannelId] input', { raw: input, trimmed });
     // 1. Try env-var-based routing first (DISCORD_CHANNEL_<DEPT>)
     const fromEnv = getChannelForDepartment(trimmed as Department, 'discord');
-    if (fromEnv) return fromEnv;
+    if (fromEnv) {
+      logger.info('[resolveChannelId] matched env dept', { trimmed, fromEnv });
+      return fromEnv;
+    }
     // 2. Try as agent name → department → channel
     const fromAgent = getChannelForAgent(trimmed, 'discord');
-    if (fromAgent) return fromAgent;
+    if (fromAgent) {
+      logger.info('[resolveChannelId] matched agent', { trimmed, fromAgent });
+      return fromAgent;
+    }
     // 3. Raw Discord snowflake
-    if (/^\d{17,20}$/.test(trimmed)) return trimmed;
+    if (/^\d{17,20}$/.test(trimmed)) {
+      logger.info('[resolveChannelId] raw snowflake', { trimmed });
+      return trimmed;
+    }
     // 4. Last resort: try general channel
     const general = getChannelForDepartment('general', 'discord');
     if (general) {
@@ -414,6 +424,12 @@ export class DiscordExecutor implements ActionExecutor {
   // ─── Actions ────────────────────────────────────────────────────────────
 
   private async postMessage(params: Record<string, unknown>): Promise<ActionResult> {
+    logger.info('[postMessage] raw params received', {
+      channel: params.channel,
+      channelId: (params as any).channelId,
+      agentName: params.agentName,
+      keys: Object.keys(params),
+    });
     let channelInput = params.channel as string | undefined;
     const text = params.text as string | undefined;
     const replyToMessageId = params.replyToMessageId as string | undefined;
