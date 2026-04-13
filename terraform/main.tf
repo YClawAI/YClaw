@@ -400,6 +400,7 @@ resource "aws_ecs_task_definition" "agents" {
         { name = "APPROVED_DEPLOYERS", value = var.github_username },
         { name = "OPENCLAW_URL", value = var.openclaw_url },
         { name = "AO_SERVICE_URL", value = "http://ao.yclaw.internal:8420" },
+        { name = "YCLAW_EXTERNAL_URL", value = "https://agents.yclaw.ai" },
       ]
 
       logConfiguration = {

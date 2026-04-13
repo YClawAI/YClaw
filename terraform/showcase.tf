@@ -27,6 +27,15 @@ variable "internal_https_listener_arn" {
   default     = "arn:aws:elasticloadbalancing:us-east-1:862974744285:listener/app/yclaw-internal-production/cb504b06cf6ed0ba/65ddc17d8d426a03"
 }
 
+# ─── Route53 reference ────────────────────────────────────────────────────────
+# Route53 hosted zone for yclaw.ai. Used to create the live.yclaw.ai subdomain.
+# Find with: aws route53 list-hosted-zones-by-name --dns-name yclaw.ai
+
+variable "route53_zone_id" {
+  description = "Route53 hosted zone ID for yclaw.ai"
+  type        = string
+}
+
 # ─── CloudWatch ───────────────────────────────────────────────────────────────
 
 resource "aws_cloudwatch_log_group" "showcase" {
@@ -197,6 +206,47 @@ resource "aws_ecs_service" "showcase" {
   tags = { Project = "yclaw" }
 }
 
+# ─── Public ALB listener rule (live.yclaw.ai) ────────────────────────────────
+#
+# Routes requests with Host: live.yclaw.ai on the public ALB HTTPS listener
+# to the showcase target group. Priority 20 leaves room above the internal
+# health-check rule (priority 10 on the internal ALB).
+
+resource "aws_lb_listener_rule" "showcase_live" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 20
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.showcase.arn
+  }
+
+  condition {
+    host_header {
+      values = ["live.yclaw.ai"]
+    }
+  }
+}
+
+# ─── Route53 — live.yclaw.ai ──────────────────────────────────────────────────
+#
+# ALIAS record pointing live.yclaw.ai at the same public ALB used by
+# agents.yclaw.ai.  AWS ALIAS records are free and support health-check
+# propagation; CNAME is not allowed at the zone apex but is fine here.
+# The ACM wildcard cert (*.yclaw.ai) already covers this subdomain.
+
+resource "aws_route53_record" "live" {
+  zone_id = var.route53_zone_id
+  name    = "live.yclaw.ai"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.gaze.dns_name
+    zone_id                = aws_lb.gaze.zone_id
+    evaluate_target_health = true
+  }
+}
+
 # ─── Outputs ──────────────────────────────────────────────────────────────────
 
 output "showcase_ecr_url" {
@@ -205,4 +255,9 @@ output "showcase_ecr_url" {
 
 output "showcase_service_name" {
   value = aws_ecs_service.showcase.name
+}
+
+output "live_subdomain_dns" {
+  value       = aws_route53_record.live.fqdn
+  description = "Public DNS name for the live showcase (live.yclaw.ai)"
 }

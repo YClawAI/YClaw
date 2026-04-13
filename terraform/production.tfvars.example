@@ -19,6 +19,10 @@ private_subnet_ids = [
 
 certificate_arn = "<ACM_CERTIFICATE_ARN>"
 
+# Route53 hosted zone ID for yclaw.ai (used for live.yclaw.ai DNS record).
+# Find with: aws route53 list-hosted-zones-by-name --dns-name yclaw.ai
+route53_zone_id = "<ROUTE53_ZONE_ID>"
+
 # ALB access control — VPC-only (Tailscale traffic enters via subnet router).
 # Telegram uses polling (outbound), so no public webhook traffic hits the ALB.
 # When switching to Telegram webhooks, create a separate public webhook ALB.
