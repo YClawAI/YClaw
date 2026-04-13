@@ -148,12 +148,12 @@ export function getChannelForAgent(
   agent: string,
   platform: ChannelPlatform,
 ): string | undefined {
-  const dept = (AGENT_DEPARTMENT[agent] as Department | undefined) ?? 'general';
+  const dept = AGENT_DEPARTMENT[agent] as Department | undefined;
+  if (!dept) return undefined; // Unknown agent — don't guess
   const direct = getChannelForDepartment(dept, platform);
   if (direct) return direct;
-  // Fall back to general
-  if (dept !== 'general') return getChannelForDepartment('general', platform);
-  return undefined;
+  // Fall back to general for known agents whose dept channel isn't configured
+  return getChannelForDepartment('general', platform);
 }
 
 /** Resolve the alerts/escalation channel ID for a platform. */
