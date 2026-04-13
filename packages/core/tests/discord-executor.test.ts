@@ -176,16 +176,26 @@ describe('DiscordExecutor', () => {
     expect(noText.error).toMatch(/text/);
   });
 
-  it('discord:message rejects text over 600 characters', async () => {
-    const long = 'x'.repeat(601);
+  it('discord:message rejects text over 2000 characters', async () => {
+    const long = 'x'.repeat(2001);
     const result = await executor.execute('message', {
       channel: 'general',
       text: long,
       agentName: 'keeper',
     });
     expect(result.success).toBe(false);
-    expect(result.error).toContain('600 character limit');
+    expect(result.error).toContain('2000 character limit');
     expect(adapter.send).not.toHaveBeenCalled();
+  });
+
+  it('discord:message allows text up to 2000 characters', async () => {
+    const text = 'x'.repeat(1999);
+    const result = await executor.execute('message', {
+      channel: 'general',
+      text,
+      agentName: 'system',
+    });
+    expect(result.success).toBe(true);
   });
 
   it('discord:message accepts symbolic department channel names via env-var routing', async () => {
@@ -318,7 +328,7 @@ describe('DiscordExecutor', () => {
     expect([...redis._store.keys()].some((k) => bucketKeyPattern.test(k))).toBe(true);
   });
 
-  it('thread_reply allows long text (no 600 char limit)', async () => {
+  it('thread_reply allows long text (no channel char limit)', async () => {
     const long = 'x'.repeat(1500);
     const result = await executor.execute('thread_reply', {
       channel: 'support',
