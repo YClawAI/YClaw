@@ -138,9 +138,18 @@ if [ -n "$YCLAW_REPOS" ]; then
     repo_name=$(echo "$repo" | cut -d'/' -f2)
     repo_slug_name=$(repo_slug "$repo")
     repo_url="https://github.com/${repo}.git"
+    if [ -d "/data/worktrees/${repo_slug_name}" ]; then
+      if ! git -C "/data/worktrees/${repo_slug_name}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        echo "[ao-entrypoint] WARNING: /data/worktrees/${repo_slug_name} exists but is not a valid git repo — removing corrupt clone"
+        rm -rf "/data/worktrees/${repo_slug_name}"
+      fi
+    fi
     if [ ! -d "/data/worktrees/${repo_slug_name}/.git" ]; then
       echo "[ao-entrypoint] Cloning ${repo} (shallow)..."
-      git clone --depth 50 "$repo_url" "/data/worktrees/${repo_slug_name}"
+      if ! git clone --depth 50 "$repo_url" "/data/worktrees/${repo_slug_name}"; then
+        echo "[ao-entrypoint] FATAL: git clone failed for ${repo}" >&2
+        exit 1
+      fi
     else
       echo "[ao-entrypoint] ${repo_name} already cloned, syncing to remote default branch..."
       cd "/data/worktrees/${repo_slug_name}"

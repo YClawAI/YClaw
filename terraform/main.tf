@@ -784,6 +784,11 @@ resource "aws_ecs_service" "agents" {
     container_port   = 3000
   }
 
+  # Cloud Map service discovery — registers yclaw-agents.yclaw.internal automatically
+  service_registries {
+    registry_arn = aws_service_discovery_service.agents.arn
+  }
+
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
 
@@ -798,13 +803,34 @@ resource "aws_ecs_service" "agents" {
 }
 
 # ─── Service Discovery (Cloud Map) ───────────────────────────────────────────
-# Creates ao.yclaw.internal DNS that auto-resolves to the AO task's private IP.
-# When AO restarts, AWS updates the A-record automatically within seconds.
+# Creates internal DNS records that auto-resolve to ECS task private IPs:
+#   - yclaw-agents.yclaw.internal → CORE (port 3000)
+#   - ao.yclaw.internal           → AO   (port 8420)
+# When a service restarts, AWS updates the A-record automatically within seconds.
 
 resource "aws_service_discovery_private_dns_namespace" "internal" {
   name        = "yclaw.internal"
   description = "YCLAW internal service discovery"
   vpc         = var.vpc_id
+}
+
+resource "aws_service_discovery_service" "agents" {
+  name = "yclaw-agents"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
 }
 
 resource "aws_service_discovery_service" "ao" {
@@ -865,7 +891,7 @@ resource "aws_ecs_task_definition" "ao" {
         { name = "NODE_ENV", value = var.environment },
         { name = "YCLAW_REPOS", value = "YClawAI/YClaw" },
         { name = "YCLAW_AO_OVERLAY_REPO", value = "YClawAI/YClaw" },
-        { name = "AO_CALLBACK_URL", value = "https://${aws_lb.gaze.dns_name}/api/ao/callback" },
+        { name = "AO_CALLBACK_URL", value = "http://yclaw-agents.yclaw.internal:3000/api/ao/callback" },
       ]
 
       secrets = [
@@ -972,6 +998,11 @@ output "ao_ecr_repository_url" {
 
 output "ao_service_name" {
   value = aws_ecs_service.ao.name
+}
+
+output "agents_internal_dns" {
+  value       = "yclaw-agents.${aws_service_discovery_private_dns_namespace.internal.name}"
+  description = "Internal DNS name for CORE service (resolves within VPC only)"
 }
 
 output "ao_internal_dns" {
