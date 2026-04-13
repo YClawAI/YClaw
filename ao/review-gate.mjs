@@ -11,7 +11,7 @@
  */
 
 import { spawn } from 'node:child_process';
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -135,6 +135,20 @@ export async function runCodexReview(worktreePath, baseBranch, issueNumber) {
   try { unlinkSync(outputFile); } catch { /* ok */ }
 
   const customPrompt = loadReviewPrompt();
+
+  // Codex CLI does not allow a positional [PROMPT] when --base is used.
+  // Write the custom prompt to .codex/instructions.md in the worktree so Codex
+  // picks it up automatically as project-level instructions.
+  if (customPrompt) {
+    try {
+      const instrDir = join(worktreePath, '.codex');
+      mkdirSync(instrDir, { recursive: true });
+      writeFileSync(join(instrDir, 'instructions.md'), customPrompt + '\n');
+    } catch (err) {
+      console.warn(`[review-gate] Failed to write .codex/instructions.md: ${err?.message}`);
+    }
+  }
+
   const args = [
     'exec', 'review',
     '--json',
@@ -143,9 +157,6 @@ export async function runCodexReview(worktreePath, baseBranch, issueNumber) {
     '--full-auto',
     '--output-last-message', outputFile,
   ];
-  if (customPrompt) {
-    args.push(customPrompt);
-  }
 
   console.log(`[review-gate] Running Codex review for #${issueNumber || '?'} against ${baseBranch}`);
   const startMs = Date.now();
