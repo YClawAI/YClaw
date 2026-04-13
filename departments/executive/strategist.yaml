@@ -63,10 +63,16 @@ triggers:
       model: claude-opus-4-6
       temperature: 0.5
       maxTokens: 8192
+  # Model Review Apr 2026: downgraded from Sonnet to Haiku — mechanical triage task
   - type: cron
     schedule: '*/10 * * * *'
     task: reconcile_pipeline
     description: "Run PR/Issue reconciliation loop"
+    model:
+      provider: anthropic
+      model: claude-haiku-4-5
+      temperature: 0.2
+      maxTokens: 4096
   - type: event
     event: claudeception:reflect
     task: self_reflection
