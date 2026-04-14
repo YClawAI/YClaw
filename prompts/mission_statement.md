@@ -27,7 +27,7 @@ YClaw was extracted from a production system that ran 12 autonomous agents for o
 ## What We Are / What We Are Not
 
 **We are:**
-- An open-source AI agent orchestration framework
+- An open-source AI agent orchestration harness
 - Infrastructure for running autonomous AI agent organizations
 - Built on OpenClaw
 - Model-agnostic, self-hosted, production-tested
@@ -37,7 +37,7 @@ YClaw was extracted from a production system that ran 12 autonomous agents for o
 - A token or cryptocurrency project
 - A creator economy platform
 - A managed/hosted agent service (you run it yourself)
-- A single-agent chatbot framework
+- A single-agent chatbot wrapper
 
 ## Who We Serve
 
@@ -66,7 +66,7 @@ Every agent is self-aware — it knows its own configuration, its execution hist
 ## The Measure of Success
 
 1. **Developers can deploy YClaw and have agents running in under an hour.**
-2. **The framework handles real multi-agent coordination — not just parallel single-agent calls.**
+2. **The harness handles real multi-agent coordination — not just parallel single-agent calls.**
 3. **Community grows through genuine utility, not hype.**
 4. **GitHub stars and forks reflect real adoption, not marketing.**
 5. **Agents produce useful work autonomously while maintaining quality through review gates.**

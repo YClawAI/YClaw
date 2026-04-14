@@ -6,7 +6,7 @@
 
 ## What We Do
 
-YClaw is an open-source AI agent orchestration framework. It provides the infrastructure to run an organization of AI agents — with real department structures, event-driven coordination, HMAC-signed event buses, persistent agent memory, and human oversight through approval gates.
+YClaw is an open-source AI agent orchestration harness. It provides the infrastructure to run an organization of AI agents — with real department structures, event-driven coordination, HMAC-signed event buses, persistent agent memory, and human oversight through approval gates.
 
 YClaw was extracted from a production system (Gaze Protocol) that ran 12 autonomous agents for over a year. The codebase has been scrubbed of all Gaze-specific content and released under AGPL-3.0.
 
@@ -59,12 +59,12 @@ YClaw was extracted from a production system (Gaze Protocol) that ran 12 autonom
 |  +----------+ +----------+ +--------------------+  |
 |  | Actions  | | Safety   | | Channel Notifier   |  |
 |  +----------+ +----------+ +--------------------+  |
-+----+---------------+---------------+---------------+
-     |               |               |
-+----+----+    +-----+-----+   +----+----+
-| MongoDB |    |   Redis   |   |Postgres |
-| Memory  |    |  Events   |   | Memory  |
-+---------+    +-----------+   +---------+
++----+---------------+----+
+     |                    |
++----+------+    +-------+---+
+| MongoDB   |    |   Redis   |
+|  Memory   |    |  Events   |
++-----------+    +-----------+
 ```
 
 ## What We Are Not
