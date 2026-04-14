@@ -1,5 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DiscordChannelAdapter } from '../src/adapters/channels/DiscordChannelAdapter.js';
+import { initAgentRegistry } from '../src/notifications/AgentRegistry.js';
+import { createMockAgentConfigs } from './helpers/mock-agent-configs.js';
+
+beforeAll(() => { initAgentRegistry(createMockAgentConfigs()); });
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 

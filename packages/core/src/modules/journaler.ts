@@ -8,6 +8,7 @@ import type {
 } from '../types/events.js';
 import { createLogger } from '../logging/logger.js';
 import { GITHUB_ORG_DEFAULTS } from '../config/github-defaults.js';
+import { getAgentEmoji } from '../utils/channel-routing.js';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -43,24 +44,6 @@ const NOISE_TYPES = new Set([
   'coord.task.accepted',
   'coord.task.started',
 ]);
-
-// ─── Agent Emoji Map ────────────────────────────────────────────────────────
-
-const AGENT_EMOJI: Record<string, string> = {
-  strategist: '\u{1F9E0}',  // 🧠
-  builder: '\u{1F6E0}\uFE0F', // 🛠️
-  architect: '\u{1F4D0}',   // 📐
-  designer: '\u{1F3A8}',    // 🎨
-  deployer: '\u{1F680}',    // 🚀
-  reviewer: '\u{1F4CB}',    // 📋
-  scout: '\u{1F50D}',       // 🔍
-  ember: '\u{1F525}',       // 🔥
-  forge: '\u2692\uFE0F',    // ⚒️
-  sentinel: '\u{1F6E1}\uFE0F', // 🛡️
-  treasurer: '\u{1F4B0}',   // 💰
-  keeper: '\u{1F3E0}',      // 🏠
-  guide: '\u{1F4DA}',       // 📚
-};
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -293,7 +276,7 @@ export class Journaler {
 /** Format a YClawEvent into a Markdown GitHub comment. */
 export function formatComment(event: YClawEvent<unknown>): string {
   const source = event.source || 'system';
-  const emoji = AGENT_EMOJI[source] || '\u{1F514}'; // 🔔
+  const emoji = getAgentEmoji(source);
   const agentName = source.charAt(0).toUpperCase() + source.slice(1);
   const action = describeAction(event);
   const payload = event.payload as Record<string, unknown>;

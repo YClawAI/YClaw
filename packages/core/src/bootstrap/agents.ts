@@ -5,6 +5,7 @@ import { StaleLoopDetector } from '../objectives/stale-loop-detector.js';
 import { RevisionTracker } from '../config-revisions/revision-tracker.js';
 import { AgentExecutor } from '../agent/executor.js';
 import { AgentRouter } from '../agent/router.js';
+import { initAgentRegistry } from '../notifications/AgentRegistry.js';
 import { SLACK_CHANNELS } from '../actions/slack.js';
 import type { SlackExecutor } from '../actions/slack.js';
 import type { GitHubExecutor } from '../actions/github/index.js';
@@ -252,6 +253,12 @@ export async function initAgents(
   // ─── Agent Router ────────────────────────────────────────────────────
   const router = new AgentRouter();
   executor.setRouter(router);
+
+  // ─── Agent Registry (identity/routing) ─────────────────────────────
+  // Must run before any listeners, webhook consumers, or event bus
+  // subscriptions that depend on agent identity or channel routing.
+  initAgentRegistry(router.getAllConfigs());
+  logger.info('Agent identity registry initialized from YAML configs');
 
   // ─── Deploy Config Capture ──────────────────────────────────────────
   // After loading all configs, check for changes vs stored revisions

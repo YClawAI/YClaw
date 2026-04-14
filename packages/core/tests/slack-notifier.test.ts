@@ -1,5 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { YClawEvent } from '../src/types/events.js';
+import { initAgentRegistry } from '../src/notifications/AgentRegistry.js';
+import { createMockAgentConfigs } from './helpers/mock-agent-configs.js';
+
+beforeAll(() => { initAgentRegistry(createMockAgentConfigs()); });
 
 // ─── Mock Logger ────────────────────────────────────────────────────────────
 
@@ -55,7 +59,7 @@ function createMockSlack() {
 
 function makeEvent(
   type: string,
-  source = 'builder',
+  source = 'architect',
   payload: Record<string, unknown> = {},
   correlationId = 'corr-123',
 ): YClawEvent<unknown> {
@@ -77,11 +81,10 @@ function makeEvent(
 describe('slack-blocks', () => {
   describe('getAgentEmoji', () => {
     it('returns correct emoji for known agents', () => {
-      expect(getAgentEmoji('builder')).toBe('\u{1F6E0}\uFE0F');    // 🛠️
       expect(getAgentEmoji('strategist')).toBe('\u{1F9E0}');         // 🧠
-      expect(getAgentEmoji('architect')).toBe('\u{1F4D0}');          // 📐
-      expect(getAgentEmoji('deployer')).toBe('\u{1F680}');           // 🚀
-      expect(getAgentEmoji('signal')).toBe('\u{1F4E1}');             // 📡
+      expect(getAgentEmoji('architect')).toBe('\u{1F3D7}\uFE0F');   // 🏗️
+      expect(getAgentEmoji('sentinel')).toBe('\u{1F510}');           // 🔐
+      expect(getAgentEmoji('signal')).toBe('\u{1F4CA}');             // 📊
     });
 
     it('returns bell emoji for unknown agents', () => {
@@ -91,10 +94,9 @@ describe('slack-blocks', () => {
 
   describe('getChannelForAgent', () => {
     it('routes development agents to #yclaw-development', () => {
-      expect(getChannelForAgent('builder')).toBe('#yclaw-development');
       expect(getChannelForAgent('architect')).toBe('#yclaw-development');
-      expect(getChannelForAgent('deployer')).toBe('#yclaw-development');
       expect(getChannelForAgent('designer')).toBe('#yclaw-development');
+      expect(getChannelForAgent('mechanic')).toBe('#yclaw-development');
     });
 
     it('routes executive agents to #yclaw-executive', () => {
@@ -129,7 +131,7 @@ describe('slack-blocks', () => {
 
   describe('buildCoordBlock', () => {
     it('builds section block with agent emoji and action', () => {
-      const event = makeEvent('coord.task.completed', 'builder', {
+      const event = makeEvent('coord.task.completed', 'architect', {
         task_id: 't-1', description: 'Implemented feature X',
       });
       const blocks = buildCoordBlock(event);
@@ -137,13 +139,13 @@ describe('slack-blocks', () => {
       expect(blocks.length).toBeGreaterThanOrEqual(1);
       expect(blocks[0]!.type).toBe('section');
       const text = blocks[0]!.text!.text;
-      expect(text).toContain('[Builder]');
+      expect(text).toContain('[Architect]');
       expect(text).toContain('completed task');
       expect(text).toContain('Implemented feature X');
     });
 
     it('includes artifact link when present', () => {
-      const event = makeEvent('coord.deliverable.submitted', 'builder', {
+      const event = makeEvent('coord.deliverable.submitted', 'architect', {
         task_id: 't-1',
         artifact_url: 'https://github.com/yclaw-ai/yclaw/pull/42',
         artifact_type: 'pr',
@@ -154,7 +156,7 @@ describe('slack-blocks', () => {
     });
 
     it('includes context block with correlation and task IDs', () => {
-      const event = makeEvent('coord.task.completed', 'builder', {
+      const event = makeEvent('coord.task.completed', 'architect', {
         task_id: 't-1',
       }, 'proj-1');
       const blocks = buildCoordBlock(event);
@@ -167,14 +169,14 @@ describe('slack-blocks', () => {
     it('includes target agent when specified', () => {
       const event = { ...makeEvent('coord.task.requested', 'strategist', {
         task_id: 't-1', description: 'Build something',
-      }), target: 'builder' };
+      }), target: 'architect' };
       const blocks = buildCoordBlock(event);
       const text = blocks[0]!.text!.text;
-      expect(text).toContain('[Builder]');
+      expect(text).toContain('[Architect]');
     });
 
     it('shows blocked needs for blocked events', () => {
-      const event = makeEvent('coord.task.blocked', 'builder', {
+      const event = makeEvent('coord.task.blocked', 'architect', {
         task_id: 't-1', message: 'Need API credentials',
       });
       const blocks = buildCoordBlock(event);
@@ -253,7 +255,7 @@ describe('SlackNotifier', () => {
 
   it('posts Block Kit message to correct department channel', async () => {
     await startAndGetHandler();
-    const event = makeEvent('coord.task.completed', 'builder', {
+    const event = makeEvent('coord.task.completed', 'architect', {
       task_id: 't-1', description: 'done',
     });
 
@@ -262,7 +264,7 @@ describe('SlackNotifier', () => {
     await new Promise(r => setTimeout(r, 50));
 
     expect(slack.execute).toHaveBeenCalledWith('message', expect.objectContaining({
-      channel: '#yclaw-development', // builder's department
+      channel: '#yclaw-development', // architect's department
       blocks: expect.any(Array),
     }));
   });
@@ -276,7 +278,7 @@ describe('SlackNotifier', () => {
 
   it('saves thread_ts from first message for correlation_id', async () => {
     await startAndGetHandler();
-    const event = makeEvent('coord.task.completed', 'builder', {
+    const event = makeEvent('coord.task.completed', 'architect', {
       task_id: 't-1',
     }, 'proj-1');
 
@@ -297,7 +299,7 @@ describe('SlackNotifier', () => {
     // Seed the thread_ts in Redis
     redis._store.set('slack:thread:proj-1', '1111111111.111111');
 
-    const event = makeEvent('coord.deliverable.submitted', 'builder', {
+    const event = makeEvent('coord.deliverable.submitted', 'architect', {
       task_id: 't-1', artifact_type: 'pr',
       artifact_url: 'https://github.com/example/pr/1',
     }, 'proj-1');
@@ -313,7 +315,7 @@ describe('SlackNotifier', () => {
 
   it('posts escalation events to both department channel and #yclaw-alerts', async () => {
     await startAndGetHandler();
-    const event = makeEvent('coord.task.blocked', 'builder', {
+    const event = makeEvent('coord.task.blocked', 'architect', {
       task_id: 't-1', message: 'Need API key',
     });
 
@@ -356,7 +358,7 @@ describe('SlackNotifier', () => {
         data: { ts: '2222222222.222222', channel: '#yclaw-development' },
       });
 
-    const event = makeEvent('coord.task.completed', 'builder', {
+    const event = makeEvent('coord.task.completed', 'architect', {
       task_id: 't-1',
     }, 'proj-1');
 
@@ -372,7 +374,7 @@ describe('SlackNotifier', () => {
     await startAndGetHandler();
     slack.execute.mockRejectedValueOnce(new Error('Slack API down'));
 
-    const event = makeEvent('coord.task.completed', 'builder', {
+    const event = makeEvent('coord.task.completed', 'architect', {
       task_id: 't-1',
     });
 

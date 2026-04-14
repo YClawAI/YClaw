@@ -1,5 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import type { YClawEvent } from '../src/types/events.js';
+import { initAgentRegistry } from '../src/notifications/AgentRegistry.js';
+import { createMockAgentConfigs } from './helpers/mock-agent-configs.js';
+
+beforeAll(() => { initAgentRegistry(createMockAgentConfigs()); });
 
 // ─── Mock Logger ────────────────────────────────────────────────────────────
 
