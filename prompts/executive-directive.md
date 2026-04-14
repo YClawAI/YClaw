@@ -10,9 +10,9 @@ See `chain-of-command.md` for full protocol.
 
 ## Business Objectives
 
-**Primary goal:** Ship YClaw as the go-to open-source agent orchestration framework
+**Primary goal:** Ship YClaw as the go-to open-source agent orchestration harness
 **Secondary goal:** Grow GitHub stars and developer community through genuine utility
-**Tertiary goal:** Demonstrate the framework by running this agent org autonomously
+**Tertiary goal:** Demonstrate the harness by running this agent org autonomously
 
 ## Key Performance Indicators
 
@@ -26,21 +26,20 @@ See `chain-of-command.md` for full protocol.
 
 ## Weekly Priorities
 
-*Updated 2026-04-14 by Elon*
+*Strategist updates this section every Monday via `self.update_prompt`.*
+*For real-time task status, query GitHub Issues or check #yclaw-executive.*
 
 ### P0 — Must Ship
-1. Fix Gaze contamination in agent prompts and memory → Architect
-2. Fix Discord channel routing (all posts going to #marketing) → Architect
-3. Resolve approval gate blockage (all actions stuck in approvalPending) → Architect
+<!-- Strategist: replace with current week's P0 items -->
+1. [Current P0 from GitHub Issues or Strategist directive]
 
 ### P1 — Should Ship
-4. Get Ember posting to X with correct YClaw content → Ember
-5. Wire up GITHUB_TOKEN via GitHub App → Sentinel
-6. Community engagement — respond to Discord questions → Keeper
+<!-- Strategist: replace with current week's P1 items -->
+2. [Current P1 items]
 
 ### P2 — Stretch
-7. Competitive positioning content based on Scout intel → Ember
-8. Landing page update for yclaw.ai → Designer + Architect
+<!-- Strategist: replace with current week's P2 items -->
+3. [Current P2 items]
 
 ## Resource Allocation
 

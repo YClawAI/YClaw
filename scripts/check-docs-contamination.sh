@@ -68,11 +68,11 @@ echo "Directory: $DIR"
 echo "---"
 
 # Pattern 1: DeFi terminology used as if YClaw IS a DeFi product
-# Exclude: lines that say YClaw is NOT DeFi, banned word lists, review rules
+# Exclude: lines in negation context (We are NOT, What We Are Not, banned lists, guardrails)
 check_pattern \
   "DeFi terminology describing YClaw" \
   '\bdefi\b|\btokenomics\b|\bTVL\b|\bAPY\b|\bAPR\b|\bAMM\b|\bbonding curve\b|\byield farming\b|\bcreator economy\b' \
-  '(NOT |not a |not |never |no |banned|We are NOT|What We Are Not|No DeFi|forbidden|guardrail|Don.t|compliance|securities|legal|- A DeFi|- A token|- A creator|- A managed)' \
+  '(NOT |not a |not |is not|aren.t|don.t|do not|never |no |zero tolerance|banned|We are NOT|What We Are Not|No DeFi|No tokenomics|No yields|forbidden|guardrail|compliance|securities|legal|- A DeFi|- A token|- A creator|- A managed|- Not )' \
   "YClaw is AI agent orchestration infrastructure, NOT a DeFi protocol."
 
 # Pattern 2: Gaze-specific terminology
