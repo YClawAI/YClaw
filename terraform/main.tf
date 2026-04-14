@@ -478,7 +478,7 @@ resource "aws_security_group_rule" "alb_from_agents" {
   description              = "Allow HTTPS from ECS tasks (AO callbacks to CORE via ALB)"
 }
 
-resource "aws_lb" "gaze" {
+resource "aws_lb" "yclaw" {
   name               = "yclaw-lb-${var.environment}"
   internal           = true  # Phase 2: VPC-only access via Tailscale subnet router
   load_balancer_type = "application"
@@ -525,7 +525,7 @@ variable "waf_rate_limit" {
 }
 
 resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.gaze.arn
+  load_balancer_arn = aws_lb.yclaw.arn
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
@@ -538,7 +538,7 @@ resource "aws_lb_listener" "https" {
 }
 
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.gaze.arn
+  load_balancer_arn = aws_lb.yclaw.arn
   port              = 80
   protocol          = "HTTP"
 
@@ -758,7 +758,7 @@ resource "aws_wafv2_web_acl" "agents" {
 }
 
 resource "aws_wafv2_web_acl_association" "agents_alb" {
-  resource_arn = aws_lb.gaze.arn
+  resource_arn = aws_lb.yclaw.arn
   web_acl_arn  = aws_wafv2_web_acl.agents.arn
 }
 
@@ -985,11 +985,11 @@ output "target_group_arn" {
 }
 
 output "alb_dns_name" {
-  value = aws_lb.gaze.dns_name
+  value = aws_lb.yclaw.dns_name
 }
 
 output "service_url" {
-  value = "https://${aws_lb.gaze.dns_name}"
+  value = "https://${aws_lb.yclaw.dns_name}"
 }
 
 output "ao_ecr_repository_url" {
