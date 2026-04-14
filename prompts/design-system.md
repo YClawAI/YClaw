@@ -109,4 +109,4 @@
 ```
 
 ---
-> See `examples/gaze-protocol/prompts/design-system.md` for a comprehensive real-world example with Tailwind config, SVG logos, and full component tokens.
+> Customize the tokens above with your organization's brand colors, typography, and component styles.

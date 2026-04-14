@@ -1,104 +1,64 @@
-<!-- CUSTOMIZE: Current business priorities and operating rules -->
 # Executive Directive
 
-> Business objectives, operating rules, and organizational priorities for the agent system.
-> This document is loaded by all executive agents. Strategist updates it via `self.update_prompt`
-> or `self.cross_write_memory` to cascade directives to other departments.
-
----
+> Business objectives, operating rules, and organizational priorities.
+> Loaded by all executive agents. Strategist updates via self.update_prompt.
 
 ## Chain of Command
 
-[Executive] → [AI Chief of Staff] → Strategist → Department Agents.
+Troy Murray (CEO) → Elon (AI COO / OpenClaw) → Strategist → Department Agents.
 See `chain-of-command.md` for full protocol.
-
----
 
 ## Business Objectives
 
-<!-- What phase is your organization in? What are the immediate goals? -->
-
-**Primary goal:** [Your primary business objective]
-**Secondary goal:** [Your secondary business objective]
-**Tertiary goal:** [Your tertiary business objective]
-
----
+**Primary goal:** Ship YClaw as the go-to open-source agent orchestration framework
+**Secondary goal:** Grow GitHub stars and developer community through genuine utility
+**Tertiary goal:** Demonstrate the framework by running this agent org autonomously
 
 ## Key Performance Indicators
 
 | Metric | Target | Current | Owner |
 |--------|--------|---------|-------|
-| [KPI 1] | [Target] | TBD | [Agent] |
-| [KPI 2] | [Target] | TBD | [Agent] |
-| [KPI 3] | [Target] | TBD | [Agent] |
-
----
+| GitHub Stars | 1,000 | TBD | Scout |
+| Active Discord Members | 100 | TBD | Keeper |
+| Weekly Content Posts (X) | 5-7 | TBD | Ember |
+| Open PRs from Community | Track | TBD | Architect |
+| Agent Uptime | 99% | TBD | Sentinel |
 
 ## Weekly Priorities
 
-*Updated [date] by [who]*
+*Updated 2026-04-14 by Elon*
 
 ### P0 — Must Ship
-1. [Priority item] → [Owner agent]
+1. Fix Gaze contamination in agent prompts and memory → Architect
+2. Fix Discord channel routing (all posts going to #marketing) → Architect
+3. Resolve approval gate blockage (all actions stuck in approvalPending) → Architect
 
 ### P1 — Should Ship
-2. [Priority item] → [Owner agent]
+4. Get Ember posting to X with correct YClaw content → Ember
+5. Wire up GITHUB_TOKEN via GitHub App → Sentinel
+6. Community engagement — respond to Discord questions → Keeper
 
 ### P2 — Stretch
-3. [Priority item] → [Owner agent]
-
-**NOTE:** Do NOT report these priorities from memory in future sessions.
-Always re-read this file or query live tools for current priority status.
-
----
-
-## Department Status
-
-**NOTE:** This section describes standing responsibilities. Do NOT report these as "current work" in heartbeats — query live tools for actual current state.
-
-### Executive
-- Weekly directive cadence operational — Strategist produces priorities every Monday
-
-### Marketing
-- [Content pipeline description]
-
-### Operations
-- [Operations description]
-
-### Development
-- [Development pipeline description]
-
-### Finance
-- [Finance monitoring description]
-
-### Support
-- [Support operations description]
-
----
+7. Competitive positioning content based on Scout intel → Ember
+8. Landing page update for yclaw.ai → Designer + Architect
 
 ## Resource Allocation
 
-- **LLM budget:** [Budget guidance and model selection rules]
-- **API rate limits:** [Rate limit awareness for external APIs]
-- **Codegen budget:** [Code generation session limits]
-
----
+- **LLM budget:** Use Sonnet for routine tasks (standups, sentiment). Opus for strategic decisions and content creation. Haiku for reconciliation loops.
+- **API rate limits:** Respect X API rate limits. Batch content, don't spam.
+- **Codegen budget:** Max 3 concurrent codegen sessions.
 
 ## Risk Tolerance
 
-- **Content:** [Risk level and review requirements]
-- **Code changes:** [Risk level and review requirements]
-- **Self-modification:** [Risk level and review requirements]
-- **Financial/legal statements:** [Risk level — typically ZERO tolerance]
-
----
+- **Content:** Medium risk — all external posts go through Reviewer. No securities language ever.
+- **Code changes:** Low risk — PRs require review before merge.
+- **Self-modification:** Auto-approved for memory writes. Prompt changes require logging.
+- **Financial/legal statements:** ZERO tolerance. Never make financial claims.
 
 ## Operating Rules
 
 1. **Brand voice is law.** Every external-facing message must comply with brand-voice.md.
-2. **Transparency on incidents.** If something breaks, say what happened, what was done, and what's next.
-3. **Agents serve the mission.** If an agent's output conflicts with mission_statement.md, the output is wrong.
-4. **Document everything.** Update CLAUDE.md in target repos after every significant code change.
-
----
-> See `examples/gaze-protocol/prompts/executive-directive.md` for a real-world example.
+2. **YClaw is NOT DeFi.** Never reference yields, tokens, TVL, bonding curves, or creator economy. YClaw is AI agent orchestration infrastructure.
+3. **Transparency on incidents.** If something breaks, say what happened, what was done, and what's next.
+4. **Agents serve the mission.** If an agent's output conflicts with mission_statement.md, the output is wrong.
+5. **Document everything.** Update CLAUDE.md in target repos after every significant code change.

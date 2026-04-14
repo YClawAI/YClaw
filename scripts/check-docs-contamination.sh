@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Check for stale/incorrect terminology in documentation files.
+# Check for stale/incorrect terminology in documentation and prompt files.
 # Run this before committing doc changes or as a CI step.
 # Exits 0 if clean, 1 if contamination found.
 #
@@ -11,13 +11,11 @@ set -euo pipefail
 DIR="${1:-.}"
 ERRORS=0
 
-# Files to check (exclude reference/ which is historical)
+# Files to check
 CHECK_PATHS=(
-  "$DIR/CLAUDE.md"
-  "$DIR/AGENTS.md"
-  "$DIR/SOUL.md"
-  "$DIR/.ai"
   "$DIR/prompts"
+  "$DIR/CLAUDE.md"
+  "$DIR/docs"
 )
 
 # Build the list of paths that actually exist
@@ -37,15 +35,13 @@ check_pattern() {
   local exclude_pattern="$3"
   local context="${4:-}"
 
-  # Search across all existing doc paths, excluding reference/
   local matches
-  matches=$(grep -rn --include='*.md' -E "$pattern" "${EXISTING_PATHS[@]}" 2>/dev/null \
-    | grep -v 'reference/' \
+  matches=$(grep -rn --include='*.md' -Ei "$pattern" "${EXISTING_PATHS[@]}" 2>/dev/null \
     | grep -v 'check-docs-contamination' \
+    | grep -v 'reference/' \
     || true)
 
   if [[ -n "$matches" ]]; then
-    # Filter out lines matching the exclude pattern (warnings, rules docs, etc.)
     local real_matches
     if [[ -n "$exclude_pattern" ]]; then
       real_matches=$(echo "$matches" \
@@ -67,59 +63,45 @@ check_pattern() {
   fi
 }
 
-echo "Checking documentation for stale terminology..."
+echo "Checking documentation for Gaze/DeFi contamination..."
 echo "Directory: $DIR"
 echo "---"
 
-# Pattern 1: GZC / Crediez used as active terminology
-# Exclude: lines warning NOT to use these terms
+# Pattern 1: DeFi terminology used as if YClaw IS a DeFi product
+# Exclude: lines that say YClaw is NOT DeFi, banned word lists, review rules
 check_pattern \
-  "Crediez/GZC used as active currency" \
-  '\bGZC\b|Crediez' \
-  '(not |no |never |don.t |replaced|instead of|historical|warning|outdated)' \
-  "USDC is the buy/sell currency. Crediez was removed."
+  "DeFi terminology describing YClaw" \
+  '\bdefi\b|\btokenomics\b|\bTVL\b|\bAPY\b|\bAPR\b|\bAMM\b|\bbonding curve\b|\byield farming\b|\bcreator economy\b' \
+  '(NOT |not a |not |never |no |banned|We are NOT|What We Are Not|No DeFi|forbidden|guardrail|Don.t|compliance|securities|legal|- A DeFi|- A token|- A creator|- A managed)' \
+  "YClaw is AI agent orchestration infrastructure, NOT a DeFi protocol."
 
-# Pattern 2: Hardcoded options accrual rate in marketing/copy
-# Exclude: technical protocol docs referencing the DAO parameter
+# Pattern 2: Gaze-specific terminology
 check_pattern \
-  "Hardcoded options accrual rate" \
-  '10%(/| per )year|10%/yr' \
-  '(DAO|bps|parameter|yearly_options_accrual|not |never )' \
-  "Accrual rate is DAO-controlled. Never hardcode in marketing copy."
+  "Gaze-specific terms in active content" \
+  '\bGZC\b|\bCrediez\b|\bMayflower\b|\bXeenon\b' \
+  '(extracted from|origin|historical|was renamed|forked from)' \
+  "These are Gaze Protocol terms. YClaw has been scrubbed of Gaze-specific content."
 
-# Pattern 3: Options/rewards auto-distributed to wallet
-# Exclude: lines that say NOT to use this phrasing
-check_pattern \
-  "Claims rewards are auto-distributed" \
-  'distributed to (your |the )?wallet|sent to (your |the )?wallet|arrive in your wallet' \
-  '(not |never |don.t |instead)' \
-  "Options are held by the market program. Users must actively claim."
-
-# Pattern 4: SOL as buy/sell currency (not gas)
-# Exclude: lines warning NOT to use SOL
-check_pattern \
-  "SOL used as buy/sell currency" \
-  'price:.*SOL|buy.*with SOL|sell.*for SOL|cost.*SOL|spend SOL|pay.*SOL|\bSOL\b.*bonding' \
-  '(Not SOL|not SOL|instead of SOL)' \
-  "USDC is the buy/sell currency. SOL is only for gas fees."
-
-# Pattern 5: Platform instead of protocol
-check_pattern \
-  "Called YClaw a 'platform'" \
-  'YClaw (is a|the) platform|YClaw platform' \
-  '' \
-  "YClaw is a protocol, not a platform."
-
-# Pattern 6: Banned hype terms in user-facing copy
-# Only check files that contain publishable content (not rules, watchlists, moderation docs)
-# Exclude: brand voice banned-terms tables, review rules, moderation examples,
-#          competitor analysis, hashtag guidance, library names (Web3.js),
-#          outreach templates listing what NOT to do, tech stack descriptions
+# Pattern 3: Banned hype terms in user-facing copy
 check_pattern \
   "Banned hype terminology in copy" \
-  '\brevolutionary\b|\bgame.changing\b|\bWeb3\b|\bmoon\b|\bWAGMI\b|\bdegen\b|\bape in\b|\bpassive income\b' \
-  '(brand.voice|review.queue|review.rules|moderation.rules|competitor.watchlist|platform.guide|outreach.templates|autonomous.ops|soul\.md|Web3\.js|Web3 social|Blockchain:|blockchain|hashtag|#Web3|❌|Overused|Empty|Same\.|claim .* is|tech.stack|Tech Stack|[Nn]ever use|will never|see brand|Never say|antidote|addiction|[Nn]ot passive|[Nn]o hype|participate in|label\.|Regulatory|audience voice|not "join|"earn tokens")' \
+  '\brevolutionary\b|\bgame.changing\b|\bmoon\b|\bWAGMI\b|\bdegen\b|\bape in\b|\bpassive income\b' \
+  '(brand.voice|review.rules|moderation|competitor|banned|Never|never|❌|antidote)' \
   "These terms are banned per brand voice guidelines."
+
+# Pattern 4: Dead references to gaze-protocol examples
+check_pattern \
+  "Dead gaze-protocol example references" \
+  'examples/gaze-protocol' \
+  '' \
+  "The examples/gaze-protocol/ directory no longer exists."
+
+# Pattern 5: Blank CUSTOMIZE templates that should have been filled
+check_pattern \
+  "Unfilled template placeholders" \
+  '\[Term [0-9]\]|\[KPI [0-9]\]|\[Your primary business|\[Channel [0-9]:|\[your product\]' \
+  '' \
+  "Template placeholders should be replaced with real content."
 
 echo "---"
 if [[ $ERRORS -eq 0 ]]; then

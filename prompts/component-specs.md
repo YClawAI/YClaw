@@ -31,11 +31,11 @@ All interactive elements warm up on hover:
 
 ### Desktop Nav
 ```
-[[Your Logo]] [[YOUR_ORG] wordmark]     [Nav Item 1] [Nav Item 2] [Nav Item 3] [Docs]     [Launch App]
+[[Logo]] [YClaw wordmark]     [Dashboard] [Agents] [Events] [Docs]     [Connect]
 ```
 
 - Fixed to top, backdrop blur, semi-transparent dark background
-- Logo icon: Simplified [Your Logo] SVG (20px)
+- Logo icon: YClaw SVG (20px)
 - Wordmark: Inter Thin, gradient fill, letter-spacing 8px
 - Links: Inter 300, 12px, muted color, hover → accent
 - CTA button: Ghost style (border), hover fills with accent
@@ -47,14 +47,14 @@ All interactive elements warm up on hover:
 - Links centered, larger (18px), stacked vertically
 - Logo icon centered at top of overlay
 
-### Wallet Connection
-- "Connect Wallet" button in nav (ghost style)
-- Connected state: Show truncated address in JetBrains Mono + small wallet icon
-- Dropdown on click: address, balance, disconnect
+### User / Operator Connection
+- "Connect" button in nav (ghost style)
+- Connected state: Show username in JetBrains Mono + role badge (operator/admin)
+- Dropdown on click: username, role, settings, disconnect
 
 ---
 
-## [Your Logo] Component
+## Logo Component
 
 Reusable SVG component with configurable size and animation.
 
@@ -134,69 +134,67 @@ Used in the Explore/listing page grid. Customize fields for your domain.
 
 ## Action Panel
 
-Right sidebar or modal for primary user interactions. Customize tabs and forms for your domain.
+Right sidebar or modal for primary user interactions (agent management, task dispatch, approvals).
 
 ### Tabs
 ```
-[Action 1]  [Action 2]  [Action 3]
+[Dispatch]  [Config]  [Approvals]
 ```
 - Active tab: accent text + bottom border in gradient
 - Inactive: muted text
 
-### Primary Action Form
+### Task Dispatch Form
 ```
-[Amount Input]          [MAX]
-[Balance: 12,400 units]
+[Agent Selector]        [dropdown]
+[Task Description]      [textarea]
+[Priority: P0-P3]      [selector]
 
-[Estimated Result: 0.47 units]
-
-[Submit Action]  (primary button)
-```
-
-### Secondary Action Form (toggle variant)
-```
-[Option A] [Option B]  (toggle, active has gradient background)
-
-Input:   [Amount Input] [Unit A]
-Output:  [Estimated]    [Unit B]
-
-Settings: [0.5%] [1%] [Custom]
-
-[Confirm]  (primary button)
+[Dispatch Task]  (primary button)
 ```
 
-### Status Section
+### Agent Config Form
 ```
-Pending Items:     847.23
-Available:         12.4 units
-Estimated Value:   $0.35
+[Model]     [Sonnet ▾]  (dropdown, active has gradient background)
 
-[Claim / Collect]  (primary button)
+Prompts:    [mission_statement.md, ...]  [Edit]
+Schedule:   [Cron Expression]
+Budget:     [$50/day]
+
+[Save Config]  (primary button)
+```
+
+### Approval Queue Section
+```
+Pending Approvals:   3
+Oldest:              2m ago
+Risk Level:          HIGH
+
+[Review & Approve]  (primary button)
 ```
 
 ---
 
 ## Activity Feed
 
-Used on token pages and platform-wide.
+Used on agent detail pages and org-wide dashboard.
 
 ### Row Layout
 ```
-[Type Icon]  [Description]                    [Amount]     [Time]
+[Type Icon]  [Description]                    [Status]     [Time]
 ```
 
 ### Type Icons
 - Small circles (8px) or small icons (16px) with type-specific color:
-  - Positive action: accent
-  - Negative action: danger
-  - Neutral action: secondary
-  - Inactive: muted
-  - Highlight: accent with glow
+  - Success: accent
+  - Failure: danger
+  - In progress: secondary
+  - Idle: muted
+  - Approval needed: accent with glow
 
 ### Description Format
-Customize descriptions for your domain actions, e.g.:
-- "[user] performed [action] with [amount] [unit]"
-- "[user] completed [action] — [result]"
+Agent activity descriptions:
+- "[agent] completed [task] — [result summary]"
+- "[agent] published event [type] → [target]"
 
 ### Time Format
 - Recent: "2m ago", "1h ago"
@@ -228,8 +226,8 @@ Horizontal row of key metrics (used on landing page and dashboard).
 
 ### Layout
 ```
-[$4.2M]              [12,847]             [347]              [9]
-Total Value Staked   Active Watchers      Creator Tokens     Platforms
+[13]                 [847]                [99.2%]            [6]
+Active Agents        Tasks Completed      Uptime             Departments
 ```
 
 - Value: JetBrains Mono, 24-28px, weight 600, gradient fill
@@ -243,7 +241,7 @@ Total Value Staked   Active Watchers      Creator Tokens     Platforms
 
 ### Layout
 ```
-[[Your Logo]]  [[YOUR_ORG]]                           [2m ago]
+[[Logo]]  [YClaw]                           [2m ago]
 [Title — bold, white]
 [Description — light, muted]
 [Action Button (optional)]
@@ -259,15 +257,15 @@ Total Value Staked   Active Watchers      Creator Tokens     Platforms
 
 ---
 
-## Portfolio Summary Cards
+## Org Summary Cards
 
 ### Card Grid (2x2)
 ```
-[Total Value]           [Total Staked]
- $12,847.23              45,200 tokens
+[Active Agents]         [Tasks Today]
+ 13 / 13 online          47 completed
 
-[Unclaimed Rewards]     [Lifetime Earned]
- 847 options             $2,341.67
+[Pending Approvals]     [LLM Spend (24h)]
+ 3 awaiting review       $12.84
 ```
 
 ### Card Style
@@ -297,8 +295,8 @@ Total Value Staked   Active Watchers      Creator Tokens     Platforms
 - JetBrains Mono, 10px, uppercase, accent color
 - Hover: brighter accent
 
-### Slippage Selector
-- Row of small pills: [0.5%] [1%] [2%] [Custom]
+### Priority Selector
+- Row of small pills: [P0] [P1] [P2] [P3]
 - Active: surface-dark background + accent border
 - Inactive: ghost border, ghost text
 

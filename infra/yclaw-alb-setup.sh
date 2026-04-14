@@ -4,11 +4,11 @@
 #
 # Prerequisites:
 #   - AWS CLI v2 configured for account 862974744285, us-east-1
-#   - VPC: vpc-073bfb3fea4bf6c6e (shared with Gaze)
+#   - VPC: vpc-073bfb3fea4bf6c6e
 #   - ECS SG: sg-0acd17c5db21318b8
 #   - ECS cluster: yclaw-cluster-production (3 services running)
 #
-# Architecture (same pattern as Gaze):
+# Architecture:
 #   - PUBLIC ALB  (yclaw-lb-production)       → Core API at agents.yclaw.ai
 #   - INTERNAL ALB (yclaw-internal-production) → MC UI via Tailscale only
 #   - AO stays internal only (no ALB listener, TG for health tracking)

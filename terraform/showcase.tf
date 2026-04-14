@@ -241,8 +241,8 @@ resource "aws_route53_record" "live" {
   type    = "A"
 
   alias {
-    name                   = aws_lb.gaze.dns_name
-    zone_id                = aws_lb.gaze.zone_id
+    name                   = aws_lb.yclaw.dns_name
+    zone_id                = aws_lb.yclaw.zone_id
     evaluate_target_health = true
   }
 }

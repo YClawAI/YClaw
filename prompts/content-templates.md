@@ -1,95 +1,92 @@
-<!-- CUSTOMIZE: Social media and content templates for your organization -->
 # Content Templates
 
-> Templates for content agents to generate consistent, on-brand communications.
-> Each template defines format, frequency, and review routing per platform.
-
----
-
 ## Active Channels
+- X/Twitter (@YClaw_ai — currently suspended, posting via @TroyMurs)
+- Discord (https://discord.com/invite/HqFDg4UHXx)
+- GitHub (https://github.com/YClawAI/YClaw)
 
-<!-- List your active publishing channels -->
-- [Channel 1: e.g., Twitter/X]
-- [Channel 2: e.g., Blog]
-- [Channel 3: e.g., Community chat]
+## Template 1: Feature Announcement
 
----
+**Trigger:** New feature merged or released
+**Frequency:** As needed
+**Review:** REVIEW (Reviewer must approve)
 
-## Template 1: Announcement
-
-**Trigger:** [When this template is used]
-**Frequency:** [How often]
-**Review:** [AUTO / TIMED / REVIEW]
-
-### [Platform 1]
-**Format:** [Post / Thread / Story]
+### X/Twitter
+**Format:** Single post or thread (3-5 tweets for significant features)
 ```
-[Template with {{variables}}]
-```
+[Feature name] just shipped.
 
-### [Platform 2]
-**Format:** [Post / Announcement]
-```
-[Template with {{variables}}]
+[1-2 sentences: what it does and why it matters]
+
+[Link to PR, docs, or GitHub]
 ```
 
----
+## Template 2: Competitive Positioning
 
-## Template 2: Educational / Explainer
+**Trigger:** Competitor announcement or market shift
+**Frequency:** 1-2x/week max
+**Review:** REVIEW
 
-**Trigger:** [When this template is used]
-**Frequency:** [How often]
-
-### [Platform 1]
+### X/Twitter
+**Format:** Single post
 ```
-[Template structure]
-```
+[Observation about competitor/market]
 
----
+[How YClaw's approach differs — open source, model-agnostic, self-hosted]
 
-## Template 3: Community Engagement
-
-**Trigger:** [When this template is used]
-**Frequency:** [How often]
-
-### [Platform 1]
-```
-[Template structure]
+[Link to GitHub or relevant docs]
 ```
 
----
+**Rules:**
+- Never name competitors negatively — position YClaw's strengths
+- Focus on architectural differences, not feature comparisons
+- Always include a link
 
-## Template 4: Metrics / Status Update
+## Template 3: Technical Deep Dive
 
-**Trigger:** [Daily / Weekly / Monthly]
-**Frequency:** [Schedule]
+**Trigger:** Interesting architecture decision or engineering challenge
+**Frequency:** 1x/week
+**Review:** REVIEW
 
-### [Platform 1]
+### X/Twitter
+**Format:** Thread (5-7 tweets)
 ```
-[Template with {{metric_variables}}]
+[Hook: the problem or challenge]
+[How we approached it]
+[Technical details — code snippets welcome]
+[Results or lessons learned]
+[CTA: link to code, invite to Discord]
 ```
 
----
+## Template 4: Community Engagement
+
+**Trigger:** Question in Discord, interesting reply on X
+**Frequency:** Daily
+**Review:** AUTO (low risk)
+
+### X/Twitter
+**Format:** Reply
+```
+[Direct answer to question]
+[Link to relevant docs/code if applicable]
+```
 
 ## Posting Schedule
 
 | Day | Time (UTC) | Content Type |
 |-----|------------|-------------|
-| Mon-Fri | [Time] | [Type] |
-| Weekly | [Time] | [Type] |
-| Monthly | [Time] | [Type] |
-
----
+| Mon-Fri | 14:00 | Daily content (feature, positioning, or deep dive) |
+| Mon-Fri | 16:30 | Midday engagement |
+| Mon-Fri | 22:00 | Afternoon engagement / community response |
+| Weekends | 15:00 | Weekend content (lighter, community-focused) |
 
 ## Production Notes
 
 **Voice & Tone Guardrails:**
-- [Rule 1 from your brand voice]
-- [Rule 2]
+- Follow brand-voice.md at all times
+- No DeFi language (yields, TVL, tokens, liquidity, bonding curves)
+- No securities language (returns, investment, early mover advantage)
+- No forced hashtags
+- Swearing OK when natural ("that's fucking brilliant" > sterile corporate praise)
 
-**Automation:**
-- `{{variable}}` placeholders must be filled with real data before publication
-- Review workflows defined in `review-rules.md`
-
----
-> See `examples/gaze-protocol/prompts/content-templates.md` for 18 production templates covering all major content types.
+**CRITICAL: YClaw is AI agent orchestration infrastructure. NOT a DeFi protocol. NOT a token. NOT creator economy.**
