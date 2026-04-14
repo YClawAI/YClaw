@@ -43,6 +43,29 @@ triggers:
   - type: cron
     schedule: "0 20 * * 0"
     task: tech_debt_scan
+
+  # Stale issue sweep — catches issues missed by real-time event triggers
+  # Removes stale in-progress labels, delegates eligible unworked issues to AO
+  - type: cron
+    schedule: "*/30 * * * *"
+    task: stale_issue_sweep
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      maxTokens: 4096
+      temperature: 0.2
+
+  # Pipeline health scan — ensures all repos have CI, infra, branch protection
+  - type: cron
+    schedule: "30 */3 * * *"
+    task: pipeline_health_scan
+    description: "Scan all registered repos for missing pipeline components"
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      maxTokens: 4096
+      temperature: 0.2
+
   - type: event
     event: strategist:architect_directive
     task: architecture_directive
@@ -109,6 +132,7 @@ actions:
   - github:pr_comment
   - github:add_labels
   - github:remove_label
+  - ao:status
   - repo:list
   - vault:read
   - vault:search

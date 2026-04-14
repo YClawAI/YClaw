@@ -640,7 +640,7 @@ Safety-net sweep. Catches issues that were missed by the real-time event trigger
 
 ### Steps
 
-1. Call `codegen:status`. If AO is degraded, queue depth > 5, or unavailable, stop immediately. Return "AO not ready, skipping sweep."
+1. Call `ao:status`. If AO is degraded, queue depth > 5, or unavailable, stop immediately. Return "AO not ready, skipping sweep."
 2. Use `repo:list` to get all registered repos. For each healthy repo, call `github:list_issues` with `state: open`.
 3. **Stale in-progress reconciliation:** For any issue labeled `in-progress` that was updated more than 3 hours ago (check `updated_at`), the AO session likely failed without a callback. Remove the `in-progress` label using `github:remove_label` so it becomes eligible again. Log a warning: "Removed stale in-progress from #N (last updated {time})."
 4. For each issue (excluding those still validly `in-progress`), evaluate eligibility using ONLY labels:
@@ -651,7 +651,7 @@ Safety-net sweep. Catches issues that were missed by the real-time event trigger
 6. For each selected issue:
    a. Call `github:get_issue` to fetch full details
    b. Create a structured directive (same format as evaluate_and_delegate: `investigation_summary`, `key_files`, `constraints`, `acceptance_criteria`)
-   c. Publish `architect:build_directive` with all structured fields plus `repo` (full slug: `owner/repo`) and `issueNumber` (integer)
+   c. Publish `architect:build_directive` via `event:publish` with all structured fields plus `repo` (full slug: `owner/repo`) and `issueNumber` (integer)
 7. Report what you did: "Delegated N issues: #X, #Y, #Z" or "No eligible issues found" or "AO not ready, skipping." Include any stale in-progress labels that were removed.
 
 ### Rules
@@ -661,7 +661,7 @@ Safety-net sweep. Catches issues that were missed by the real-time event trigger
 - IGNORE branch existence — you cannot check it
 - If an issue has both an eligible label AND an exclusion label, the exclusion label wins (skip it)
 - If no issues are eligible, that's fine. Return immediately. Don't force delegation.
-- **If no issues were delegated and AO was available, do NOT post to Slack.** Silent sweeps are expected behavior.
+- **If no issues were delegated and AO was available, do NOT post to Discord.** Silent sweeps are expected behavior.
 
 ---
 
@@ -1084,7 +1084,7 @@ For unassigned issues, use `event:publish` to emit `github:issue_assigned` (whic
 
 ### Step 5: Report
 
-Post a summary to Slack #yclaw-development ONLY if gaps were found:
+Post a summary to #yclaw-development via `discord:message` ONLY if gaps were found:
 ```
 🔍 Pipeline Health Scan — {timestamp}
 Repos scanned: {count}
