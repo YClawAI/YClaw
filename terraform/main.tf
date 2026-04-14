@@ -82,8 +82,6 @@ resource "aws_ecs_cluster" "yclaw" {
   }
 }
 
-# moved block removed — gaze cluster dropped from state, yclaw cluster imported directly
-
 # ─── ECR Repository ──────────────────────────────────────────────────────────
 
 resource "aws_ecr_repository" "agents" {

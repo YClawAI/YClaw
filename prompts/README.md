@@ -46,8 +46,8 @@ Documents loaded by all agents or multiple departments.
 
 | File | Purpose |
 |------|---------|
-| `brand-voice.md` | Brand identity template -- voice attributes, tone spectrum by channel, terminology dictionary, style rules, visual identity, copy templates, legal compliance notes. See `examples/gaze-protocol/` for a comprehensive real-world example |
-| `content-templates.md` | Content template library for content agents — announcement, educational, community engagement, metrics templates with `{{variable}}` placeholders. See `examples/gaze-protocol/` for 18 production templates |
+| `brand-voice.md` | Brand identity template -- voice attributes, tone spectrum by channel, terminology dictionary, style rules, visual identity, copy templates, legal compliance notes. See `examples/templates/` for a comprehensive real-world example |
+| `content-templates.md` | Content template library for content agents — announcement, educational, community engagement, metrics templates with `{{variable}}` placeholders. See `examples/templates/` for 18 production templates |
 | `review-rules.md` | Review queue rulebook -- routing logic (AUTO/TIMED/REVIEW/BLOCKED) per agent, confidence scoring methodology, override commands, forbidden content list, escalation chains |
 | `review-submission.md` | Protocol for submitting content to the review pipeline via `event:publish` with `review:pending` |
 | `keeper-telegram-safety.md` | Pre-launch lockdown rules for Keeper -- no proactive Telegram posts, no protocol details, reactive moderation only |
@@ -56,7 +56,7 @@ Documents loaded by all agents or multiple departments.
 
 | File | Purpose |
 |------|---------|
-| `design-system.md` | Design token template — CSS custom properties, typography scale, component tokens, responsive breakpoints. See `examples/gaze-protocol/` for a comprehensive example with Tailwind config and SVG logos |
+| `design-system.md` | Design token template — CSS custom properties, typography scale, component tokens, responsive breakpoints. See `examples/templates/` for a comprehensive example with Tailwind config and SVG logos |
 | `component-specs.md` | Component behavior specifications — shared patterns (hover, loading, transitions), navigation, data cards, charts, action panels, ranked tables, form inputs, modals |
 
 ### Learning & Skills
@@ -70,7 +70,7 @@ Documents loaded by all agents or multiple departments.
 
 | File | Purpose |
 |------|---------|
-| `protocol-overview.md` | Organization overview template — technical description of your product/service, key concepts, features, target audience, architecture, API endpoints. See `examples/gaze-protocol/` for a comprehensive real-world example |
+| `protocol-overview.md` | Organization overview template — technical description of your product/service, key concepts, features, target audience, architecture, API endpoints. See `examples/templates/` for a comprehensive real-world example |
 
 ---
 

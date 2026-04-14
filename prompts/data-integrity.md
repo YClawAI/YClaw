@@ -14,9 +14,8 @@ DATA UNAVAILABLE — needs [specific integration]
 
 Examples:
 - `DATA UNAVAILABLE — needs telegram_stats integration (Telegram Bot API for member count)`
-- `DATA UNAVAILABLE — needs solana_program_stats integration (on-chain TVL from [your on-chain programs])`
-- `DATA UNAVAILABLE — needs chrome_extension_stats integration (extension install/usage data)`
-- `DATA UNAVAILABLE — needs creator_metrics integration ([your platform API] for token/creator stats)`
+- `DATA UNAVAILABLE — needs github_stats integration (GitHub API for stars, forks, contributor count)`
+- `DATA UNAVAILABLE — needs discord_stats integration (Discord API for member count, active users)`
 - `DATA UNAVAILABLE — needs x_engagement integration (X API for follower/engagement data)`
 
 ## Why This Matters
@@ -35,8 +34,8 @@ Examples:
 ## What You CANNOT Report Without Data Sources
 
 - Member counts, user counts, or growth numbers
-- On-chain metrics (TVL, staking, token prices, transaction volumes)
-- Platform usage statistics (watch minutes, extension installs)
+- GitHub metrics (stars, forks, contributor counts, download stats)
+- Platform usage statistics (deployments, active instances)
 - Engagement metrics (follower counts, impression counts)
 - Any specific number that implies measurement of an external system
 
