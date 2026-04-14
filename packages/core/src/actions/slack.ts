@@ -33,22 +33,41 @@ const logger = createLogger('slack-executor');
 export { SLACK_CHANNELS } from '../utils/channel-routing.js';
 
 // ─── Agent Identity Map ─────────────────────────────────────────────────────
-// Maps agent name → display identity for Slack messages
+// Derived from AgentRegistry at runtime. Proxied for backward compatibility.
 
-export const AGENT_IDENTITIES: Record<string, { username: string; icon_emoji: string }> = {
-  strategist:  { username: 'Strategist',  icon_emoji: ':chess_pawn:' },
-  reviewer:    { username: 'Reviewer',    icon_emoji: ':mag:' },
-  ember:       { username: 'Ember',       icon_emoji: ':fire:' },
-  scout:       { username: 'Scout',       icon_emoji: ':telescope:' },
-  forge:       { username: 'Forge',       icon_emoji: ':hammer_and_wrench:' },
-  architect:   { username: 'Architect',   icon_emoji: ':building_construction:' },
-  deployer:    { username: 'Deployer',    icon_emoji: ':rocket:' },
-  sentinel:    { username: 'Sentinel',    icon_emoji: ':shield:' },
-  signal:      { username: 'Signal',      icon_emoji: ':satellite:' },
-  keeper:      { username: 'Keeper',      icon_emoji: ':key:' },
-  treasurer:   { username: 'Treasurer',   icon_emoji: ':bank:' },
-  guide:       { username: 'Guide',       icon_emoji: ':compass:' },
-};
+import {
+  getAgentIdentity,
+  getSlackEmoji,
+  getRegisteredAgents,
+  findAgentIdentity,
+} from '../notifications/AgentRegistry.js';
+
+export const AGENT_IDENTITIES: Record<string, { username: string; icon_emoji: string }> = new Proxy(
+  {} as Record<string, { username: string; icon_emoji: string }>,
+  {
+    get: (_t, prop) => {
+      if (typeof prop === 'symbol') return undefined;
+      const ident = findAgentIdentity(prop);
+      if (!ident) return undefined;
+      return { username: ident.name, icon_emoji: getSlackEmoji(prop) };
+    },
+    has: (_t, prop) => {
+      if (typeof prop === 'symbol') return false;
+      return !!findAgentIdentity(prop);
+    },
+    ownKeys: () => getRegisteredAgents(),
+    getOwnPropertyDescriptor: (_t, prop) => {
+      if (typeof prop === 'symbol') return undefined;
+      const ident = findAgentIdentity(prop as string);
+      if (!ident) return undefined;
+      return {
+        configurable: true,
+        enumerable: true,
+        value: { username: ident.name, icon_emoji: getSlackEmoji(prop as string) },
+      };
+    },
+  },
+);
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 

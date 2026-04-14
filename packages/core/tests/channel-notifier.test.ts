@@ -1,6 +1,10 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { YClawEvent } from '../src/types/events.js';
 import type { IChannel } from '../src/interfaces/IChannel.js';
+import { initAgentRegistry } from '../src/notifications/AgentRegistry.js';
+import { createMockAgentConfigs } from './helpers/mock-agent-configs.js';
+
+beforeAll(() => { initAgentRegistry(createMockAgentConfigs()); });
 
 vi.mock('../src/logging/logger.js', () => ({
   createLogger: () => ({
@@ -59,7 +63,7 @@ function createMockChannel(
 
 function makeEvent(
   type: string,
-  source = 'builder',
+  source = 'architect',
   payload: Record<string, unknown> = {},
   correlationId = 'corr-abc',
 ): YClawEvent<unknown> {
@@ -144,7 +148,7 @@ describe('ChannelNotifier', () => {
     const channels = new Map<string, IChannel>([['slack', slack]]);
     const handler = await startAndGetHandler(channels);
 
-    await handler!(makeEvent('coord.task.completed', 'builder', {
+    await handler!(makeEvent('coord.task.completed', 'architect', {
       task_id: 't-1',
       description: 'done',
     }));
@@ -153,7 +157,7 @@ describe('ChannelNotifier', () => {
     expect(slack.send).toHaveBeenCalledTimes(1);
     const [target, message] = slack.send.mock.calls[0];
     expect(target.channelId).toBe('#yclaw-development');
-    expect(message.text).toContain('[Builder]');
+    expect(message.text).toContain('[Architect]');
     // Block Kit passthrough — opaque to the IChannel contract
     expect((message as any).blocks).toBeInstanceOf(Array);
   });
@@ -169,7 +173,7 @@ describe('ChannelNotifier', () => {
     ]);
     const handler = await startAndGetHandler(channels);
 
-    await handler!(makeEvent('coord.task.completed', 'builder', {
+    await handler!(makeEvent('coord.task.completed', 'architect', {
       task_id: 't-1',
       description: 'shipped',
     }));
@@ -185,7 +189,7 @@ describe('ChannelNotifier', () => {
     expect(discordTarget.channelId).toBe('1489421639274729502');
     // Discord uses plain markdown, never Block Kit
     expect((discordMsg as any).blocks).toBeUndefined();
-    expect(discordMsg.text).toContain('**Builder**');
+    expect(discordMsg.text).toContain('**Architect**');
   });
 
   it('skips Discord when no channel is configured for the department', async () => {
@@ -197,7 +201,7 @@ describe('ChannelNotifier', () => {
     ]);
     const handler = await startAndGetHandler(channels);
 
-    await handler!(makeEvent('coord.task.completed', 'builder'));
+    await handler!(makeEvent('coord.task.completed', 'architect'));
     await new Promise((r) => setTimeout(r, 30));
 
     expect(slack.send).toHaveBeenCalledTimes(1);
@@ -234,8 +238,8 @@ describe('ChannelNotifier', () => {
     ]);
     const handler = await startAndGetHandler(channels);
 
-    const first = makeEvent('coord.task.started', 'builder', { task_id: 't-1' }, 'proj-42');
-    const second = makeEvent('coord.task.completed', 'builder', { task_id: 't-1', description: 'done' }, 'proj-42');
+    const first = makeEvent('coord.task.started', 'architect', { task_id: 't-1' }, 'proj-42');
+    const second = makeEvent('coord.task.completed', 'architect', { task_id: 't-1', description: 'done' }, 'proj-42');
 
     await handler!(first);
     await new Promise((r) => setTimeout(r, 30));
@@ -268,7 +272,7 @@ describe('ChannelNotifier', () => {
     ]);
     const handler = await startAndGetHandler(channels);
 
-    await handler!(makeEvent('coord.task.blocked', 'builder', {
+    await handler!(makeEvent('coord.task.blocked', 'architect', {
       task_id: 't-1',
       message: 'Need API key',
     }));

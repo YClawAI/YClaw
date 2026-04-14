@@ -1,9 +1,9 @@
 /**
  * channel-routing — Platform-agnostic department/channel routing.
  *
- * Replaces the hardcoded DEPARTMENT_CHANNEL map in slack-blocks.ts. Every
- * channel notifier (Slack, Discord, Telegram, …) resolves an agent name to
- * a platform-specific channel ID through `getChannelForAgent(agent, platform)`.
+ * Agent identity (emoji, department) is derived from the AgentRegistry,
+ * which is populated at bootstrap from agent YAML configs. When a new
+ * agent YAML is added, routing Just Works — no code changes needed.
  *
  * Channel IDs are loaded from environment variables so operators can wire
  * the same agent to different channels on different platforms without
@@ -23,50 +23,11 @@
  * if general is also unset).
  */
 
-// ─── Agent Emoji Map ────────────────────────────────────────────────────────
-
-/**
- * Agent → emoji for notification headers. Used by both Slack Block Kit
- * and Discord markdown formatters.
- */
-export const AGENT_EMOJI: Record<string, string> = {
-  strategist: '\u{1F9E0}',       // 🧠
-  builder: '\u{1F6E0}\uFE0F',    // 🛠️
-  architect: '\u{1F4D0}',        // 📐
-  designer: '\u{1F3A8}',         // 🎨
-  deployer: '\u{1F680}',         // 🚀
-  reviewer: '\u{1F4CB}',         // 📋
-  scout: '\u{1F50D}',            // 🔍
-  ember: '\u{1F525}',            // 🔥
-  forge: '\u2692\uFE0F',         // ⚒️
-  sentinel: '\u{1F6E1}\uFE0F',   // 🛡️
-  treasurer: '\u{1F4B0}',        // 💰
-  keeper: '\u{1F3E0}',           // 🏠
-  guide: '\u{1F4DA}',            // 📚
-  signal: '\u{1F4E1}',           // 📡
-};
-
-// ─── Agent → Department Mapping ─────────────────────────────────────────────
-
-/**
- * Agent → department routing. One source of truth for every notifier.
- */
-export const AGENT_DEPARTMENT: Record<string, string> = {
-  strategist: 'executive',
-  reviewer: 'executive',
-  architect: 'development',
-  builder: 'development',
-  deployer: 'development',
-  designer: 'development',
-  ember: 'marketing',
-  forge: 'marketing',
-  scout: 'marketing',
-  sentinel: 'operations',
-  signal: 'operations',
-  treasurer: 'finance',
-  guide: 'support',
-  keeper: 'support',
-};
+import {
+  findAgentIdentity,
+  getAgentIdentity,
+  getRegisteredAgents,
+} from '../notifications/AgentRegistry.js';
 
 // ─── Supported Platforms ────────────────────────────────────────────────────
 
@@ -136,7 +97,7 @@ export function getChannelForDepartment(
  * Resolve an agent name to the correct channel ID for the given platform.
  *
  * Routing:
- *   1. Look up AGENT_DEPARTMENT[agent] → department
+ *   1. Look up agent's department from the registry
  *   2. Delegate to getChannelForDepartment(dept, platform)
  *   3. If that returns undefined, fall back to the `general` channel
  *
@@ -148,7 +109,7 @@ export function getChannelForAgent(
   agent: string,
   platform: ChannelPlatform,
 ): string | undefined {
-  const dept = (AGENT_DEPARTMENT[agent] as Department | undefined) ?? 'general';
+  const dept = (findAgentIdentity(agent)?.department ?? 'general') as Department;
   const direct = getChannelForDepartment(dept, platform);
   if (direct) return direct;
   // Fall back to general
@@ -163,13 +124,64 @@ export function getAlertsChannel(platform: ChannelPlatform): string | undefined 
 
 /** Get the emoji for an agent. Returns 🔔 for unknown agents. */
 export function getAgentEmoji(agent: string): string {
-  return AGENT_EMOJI[agent] || '\u{1F514}'; // 🔔
+  return getAgentIdentity(agent).emoji;
 }
 
 /** Get the department name for an agent. */
 export function getDepartmentForAgent(agent: string): string | undefined {
-  return AGENT_DEPARTMENT[agent];
+  return findAgentIdentity(agent)?.department;
 }
+
+// ─── Backward-Compatible Proxy Exports ──────────────────────────────────────
+// Existing code that imports AGENT_DEPARTMENT or AGENT_EMOJI as records
+// continues to work via Proxy. Full trap set so Object.keys() etc. work.
+// Strict lookup: unknown agents → undefined (old behavior).
+
+/** @deprecated Use getDepartmentForAgent() */
+export const AGENT_DEPARTMENT: Record<string, string> = new Proxy(
+  {} as Record<string, string>,
+  {
+    get: (_t, prop) => {
+      if (typeof prop === 'symbol') return undefined;
+      return findAgentIdentity(prop)?.department;
+    },
+    has: (_t, prop) => {
+      if (typeof prop === 'symbol') return false;
+      return !!findAgentIdentity(prop);
+    },
+    ownKeys: () => getRegisteredAgents(),
+    getOwnPropertyDescriptor: (_t, prop) => {
+      if (typeof prop === 'symbol') return undefined;
+      const ident = findAgentIdentity(prop as string);
+      return ident
+        ? { configurable: true, enumerable: true, value: ident.department }
+        : undefined;
+    },
+  },
+);
+
+/** @deprecated Use getAgentEmoji() */
+export const AGENT_EMOJI: Record<string, string> = new Proxy(
+  {} as Record<string, string>,
+  {
+    get: (_t, prop) => {
+      if (typeof prop === 'symbol') return undefined;
+      return findAgentIdentity(prop)?.emoji;
+    },
+    has: (_t, prop) => {
+      if (typeof prop === 'symbol') return false;
+      return !!findAgentIdentity(prop);
+    },
+    ownKeys: () => getRegisteredAgents(),
+    getOwnPropertyDescriptor: (_t, prop) => {
+      if (typeof prop === 'symbol') return undefined;
+      const ident = findAgentIdentity(prop as string);
+      return ident
+        ? { configurable: true, enumerable: true, value: ident.emoji }
+        : undefined;
+    },
+  },
+);
 
 // ─── Legacy Slack channel name map ──────────────────────────────────────────
 // Re-exported for backward compatibility with code that imports

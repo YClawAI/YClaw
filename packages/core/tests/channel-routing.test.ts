@@ -1,5 +1,14 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
+  initAgentRegistry,
+  resetAgentRegistryForTests,
+  getAgentIdentity,
+  findAgentIdentity,
+  getRegisteredAgents,
+} from '../src/notifications/AgentRegistry.js';
+import {
+  AGENT_DEPARTMENT,
+  AGENT_EMOJI,
   getAgentEmoji,
   getAlertsChannel,
   getChannelForAgent,
@@ -7,6 +16,37 @@ import {
   getDepartmentForAgent,
   SLACK_CHANNELS,
 } from '../src/utils/channel-routing.js';
+import type { AgentConfig } from '../src/config/schema.js';
+
+// ─── Mock Agent Configs ─────────────────────────────────────────────────────
+
+function mockConfigs(): Map<string, AgentConfig> {
+  const configs = new Map<string, AgentConfig>();
+
+  const base = {
+    description: 'test',
+    model: { provider: 'anthropic' as const, model: 'claude-sonnet-4-20250514', maxTokens: 4096, temperature: 0.3 },
+    system_prompts: [],
+    triggers: [],
+    actions: [],
+    data_sources: [],
+    event_subscriptions: [],
+    event_publications: [],
+    review_bypass: [],
+  };
+
+  configs.set('strategist', { ...base, name: 'strategist', department: 'executive' });
+  configs.set('architect', { ...base, name: 'architect', department: 'development' });
+  configs.set('designer', { ...base, name: 'designer', department: 'development' });
+  configs.set('ember', { ...base, name: 'ember', department: 'marketing' });
+  configs.set('sentinel', { ...base, name: 'sentinel', department: 'operations' });
+  configs.set('treasurer', { ...base, name: 'treasurer', department: 'finance' });
+  configs.set('keeper', { ...base, name: 'keeper', department: 'support' });
+  configs.set('librarian', { ...base, name: 'librarian', department: 'operations' });
+  configs.set('mechanic', { ...base, name: 'mechanic', department: 'development' });
+
+  return configs;
+}
 
 // ─── Env helper ─────────────────────────────────────────────────────────────
 
@@ -49,6 +89,10 @@ const TRACKED_ENV_KEYS = [
 describe('channel-routing', () => {
   let envSnap: Record<string, string | undefined>;
 
+  beforeAll(() => {
+    initAgentRegistry(mockConfigs());
+  });
+
   beforeEach(() => {
     envSnap = snapshotEnv(TRACKED_ENV_KEYS);
     for (const k of TRACKED_ENV_KEYS) delete process.env[k];
@@ -58,10 +102,60 @@ describe('channel-routing', () => {
     restoreEnv(envSnap);
   });
 
-  describe('AGENT_EMOJI + getAgentEmoji', () => {
+  // ─── Council-mandated: Pre-init access throws ─────────────────────────
+
+  describe('pre-init guard', () => {
+    it('throws if accessed before initAgentRegistry()', () => {
+      resetAgentRegistryForTests();
+      expect(() => getAgentIdentity('strategist')).toThrow(
+        'AgentRegistry accessed before initAgentRegistry()',
+      );
+      // Re-init for remaining tests
+      initAgentRegistry(mockConfigs());
+    });
+  });
+
+  // ─── Council-mandated: Proxy enumeration works ────────────────────────
+
+  describe('proxy enumeration', () => {
+    it('Object.keys(AGENT_DEPARTMENT) returns all registered agent names', () => {
+      const keys = Object.keys(AGENT_DEPARTMENT);
+      expect(keys).toContain('strategist');
+      expect(keys).toContain('architect');
+      expect(keys).toContain('librarian');
+      expect(keys).toContain('mechanic');
+      expect(keys.length).toBe(mockConfigs().size);
+    });
+
+    it('Object.keys(AGENT_EMOJI) returns all registered agent names', () => {
+      const keys = Object.keys(AGENT_EMOJI);
+      expect(keys).toContain('strategist');
+      expect(keys).toContain('librarian');
+    });
+
+    it('Object.entries(AGENT_DEPARTMENT) works', () => {
+      const entries = Object.entries(AGENT_DEPARTMENT);
+      const strategistEntry = entries.find(([k]) => k === 'strategist');
+      expect(strategistEntry).toEqual(['strategist', 'executive']);
+    });
+  });
+
+  // ─── Council-mandated: Proxy unknown key returns undefined ────────────
+
+  describe('proxy unknown key', () => {
+    it('AGENT_DEPARTMENT["fake_agent"] returns undefined', () => {
+      expect(AGENT_DEPARTMENT['fake_agent']).toBeUndefined();
+    });
+
+    it('AGENT_EMOJI["fake_agent"] returns undefined', () => {
+      expect(AGENT_EMOJI['fake_agent']).toBeUndefined();
+    });
+  });
+
+  describe('getAgentEmoji', () => {
     it('returns the expected emoji for known agents', () => {
-      expect(getAgentEmoji('builder')).toBe('\u{1F6E0}\uFE0F');
       expect(getAgentEmoji('strategist')).toBe('\u{1F9E0}');
+      expect(getAgentEmoji('architect')).toBe('\u{1F3D7}\uFE0F');
     });
 
     it('falls back to bell for unknown agents', () => {
@@ -71,8 +165,13 @@ describe('channel-routing', () => {
 
   describe('getDepartmentForAgent', () => {
     it('maps development agents correctly', () => {
-      expect(getDepartmentForAgent('builder')).toBe('development');
       expect(getDepartmentForAgent('architect')).toBe('development');
+      expect(getDepartmentForAgent('mechanic')).toBe('development');
+    });
+
+    // Council-mandated: YAML-only agents route correctly
+    it('maps librarian to operations (YAML-derived, no hardcoded map)', () => {
+      expect(getDepartmentForAgent('librarian')).toBe('operations');
     });
 
     it('returns undefined for unknown agents', () => {
@@ -82,11 +181,21 @@ describe('channel-routing', () => {
 
   describe('Slack routing (default channel names)', () => {
     it('falls back to #yclaw-<dept> when no SLACK_CHANNEL_* env is set', () => {
-      expect(getChannelForAgent('builder', 'slack')).toBe('#yclaw-development');
+      expect(getChannelForAgent('architect', 'slack')).toBe('#yclaw-development');
       expect(getChannelForAgent('strategist', 'slack')).toBe('#yclaw-executive');
       expect(getChannelForAgent('treasurer', 'slack')).toBe('#yclaw-finance');
     });
 
+    // Council-mandated: YAML-only agents route correctly
+    it('routes librarian to #yclaw-operations via YAML config', () => {
+      expect(getChannelForAgent('librarian', 'slack')).toBe('#yclaw-operations');
+    });
+
+    it('routes mechanic to #yclaw-development via YAML config', () => {
+      expect(getChannelForAgent('mechanic', 'slack')).toBe('#yclaw-development');
+    });
+
+    // Council-mandated: Unknown agent falls back to general
     it('routes unknown agents to #yclaw-general', () => {
       expect(getChannelForAgent('mystery-agent', 'slack')).toBe('#yclaw-general');
     });
@@ -99,19 +208,19 @@ describe('channel-routing', () => {
 
     it('honours SLACK_CHANNEL_* env overrides when set', () => {
       process.env.SLACK_CHANNEL_DEVELOPMENT = 'C1234567890';
-      expect(getChannelForAgent('builder', 'slack')).toBe('C1234567890');
+      expect(getChannelForAgent('architect', 'slack')).toBe('C1234567890');
       expect(getChannelForDepartment('development', 'slack')).toBe('C1234567890');
     });
 
     it('ignores empty-string overrides and keeps the default', () => {
       process.env.SLACK_CHANNEL_DEVELOPMENT = '   ';
-      expect(getChannelForAgent('builder', 'slack')).toBe('#yclaw-development');
+      expect(getChannelForAgent('architect', 'slack')).toBe('#yclaw-development');
     });
   });
 
   describe('Discord routing (no default channels)', () => {
     it('returns undefined when nothing is configured', () => {
-      expect(getChannelForAgent('builder', 'discord')).toBeUndefined();
+      expect(getChannelForAgent('architect', 'discord')).toBeUndefined();
       expect(getAlertsChannel('discord')).toBeUndefined();
     });
 
@@ -122,14 +231,77 @@ describe('channel-routing', () => {
       expect(getChannelForAgent('unknown-agent', 'discord')).toBe('1489421589941325904');
     });
 
+    // Council-mandated: YAML-only agents route correctly via Discord
+    it('routes librarian to operations channel via Discord', () => {
+      process.env.DISCORD_CHANNEL_OPERATIONS = '1489421700000000000';
+      expect(getChannelForAgent('librarian', 'discord')).toBe('1489421700000000000');
+    });
+
     it('falls back from a department to GENERAL when the department env is unset', () => {
       process.env.DISCORD_CHANNEL_GENERAL = '1489421589941325904';
-      expect(getChannelForAgent('builder', 'discord')).toBe('1489421589941325904');
+      expect(getChannelForAgent('architect', 'discord')).toBe('1489421589941325904');
     });
 
     it('resolves the alerts channel independently', () => {
       process.env.DISCORD_CHANNEL_ALERTS = '1489421718945661049';
       expect(getAlertsChannel('discord')).toBe('1489421718945661049');
     });
+  });
+
+  // ─── Council-mandated: Agent in YAML but not in display overrides ─────
+
+  describe('agents without display overrides', () => {
+    it('gets fallback emoji (bell) + correct department routing', () => {
+      // Add a synthetic agent with no display override
+      const configs = mockConfigs();
+      configs.set('new_agent', {
+        name: 'new_agent',
+        department: 'finance',
+        description: 'test',
+        model: { provider: 'anthropic' as const, model: 'claude-sonnet-4-20250514', maxTokens: 4096, temperature: 0.3 },
+        system_prompts: [],
+        triggers: [],
+        actions: [],
+        data_sources: [],
+        event_subscriptions: [],
+        event_publications: [],
+        review_bypass: [],
+      });
+      initAgentRegistry(configs);
+
+      expect(getAgentEmoji('new_agent')).toBe('\u{1F514}'); // 🔔 fallback
+      expect(getDepartmentForAgent('new_agent')).toBe('finance');
+      expect(getChannelForAgent('new_agent', 'slack')).toBe('#yclaw-finance');
+
+      // Re-init with standard configs for remaining tests
+      initAgentRegistry(mockConfigs());
+    });
+  });
+});
+
+// ─── AgentRegistry unit tests ───────────────────────────────────────────────
+
+describe('AgentRegistry', () => {
+  beforeAll(() => {
+    initAgentRegistry(mockConfigs());
+  });
+
+  it('findAgentIdentity returns undefined for unknown agents', () => {
+    expect(findAgentIdentity('nonexistent')).toBeUndefined();
+  });
+
+  it('getAgentIdentity returns fallback for unknown agents', () => {
+    const ident = getAgentIdentity('nonexistent');
+    expect(ident.id).toBe('nonexistent');
+    expect(ident.department).toBe('general');
+    expect(ident.emoji).toBe('\u{1F514}');
+  });
+
+  it('getRegisteredAgents returns all agent IDs', () => {
+    const agents = getRegisteredAgents();
+    expect(agents).toContain('strategist');
+    expect(agents).toContain('librarian');
+    expect(agents).toContain('mechanic');
+    expect(agents.length).toBe(mockConfigs().size);
   });
 });
