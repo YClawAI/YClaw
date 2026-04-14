@@ -173,5 +173,5 @@ review_bypass: []
 
 heartbeat:
   precheck:
-    enabled: true
+    enabled: false
     maxSilenceHours: 6

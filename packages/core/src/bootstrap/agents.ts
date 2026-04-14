@@ -404,12 +404,15 @@ export async function initAgents(
     if (!config) continue;
 
     // Elvis pre-check: skip the LLM if the agent has no pending work.
-    // Controlled per-agent via YAML heartbeat.precheck.enabled (default: true).
+    // Controlled per-agent via YAML heartbeat.precheck.enabled (default: true),
+    // and overridable per-trigger via trigger.precheck.enabled.
     // Strategist is hard-excluded: it creates work from GitHub issues that haven't
     // been triaged into Redis yet, so queue-depth checks would produce a
     // chicken-and-egg false negative (see issue #447 post-mortem).
+    // Architect is disabled at agent level: stale_issue_sweep and pipeline_health_scan
+    // are reconciler/discovery tasks that find work not yet in internal queues.
     const precheckCfg = config.heartbeat?.precheck;
-    const precheckEnabled = agent !== 'strategist' && precheckCfg?.enabled !== false;
+    const agentPrecheckEnabled = agent !== 'strategist' && precheckCfg?.enabled !== false;
     const precheckMaxSilenceMs = ((precheckCfg?.maxSilenceHours ?? 6) * 3_600_000);
 
     cronManager.schedule(agent, schedule, task, async () => {
@@ -425,6 +428,14 @@ export async function initAgents(
       }
 
       // Elvis pre-check gate — deterministic, zero-LLM
+      // Per-trigger override: trigger.precheck.enabled can override agent-level setting.
+      // Reconciler crons (stale_issue_sweep, pipeline_health_scan) should set this to false.
+      const triggerCfg = config.triggers?.find(
+        t => t.type === 'cron' && t.task === task,
+      );
+      const precheckEnabled = (triggerCfg && 'precheck' in triggerCfg
+        ? triggerCfg.precheck?.enabled
+        : undefined) ?? agentPrecheckEnabled;
       if (precheckEnabled && deployRedis) {
         const precheck = await shouldRunHeartbeat(
           agent,

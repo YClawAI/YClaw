@@ -18,7 +18,10 @@ export const CronTriggerSchema = z.object({
   type: z.literal('cron'),
   schedule: z.string(),
   task: z.string(),
+  description: z.string().optional(),
   prompts: z.array(z.string()).optional(),
+  /** Per-trigger pre-check override. Reconciler crons should set enabled: false. */
+  precheck: z.object({ enabled: z.boolean() }).optional(),
 });
 
 export const EventTriggerSchema = z.object({
