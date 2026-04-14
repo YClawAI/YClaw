@@ -91,17 +91,17 @@ export const DEFAULT_ACL: AclMap = {
   'deploy:approved': ['deploy-system'],
   'deployer:deploy_complete': ['deployer'],
 
-  // GitHub webhooks
-  'github:pr_opened': ['github-webhook'],
-  'github:pr_updated': ['github-webhook'],
-  'github:issue_assigned': ['github-webhook'],
-  'github:issue_opened': ['github-webhook'],
-  'github:issue_labeled': ['github-webhook'],
-  'github:pr_review_submitted': ['github-webhook'],
-  'github:pr_review_comment': ['github-webhook'],
-  'github:ci_pass': ['github-webhook'],
-  'github:ci_fail': ['github-webhook'],
-  'github:repository_created': ['github-webhook'],
+  // GitHub webhooks — source is 'github' (from GitHubWebhookHandler.publish)
+  'github:pr_opened': ['github', 'github-webhook'],
+  'github:pr_updated': ['github', 'github-webhook'],
+  'github:issue_assigned': ['github', 'github-webhook'],
+  'github:issue_opened': ['github', 'github-webhook'],
+  'github:issue_labeled': ['github', 'github-webhook'],
+  'github:pr_review_submitted': ['github', 'github-webhook'],
+  'github:pr_review_comment': ['github', 'github-webhook'],
+  'github:ci_pass': ['github', 'github-webhook'],
+  'github:ci_fail': ['github', 'github-webhook'],
+  'github:repository_created': ['github', 'github-webhook'],
 
   // Coordination events
   'standup:report': [
