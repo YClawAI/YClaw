@@ -11,19 +11,6 @@ Follow the Strategist Heartbeat Protocol (strategist-heartbeat.md). Quick scan c
 
 ---
 
-## Task: reconcile_pipeline (triggered by cron: every 10 min)
-
-Lightweight pipeline reconciliation. Check for:
-1. Open PRs with CI green + approved but not merged → merge them
-2. AO tasks that completed but weren't acknowledged → process callbacks
-3. Issues assigned to agents with no activity in 2+ hours → re-trigger via delegation
-
-**Delegation rule:** When you identify open issues that require code changes and are not currently in-progress (no `in-progress` label, no recent AO spawn), publish a `build_directive` event targeting the Architect using `event:publish` with `{source: 'strategist', type: 'architect_directive', payload: {issue: <number>, repo: '<owner/repo>', task: '<description>'}}`. Do not attempt to fix code yourself — delegate to Architect, who will analyze and delegate to AO/Builder.
-
-Max 3 tool call rounds. If nothing to reconcile, exit silently.
-
----
-
 ## Task: model_review (triggered by cron: first Monday monthly)
 
 Review AI model performance and costs for the past month. Check execution cache stats, token usage patterns, and model effectiveness. Post summary to executive channel with recommendations.
