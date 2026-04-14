@@ -16,6 +16,7 @@ import { GitHubExecutor } from '../actions/github/index.js';
 import { EmailExecutor } from '../actions/email.js';
 import { EventActionExecutor } from '../actions/event.js';
 import { CodegenExecutor } from '../actions/codegen.js';
+import { AoExecutor } from '../actions/ao.js';
 import { DeployExecutor } from '../actions/deploy/index.js';
 import { RepoExecutor } from '../actions/repo.js';
 import { XSearchExecutor } from '../actions/x-search.js';
@@ -100,6 +101,7 @@ export async function initActions(services: ServiceContext): Promise<ActionConte
   actionRegistry.register('email', new EmailExecutor());
   actionRegistry.register('event', new EventActionExecutor(eventBus));
   actionRegistry.register('codegen', new CodegenExecutor(auditLog, repoRegistry));
+  actionRegistry.register('ao', new AoExecutor());
   actionRegistry.register('deploy', new DeployExecutor(auditLog, repoRegistry, outboundSafety, eventBus, deployRedis ?? undefined));
   actionRegistry.register('repo', new RepoExecutor(repoRegistry));
   actionRegistry.register('x', new XSearchExecutor());
