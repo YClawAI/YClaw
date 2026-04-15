@@ -12,6 +12,23 @@ import type { EventStream } from '../services/event-stream.js';
 
 const CHANNEL = 'agent:events';
 
+/** Redis Stream key prefix for dead-letter queue entries. */
+export const DLQ_STREAM_PREFIX = 'yclaw:dlq:';
+/** Redis key prefix for consumer heartbeat tracking. */
+export const HEARTBEAT_KEY_PREFIX = 'yclaw:heartbeat:';
+/** TTL (seconds) for heartbeat keys — alert fires if a key expires. */
+export const HEARTBEAT_TTL_SEC = 120;
+/** Initial backoff before first DLQ retry (1 minute). */
+export const DLQ_INITIAL_RETRY_DELAY_MS = 60_000;
+
+// ─── Internal Types ──────────────────────────────────────────────────────────
+
+interface HandlerEntry {
+  fn: (event: AgentEvent) => Promise<void>;
+  /** Optional agent name — used for heartbeat tracking. */
+  agentName?: string;
+}
+
 // ─── EventBus ───────────────────────────────────────────────────────────────
 
 /**
@@ -23,7 +40,7 @@ export class EventBus {
   private readonly log = createLogger('event-bus');
   private publisher: Redis | null = null;
   private subscriber: Redis | null = null;
-  private readonly handlers = new Map<string, Array<(event: AgentEvent) => Promise<void>>>();
+  private readonly handlers = new Map<string, HandlerEntry[]>();
   private connected = false;
   private closed = false;
   /**
@@ -65,18 +82,29 @@ export class EventBus {
     }
 
     try {
-      const redisOpts = {
+      // Exponential back-off capped at 30 s; give up after 20 retries (~10 min total).
+      const retryStrategy = (times: number) => {
+        if (times > 20) return null;              // Give up — surface permanent failure
+        return Math.min(100 * Math.pow(2, times), 30_000); // 200ms → 400ms → … → 30s
+      };
+
+      const publisherOpts = {
         lazyConnect: true,
-        maxRetriesPerRequest: 3,
-        connectTimeout: 15000,            // 15s connect timeout (Redis Cloud can be slow)
-        retryStrategy: (times: number) => {
-          if (times > 10) return null;     // Give up after 10 retries
-          return Math.min(times * 500, 30000); // Exponential backoff, max 30s
-        },
+        maxRetriesPerRequest: 3,           // Command-level retries for regular commands
+        connectTimeout: 15000,             // 15s connect timeout (Redis Cloud can be slow)
+        retryStrategy,
         enableReadyCheck: true,
       };
-      this.publisher = new Redis(url, redisOpts);
-      this.subscriber = new Redis(url, redisOpts);
+
+      // Subscriber must use maxRetriesPerRequest: null — pub/sub commands should
+      // wait indefinitely for a connection rather than fail fast during reconnect.
+      const subscriberOpts = {
+        ...publisherOpts,
+        maxRetriesPerRequest: null,        // Infinite retries for pub/sub commands
+      };
+
+      this.publisher = new Redis(url, publisherOpts);
+      this.subscriber = new Redis(url, subscriberOpts);
 
       this.publisher.on('error', (err: Error) => {
         this.log.error('Redis publisher error', { error: err.message });
@@ -300,14 +328,23 @@ export class EventBus {
    * Subscribe to events matching a pattern. The pattern follows the format
    * `source:type` — for example `forge:asset_ready`. The subscriber connection
    * listens on the shared channel and dispatches only matching events.
+   *
+   * @param agentName - Optional agent name. When provided, a heartbeat key is
+   *   refreshed in Redis on every event the handler receives so Sentinel can
+   *   detect stalled agents.
    */
-  subscribe(eventPattern: string, handler: (event: AgentEvent) => Promise<void>): void {
+  subscribe(
+    eventPattern: string,
+    handler: (event: AgentEvent) => Promise<void>,
+    agentName?: string,
+  ): void {
     const isFirstSubscription = this.handlers.size === 0;
+    const entry: HandlerEntry = { fn: handler, agentName };
     const existing = this.handlers.get(eventPattern);
     if (existing) {
-      existing.push(handler);
+      existing.push(entry);
     } else {
-      this.handlers.set(eventPattern, [handler]);
+      this.handlers.set(eventPattern, [entry]);
     }
     this.log.info('Subscribed to event pattern', { pattern: eventPattern, handlerCount: (this.handlers.get(eventPattern)?.length ?? 0) });
 
@@ -339,7 +376,7 @@ export class EventBus {
     if (handler) {
       const existing = this.handlers.get(eventPattern);
       if (existing) {
-        const idx = existing.indexOf(handler);
+        const idx = existing.findIndex(e => e.fn === handler);
         if (idx !== -1) existing.splice(idx, 1);
         if (existing.length === 0) this.handlers.delete(eventPattern);
       }
@@ -380,6 +417,10 @@ export class EventBus {
    * Deserialize an incoming Redis message and fan it out to all handlers whose
    * pattern matches the event's `source:type` key. Handler errors are caught
    * and logged individually so one failing handler does not block others.
+   *
+   * On success, writes a heartbeat key for the handler's agent (if set).
+   * On failure, writes a dead-letter queue (DLQ) entry to Redis Streams so the
+   * event can be retried by the DLQ consumer. Both writes are fire-and-forget.
    */
   private async dispatch(message: string): Promise<void> {
     let event: AgentEvent;
@@ -392,18 +433,111 @@ export class EventBus {
 
     const eventKey = `${event.source}:${event.type}`;
 
-    for (const [pattern, handlers] of this.handlers) {
+    for (const [pattern, entries] of this.handlers) {
       if (this.matches(eventKey, pattern)) {
-        for (const handler of handlers) {
+        for (const entry of entries) {
+          // Heartbeat: refresh on every event received, before the handler runs
+          if (entry.agentName) {
+            this.writeHeartbeat(entry.agentName);
+          }
           try {
-            await handler(event);
+            await entry.fn(event);
           } catch (err) {
             const error = err instanceof Error ? err.message : String(err);
             this.log.error('Event handler failed', { pattern, eventKey, error });
+            // DLQ: write failed event for later retry — fire-and-forget
+            this.writeToDlq(event, err);
           }
         }
       }
     }
+  }
+
+  // ─── DLQ Retry Dispatch ─────────────────────────────────────────────────────
+
+  /**
+   * Retry-dispatch an event directly to all matching handlers, bypassing Redis
+   * pub/sub and DLQ fallback. Used exclusively by the DLQ consumer.
+   *
+   * Unlike the internal `dispatch()`, errors propagate to the caller so the
+   * DLQ consumer can track retry counts and decide whether to park the event.
+   *
+   * @throws If any handler throws
+   */
+  async dispatchForRetry(event: AgentEvent): Promise<void> {
+    const eventKey = `${event.source}:${event.type}`;
+    for (const [pattern, entries] of this.handlers) {
+      if (this.matches(eventKey, pattern)) {
+        for (const entry of entries) {
+          await entry.fn(event);
+        }
+      }
+    }
+  }
+
+  // ─── DLQ & Heartbeat ───────────────────────────────────────────────────────
+
+  /**
+   * Write a failed event to the dead-letter queue Redis Stream.
+   * Fire-and-forget — never throws, errors are only logged.
+   */
+  private writeToDlq(event: AgentEvent, err: unknown): void {
+    if (!this.publisher || !this.connected) return;
+
+    const error = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? (err.stack ?? '') : '';
+    const streamKey = `${DLQ_STREAM_PREFIX}${event.source}:${event.type}`;
+    const retryAfterMs = Date.now() + DLQ_INITIAL_RETRY_DELAY_MS;
+
+    const fields: string[] = [
+      'event_id', event.id,
+      'source', event.source,
+      'type', event.type,
+      'payload', JSON.stringify(event.payload),
+      'error', error,
+      'stack', stack,
+      'timestamp', new Date().toISOString(),
+      'retry_count', '0',
+      'retry_after', String(retryAfterMs),
+    ];
+    if (event.correlationId) {
+      fields.push('correlation_id', event.correlationId);
+    }
+
+    // Cap DLQ stream size to prevent unbounded growth
+    void this.publisher.xadd(streamKey, 'MAXLEN', '~', '5000', '*', ...fields)
+      .then(() => {
+        this.log.info('Event written to DLQ', {
+          streamKey,
+          eventId: event.id,
+          source: event.source,
+          type: event.type,
+          error,
+        });
+      })
+      .catch((dlqErr: unknown) => {
+        const dlqMsg = dlqErr instanceof Error ? dlqErr.message : String(dlqErr);
+        this.log.error('Failed to write to DLQ (event may be lost)', {
+          streamKey,
+          eventId: event.id,
+          error: dlqMsg,
+        });
+      });
+  }
+
+  /**
+   * Refresh the heartbeat key for an agent subscriber.
+   * Fire-and-forget — never throws, errors are only logged.
+   */
+  private writeHeartbeat(agentName: string): void {
+    if (!this.publisher || !this.connected) return;
+
+    const key = `${HEARTBEAT_KEY_PREFIX}${agentName}`;
+    void this.publisher.set(key, '1', 'EX', HEARTBEAT_TTL_SEC)
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        this.log.warn('Failed to write agent heartbeat', { agentName, error: msg });
+      });
   }
 
   /**
