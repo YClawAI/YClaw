@@ -352,7 +352,7 @@ class RuntimeProcess {
         '--bare',
         '-p', task.trim(),
         '--output-format', 'json',
-        '--max-turns', '25',
+        '--max-turns', process.env.AO_MAX_TURNS || '60',
         '--dangerously-skip-permissions',
       ];
     }

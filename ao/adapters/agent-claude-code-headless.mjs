@@ -74,7 +74,7 @@ export function create() {
       parts.push('--output-format', 'json');
 
       // Max turns to prevent runaway sessions
-      parts.push('--max-turns', '25');
+      parts.push('--max-turns', process.env.AO_MAX_TURNS || '60');
 
       // Model selection
       if (config.model) {
