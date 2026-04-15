@@ -54,7 +54,7 @@ export class AWSSecretsBackend implements SecretBackend {
         ],
       }));
     } catch (err: unknown) {
-      if ((err as { name?: string }).name === 'ResourceExistsException') {
+      if (err instanceof Error && err.name === 'ResourceExistsException') {
         await client.send(new UpdateSecretCommand({
           SecretId: name,
           SecretString: secretString,

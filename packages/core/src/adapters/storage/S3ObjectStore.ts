@@ -14,6 +14,16 @@ import type {
 } from '../../interfaces/IObjectStore.js';
 import { createLogger } from '../../logging/logger.js';
 
+interface AwsServiceError {
+  name?: string;
+  $metadata?: { httpStatusCode?: number };
+}
+
+function isAwsServiceError(err: unknown): err is AwsServiceError {
+  return typeof err === 'object' && err !== null && ('name' in err || '$metadata' in err);
+}
+
+
 const logger = createLogger('s3-object-store');
 
 /**
@@ -94,8 +104,7 @@ export class S3ObjectStore implements IObjectStore {
       }
       return Buffer.concat(chunks);
     } catch (err: unknown) {
-      const awsErr = err as { name?: string; $metadata?: { httpStatusCode?: number } };
-      if (awsErr.name === 'NoSuchKey' || awsErr.$metadata?.httpStatusCode === 404) {
+      if (isAwsServiceError(err) && (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404)) {
         return null;
       }
       throw err;
@@ -118,8 +127,7 @@ export class S3ObjectStore implements IObjectStore {
         custom: response.Metadata,
       };
     } catch (err: unknown) {
-      const awsErr = err as { name?: string; $metadata?: { httpStatusCode?: number } };
-      if (awsErr.name === 'NotFound' || awsErr.$metadata?.httpStatusCode === 404) {
+      if (isAwsServiceError(err) && (err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404)) {
         return null;
       }
       throw err;

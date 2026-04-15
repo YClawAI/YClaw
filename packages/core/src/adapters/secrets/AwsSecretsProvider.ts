@@ -17,7 +17,6 @@ const logger = createLogger('aws-secrets-provider');
  * Used for optional peer dependencies that may not be installed.
  */
 // eslint-disable-next-line @typescript-eslint/no-implied-eval
-// eslint-disable-next-line @typescript-eslint/no-implied-eval
 const dynamicImport = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<any>;
 
 export class AwsSecretsProvider implements ISecretProvider {
@@ -71,7 +70,7 @@ export class AwsSecretsProvider implements ISecretProvider {
       }
       return value;
     } catch (err: unknown) {
-      if ((err as { name?: string }).name === 'ResourceNotFoundException') {
+      if (err instanceof Error && err.name === 'ResourceNotFoundException') {
         return null;
       }
       logger.error('Failed to retrieve secret from AWS', {

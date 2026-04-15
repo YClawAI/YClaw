@@ -59,7 +59,11 @@ export function registerConflictRoutes(
         return;
       }
 
-      const operator = (req as OperatorRequest).operator!;
+      const operator = (req as OperatorRequest).operator;
+      if (!operator) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
       const resourceKey = decodeURIComponent(req.params.resourceKey);
       const released = await lockManager.forceRelease(resourceKey);
 

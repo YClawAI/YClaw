@@ -33,7 +33,11 @@ export function registerOperatorRoutes(
         return;
       }
       const { email, displayName, role, tier, departments, limits } = parsed.data;
-      const operator = (req as OperatorRequest).operator!;
+      const operator = (req as OperatorRequest).operator;
+      if (!operator) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
 
       // Check if email already has an active operator
       const existing = await operatorStore.getByEmail(email);
@@ -276,7 +280,11 @@ export function registerOperatorRoutes(
         return;
       }
       const { reason } = parsed.data;
-      const caller = (req as OperatorRequest).operator!;
+      const caller = (req as OperatorRequest).operator;
+      if (!caller) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
 
       // Can't revoke yourself
       if (targetId === caller.operatorId) {
