@@ -25,19 +25,19 @@ const PR_POLL_INTERVAL_MS = 15_000;
 const EVENT_SLACK_MAP: Record<string, { emoji: string; template: (e: AoCallbackEvent) => string }> = {
   'session.started': {
     emoji: '🟢',
-    template: (e) => `AO spawned coding session for *#${e.issueNumber || '?'}*${e.repo ? ` in \`${e.repo}\`` : ''}`,
+    template: (e) => `Builder spawned coding session for *#${e.issueNumber || '?'}*${e.repo ? ` in \`${e.repo}\`` : ''}`,
   },
   'session.completed': {
     emoji: '✅',
-    template: (e) => `AO completed work on *#${e.issueNumber || '?'}*${e.repo ? ` in \`${e.repo}\`` : ''}`,
+    template: (e) => `Builder completed work on *#${e.issueNumber || '?'}*${e.repo ? ` in \`${e.repo}\`` : ''}`,
   },
   'pr.ready': {
     emoji: '📝',
-    template: (e) => `AO opened PR${e.prNumber ? ` *#${e.prNumber}*` : ''} for *#${e.issueNumber || '?'}*${e.prUrl ? ` — ${e.prUrl}` : ''}`,
+    template: (e) => `Builder opened PR${e.prNumber ? ` *#${e.prNumber}*` : ''} for *#${e.issueNumber || '?'}*${e.prUrl ? ` — ${e.prUrl}` : ''}`,
   },
   'pr.created': {
     emoji: '📝',
-    template: (e) => `AO opened PR${e.prNumber ? ` *#${e.prNumber}*` : ''} for *#${e.issueNumber || '?'}*${e.prUrl ? ` — ${e.prUrl}` : ''}`,
+    template: (e) => `Builder opened PR${e.prNumber ? ` *#${e.prNumber}*` : ''} for *#${e.issueNumber || '?'}*${e.prUrl ? ` — ${e.prUrl}` : ''}`,
   },
   'pr.merged': {
     emoji: '🎉',
@@ -45,7 +45,7 @@ const EVENT_SLACK_MAP: Record<string, { emoji: string; template: (e: AoCallbackE
   },
   'session.failed': {
     emoji: '❌',
-    template: (e) => `AO session failed for *#${e.issueNumber || '?'}*${e.error ? `: ${e.error.slice(0, 200)}` : ''}`,
+    template: (e) => `Builder session failed for *#${e.issueNumber || '?'}*${e.error ? `: ${e.error.slice(0, 200)}` : ''}`,
   },
   'ci.failed': {
     emoji: '🔴',
@@ -71,7 +71,7 @@ async function notifySlack(event: AoCallbackEvent): Promise<void> {
   const mapping = EVENT_SLACK_MAP[event.type];
   if (!mapping) {
     // Unknown event type — post a generic notification
-    const text = `🔔 AO event: \`${event.type}\`${event.issueNumber ? ` for #${event.issueNumber}` : ''}`;
+    const text = `🔔 Builder event: \`${event.type}\`${event.issueNumber ? ` for #${event.issueNumber}` : ''}`;
     await postSlackMessage(slackToken, text);
     return;
   }
@@ -109,7 +109,7 @@ async function postSlackMessage(
       body: JSON.stringify({
         channel: process.env.AO_SLACK_CHANNEL || '',
         text,
-        username: 'AO',
+        username: 'Builder',
         icon_emoji: ':robot_face:',
         ...(threadTs ? { thread_ts: threadTs } : {}),
       }),
@@ -294,7 +294,7 @@ async function notifyDiscord(event: AoCallbackEvent): Promise<void> {
   // Slack uses *bold*, Discord uses **bold** — convert single * to **
   const raw = mapping
     ? `${mapping.emoji} ${mapping.template(event)}`
-    : `🔔 AO event: \`${event.type}\`${event.issueNumber ? ` for #${event.issueNumber}` : ''}`;
+    : `🔔 Builder event: \`${event.type}\`${event.issueNumber ? ` for #${event.issueNumber}` : ''}`;
   const text = raw.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '**$1**');
 
   try {
@@ -302,7 +302,7 @@ async function notifyDiscord(event: AoCallbackEvent): Promise<void> {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        username: 'AO Pipeline',
+        username: 'Builder',
         content: text,
       }),
     });
@@ -333,7 +333,7 @@ async function commentOnIssueFailure(event: AoCallbackEvent): Promise<void> {
     return;
   }
 
-  const body = `⚠️ **AO session failed**\n\n` +
+  const body = `⚠️ **Builder session failed**\n\n` +
     `- **Session:** ${event.sessionId || 'unknown'}\n` +
     `- **Reason:** ${event.error || (event as unknown as Record<string, unknown>).subtype || event.type}\n` +
     `- **Time:** ${new Date().toISOString()}\n\n` +
