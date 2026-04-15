@@ -464,6 +464,7 @@ describe('ao callback middleware', () => {
       fetchMock = vi.fn();
       vi.stubGlobal('fetch', fetchMock);
       process.env.SLACK_BOT_TOKEN = 'xoxb-test';
+      process.env.AO_SLACK_CHANNEL = 'C0000000001';
       process.env.GITHUB_TOKEN = 'ghp-test';
       // Enable GitHub auth for false-positive resolution + issue comments
       mockIsGitHubAuthAvailable.mockReturnValue(true);
@@ -475,6 +476,7 @@ describe('ao callback middleware', () => {
       vi.unstubAllGlobals();
       vi.useRealTimers();
       delete process.env.SLACK_BOT_TOKEN;
+      delete process.env.AO_SLACK_CHANNEL;
       delete process.env.GITHUB_TOKEN;
       mockIsGitHubAuthAvailable.mockReturnValue(false);
     });
