@@ -26,7 +26,6 @@
 import {
   findAgentIdentity,
   getAgentIdentity,
-  getRegisteredAgents,
 } from '../notifications/AgentRegistry.js';
 
 // ─── Supported Platforms ────────────────────────────────────────────────────
@@ -131,57 +130,6 @@ export function getAgentEmoji(agent: string): string {
 export function getDepartmentForAgent(agent: string): string | undefined {
   return findAgentIdentity(agent)?.department;
 }
-
-// ─── Backward-Compatible Proxy Exports ──────────────────────────────────────
-// Existing code that imports AGENT_DEPARTMENT or AGENT_EMOJI as records
-// continues to work via Proxy. Full trap set so Object.keys() etc. work.
-// Strict lookup: unknown agents → undefined (old behavior).
-
-/** @deprecated Use getDepartmentForAgent() */
-export const AGENT_DEPARTMENT: Record<string, string> = new Proxy(
-  {} as Record<string, string>,
-  {
-    get: (_t, prop) => {
-      if (typeof prop === 'symbol') return undefined;
-      return findAgentIdentity(prop)?.department;
-    },
-    has: (_t, prop) => {
-      if (typeof prop === 'symbol') return false;
-      return !!findAgentIdentity(prop);
-    },
-    ownKeys: () => getRegisteredAgents(),
-    getOwnPropertyDescriptor: (_t, prop) => {
-      if (typeof prop === 'symbol') return undefined;
-      const ident = findAgentIdentity(prop as string);
-      return ident
-        ? { configurable: true, enumerable: true, value: ident.department }
-        : undefined;
-    },
-  },
-);
-
-/** @deprecated Use getAgentEmoji() */
-export const AGENT_EMOJI: Record<string, string> = new Proxy(
-  {} as Record<string, string>,
-  {
-    get: (_t, prop) => {
-      if (typeof prop === 'symbol') return undefined;
-      return findAgentIdentity(prop)?.emoji;
-    },
-    has: (_t, prop) => {
-      if (typeof prop === 'symbol') return false;
-      return !!findAgentIdentity(prop);
-    },
-    ownKeys: () => getRegisteredAgents(),
-    getOwnPropertyDescriptor: (_t, prop) => {
-      if (typeof prop === 'symbol') return undefined;
-      const ident = findAgentIdentity(prop as string);
-      return ident
-        ? { configurable: true, enumerable: true, value: ident.emoji }
-        : undefined;
-    },
-  },
-);
 
 // ─── Legacy Slack channel name map ──────────────────────────────────────────
 // Re-exported for backward compatibility with code that imports

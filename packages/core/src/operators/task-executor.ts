@@ -93,7 +93,7 @@ export function createTaskExecutor(
             agentId: agentName,
             operatorId,
             summary: `Task ${final?.status || 'finished'}: ${task}`,
-            details: { taskId, executionId: (final as any)?.realExecutionId },
+            details: { taskId, executionId: final?.realExecutionId },
           });
         }
         // Slack notification

@@ -93,8 +93,9 @@ export class S3ObjectStore implements IObjectStore {
         chunks.push(chunk);
       }
       return Buffer.concat(chunks);
-    } catch (err: any) {
-      if (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404) {
+    } catch (err: unknown) {
+      const awsErr = err as { name?: string; $metadata?: { httpStatusCode?: number } };
+      if (awsErr.name === 'NoSuchKey' || awsErr.$metadata?.httpStatusCode === 404) {
         return null;
       }
       throw err;
@@ -116,8 +117,9 @@ export class S3ObjectStore implements IObjectStore {
         lastModified: response.LastModified?.toISOString(),
         custom: response.Metadata,
       };
-    } catch (err: any) {
-      if (err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404) {
+    } catch (err: unknown) {
+      const awsErr = err as { name?: string; $metadata?: { httpStatusCode?: number } };
+      if (awsErr.name === 'NotFound' || awsErr.$metadata?.httpStatusCode === 404) {
         return null;
       }
       throw err;
@@ -147,7 +149,7 @@ export class S3ObjectStore implements IObjectStore {
     }));
 
     const keys = (response.Contents || [])
-      .map((obj: any) => obj.Key?.slice(this.prefix.length) ?? '')
+      .map((obj: { Key?: string }) => obj.Key?.slice(this.prefix.length) ?? '')
       .filter(Boolean);
 
     return {
@@ -172,10 +174,10 @@ export class S3ObjectStore implements IObjectStore {
       );
 
       return url;
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.warn('Failed to generate signed URL', {
         key,
-        error: err.message,
+        error: err instanceof Error ? err.message : String(err),
       });
       return null;
     }

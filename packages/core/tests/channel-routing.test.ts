@@ -7,8 +7,6 @@ import {
   getRegisteredAgents,
 } from '../src/notifications/AgentRegistry.js';
 import {
-  AGENT_DEPARTMENT,
-  AGENT_EMOJI,
   getAgentEmoji,
   getAlertsChannel,
   getChannelForAgent,
@@ -112,43 +110,6 @@ describe('channel-routing', () => {
       );
       // Re-init for remaining tests
       initAgentRegistry(mockConfigs());
-    });
-  });
-
-  // ─── Council-mandated: Proxy enumeration works ────────────────────────
-
-  describe('proxy enumeration', () => {
-    it('Object.keys(AGENT_DEPARTMENT) returns all registered agent names', () => {
-      const keys = Object.keys(AGENT_DEPARTMENT);
-      expect(keys).toContain('strategist');
-      expect(keys).toContain('architect');
-      expect(keys).toContain('librarian');
-      expect(keys).toContain('mechanic');
-      expect(keys.length).toBe(mockConfigs().size);
-    });
-
-    it('Object.keys(AGENT_EMOJI) returns all registered agent names', () => {
-      const keys = Object.keys(AGENT_EMOJI);
-      expect(keys).toContain('strategist');
-      expect(keys).toContain('librarian');
-    });
-
-    it('Object.entries(AGENT_DEPARTMENT) works', () => {
-      const entries = Object.entries(AGENT_DEPARTMENT);
-      const strategistEntry = entries.find(([k]) => k === 'strategist');
-      expect(strategistEntry).toEqual(['strategist', 'executive']);
-    });
-  });
-
-  // ─── Council-mandated: Proxy unknown key returns undefined ────────────
-
-  describe('proxy unknown key', () => {
-    it('AGENT_DEPARTMENT["fake_agent"] returns undefined', () => {
-      expect(AGENT_DEPARTMENT['fake_agent']).toBeUndefined();
-    });
-
-    it('AGENT_EMOJI["fake_agent"] returns undefined', () => {
-      expect(AGENT_EMOJI['fake_agent']).toBeUndefined();
     });
   });
 

@@ -104,7 +104,7 @@ export class WebhookServer {
     // ─── Middleware ──────────────────────────────────────────────────────
     this.app.use(express.json({
       limit: '50kb',
-      verify: (req: any, _res: any, buf: Buffer) => {
+      verify: (req: import('http').IncomingMessage & { rawBody?: string }, _res: import('http').ServerResponse, buf: Buffer) => {
         // Capture raw body for Slack signature verification (HMAC over raw string)
         if (req.url?.startsWith('/slack/')) {
           req.rawBody = buf.toString('utf-8');

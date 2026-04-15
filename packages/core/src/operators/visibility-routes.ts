@@ -8,7 +8,7 @@ import type { OperatorStore } from './operator-store.js';
 import type { OperatorTaskStore } from './task-model.js';
 import type { TaskLockManager } from './task-locks.js';
 import type { CrossDeptStore } from './cross-dept.js';
-import type { Operator } from './types.js';
+import type { OperatorRequest } from './types.js';
 
 const logger = createLogger('visibility-routes');
 
@@ -27,7 +27,7 @@ export function registerVisibilityRoutes(
 
   app.get('/v1/events', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) {
         res.status(401).json({ error: 'Authentication required' });
         return;

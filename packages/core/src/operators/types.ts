@@ -1,3 +1,4 @@
+import type { Request } from 'express';
 import { z } from 'zod';
 
 // ─── Operator Model ────────────────────────────────────────────────────────────
@@ -115,3 +116,10 @@ export const AcceptInviteInput = z.object({
 export const RevokeOperatorInput = z.object({
   reason: z.string().min(1).max(500),
 });
+
+// ─── Typed Express Request ────────────────────────────────────────────────────
+
+/** Express Request with the authenticated operator attached by auth middleware. */
+export interface OperatorRequest extends Request {
+  operator?: Operator;
+}
