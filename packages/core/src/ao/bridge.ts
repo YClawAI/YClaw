@@ -7,6 +7,7 @@ import type {
   AoBatchSpawnResponse,
   AoDeepHealthResponse,
 } from './types.js';
+import type { DirectiveQueue } from './queue.js';
 
 const logger = createLogger('ao-bridge');
 
@@ -15,6 +16,22 @@ const SPAWN_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 1;
 const CIRCUIT_THRESHOLD = 3;
 const CIRCUIT_RESET_MS = 60_000;
+
+/**
+ * Exponential backoff schedule for health-verified circuit resets.
+ * Index 0 = initial open period (60s), index 1 = first extension (120s), etc.
+ * Capped at 600s (10 min) for index >= 3.
+ */
+const CIRCUIT_BACKOFF_MS = [60_000, 120_000, 240_000, 600_000] as const;
+
+interface CircuitState {
+  failures: number;
+  openUntil: number;
+  /** Tracks how many consecutive failed health checks have occurred. Controls backoff. */
+  backoffLevel: number;
+  /** True while an async health check is in-flight — keeps circuit open during probe. */
+  checkingHealth: boolean;
+}
 
 function classifyNetworkError(message: string): string {
   const normalized = message.toLowerCase();
