@@ -10,7 +10,7 @@ import { ActionRegistryImpl } from '../actions/registry.js';
 import { TwitterExecutor } from '../actions/twitter.js';
 import { TelegramExecutor } from '../actions/telegram.js';
 import { SlackExecutor } from '../actions/slack.js';
-import { DiscordExecutor } from '../actions/discord.js';
+import { DiscordExecutor } from '../actions/discord/index.js';
 import type { DiscordChannelAdapter } from '../adapters/channels/DiscordChannelAdapter.js';
 import { GitHubExecutor } from '../actions/github/index.js';
 import { EmailExecutor } from '../actions/email.js';
