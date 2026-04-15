@@ -1619,17 +1619,20 @@ async function sweepOrphanedSessionHarvests() {
   }
 
   for (const state of states) {
+    const orphanMissCount = state._orphanMissCount || 0;
     if (!sessionList.includes(state.sessionId)) {
       // Require consecutive confirmed misses before harvesting
-      state._orphanMissCount = (state._orphanMissCount || 0) + 1;
+      state._orphanMissCount = orphanMissCount + 1;
+      writeSessionMonitorState(state);
       if (state._orphanMissCount >= 2) {
         console.log(`[ao-bridge] Orphan confirmed after ${state._orphanMissCount} consecutive misses: ${state.sessionId}`);
         void runTrackedHarvest(state, 'orphan-sweeper');
       } else {
         console.warn(`[ao-bridge] Sweeper miss ${state._orphanMissCount}/2 for ${state.sessionId}; deferring harvest`);
       }
-    } else {
+    } else if (orphanMissCount !== 0) {
       state._orphanMissCount = 0; // Reset on successful sighting
+      writeSessionMonitorState(state);
     }
   }
 }
