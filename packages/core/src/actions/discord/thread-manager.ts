@@ -60,8 +60,11 @@ export class ThreadManager {
     try {
       await this.adapter.fetchThreadReplies(threadIdOrMessageId, 1);
       return threadIdOrMessageId; // already a thread
-    } catch {
-      // Not a thread yet — fall through to creation
+    } catch (err) {
+      logger.warn('ID is not a thread yet, will create one', {
+        threadIdOrMessageId,
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
 
     if (typeof this.adapter.createThread !== 'function') {
@@ -98,7 +101,12 @@ export class ThreadManager {
     const identity = getAgentIdentity(agentName);
     const personaName = `${identity.emoji} ${identity.name}`;
 
-    try { await this.webhookManager.init(); } catch { /* ignore */ }
+    try { await this.webhookManager.init(); } catch (err) {
+      logger.warn('Webhook init failed in sendToThreadWithFallback, will use bot path', {
+        error: err instanceof Error ? err.message : String(err),
+        channelId, agentName,
+      });
+    }
     const creds = this.webhookManager.getCredentialsForChannel(channelId);
 
     // Try raw webhook with ?thread_id= first (OpenClaw pattern)
@@ -181,7 +189,12 @@ export class ThreadManager {
     }
 
     // Step 1: Post short teaser to channel
-    try { await this.webhookManager.init(); } catch { /* ignore */ }
+    try { await this.webhookManager.init(); } catch (err) {
+      logger.warn('Webhook init failed in postWithThreadOverflow, will use bot path', {
+        error: err instanceof Error ? err.message : String(err),
+        channelId, agentName,
+      });
+    }
     const webhook = this.webhookManager.getWebhookForChannel(channelId);
     let parentMessageId: string | undefined;
 
