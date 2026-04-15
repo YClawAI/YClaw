@@ -31,13 +31,13 @@ export const DEFAULT_ACL: AclMap = {
   'mechanic:task_completed': ['mechanic'],
   'mechanic:task_failed': ['mechanic'],
 
-  // AO (via callback handler)
-  'ao:task_completed': ['ao-callback'],
-  'ao:task_failed': ['ao-callback'],
-  'ao:pr_ready': ['ao-callback'],
-  'ao:pr_merged': ['ao-callback'],
-  'ao:task_blocked': ['ao-callback'],
-  'ao:spawn_failed': ['ao-callback'],
+  // AO (via callback handler — source is 'ao', matching the 'ao:*' event namespace)
+  'ao:task_completed': ['ao'],
+  'ao:task_failed': ['ao'],
+  'ao:pr_ready': ['ao'],
+  'ao:pr_merged': ['ao'],
+  'ao:task_blocked': ['ao'],
+  'ao:spawn_failed': ['ao'],
 
   // Builder compat aliases (legacy — kept for backward compatibility)
   'builder:pr_ready': ['ao-callback'],

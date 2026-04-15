@@ -454,15 +454,15 @@ export function createAoCallbackMiddleware(
     delete payload['prUrl'];
 
     if (event.type === 'session.completed') {
-      await eventBus.publish('ao-callback', 'task_completed', payload);
+      await eventBus.publish('ao', 'task_completed', payload);
     } else if (event.type === 'pr.ready' || event.type === 'pr.created') {
-      await eventBus.publish('ao-callback', 'pr_ready', payload);
+      await eventBus.publish('ao', 'pr_ready', payload);
     } else if (event.type === 'pr.merged') {
-      await eventBus.publish('ao-callback', 'pr_merged', payload);
+      await eventBus.publish('ao', 'pr_merged', payload);
     } else if (FAILURE_TYPES.has(event.type)) {
-      await eventBus.publish('ao-callback', 'task_failed', payload);
+      await eventBus.publish('ao', 'task_failed', payload);
     } else {
-      await eventBus.publish('ao-callback', event.type, payload);
+      await eventBus.publish('ao', event.type, payload);
     }
 
     // Notifications — fire and forget, never block response
