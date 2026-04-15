@@ -1,0 +1,33 @@
+name: AO CI Remediation
+
+on:
+  check_suite:
+    types: [completed]
+
+jobs:
+  remediate:
+    # Only for AO-authored PRs that failed CI
+    if: >-
+      github.event.check_suite.conclusion == 'failure' &&
+      github.event.check_suite.app.slug == 'github-actions' &&
+      startsWith(github.event.check_suite.head_branch, 'feat/issue-')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Notify AO of CI failure
+        env:
+          AO_CALLBACK_URL: ${{ secrets.AO_CALLBACK_URL }}
+          AO_AUTH_TOKEN: ${{ secrets.AO_AUTH_TOKEN }}
+        run: |
+          curl -sf -X POST "${AO_CALLBACK_URL}/api/ao/callback" \
+            -H "Content-Type: application/json" \
+            -H "X-AO-Token: ${AO_AUTH_TOKEN}" \
+            -d '{
+              "type": "ci.failed",
+              "repo": "${{ github.repository }}",
+              "branch": "${{ github.event.check_suite.head_branch }}",
+              "sha": "${{ github.event.check_suite.head_sha }}",
+              "runId": "${{ github.event.check_suite.id }}",
+              "error": "CI check suite failed"
+            }'

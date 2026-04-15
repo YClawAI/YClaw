@@ -963,6 +963,77 @@ async function armPrAutoMerge({ repo, pullNumber, cwd, attempts = 2 }) {
   };
 }
 
+// ─── Sensitive Path Detection ────────────────────────────────────────────────
+
+const SENSITIVE_PATHS = [
+  '.github/workflows/',
+  '.github/',
+  'packages/core/src/security/',
+  'packages/core/src/review/',
+  'deploy/',
+  'Dockerfile',
+  'docker-compose',
+  'yclaw-event-policy.yaml',
+  'SECURITY.md',
+];
+
+function touchesSensitivePaths(changedFiles) {
+  return changedFiles.some(file =>
+    SENSITIVE_PATHS.some(prefix => file.startsWith(prefix) || file === prefix)
+  );
+}
+
+async function getChangedFiles(repo, pullNumber, cwd) {
+  try {
+    const result = await runCommand(
+      'gh',
+      ['pr', 'diff', String(pullNumber), '--repo', repo, '--name-only'],
+      cwd,
+      30000,
+    );
+    return (result.stdout || '').split('\n').map(f => f.trim()).filter(Boolean);
+  } catch (err) {
+    console.warn(`[ao-bridge] Failed to get changed files for PR #${pullNumber}: ${err?.message}`);
+    return [];
+  }
+}
+
+/**
+ * Check if a PR touches sensitive paths. If so, block auto-merge and
+ * request human review. Returns true if the PR was blocked.
+ */
+async function blockIfSensitivePaths({ repo, pullNumber, cwd, sessionId, issueNumber }) {
+  const changedFiles = await getChangedFiles(repo, pullNumber, cwd);
+  if (changedFiles.length === 0) return false;
+
+  if (!touchesSensitivePaths(changedFiles)) return false;
+
+  const sensitiveHits = changedFiles.filter(file =>
+    SENSITIVE_PATHS.some(prefix => file.startsWith(prefix) || file === prefix)
+  );
+  console.log(`[ao-bridge] PR #${pullNumber} touches sensitive paths: ${sensitiveHits.join(', ')} — requesting human review`);
+
+  await addLabel(repo, pullNumber, 'human-review-required', cwd);
+  // Request review from admin
+  await runCommand(
+    'gh',
+    ['pr', 'edit', String(pullNumber), '--repo', repo, '--add-reviewer', 'DannyDesert'],
+    cwd,
+    15000,
+  ).catch(err => console.warn(`[ao-bridge] Failed to request review: ${err?.message}`));
+  await disableAutoMerge(repo, pullNumber, cwd);
+
+  await postAoCallback({
+    type: 'task.blocked',
+    sessionId,
+    issueNumber,
+    repo,
+    error: `PR touches sensitive paths — human review required: ${sensitiveHits.join(', ')}`,
+  });
+
+  return true;
+}
+
 async function ensureSessionPr({ repo, issueNumber, branch, cwd, draft = false, bodyOverride = null }) {
   const existing = await runCommand(
     'gh',
@@ -1133,11 +1204,25 @@ async function harvestSessionWorktree({ sessionId, repo, issueNumber, claimPr })
 
       // Arm auto-merge if the PR is still open (merged PRs cannot be re-merged).
       if (recoveredPr.state === 'OPEN') {
-        await armPrAutoMerge({ repo, pullNumber: recoveredPr.prNumber, cwd: repoPathFor(repo) }).catch((err) => {
-          console.warn(
-            `[ao-bridge] Graceful degradation: auto-merge arm failed for recovered PR #${recoveredPr.prNumber}: ${err?.message}`,
-          );
+        const recoveredCwd = repoPathFor(repo);
+        const recoveredBlocked = await blockIfSensitivePaths({
+          repo,
+          pullNumber: recoveredPr.prNumber,
+          cwd: recoveredCwd,
+          sessionId,
+          issueNumber,
         });
+        if (recoveredBlocked) {
+          console.log(
+            `[ao-bridge] Graceful degradation: recovered PR #${recoveredPr.prNumber} blocked for human review due to sensitive paths`,
+          );
+        } else {
+          await armPrAutoMerge({ repo, pullNumber: recoveredPr.prNumber, cwd: recoveredCwd }).catch((err) => {
+            console.warn(
+              `[ao-bridge] Graceful degradation: auto-merge arm failed for recovered PR #${recoveredPr.prNumber}: ${err?.message}`,
+            );
+          });
+        }
       }
 
       // Emit pr.ready (deduplicated via Redis when available).
@@ -1291,13 +1376,19 @@ async function harvestSessionWorktree({ sessionId, repo, issueNumber, claimPr })
           await addLabel(repo, resolvedPr.prNumber, 'review-skipped', worktreePath);
         }
 
-        console.log(`[ao-bridge] Clean harvest: arming auto-merge on PR #${resolvedPr.prNumber} for ${sessionId}`);
-        const autoMergeResult = await armPrAutoMerge({ repo, pullNumber: resolvedPr.prNumber, cwd: worktreePath }).catch((err) => ({
-          armed: false, error: err?.message,
-        }));
-        console.log(`[ao-bridge] Clean harvest auto-merge result for ${sessionId}: ${autoMergeResult.armed}`, JSON.stringify({
-          repo, pullNumber: resolvedPr.prNumber, error: autoMergeResult.error || null,
-        }));
+        // Sensitive path guard — block auto-merge if PR touches protected paths
+        const cleanBlocked = await blockIfSensitivePaths({ repo, pullNumber: resolvedPr.prNumber, cwd: worktreePath, sessionId, issueNumber });
+        if (cleanBlocked) {
+          console.log(`[ao-bridge] Clean harvest: PR #${resolvedPr.prNumber} blocked — sensitive paths, skipping auto-merge`);
+        } else {
+          console.log(`[ao-bridge] Clean harvest: arming auto-merge on PR #${resolvedPr.prNumber} for ${sessionId}`);
+          const autoMergeResult = await armPrAutoMerge({ repo, pullNumber: resolvedPr.prNumber, cwd: worktreePath }).catch((err) => ({
+            armed: false, error: err?.message,
+          }));
+          console.log(`[ao-bridge] Clean harvest auto-merge result for ${sessionId}: ${autoMergeResult.armed}`, JSON.stringify({
+            repo, pullNumber: resolvedPr.prNumber, error: autoMergeResult.error || null,
+          }));
+        }
 
         // Emit pr.ready (routes to ao:pr_ready → deliverable submission)
         // Dedup via Redis to prevent duplicate events on repeat harvest
@@ -1401,15 +1492,21 @@ async function harvestSessionWorktree({ sessionId, repo, issueNumber, claimPr })
       }
     } else if (reviewError) {
       await addLabel(repo, harvestPrNumber, 'review-skipped', worktreePath);
-      // Fail-open: still arm auto-merge
-      const autoMergeResult = await armPrAutoMerge({ repo, pullNumber: harvestPrNumber, cwd: worktreePath });
-      console.log(`[ao-bridge] Harvest auto-merge armed result for ${sessionId}: ${autoMergeResult.armed}`);
+      // Fail-open: still arm auto-merge (unless sensitive paths)
+      const blocked = await blockIfSensitivePaths({ repo, pullNumber: harvestPrNumber, cwd: worktreePath, sessionId, issueNumber });
+      if (!blocked) {
+        const autoMergeResult = await armPrAutoMerge({ repo, pullNumber: harvestPrNumber, cwd: worktreePath });
+        console.log(`[ao-bridge] Harvest auto-merge armed result for ${sessionId}: ${autoMergeResult.armed}`);
+      }
       await postAoCallback({ type: 'pr.ready', sessionId, issueNumber, repo, prNumber: harvestPrNumber, prUrl: harvestPrUrl });
     } else {
-      const autoMergeResult = await armPrAutoMerge({ repo, pullNumber: harvestPrNumber, cwd: worktreePath });
-      console.log(`[ao-bridge] Harvest auto-merge armed result for ${sessionId}: ${autoMergeResult.armed}`, JSON.stringify({
-        repo, pullNumber: harvestPrNumber, error: autoMergeResult.error || null,
-      }));
+      const blocked = await blockIfSensitivePaths({ repo, pullNumber: harvestPrNumber, cwd: worktreePath, sessionId, issueNumber });
+      if (!blocked) {
+        const autoMergeResult = await armPrAutoMerge({ repo, pullNumber: harvestPrNumber, cwd: worktreePath });
+        console.log(`[ao-bridge] Harvest auto-merge armed result for ${sessionId}: ${autoMergeResult.armed}`, JSON.stringify({
+          repo, pullNumber: harvestPrNumber, error: autoMergeResult.error || null,
+        }));
+      }
       await postAoCallback({ type: 'pr.ready', sessionId, issueNumber, repo, prNumber: harvestPrNumber, prUrl: harvestPrUrl });
     }
   } else {
@@ -1430,10 +1527,13 @@ async function harvestSessionWorktree({ sessionId, repo, issueNumber, claimPr })
       if (reviewError) {
         await addLabel(repo, harvestPrNumber, 'review-skipped', worktreePath);
       }
-      const autoMergeResult = await armPrAutoMerge({ repo, pullNumber: harvestPrNumber, cwd: worktreePath });
-      console.log(`[ao-bridge] Harvest auto-merge armed result for ${sessionId}: ${autoMergeResult.armed}`, JSON.stringify({
-        repo, pullNumber: harvestPrNumber, created: pr.created, error: autoMergeResult.error || null,
-      }));
+      const blocked = await blockIfSensitivePaths({ repo, pullNumber: harvestPrNumber, cwd: worktreePath, sessionId, issueNumber });
+      if (!blocked) {
+        const autoMergeResult = await armPrAutoMerge({ repo, pullNumber: harvestPrNumber, cwd: worktreePath });
+        console.log(`[ao-bridge] Harvest auto-merge armed result for ${sessionId}: ${autoMergeResult.armed}`, JSON.stringify({
+          repo, pullNumber: harvestPrNumber, created: pr.created, error: autoMergeResult.error || null,
+        }));
+      }
       await postAoCallback({
         type: pr.created ? 'pr.created' : 'pr.ready', sessionId, issueNumber, repo,
         prNumber: harvestPrNumber, prUrl: harvestPrUrl,

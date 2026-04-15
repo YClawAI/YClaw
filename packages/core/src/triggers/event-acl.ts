@@ -101,6 +101,8 @@ export const DEFAULT_ACL: AclMap = {
   'github:pr_review_comment': ['github', 'github-webhook'],
   'github:ci_pass': ['github', 'github-webhook'],
   'github:ci_fail': ['github', 'github-webhook'],
+  'github:issue_closed': ['github', 'github-webhook'],
+  'github:pr_merged': ['github', 'github-webhook'],
   'github:repository_created': ['github', 'github-webhook'],
 
   // Coordination events
