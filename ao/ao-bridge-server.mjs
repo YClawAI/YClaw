@@ -842,8 +842,11 @@ async function isSessionActive(sessionId) {
   try {
     const result = await runAo(['session', 'ls'], '/app', 10000);
     return result.stdout.includes(sessionId);
-  } catch {
-    return false;
+  } catch (err) {
+    // Cannot determine session state — assume alive.
+    // The monitor deadline will catch truly dead sessions via timeout.
+    console.warn(`[ao-bridge] isSessionActive check failed for ${sessionId}, assuming alive:`, err?.message || String(err));
+    return true;
   }
 }
 
@@ -1611,12 +1614,22 @@ async function sweepOrphanedSessionHarvests() {
     const result = await runAo(['session', 'ls'], '/app', 10000);
     sessionList = result.stdout;
   } catch (err) {
-    console.warn('[ao-bridge] Session harvest sweeper could not list sessions:', err?.message || String(err));
+    console.warn('[ao-bridge] Session harvest sweeper could not list sessions (fail-open, skipping sweep):', err?.message || String(err));
+    return; // No data = no action. Never kill sessions when we can't see the ground truth.
   }
 
   for (const state of states) {
     if (!sessionList.includes(state.sessionId)) {
-      void runTrackedHarvest(state, 'orphan-sweeper');
+      // Require consecutive confirmed misses before harvesting
+      state._orphanMissCount = (state._orphanMissCount || 0) + 1;
+      if (state._orphanMissCount >= 2) {
+        console.log(`[ao-bridge] Orphan confirmed after ${state._orphanMissCount} consecutive misses: ${state.sessionId}`);
+        void runTrackedHarvest(state, 'orphan-sweeper');
+      } else {
+        console.warn(`[ao-bridge] Sweeper miss ${state._orphanMissCount}/2 for ${state.sessionId}; deferring harvest`);
+      }
+    } else {
+      state._orphanMissCount = 0; // Reset on successful sighting
     }
   }
 }
