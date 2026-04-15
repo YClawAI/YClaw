@@ -21,7 +21,6 @@ const PR_POLL_ATTEMPTS = 4;
 const PR_POLL_INTERVAL_MS = 15_000;
 
 // ─── Slack Notifications ──────────────────────────────────────────────────────
-const AO_SLACK_CHANNEL = process.env.AO_SLACK_CHANNEL || 'C0000000002';
 
 const EVENT_SLACK_MAP: Record<string, { emoji: string; template: (e: AoCallbackEvent) => string }> = {
   'session.started': {
@@ -56,6 +55,12 @@ const EVENT_SLACK_MAP: Record<string, { emoji: string; template: (e: AoCallbackE
 
 async function notifySlack(event: AoCallbackEvent): Promise<void> {
   if (process.env.AO_SLACK_NOTIFICATIONS === 'false') return;
+
+  const aoSlackChannel = process.env.AO_SLACK_CHANNEL || '';
+  if (!aoSlackChannel) {
+    logger.debug('[AO Callback] AO_SLACK_CHANNEL not set — skipping Slack notification');
+    return;
+  }
 
   const slackToken = process.env.SLACK_BOT_TOKEN;
   if (!slackToken) {
@@ -102,7 +107,7 @@ async function postSlackMessage(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        channel: AO_SLACK_CHANNEL,
+        channel: process.env.AO_SLACK_CHANNEL || '',
         text,
         username: 'AO',
         icon_emoji: ':robot_face:',
@@ -263,7 +268,7 @@ async function resolveFailureAlertIfPRExists(
     await postSlackMessage(slackToken, replyText, failureMessageTs);
 
     // Add a ✅ reaction to the original failure message for quick visual scanning.
-    await addSlackReaction(slackToken, AO_SLACK_CHANNEL, failureMessageTs, 'white_check_mark');
+    await addSlackReaction(slackToken, process.env.AO_SLACK_CHANNEL || '', failureMessageTs, 'white_check_mark');
 
     return;
   }
