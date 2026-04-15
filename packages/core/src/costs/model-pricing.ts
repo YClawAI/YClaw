@@ -80,21 +80,3 @@ export function millicentsToDisplayCents(millicents: number): number {
   return Math.ceil(millicents / 1000);
 }
 
-/**
- * Compute cost in integer cents from token counts.
- * Internally uses millicents to avoid undercounting small calls.
- * Uses Math.ceil so no cost is ever recorded as zero when tokens were consumed.
- *
- * @deprecated Prefer computeCostMillicents for internal tracking.
- */
-export function computeCostCents(
-  modelId: string,
-  inputTokens: number,
-  outputTokens: number,
-  cacheReadTokens: number,
-  cacheWriteTokens: number,
-): number {
-  return millicentsToDisplayCents(
-    computeCostMillicents(modelId, inputTokens, outputTokens, cacheReadTokens, cacheWriteTokens),
-  );
-}

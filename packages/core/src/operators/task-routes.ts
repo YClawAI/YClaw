@@ -7,7 +7,7 @@ import type { OperatorTaskStore, OperatorTask } from './task-model.js';
 import { CreateTaskInput, CancelTaskInput } from './task-model.js';
 import type { RoleStore } from './roles.js';
 import type { Role } from './roles.js';
-import type { Operator } from './types.js';
+import type { Operator, OperatorRequest } from './types.js';
 import type { AgentContext } from '../bootstrap/agents.js';
 import type { ServiceContext } from '../bootstrap/services.js';
 import type { TaskLockManager } from './task-locks.js';
@@ -96,7 +96,7 @@ export function registerTaskRoutes(
 
   app.post('/v1/tasks', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) {
         res.status(401).json({ error: 'Authentication required' });
         return;
@@ -436,7 +436,7 @@ export function registerTaskRoutes(
   // ─── POST /v1/tasks/:id/request-cross-department (#9 API shape) ─────
 
   app.post('/v1/tasks/:id/request-cross-department', async (req: Request, res: Response) => {
-    const operator = (req as any).operator as Operator | undefined;
+    const operator = (req as OperatorRequest).operator;
     if (!operator) { res.status(401).json({ error: 'Authentication required' }); return; }
 
     const existingTask = await taskStore.getByTaskId(req.params.id);
@@ -454,7 +454,7 @@ export function registerTaskRoutes(
 
   app.get('/v1/tasks', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) { res.status(401).json({ error: 'Authentication required' }); return; }
 
       const { status, department, limit: limitStr, offset: offsetStr } = req.query as {
@@ -497,7 +497,7 @@ export function registerTaskRoutes(
 
   app.get('/v1/tasks/:id', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) { res.status(401).json({ error: 'Authentication required' }); return; }
 
       const task = await taskStore.getByTaskId(req.params.id);
@@ -515,7 +515,7 @@ export function registerTaskRoutes(
 
   app.post('/v1/tasks/:id/cancel', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) { res.status(401).json({ error: 'Authentication required' }); return; }
 
       const parsed = CancelTaskInput.safeParse(req.body);
@@ -555,7 +555,7 @@ export function registerTaskRoutes(
 
   app.get('/v1/departments', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) { res.status(401).json({ error: 'Authentication required' }); return; }
 
       const deptMap = new Map<string, string[]>();
@@ -586,7 +586,7 @@ export function registerTaskRoutes(
   // ─── GET /v1/agents ───────────────────────────────────────────────────
 
   app.get('/v1/agents', (req: Request, res: Response) => {
-    const operator = (req as any).operator as Operator | undefined;
+    const operator = (req as OperatorRequest).operator;
     if (!operator) { res.status(401).json({ error: 'Authentication required' }); return; }
 
     const isRoot = operator.tier === 'root' || operator.departments.includes('*');
@@ -603,7 +603,7 @@ export function registerTaskRoutes(
 
   app.get('/v1/agents/:name/status', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) { res.status(401).json({ error: 'Authentication required' }); return; }
 
       const agentName = req.params.name;
@@ -659,7 +659,7 @@ function formatTask(task: OperatorTask): Record<string, unknown> {
     action: task.action,
     priority: task.priority,
     status: task.status,
-    realExecutionId: (task as any).realExecutionId,
+    realExecutionId: task.realExecutionId,
     childTaskIds: task.childTaskIds,
     parentTaskId: task.parentTaskId,
     crossDepartment: task.crossDepartment,

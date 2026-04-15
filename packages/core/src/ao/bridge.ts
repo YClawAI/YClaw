@@ -5,6 +5,7 @@ import type {
   AoSpawnResponse,
   AoBatchSpawnRequest,
   AoBatchSpawnResponse,
+  AoDeepHealthResponse,
 } from './types.js';
 
 const logger = createLogger('ao-bridge');
@@ -187,6 +188,33 @@ export class AoBridge {
       return response.ok;
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * Calls `/health/deep` on the AO service and returns structured component-level
+   * health data including queue depth and circuit breaker states.
+   *
+   * Intentionally bypasses the circuit breaker — this is a monitoring probe, not
+   * a workload request. Returns null on any failure so callers can handle gracefully.
+   */
+  async deepHealth(): Promise<AoDeepHealthResponse | null> {
+    try {
+      const response = await fetch(`${this.serviceUrl}/health/deep`, {
+        headers: {
+          'X-AO-TOKEN': this.authToken,
+        },
+        signal: AbortSignal.timeout(5_000),
+      });
+      if (!response.ok) {
+        logger.warn('[AoBridge] deepHealth returned non-OK status', { status: response.status });
+        return null;
+      }
+      return await response.json() as AoDeepHealthResponse;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger.warn('[AoBridge] deepHealth failed', { error: msg });
+      return null;
     }
   }
 

@@ -18,7 +18,7 @@ export type {
 } from './types.js';
 
 // Agent Registry
-export { AGENT_REGISTRY, getAgentIdentity } from './AgentRegistry.js';
+export { getAgentIdentity } from './AgentRegistry.js';
 export type { AgentIdentity } from './AgentRegistry.js';
 
 // Router

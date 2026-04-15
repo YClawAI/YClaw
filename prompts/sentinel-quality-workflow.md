@@ -104,6 +104,100 @@ After a deployment completes, verify service health, check for error spikes in l
 
 ---
 
+## Task: ao_health_check (triggered by cron: every 5 minutes)
+
+Probe AO service health and alert on sustained failures. This is a monitoring-only task — no side effects on healthy paths.
+
+### Step 1: Call AO Health Probe
+
+Call the AO `/health/deep` endpoint via `codegen:status` or the `ao:deep_health` action to retrieve current AO service status.
+
+Expected response shape:
+```json
+{
+  "status": "healthy" | "degraded" | "unhealthy",
+  "components": {
+    "ec2": { "status": "ok", "uptime_seconds": 12345 },
+    "docker": { "status": "ok", "running_containers": 2 },
+    "disk": { "status": "ok", "free_pct": 45 },
+    "last_session": { "status": "ok", "completed_at": "2026-04-13T12:00:00Z" }
+  },
+  "queue_depth": 3,
+  "circuit_breakers": { "YClawAI/YClaw": { "open": false, "failures": 0 } }
+}
+```
+
+### Step 2: Track Consecutive Failures
+
+Read `ao_health_consecutive_failures` from memory (default 0).
+
+- **If health call succeeded (status is `healthy` or `degraded`):**
+  - Reset `ao_health_consecutive_failures` to 0 in memory.
+  - If previous value was ≥ 3 (recovering from alert state): proceed to **Step 4 (auto-resolve)**.
+  - Otherwise: exit silently.
+
+- **If health call failed (network error, timeout, or status is `unhealthy`):**
+  - Increment `ao_health_consecutive_failures` by 1 and write to memory.
+  - If count < 3: exit silently (not yet sustained enough to alert).
+  - If count ≥ 3: proceed to **Step 3 (fire alert)**.
+
+### Step 3: Fire Critical Alert (3+ consecutive failures)
+
+Only fire once when the failure threshold is first crossed (i.e., count == 3 exactly), or every 6th failure thereafter (to avoid spam on prolonged outages).
+
+Publish `sentinel:alert`:
+```json
+{
+  "source": "sentinel",
+  "type": "alert",
+  "payload": {
+    "alertType": "ao_down",
+    "severity": "critical",
+    "consecutive_failures": "<count>",
+    "message": "AO service has failed health checks <count> consecutive times (~<N> minutes). Immediate investigation required."
+  }
+}
+```
+
+Then post to `#yclaw-alerts` via `discord:alert`:
+```
+🚨 **AO Service Down** — <count> consecutive health check failures (~<N> min sustained)
+Queue depth before failure: <queue_depth>
+Investigate: ECS task health, EC2 instance, Docker daemon
+```
+
+### Step 4: Auto-Resolve Alert (recovery)
+
+When AO recovers after being in alert state (consecutive failures was ≥ 3, now succeeds):
+
+Publish `sentinel:alert`:
+```json
+{
+  "source": "sentinel",
+  "type": "alert",
+  "payload": {
+    "alertType": "ao_recovered",
+    "severity": "info",
+    "message": "AO service has recovered — health check passed after sustained outage."
+  }
+}
+```
+
+Then post to `#yclaw-alerts` via `discord:alert`:
+```
+✅ **AO Service Recovered** — health check passed after sustained outage
+Queue depth: <queue_depth>
+```
+
+### Rules for ao_health_check
+
+- **NEVER** trip the circuit breaker on health check failures — use the deep health endpoint, not spawn.
+- **ALWAYS** include the queue depth in alert messages for context.
+- **Timeout**: health probe must complete within 5 seconds — treat timeout as a failure.
+- **No false positives**: a single failed check is noise. Alert only after 3 consecutive failures (15 min sustained).
+
+---
+
 ## Task: handle_discord_infra (triggered by event: discord:mention)
 
 Handle infrastructure-related questions or requests from Discord mentions. Diagnose issues, check service health, and respond in the Discord thread.

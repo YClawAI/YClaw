@@ -18,6 +18,8 @@ import type { ActionContext } from './actions.js';
 import type { AgentContext } from './agents.js';
 import { HealthAggregator } from '../observability/health.js';
 import type { FleetGuard } from '../fleet-guard.js';
+import type { ObjectiveStatus } from '../objectives/types.js';
+import type { ExecuteAgentTaskParams } from '../operators/task-executor.js';
 import { createAuthMiddleware, createAuditMiddleware, createTailscaleMiddleware } from '../operators/middleware.js';
 import { registerOperatorRoutes } from '../operators/routes.js';
 import { registerTaskRoutes } from '../operators/task-routes.js';
@@ -131,7 +133,7 @@ export async function initRoutes(
     // Register task & scoped-read routes (Phase 2)
     const { roleStore, operatorTaskStore, taskLockManager, crossDeptStore,
             operatorEventStream, operatorRateLimiter, operatorSlackNotifier } = services;
-    let sharedExecuteAgentTask: any;
+    let sharedExecuteAgentTask: ((params: ExecuteAgentTaskParams) => void) | undefined;
     if (roleStore && operatorTaskStore) {
       const taskRouteResult = registerTaskRoutes(
         expressApp, operatorTaskStore, roleStore, operatorAuditLogger,
@@ -214,7 +216,7 @@ export async function initRoutes(
     // Without this guard, /v1/* routes would be accessible without any authentication
     // because the WebhookServer's requireApiKey middleware skips /v1/* paths.
     const expressApp = webhookServer.getExpressApp();
-    expressApp.use((req: any, res: any, next: any) => {
+    expressApp.use((req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) => {
       if (req.path.startsWith('/v1/') && req.path !== '/v1/health') {
         res.status(503).json({ error: 'Operator authentication subsystem not available' });
         return;
@@ -543,12 +545,13 @@ export async function initRoutes(
       await client.query(seed);
       results.push('Seed complete');
       const cats = await client.query('SELECT scope::text, count(*)::int as cnt FROM categories GROUP BY scope ORDER BY scope');
-      cats.rows.forEach((r: any) => results.push(r.scope + ': ' + r.cnt));
+      cats.rows.forEach((r: Record<string, unknown>) => results.push(r.scope + ': ' + r.cnt));
       await client.end();
       return { success: true, results };
-    } catch (e: any) {
+    } catch (e: unknown) {
       await client.end().catch(() => {});
-      return { success: false, error: e.message, results };
+      const message = e instanceof Error ? e.message : String(e);
+      return { success: false, error: message, results };
     }
   });
 
@@ -563,10 +566,11 @@ export async function initRoutes(
       const cats = await client.query('SELECT scope::text, count(*)::int as cnt FROM categories GROUP BY scope ORDER BY scope').catch(() => ({ rows: [] }));
       const items = await client.query('SELECT count(*)::int as cnt FROM items').catch(() => ({ rows: [{ cnt: 0 }] }));
       await client.end();
-      return { connected: true, tables: tables.rows.map((r: any) => r.table_name), categories: cats.rows, items: items.rows[0].cnt };
-    } catch (e: any) {
+      return { connected: true, tables: tables.rows.map((r: Record<string, unknown>) => r.table_name), categories: cats.rows, items: items.rows[0].cnt };
+    } catch (e: unknown) {
       await client.end().catch(() => {});
-      return { connected: false, error: e.message };
+      const message = e instanceof Error ? e.message : String(e);
+      return { connected: false, error: message };
     }
   });
 
@@ -646,7 +650,7 @@ export async function initRoutes(
           ? await memoryPool.query(`DELETE FROM ${table} WHERE agent_id = $1`, [agentName])
           : await memoryPool.query(`DELETE FROM ${table}`);
         results[table] = r.rowCount ?? 0;
-      } catch (e: any) {
+      } catch (e: unknown) {
         try {
           if (!agentName) {
             const r = await memoryPool.query(`DELETE FROM ${table}`);
@@ -654,7 +658,7 @@ export async function initRoutes(
           } else {
             results[table] = -1;
           }
-        } catch (e2: any) {
+        } catch (e2: unknown) {
           results[table] = -1;
         }
       }
@@ -788,12 +792,12 @@ export async function initRoutes(
     const { status, department, ownerAgentId } = (query || {}) as {
       status?: string; department?: string; ownerAgentId?: string;
     };
-    const filters: Record<string, string> = {};
-    if (status) filters.status = status;
+    const filters: { status?: ObjectiveStatus; department?: string; ownerAgentId?: string } = {};
+    if (status) filters.status = status as ObjectiveStatus;
     if (department) filters.department = department;
     if (ownerAgentId) filters.ownerAgentId = ownerAgentId;
     const objectives = await objectiveManager.list(
-      Object.keys(filters).length > 0 ? filters as any : undefined,
+      Object.keys(filters).length > 0 ? filters : undefined,
     );
     return { objectives };
   });
@@ -953,7 +957,7 @@ export async function initRoutes(
 
   const githubHandler = new GitHubWebhookHandler(eventBus, { registry: repoRegistry });
 
-  webhookServer.getExpressApp().post('/github/webhook', async (req: any, res: any) => {
+  webhookServer.getExpressApp().post('/github/webhook', async (req: import('express').Request, res: import('express').Response) => {
     const eventType = req.headers['x-github-event'] as string | undefined;
     if (!eventType) {
       res.status(400).json({ error: 'Missing X-GitHub-Event header' });
@@ -990,7 +994,7 @@ export async function initRoutes(
   if (!process.env.SLACK_SIGNING_SECRET) {
     logger.warn('SLACK_SIGNING_SECRET not set — /slack/events route NOT registered (fail-closed)');
   } else {
-    webhookServer.getExpressApp().post('/slack/events', async (req: any, res: any) => {
+    webhookServer.getExpressApp().post('/slack/events', async (req: import('express').Request, res: import('express').Response) => {
       if (req.body?.type === 'url_verification') {
         res.json({ challenge: req.body.challenge });
         return;

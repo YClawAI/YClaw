@@ -15,6 +15,11 @@ import type {
 } from '../../interfaces/IObjectStore.js';
 import { createLogger } from '../../logging/logger.js';
 
+function isErrnoException(err: unknown): err is NodeJS.ErrnoException {
+  return err instanceof Error && 'code' in err;
+}
+
+
 const logger = createLogger('local-file-store');
 
 export class LocalFileStore implements IObjectStore {
@@ -59,8 +64,8 @@ export class LocalFileStore implements IObjectStore {
   async get(key: string): Promise<Buffer | null> {
     try {
       return await readFile(this.resolvePath(key));
-    } catch (err: any) {
-      if (err.code === 'ENOENT') return null;
+    } catch (err: unknown) {
+      if (isErrnoException(err) && err.code === 'ENOENT') return null;
       throw err;
     }
   }
@@ -87,8 +92,8 @@ export class LocalFileStore implements IObjectStore {
         lastModified: stats.mtime.toISOString(),
         custom,
       };
-    } catch (err: any) {
-      if (err.code === 'ENOENT') return null;
+    } catch (err: unknown) {
+      if (isErrnoException(err) && err.code === 'ENOENT') return null;
       throw err;
     }
   }
@@ -100,8 +105,8 @@ export class LocalFileStore implements IObjectStore {
       // Clean up metadata sidecar
       try { await unlink(`${filePath}.meta.json`); } catch { /* no metadata */ }
       logger.info('Object deleted', { key });
-    } catch (err: any) {
-      if (err.code !== 'ENOENT') throw err;
+    } catch (err: unknown) {
+      if (isErrnoException(err) && err.code !== 'ENOENT') throw err;
     }
   }
 
@@ -113,8 +118,8 @@ export class LocalFileStore implements IObjectStore {
     try {
       // Collect max+1 to detect truncation (#10)
       await this.listRecursive(searchDir, this.basePath, keys, max + 1);
-    } catch (err: any) {
-      if (err.code === 'ENOENT') return { keys: [], truncated: false };
+    } catch (err: unknown) {
+      if (isErrnoException(err) && err.code === 'ENOENT') return { keys: [], truncated: false };
       throw err;
     }
 

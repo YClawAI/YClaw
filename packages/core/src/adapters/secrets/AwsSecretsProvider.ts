@@ -20,6 +20,7 @@ const logger = createLogger('aws-secrets-provider');
 const dynamicImport = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<any>;
 
 export class AwsSecretsProvider implements ISecretProvider {
+  // Dynamic import — typed at usage sites, not at field level
   private client: any = null;
   private smModule: any = null;
   private readonly prefix: string;
@@ -68,13 +69,13 @@ export class AwsSecretsProvider implements ISecretProvider {
         this.cache.set(key, value);
       }
       return value;
-    } catch (err: any) {
-      if (err.name === 'ResourceNotFoundException') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'ResourceNotFoundException') {
         return null;
       }
       logger.error('Failed to retrieve secret from AWS', {
         key,
-        error: err.message,
+        error: err instanceof Error ? err.message : String(err),
       });
       return null;
     }
@@ -99,10 +100,10 @@ export class AwsSecretsProvider implements ISecretProvider {
       );
 
       return (response.SecretList || [])
-        .map((s: any) => s.Name?.replace(this.prefix, '') ?? '')
+        .map((s: { Name?: string }) => s.Name?.replace(this.prefix, '') ?? '')
         .filter(Boolean);
-    } catch (err: any) {
-      logger.error('Failed to list secrets from AWS', { error: err.message });
+    } catch (err: unknown) {
+      logger.error('Failed to list secrets from AWS', { error: err instanceof Error ? err.message : String(err) });
       return [];
     }
   }

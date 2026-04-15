@@ -61,8 +61,8 @@ export class InfrastructureFactory {
       // Collect successfully created resources for cleanup tracking
       for (const r of results) {
         if (r.status === 'fulfilled' && r.value
-          && typeof (r.value as any).disconnect === 'function') {
-          connected.push(r.value as any);
+          && typeof (r.value as { disconnect?: unknown }).disconnect === 'function') {
+          connected.push(r.value as { disconnect(): Promise<void> });
         }
       }
 
@@ -105,12 +105,12 @@ export class InfrastructureFactory {
       const config = YclawConfigSchema.parse(this.applyEnvChannelDefaults(parsed));
       logger.info('Loaded config from file', { path: searchPath });
       return config;
-    } catch (err: any) {
-      if (err.code === 'ENOENT') {
+    } catch (err: unknown) {
+      if (err instanceof Error && 'code' in err && (err as NodeJS.ErrnoException).code === 'ENOENT') {
         logger.info('No yclaw.config.yaml found — using env var defaults');
         return YclawConfigSchema.parse(this.applyEnvChannelDefaults({}));
       }
-      throw new Error(`Failed to load yclaw.config.yaml: ${err.message}`);
+      throw new Error(`Failed to load yclaw.config.yaml: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -176,7 +176,7 @@ export class InfrastructureFactory {
         return store;
       }
       default:
-        throw new Error(`Unsupported state store type: ${(stateConfig as any).type}`);
+        throw new Error(`Unsupported state store type: ${(stateConfig as { type: string }).type}`);
     }
   }
 
@@ -196,7 +196,7 @@ export class InfrastructureFactory {
         return bus;
       }
       default:
-        throw new Error(`Unsupported event bus type: ${(eventsConfig as any).type}`);
+        throw new Error(`Unsupported event bus type: ${(eventsConfig as { type: string }).type}`);
     }
   }
 
@@ -211,7 +211,7 @@ export class InfrastructureFactory {
         return new AwsSecretsProvider(config.secrets.prefix, config.secrets.region);
       }
       default:
-        throw new Error(`Unsupported secrets provider: ${(config.secrets as any).provider}`);
+        throw new Error(`Unsupported secrets provider: ${(config.secrets as { provider: string }).provider}`);
     }
   }
 
@@ -228,7 +228,7 @@ export class InfrastructureFactory {
         return new S3ObjectStore(objConfig.bucket, objConfig.prefix, objConfig.region);
       }
       default:
-        throw new Error(`Unsupported object store type: ${(objConfig as any).type}`);
+        throw new Error(`Unsupported object store type: ${(objConfig as { type: string }).type}`);
     }
   }
 
@@ -241,7 +241,7 @@ export class InfrastructureFactory {
     // Extract raw Redis from the event bus for adapters that need it (M4: Slack dedup)
     let redis: unknown = null;
     if ('getRawRedis' in eventBus) {
-      redis = (eventBus as any).getRawRedis();
+      redis = (eventBus as { getRawRedis(): unknown }).getRawRedis();
     }
 
     for (const [name, channelConfig] of Object.entries(config.channels)) {
