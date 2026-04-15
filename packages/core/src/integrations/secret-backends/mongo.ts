@@ -46,6 +46,7 @@ function decrypt(data: { ciphertext: string; iv: string; tag: string }): Record<
 }
 
 export class MongoSecretBackend implements SecretBackend {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic import; typed usage below
   private db: any = null;
 
   private async getDb(): Promise<any> {

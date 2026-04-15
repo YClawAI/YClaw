@@ -6,7 +6,7 @@ import type { CrossDeptStore } from './cross-dept.js';
 import { CrossDeptApproveInput, CrossDeptRejectInput } from './cross-dept.js';
 import type { OperatorTaskStore } from './task-model.js';
 import type { OperatorAuditLogger } from './audit-logger.js';
-import type { Operator } from './types.js';
+import type { OperatorRequest } from './types.js';
 import type { AgentContext } from '../bootstrap/agents.js';
 import { buildOperatorPreamble } from './task-routes.js';
 import type { OperatorContext } from './task-routes.js';
@@ -59,7 +59,11 @@ export function registerConflictRoutes(
         return;
       }
 
-      const operator = (req as any).operator as Operator;
+      const operator = (req as OperatorRequest).operator;
+      if (!operator) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
       const resourceKey = decodeURIComponent(req.params.resourceKey);
       const released = await lockManager.forceRelease(resourceKey);
 
@@ -84,7 +88,7 @@ export function registerConflictRoutes(
 
   app.get('/v1/tasks/:id/conflicts', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) {
         res.status(401).json({ error: 'Authentication required' });
         return;
@@ -132,7 +136,7 @@ export function registerConflictRoutes(
 
   app.get('/v1/approvals/cross-dept', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) {
         res.status(401).json({ error: 'Authentication required' });
         return;
@@ -164,7 +168,7 @@ export function registerConflictRoutes(
 
   app.post('/v1/approvals/cross-dept/:id/approve', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) {
         res.status(401).json({ error: 'Authentication required' });
         return;
@@ -317,7 +321,7 @@ export function registerConflictRoutes(
 
   app.post('/v1/approvals/cross-dept/:id/reject', async (req: Request, res: Response) => {
     try {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) {
         res.status(401).json({ error: 'Authentication required' });
         return;
@@ -389,11 +393,11 @@ export function registerConflictRoutes(
   // These alias the cross-dept routes for API compatibility.
   app.post('/v1/approvals/:id/approve', (req: Request, res: Response) => {
     req.url = `/v1/approvals/cross-dept/${req.params.id}/approve`;
-    (app as any).handle(req, res);
+    (app as unknown as { handle(req: Request, res: Response): void }).handle(req, res);
   });
   app.post('/v1/approvals/:id/reject', (req: Request, res: Response) => {
     req.url = `/v1/approvals/cross-dept/${req.params.id}/reject`;
-    (app as any).handle(req, res);
+    (app as unknown as { handle(req: Request, res: Response): void }).handle(req, res);
   });
 
   logger.info('Conflict & cross-dept routes registered (/v1/locks/*, /v1/approvals/*)');

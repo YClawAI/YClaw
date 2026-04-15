@@ -17,6 +17,7 @@ import type { SecretBackend } from '../secret-backend.js';
 export class AWSSecretsBackend implements SecretBackend {
   private readonly prefix: string;
   private readonly region: string;
+  // Dynamic import — typed at usage sites
   private client: any = null;
 
   constructor() {
@@ -52,8 +53,8 @@ export class AWSSecretsBackend implements SecretBackend {
           { Key: 'managedBy', Value: 'yclaw' },
         ],
       }));
-    } catch (err: any) {
-      if (err.name === 'ResourceExistsException') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'ResourceExistsException') {
         await client.send(new UpdateSecretCommand({
           SecretId: name,
           SecretString: secretString,
@@ -124,7 +125,7 @@ export class AWSSecretsBackend implements SecretBackend {
 
     const groupIds = new Set<string>();
     for (const secret of res.SecretList ?? []) {
-      const tag = secret.Tags?.find((t: any) => t.Key === 'groupId');
+      const tag = secret.Tags?.find((t: { Key?: string; Value?: string }) => t.Key === 'groupId');
       if (tag?.Value) groupIds.add(tag.Value);
     }
     return Array.from(groupIds);

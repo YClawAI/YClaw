@@ -118,7 +118,7 @@ export { CHECKPOINT_TTL_SECONDS } from './checkpoint/types.js';
 export { CostTracker } from './costs/cost-tracker.js';
 export { BudgetEnforcer } from './costs/budget-enforcer.js';
 export { TreasurySnapshotWriter } from './costs/treasury-snapshot.js';
-export { computeCostCents, getPricing, MODEL_PRICING } from './costs/model-pricing.js';
+export { getPricing, MODEL_PRICING } from './costs/model-pricing.js';
 export type { AgentCostEvent, AgentBudget, BudgetCheckResult, BudgetMode, GlobalBudgetConfig } from './costs/types.js';
 
 // Fleet Guard

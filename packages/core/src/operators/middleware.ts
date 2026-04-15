@@ -5,7 +5,7 @@ import { extractKeyPrefix, verifyApiKey } from './api-keys.js';
 import type { OperatorStore } from './operator-store.js';
 import type { OperatorAuditLogger } from './audit-logger.js';
 import type { OperatorRateLimiter } from './rate-limiter.js';
-import type { Operator, OperatorTier } from './types.js';
+import type { Operator, OperatorTier, OperatorRequest } from './types.js';
 import { TIER_HIERARCHY } from './types.js';
 
 const logger = createLogger('operator-auth');
@@ -114,7 +114,7 @@ export function createAuthMiddleware(
         cachedRootOperator = await operatorStore.getByOperatorId(rootOperatorId);
       }
       if (cachedRootOperator) {
-        (req as any).operator = cachedRootOperator;
+        (req as OperatorRequest).operator = cachedRootOperator;
       }
       next();
       return;
@@ -188,7 +188,7 @@ export function createAuthMiddleware(
     }
 
     // Attach operator to request
-    (req as any).operator = operator;
+    (req as OperatorRequest).operator = operator;
 
     // Fire-and-forget lastActiveAt update
     operatorStore.updateLastActive(operator.operatorId);
@@ -213,10 +213,10 @@ export function createAuditMiddleware(auditLogger: OperatorAuditLogger) {
 
     // Hook into response finish event
     res.on('finish', () => {
-      const operator = (req as any).operator as Operator | undefined;
+      const operator = (req as OperatorRequest).operator;
       if (!operator) return; // No operator = unauthenticated exempt path
 
-      const statusCode = (res as any).statusCode as number | undefined;
+      const statusCode = res.statusCode;
       const decision = statusCode && statusCode >= 400 ? 'denied' as const : 'allowed' as const;
 
       // Derive action from method + path
@@ -245,7 +245,7 @@ export function requireTier(minimumTier: OperatorTier) {
   const minLevel = TIER_HIERARCHY[minimumTier];
 
   return (req: Request, res: Response, next: NextFunction): void => {
-    const operator = (req as any).operator as Operator | undefined;
+    const operator = (req as OperatorRequest).operator;
     if (!operator) {
       res.status(401).json({ error: 'Authentication required' });
       return;
@@ -264,7 +264,7 @@ export function requireTier(minimumTier: OperatorTier) {
 /** Middleware: require access to a specific department (from route param or query). */
 export function requireDepartment(paramName = 'department') {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const operator = (req as any).operator as Operator | undefined;
+    const operator = (req as OperatorRequest).operator;
     if (!operator) {
       res.status(401).json({ error: 'Authentication required' });
       return;

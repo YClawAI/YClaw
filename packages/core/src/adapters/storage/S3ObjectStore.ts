@@ -14,6 +14,16 @@ import type {
 } from '../../interfaces/IObjectStore.js';
 import { createLogger } from '../../logging/logger.js';
 
+interface AwsServiceError {
+  name?: string;
+  $metadata?: { httpStatusCode?: number };
+}
+
+function isAwsServiceError(err: unknown): err is AwsServiceError {
+  return typeof err === 'object' && err !== null && ('name' in err || '$metadata' in err);
+}
+
+
 const logger = createLogger('s3-object-store');
 
 /**
@@ -93,8 +103,8 @@ export class S3ObjectStore implements IObjectStore {
         chunks.push(chunk);
       }
       return Buffer.concat(chunks);
-    } catch (err: any) {
-      if (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404) {
+    } catch (err: unknown) {
+      if (isAwsServiceError(err) && (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404)) {
         return null;
       }
       throw err;
@@ -116,8 +126,8 @@ export class S3ObjectStore implements IObjectStore {
         lastModified: response.LastModified?.toISOString(),
         custom: response.Metadata,
       };
-    } catch (err: any) {
-      if (err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404) {
+    } catch (err: unknown) {
+      if (isAwsServiceError(err) && (err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404)) {
         return null;
       }
       throw err;
@@ -147,7 +157,7 @@ export class S3ObjectStore implements IObjectStore {
     }));
 
     const keys = (response.Contents || [])
-      .map((obj: any) => obj.Key?.slice(this.prefix.length) ?? '')
+      .map((obj: { Key?: string }) => obj.Key?.slice(this.prefix.length) ?? '')
       .filter(Boolean);
 
     return {
@@ -172,10 +182,10 @@ export class S3ObjectStore implements IObjectStore {
       );
 
       return url;
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.warn('Failed to generate signed URL', {
         key,
-        error: err.message,
+        error: err instanceof Error ? err.message : String(err),
       });
       return null;
     }

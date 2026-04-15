@@ -132,29 +132,3 @@ export function resetAgentRegistryForTests(): void {
   initialized = false;
 }
 
-// ─── Backward-Compatible Export ─────────────────────────────────────────────
-// Proxied object so existing code that imports AGENT_REGISTRY as a record
-// continues to work. Implements full trap set so Object.keys() etc. work.
-
-/** @deprecated Use getAgentIdentity() instead */
-export const AGENT_REGISTRY: Record<string, AgentIdentity> = new Proxy(
-  {} as Record<string, AgentIdentity>,
-  {
-    get: (_target, prop) => {
-      if (typeof prop === 'symbol') return undefined;
-      return findAgentIdentity(prop);
-    },
-    has: (_target, prop) => {
-      if (typeof prop === 'symbol') return false;
-      return registry.has(prop);
-    },
-    ownKeys: () => [...registry.keys()],
-    getOwnPropertyDescriptor: (_target, prop) => {
-      if (typeof prop === 'symbol') return undefined;
-      const val = registry.get(prop as string);
-      return val
-        ? { configurable: true, enumerable: true, value: val }
-        : undefined;
-    },
-  },
-);

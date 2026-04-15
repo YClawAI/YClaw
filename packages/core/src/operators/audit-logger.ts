@@ -1,4 +1,4 @@
-import type { Db, Collection } from 'mongodb';
+import type { Db, Collection, Filter, OptionalUnlessRequiredId } from 'mongodb';
 import { createLogger } from '../logging/logger.js';
 
 const logger = createLogger('operator-audit');
@@ -45,7 +45,7 @@ export class OperatorAuditLogger {
 
   /** Log an operator action. Fire-and-forget safe. */
   log(entry: OperatorAuditEntry): void {
-    this.collection.insertOne(entry as any).catch((err) => {
+    this.collection.insertOne(entry as OptionalUnlessRequiredId<OperatorAuditEntry>).catch((err) => {
       logger.error('Failed to write audit log', {
         error: err instanceof Error ? err.message : String(err),
         operatorId: entry.operatorId,
@@ -57,7 +57,7 @@ export class OperatorAuditLogger {
   /** Query audit logs for a specific operator. */
   async getByOperator(operatorId: string, limit = 100): Promise<OperatorAuditEntry[]> {
     return this.collection
-      .find({ operatorId } as any)
+      .find({ operatorId } as Filter<OperatorAuditEntry>)
       .sort({ timestamp: -1 })
       .limit(limit)
       .toArray() as Promise<OperatorAuditEntry[]>;
@@ -92,7 +92,7 @@ export class OperatorAuditLogger {
     }
 
     return this.collection
-      .find(query as any)
+      .find(query as Filter<OperatorAuditEntry>)
       .sort({ timestamp: -1 })
       .limit(params.limit ?? 100)
       .toArray() as Promise<OperatorAuditEntry[]>;

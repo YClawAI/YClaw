@@ -6,7 +6,7 @@ import { clearOperatorCache } from './middleware.js';
 import { requireTier } from './middleware.js';
 import type { OperatorStore } from './operator-store.js';
 import type { OperatorAuditLogger } from './audit-logger.js';
-import type { Operator, Invitation } from './types.js';
+import type { Operator, Invitation, OperatorRequest } from './types.js';
 import { InviteOperatorInput, AcceptInviteInput, RevokeOperatorInput, TIER_HIERARCHY } from './types.js';
 import type { Redis as IORedis } from 'ioredis';
 import type { RoleStore } from './roles.js';
@@ -33,7 +33,11 @@ export function registerOperatorRoutes(
         return;
       }
       const { email, displayName, role, tier, departments, limits } = parsed.data;
-      const operator = (req as any).operator as Operator;
+      const operator = (req as OperatorRequest).operator;
+      if (!operator) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
 
       // Check if email already has an active operator
       const existing = await operatorStore.getByEmail(email);
@@ -180,7 +184,7 @@ export function registerOperatorRoutes(
   // ─── GET /v1/operators/me ────────────────────────────────────────────────
 
   app.get('/v1/operators/me', (req: Request, res: Response) => {
-    const operator = (req as any).operator as Operator | undefined;
+    const operator = (req as OperatorRequest).operator;
     if (!operator) {
       res.status(401).json({ error: 'Authentication required' });
       return;
@@ -204,7 +208,7 @@ export function registerOperatorRoutes(
   // ─── GET /v1/operators/me/permissions ────────────────────────────────────
 
   app.get('/v1/operators/me/permissions', async (req: Request, res: Response) => {
-    const operator = (req as any).operator as Operator | undefined;
+    const operator = (req as OperatorRequest).operator;
     if (!operator) {
       res.status(401).json({ error: 'Authentication required' });
       return;
@@ -276,7 +280,11 @@ export function registerOperatorRoutes(
         return;
       }
       const { reason } = parsed.data;
-      const caller = (req as any).operator as Operator;
+      const caller = (req as OperatorRequest).operator;
+      if (!caller) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
 
       // Can't revoke yourself
       if (targetId === caller.operatorId) {
@@ -321,7 +329,7 @@ export function registerOperatorRoutes(
   app.post('/v1/operators/:id/rotate-key', async (req: Request, res: Response) => {
     try {
       const targetId = req.params.id;
-      const caller = (req as any).operator as Operator | undefined;
+      const caller = (req as OperatorRequest).operator;
       if (!caller) {
         res.status(401).json({ error: 'Authentication required' });
         return;
