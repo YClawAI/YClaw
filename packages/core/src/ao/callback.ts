@@ -14,6 +14,37 @@ const FAILURE_TYPES = new Set([
   'ci.failed',
 ]);
 
+// ─── Error Sanitization ───────────────────────────────────────────────────────
+
+/**
+ * Sanitise an error string before it is posted to any notification channel.
+ *
+ * - Keeps only the first non-blank, non-stack-frame line so that raw stack
+ *   traces never leak to observers.
+ * - Replaces absolute filesystem paths with just the basename to avoid
+ *   exposing internal infrastructure layout (e.g. worktree paths).
+ * - Truncates the result to `maxLength` characters.
+ */
+function sanitizeError(error: string | undefined, maxLength = 200): string {
+  if (!error) return '';
+
+  // Keep only the first meaningful line — stack frames start with "    at ".
+  const firstLine = (
+    error
+      .split('\n')
+      .find((l) => l.trim() && !l.trimStart().startsWith('at '))
+    ?? error.split('\n')[0]
+    ?? error
+  );
+
+  // Replace absolute paths (/a/b/c/file.ts or C:\a\b\file.ts) with basename.
+  const sanitized = firstLine
+    .replace(/(?:[A-Za-z]:)?(?:\/[^/\s]+){2,}\/([^/\s]+)/g, '$1')
+    .replace(/(?:[A-Za-z]:\\)(?:[^\\\s]+\\){1,}([^\\\s]+)/g, '$1');
+
+  return sanitized.length > maxLength ? `${sanitized.slice(0, maxLength)}…` : sanitized;
+}
+
 // ─── False-positive resolution constants ─────────────────────────────────────
 /** How many times to poll GitHub before giving up on finding a PR. */
 const PR_POLL_ATTEMPTS = 4;
@@ -45,11 +76,11 @@ const EVENT_SLACK_MAP: Record<string, { emoji: string; template: (e: AoCallbackE
   },
   'session.failed': {
     emoji: '❌',
-    template: (e) => `Builder session failed for *#${e.issueNumber || '?'}*${e.error ? `: ${e.error.slice(0, 200)}` : ''}`,
+    template: (e) => `Builder session failed for *#${e.issueNumber || '?'}*${e.error ? `: ${sanitizeError(e.error)}` : ''}`,
   },
   'ci.failed': {
     emoji: '🔴',
-    template: (e) => `CI failed for *#${e.issueNumber || '?'}*${e.error ? `: ${e.error.slice(0, 200)}` : ''}`,
+    template: (e) => `CI failed for *#${e.issueNumber || '?'}*${e.error ? `: ${sanitizeError(e.error)}` : ''}`,
   },
 };
 
@@ -281,8 +312,13 @@ async function resolveFailureAlertIfPRExists(
 // ─── Discord Webhook Notifications ───────────────────────────────────────────
 
 async function notifyDiscord(event: AoCallbackEvent): Promise<void> {
+  // AO internal failures → #yclaw-operations (internal channel).
+  // Falls back to DISCORD_WEBHOOK_ALERTS only when DISCORD_WEBHOOK_OPERATIONS
+  // is not configured so that misconfigured deployments still get an alert
+  // rather than silently dropping the notification.
+  // Non-failure events → #yclaw-development (internal, operational).
   const webhookUrl = FAILURE_TYPES.has(event.type)
-    ? process.env.DISCORD_WEBHOOK_ALERTS
+    ? (process.env.DISCORD_WEBHOOK_OPERATIONS || process.env.DISCORD_WEBHOOK_ALERTS)
     : process.env.DISCORD_WEBHOOK_DEVELOPMENT;
 
   if (!webhookUrl) {
@@ -335,7 +371,7 @@ async function commentOnIssueFailure(event: AoCallbackEvent): Promise<void> {
 
   const body = `⚠️ **Builder session failed**\n\n` +
     `- **Session:** ${event.sessionId || 'unknown'}\n` +
-    `- **Reason:** ${event.error || (event as unknown as Record<string, unknown>).subtype || event.type}\n` +
+    `- **Reason:** ${sanitizeError(event.error) || (event as unknown as Record<string, unknown>).subtype || event.type}\n` +
     `- **Time:** ${new Date().toISOString()}\n\n` +
     `The automated coding session did not produce any commits. This may indicate ` +
     `the issue scope is too large for automated processing, or the session hit its turn limit.\n\n` +
