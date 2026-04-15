@@ -9,6 +9,17 @@ vi.mock('../src/logging/logger.js', () => ({
   }),
 }));
 
+// Mock app-auth to avoid module-level _authMethod caching across tests.
+// Without this, earlier tests that fire session.failed (without GITHUB_TOKEN)
+// poison the cached auth method to 'none', breaking later tests that set it.
+const mockIsGitHubAuthAvailable = vi.fn(() => false);
+const mockGetGitHubToken = vi.fn(async () => 'ghp-test');
+vi.mock('../src/actions/github/app-auth.js', () => ({
+  isGitHubAuthAvailable: (...args: unknown[]) => mockIsGitHubAuthAvailable(...args),
+  getGitHubToken: (...args: unknown[]) => mockGetGitHubToken(...args),
+  initGitHubAuth: vi.fn(),
+}));
+
 const { createAoCallbackMiddleware } = await import('../src/ao/callback.js');
 
 function makeEventBus() {
@@ -454,6 +465,8 @@ describe('ao callback middleware', () => {
       vi.stubGlobal('fetch', fetchMock);
       process.env.SLACK_BOT_TOKEN = 'xoxb-test';
       process.env.GITHUB_TOKEN = 'ghp-test';
+      // Enable GitHub auth for false-positive resolution + issue comments
+      mockIsGitHubAuthAvailable.mockReturnValue(true);
       // Speed up polling in tests
       vi.useFakeTimers();
     });
@@ -463,6 +476,7 @@ describe('ao callback middleware', () => {
       vi.useRealTimers();
       delete process.env.SLACK_BOT_TOKEN;
       delete process.env.GITHUB_TOKEN;
+      mockIsGitHubAuthAvailable.mockReturnValue(false);
     });
 
     it('posts a threaded ✅ reply and adds reaction when a PR is found', async () => {
@@ -478,11 +492,24 @@ describe('ao callback middleware', () => {
       // Slack reaction
       const slackReactionResponse = { ok: true };
 
-      fetchMock
-        .mockResolvedValueOnce({ ok: true, json: async () => slackPostResponse })   // initial failure message
-        .mockResolvedValueOnce({ ok: true, json: async () => githubSearchResponse }) // GitHub PR search
-        .mockResolvedValueOnce({ ok: true, json: async () => slackThreadResponse })  // thread reply
-        .mockResolvedValueOnce({ ok: true, json: async () => slackReactionResponse }); // reaction
+      // URL-dispatching mock: commentOnIssueFailure also calls fetch (GitHub issue
+      // comment), so ordered mockResolvedValueOnce would have responses stolen.
+      let slackPostCount = 0;
+      fetchMock.mockImplementation((url: string) => {
+        if (url === 'https://slack.com/api/chat.postMessage') {
+          slackPostCount++;
+          const resp = slackPostCount === 1 ? slackPostResponse : slackThreadResponse;
+          return Promise.resolve({ ok: true, json: async () => resp });
+        }
+        if (url === 'https://slack.com/api/reactions.add') {
+          return Promise.resolve({ ok: true, json: async () => slackReactionResponse });
+        }
+        if (typeof url === 'string' && url.includes('api.github.com/search/issues')) {
+          return Promise.resolve({ ok: true, json: async () => githubSearchResponse });
+        }
+        // GitHub issue comment or any other call
+        return Promise.resolve({ ok: true, json: async () => ({}) });
+      });
 
       const handler = createAoCallbackMiddleware(makeEventBus() as any, makeAuditLog() as any);
       const res = makeMockRes();
@@ -531,10 +558,17 @@ describe('ao callback middleware', () => {
       const slackPostResponse = { ok: true, ts: '1234567890.000100' };
       const githubEmptyResponse = { total_count: 0, items: [] };
 
-      // All GitHub search attempts return empty
-      fetchMock
-        .mockResolvedValueOnce({ ok: true, json: async () => slackPostResponse })
-        .mockResolvedValue({ ok: true, json: async () => githubEmptyResponse });
+      // URL-dispatching mock — handles Slack, GitHub search, and GitHub issue comment calls
+      fetchMock.mockImplementation((url: string) => {
+        if (url === 'https://slack.com/api/chat.postMessage') {
+          return Promise.resolve({ ok: true, json: async () => slackPostResponse });
+        }
+        if (typeof url === 'string' && url.includes('api.github.com/search/issues')) {
+          return Promise.resolve({ ok: true, json: async () => githubEmptyResponse });
+        }
+        // GitHub issue comment or any other call
+        return Promise.resolve({ ok: true, json: async () => ({}) });
+      });
 
       const handler = createAoCallbackMiddleware(makeEventBus() as any, makeAuditLog() as any);
       const res = makeMockRes();
@@ -596,7 +630,7 @@ describe('ao callback middleware', () => {
       expect(githubCall).toBeUndefined();
     });
 
-    it('does not attempt resolution for ci.failed (only session.failed)', async () => {
+    it('does not attempt PR resolution for ci.failed (only session.failed)', async () => {
       const slackPostResponse = { ok: true, ts: '1234567890.000100' };
       fetchMock.mockResolvedValue({ ok: true, json: async () => slackPostResponse });
 
@@ -614,10 +648,12 @@ describe('ao callback middleware', () => {
       await vi.runAllTimersAsync();
       await Promise.resolve();
 
-      const githubCall = fetchMock.mock.calls.find(([url]) =>
-        url?.includes('api.github.com'),
+      // PR search (false-positive resolution) should NOT run for ci.failed
+      // (commentOnIssueFailure may still post an issue comment — that's expected)
+      const prSearchCall = fetchMock.mock.calls.find(([url]) =>
+        url?.includes('api.github.com/search/issues'),
       );
-      expect(githubCall).toBeUndefined();
+      expect(prSearchCall).toBeUndefined();
     });
   });
 });

@@ -21,7 +21,7 @@ const PR_POLL_ATTEMPTS = 4;
 const PR_POLL_INTERVAL_MS = 15_000;
 
 // ─── Slack Notifications ──────────────────────────────────────────────────────
-const AO_SLACK_CHANNEL = process.env.AO_SLACK_CHANNEL || 'C0000000002'; // #yclaw-development
+const AO_SLACK_CHANNEL = process.env.AO_SLACK_CHANNEL || 'C0000000002';
 
 const EVENT_SLACK_MAP: Record<string, { emoji: string; template: (e: AoCallbackEvent) => string }> = {
   'session.started': {
@@ -273,6 +273,93 @@ async function resolveFailureAlertIfPRExists(
   });
 }
 
+// ─── Discord Webhook Notifications ───────────────────────────────────────────
+
+async function notifyDiscord(event: AoCallbackEvent): Promise<void> {
+  const webhookUrl = FAILURE_TYPES.has(event.type)
+    ? process.env.DISCORD_WEBHOOK_ALERTS
+    : process.env.DISCORD_WEBHOOK_DEVELOPMENT;
+
+  if (!webhookUrl) {
+    logger.debug('[AO Callback] Discord webhook not configured — skipping');
+    return;
+  }
+
+  const mapping = EVENT_SLACK_MAP[event.type];
+  // Slack uses *bold*, Discord uses **bold** — convert single * to **
+  const raw = mapping
+    ? `${mapping.emoji} ${mapping.template(event)}`
+    : `🔔 AO event: \`${event.type}\`${event.issueNumber ? ` for #${event.issueNumber}` : ''}`;
+  const text = raw.replace(/(?<!\*)\*(?!\*)([^*]+)\*(?!\*)/g, '**$1**');
+
+  try {
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: 'AO Pipeline',
+        content: text,
+      }),
+    });
+    if (!res.ok) {
+      logger.warn('[AO Callback] Discord webhook failed', { status: res.status });
+    }
+  } catch (err) {
+    logger.warn('[AO Callback] Discord webhook error', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
+// ─── GitHub Issue Comments on Failure ────────────────────────────────────────
+
+async function commentOnIssueFailure(event: AoCallbackEvent): Promise<void> {
+  if (!FAILURE_TYPES.has(event.type)) return;
+  if (!event.issueNumber) return;
+  if (!isGitHubAuthAvailable()) return;
+
+  const { owner, repoName } = parseOwnerRepo(event.repo);
+
+  let token: string;
+  try {
+    token = await getGitHubToken();
+  } catch {
+    logger.debug('[AO Callback] GitHub token unavailable — skipping issue comment');
+    return;
+  }
+
+  const body = `⚠️ **AO session failed**\n\n` +
+    `- **Session:** ${event.sessionId || 'unknown'}\n` +
+    `- **Reason:** ${event.error || (event as unknown as Record<string, unknown>).subtype || event.type}\n` +
+    `- **Time:** ${new Date().toISOString()}\n\n` +
+    `The automated coding session did not produce any commits. This may indicate ` +
+    `the issue scope is too large for automated processing, or the session hit its turn limit.\n\n` +
+    `Consider breaking this issue into smaller, more targeted sub-issues.`;
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repoName}/issues/${event.issueNumber}/comments`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'User-Agent': 'yclaw/ao-callback',
+        },
+        body: JSON.stringify({ body }),
+      },
+    );
+    if (!res.ok) {
+      logger.warn('[AO Callback] GitHub comment failed', { status: res.status });
+    }
+  } catch (err) {
+    logger.warn('[AO Callback] GitHub comment error', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
 function safeCompare(a: string, b: string): boolean {
   // HMAC both inputs to normalize length — prevents timing-based length leakage
   const key = 'ao-callback-compare';
@@ -373,9 +460,19 @@ export function createAoCallbackMiddleware(
       await eventBus.publish('ao', event.type, payload);
     }
 
-    // Slack notification — fire and forget, never blocks response
+    // Notifications — fire and forget, never block response
     notifySlack(event).catch((err) => {
       logger.warn('[AO Callback] Slack notification failed', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
+    notifyDiscord(event).catch((err) => {
+      logger.warn('[AO Callback] Discord notification failed', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
+    commentOnIssueFailure(event).catch((err) => {
+      logger.warn('[AO Callback] GitHub issue comment failed', {
         error: err instanceof Error ? err.message : String(err),
       });
     });
