@@ -16,7 +16,7 @@ vi.mock('../src/logging/logger.js', () => ({
   }),
 }));
 
-const { DiscordExecutor } = await import('../src/actions/discord.js');
+const { DiscordExecutor } = await import('../src/actions/discord/index.js');
 
 // ─── Fixtures ──────────────────────────────────────────────────────────────
 

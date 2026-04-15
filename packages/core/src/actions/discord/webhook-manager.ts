@@ -12,9 +12,18 @@ import { WEBHOOK_DEPARTMENTS } from './types.js';
 
 const logger = createLogger('discord:webhook-manager');
 
+/**
+ * Minimal interface for a discord.js WebhookClient instance.
+ * Typed locally to avoid a hard compile-time dependency on discord.js
+ * (which is an optional peer dependency).
+ */
+interface WebhookClientLike {
+  send(options: Record<string, unknown>): Promise<{ id: string }>;
+}
+
 export class WebhookManager {
   /** Per-department discord.js WebhookClient instances. */
-  private readonly webhookClients = new Map<string, any>();
+  private readonly webhookClients = new Map<string, WebhookClientLike>();
   /** Raw webhook credentials per department for direct REST API calls. */
   private readonly webhookCredentials = new Map<string, WebhookCredentials>();
   /** Reverse map: channelId → department. */
@@ -47,10 +56,8 @@ export class WebhookManager {
       }
 
       try {
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval
-        const dynamicImport = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<any>;
-        const { WebhookClient } = await dynamicImport('discord.js');
-        this.webhookClients.set(dept, new WebhookClient({ url }));
+        const { WebhookClient } = await import('discord.js');
+        this.webhookClients.set(dept, new WebhookClient({ url }) as unknown as WebhookClientLike);
         hasAny = true;
       } catch (err) {
         logger.error('Failed to create Discord webhook client', {
@@ -69,7 +76,7 @@ export class WebhookManager {
    * Find the discord.js WebhookClient for a target channel.
    * Returns undefined if no webhook is configured for that channel.
    */
-  getWebhookForChannel(channelId: string): any | undefined {
+  getWebhookForChannel(channelId: string): WebhookClientLike | undefined {
     const dept = this.channelToDept.get(channelId);
     return dept ? this.webhookClients.get(dept) : undefined;
   }
