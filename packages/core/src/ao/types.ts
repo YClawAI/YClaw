@@ -32,6 +32,26 @@ export interface AoBatchSpawnResponse {
   results: AoSpawnResponse[];
 }
 
+// ─── AO Deep Health ───────────────────────────────────────────────────────────
+
+export interface AoDeepHealthComponentStatus {
+  status: 'ok' | 'degraded' | 'error';
+  [key: string]: unknown;
+}
+
+export interface AoDeepHealthResponse {
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  components: {
+    ec2?: AoDeepHealthComponentStatus & { uptime_seconds?: number };
+    docker?: AoDeepHealthComponentStatus & { running_containers?: number };
+    disk?: AoDeepHealthComponentStatus & { free_pct?: number };
+    last_session?: AoDeepHealthComponentStatus & { completed_at?: string };
+    [key: string]: AoDeepHealthComponentStatus | undefined;
+  };
+  queue_depth: number;
+  circuit_breakers: Record<string, { open: boolean; failures: number }>;
+}
+
 export interface AoCallbackEvent {
   type: string;
   sessionId?: string;
