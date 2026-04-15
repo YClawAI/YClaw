@@ -489,6 +489,12 @@ export function createAoCallbackMiddleware(
     delete payload['prNumber'];
     delete payload['prUrl'];
 
+    // IMPORTANT: source must be 'ao' (not 'ao-callback') so that event keys are
+    // 'ao:task_completed', 'ao:pr_ready', etc. — matching both:
+    //   - the ACL entries in event-acl.ts (authorised sources: ['ao'])
+    //   - the agent subscription patterns ('ao:*') used by downstream consumers
+    // Changing this source string will break all AO event routing and cause 11+
+    // test failures in tests/ao-callback.test.ts.
     if (event.type === 'session.completed') {
       await eventBus.publish('ao', 'task_completed', payload);
     } else if (event.type === 'pr.ready' || event.type === 'pr.created') {
