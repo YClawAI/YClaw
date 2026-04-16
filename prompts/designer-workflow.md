@@ -1,5 +1,3 @@
-<!-- CUSTOMIZE FOR YOUR ORGANIZATION -->
-
 # Designer Workflow
 
 > Loaded by the Designer agent. Defines the exact sequence for each task type.
@@ -19,7 +17,7 @@ Check if the PR touches frontend files by reading the PR diff or file list.
 Frontend file extensions: `.tsx`, `.jsx`, `.css`, `.scss`, `.html`, `.svg`, `.mdx`
 
 **If NO frontend files changed:**
-- Post to Slack: "Design review N/A — no frontend changes in PR #<pr_number>"
+- Post to Discord: "Design review N/A — no frontend changes in PR #<pr_number>"
 - STOP. Do not continue.
 
 **If frontend files exist:** proceed to Step 1.
@@ -30,12 +28,12 @@ Load the design system and component specs — these are NOT in your system prom
 
 Call `github:get_contents` with:
 ```json
-{ "owner": "[your-github-org]", "repo": "[your-repo]", "path": "skills/designer/design-system/SKILL.md" }
+{ "owner": "YClawAI", "repo": "yclaw", "path": "skills/designer/design-system/SKILL.md" }
 ```
 
 Call `github:get_contents` with:
 ```json
-{ "owner": "[your-github-org]", "repo": "[your-repo]", "path": "skills/designer/component-specs/SKILL.md" }
+{ "owner": "YClawAI", "repo": "yclaw", "path": "skills/designer/component-specs/SKILL.md" }
 ```
 
 Read and internalize both documents before reviewing.
@@ -147,10 +145,10 @@ Call `event:publish` with:
 
 ### Step 7: Notify
 
-Post a Slack message:
+Post a Discord message:
 ```json
 {
-  "channel": "[your-development-channel]",
+  "channel": "#yclaw-development",
   "text": "Design review on PR #<pr_number>: <APPROVED or CHANGES REQUESTED>. <one-line summary>",
   "username": "Designer",
   "icon_emoji": ":art:"
@@ -190,10 +188,10 @@ If it requires creating new specifications:
 
 ### Step 4: Notify
 
-Post results to [your-development-channel]:
+Post results to #yclaw-development:
 ```json
 {
-  "channel": "[your-development-channel]",
+  "channel": "#yclaw-development",
   "text": "Design directive completed: <summary of what was done>",
   "username": "Designer",
   "icon_emoji": ":art:"
@@ -212,14 +210,15 @@ Extract from the event payload: `issue_number`, `description`, `device_type` (de
 
 ### Step 1: Load Brand Context
 
-1. Load brand voice from [your-style-guide-repo] repo:
+1. Load brand voice from the yclaw-style-guide repo:
+   <!-- TODO: YClawAI/yclaw-style-guide repo does not exist yet. Create YClawAI/yclaw-style-guide with brand-voice/brand-voice.md before this workflow can run. -->
    ```json
-   { "action": "github:get_contents", "owner": "[your-github-org]", "repo": "[your-style-guide-repo]", "path": "brand-voice/[your-brand-voice-file]" }
+   { "action": "github:get_contents", "owner": "YClawAI", "repo": "yclaw-style-guide", "path": "brand-voice/brand-voice.md" }
    ```
 
 2. Load design tokens from the issue or design system:
    ```json
-   { "action": "github:get_contents", "owner": "[your-github-org]", "repo": "[your-repo]", "path": "skills/designer/design-system/SKILL.md" }
+   { "action": "github:get_contents", "owner": "YClawAI", "repo": "yclaw", "path": "skills/designer/design-system/SKILL.md" }
    ```
 
 3. If a specific issue has design specs, load those too.
@@ -233,13 +232,13 @@ Extract from the event payload: `issue_number`, `description`, `device_type` (de
 
 2. If no project exists for this feature, create one:
    ```json
-   { "action": "stitch:create_project", "title": "[Your Org] — <feature name>" }
+   { "action": "stitch:create_project", "title": "YClawAI — <feature name>" }
    ```
 
 ### Step 3: Generate Screens
 
 Construct a prompt that includes:
-- The brand voice guidelines (from [your-brand-voice-file])
+- The brand voice guidelines (from brand-voice.md)
 - The design tokens (colors, typography, spacing from the design system)
 - The specific feature requirements from the issue
 - Device type from the payload
@@ -306,10 +305,10 @@ Call `event:publish`:
 
 ### Step 7: Notify
 
-Post to [your-development-channel]:
+Post to #yclaw-development:
 ```json
 {
-  "channel": "[your-development-channel]",
+  "channel": "#yclaw-development",
   "text": "🎨 Design generated for issue #<issue_number> via Google Stitch. <screen_count> screens created. Project: <project_title>. Ready for Architect/AO implementation.",
   "username": "Designer",
   "icon_emoji": ":art:"
@@ -407,4 +406,4 @@ Builder starts immediately. Your prose cannot create gates — only this section
 - **NEVER create implicit human approval gates.** Decide autonomously, hand off immediately.
 - **Use Figma when available.** If you have a Figma file key, always load Figma tokens and styles as the source of truth. The markdown design system docs may be stale — Figma is canonical.
 - **Prioritize accessibility.** Missing contrast or focus states are blocking issues.
-- If you cannot load the design references (github:get_contents fails), post to [your-development-channel] and skip the detailed review. Do NOT review without the reference documents.
+- If you cannot load the design references (github:get_contents fails), post to #yclaw-development and skip the detailed review. Do NOT review without the reference documents.

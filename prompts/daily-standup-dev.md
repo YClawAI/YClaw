@@ -1,8 +1,8 @@
-<!-- CUSTOMIZE FOR YOUR ORGANIZATION -->
-
 # Daily Standup — Development Department
 
-Extends the base standup protocol. Dev agents: your development agents.
+Extends the base standup protocol. Dev agents: Architect, Designer, Mechanic.
+
+> See also: `data-verification-rules.md` for org-wide verification standards.
 
 ## DATA SOURCING RULES (MANDATORY)
 
@@ -41,7 +41,7 @@ Before reporting anything as "Done":
 - **Deploys** → verify they are actually completed
 - Do NOT report items as "Done" from memory — verify the actual state
 
-### 4. Post to [your-development-channel]
+### 4. Post to #yclaw-development
 
 ```
 [Agent] Standup — YYYY-MM-DD
@@ -65,8 +65,8 @@ Same schema as base protocol.
 ## Action Format
 
 `event:publish` — `source`, `type`, `payload` as top-level fields.
-`discord:message` — include `channel` ([your-development-channel]) and `text`. Skip if nothing to report.
+`discord:message` — include `channel` (#yclaw-development) and `text`. Skip if nothing to report.
 
 ---
 
-*Maintained by your AI Chief of Staff.*
+*Maintained by Strategist.*

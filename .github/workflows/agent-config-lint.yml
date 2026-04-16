@@ -1,0 +1,69 @@
+name: Agent Config Lint
+on:
+  pull_request:
+    paths:
+      - 'departments/**'
+      - 'prompts/**'
+      - 'skills/**'
+
+jobs:
+  lint-agent-configs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for unresolved placeholders
+        run: |
+          echo "Checking for unresolved placeholders..."
+          FOUND=0
+
+          if grep -rn '\[your-' departments/ prompts/ skills/ --include='*.md' --include='*.yaml' --include='*.yml'; then
+            echo "❌ Found [your-*] placeholders"
+            FOUND=1
+          fi
+
+          if grep -rn 'your-org' departments/ prompts/ skills/ --include='*.md' --include='*.yaml' --include='*.yml'; then
+            echo "❌ Found your-org references"
+            FOUND=1
+          fi
+
+          if grep -rn '<!-- CUSTOMIZE' departments/ prompts/ skills/ --include='*.md'; then
+            echo "❌ Found CUSTOMIZE markers"
+            FOUND=1
+          fi
+
+          if grep -rn 'your-landing\|your-style-guide\|your-brand-voice' departments/ prompts/ skills/ --include='*.md'; then
+            echo "❌ Found template placeholders"
+            FOUND=1
+          fi
+
+          if [ $FOUND -eq 1 ]; then
+            echo ""
+            echo "Unresolved placeholders found. Please replace with actual values."
+            exit 1
+          fi
+
+          echo "✅ No placeholders found"
+
+      - name: Check for Slack/Discord mismatch
+        run: |
+          echo "Checking for Slack references in prompt files..."
+          if grep -rni 'slack' prompts/ --include='*.md' | grep -v '<!-- .* -->' | grep -vi 'no.slack'; then
+            echo "⚠️ Found Slack references in prompts — verify these should not be Discord"
+            # Warning only, not blocking
+          else
+            echo "✅ No unexpected Slack references"
+          fi
+
+      - name: Check for old model names
+        run: |
+          echo "Checking for deprecated model names..."
+          FOUND=0
+          if grep -rn 'claude-sonnet-4-20250514\|claude-3-opus\|claude-3-sonnet' departments/ --include='*.yaml' --include='*.yml'; then
+            echo "❌ Found deprecated model names"
+            FOUND=1
+          fi
+          if [ $FOUND -eq 1 ]; then
+            exit 1
+          fi
+          echo "✅ All model names current"

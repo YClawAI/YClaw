@@ -20,6 +20,7 @@ system_prompts:
   - daily-standup-dev.md
   - engineering-standards.md
   - protocol-overview.md
+  - escalation-policy-dev.md
   - executive-directive.md
   - escalation-policy.md
   - architect-workflow.md
@@ -146,7 +147,6 @@ actions:
   - discord:react
   - event:publish
   - deploy:assess
-  - deploy:execute
 
 data_sources: []
 
@@ -177,5 +177,5 @@ review_bypass: []
 
 heartbeat:
   precheck:
-    enabled: false
+    enabled: true
     maxSilenceHours: 6
