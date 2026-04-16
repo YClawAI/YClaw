@@ -1,4 +1,5 @@
 <!-- CUSTOMIZE: Visual identity tokens for your organization -->
+<!-- TODO: needs CEO input — YClaw's own brand tokens (colors, typography scale) are not yet defined. Designer/Forge agents currently operate with placeholder-filled tokens. -->
 # Design System
 
 > Code-ready design tokens, CSS custom properties, and styling specifications.

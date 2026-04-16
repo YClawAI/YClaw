@@ -13,6 +13,7 @@ system_prompts:
   - mission_statement.md
   - chain-of-command.md
   - daily-standup.md
+  - data-integrity.md
 triggers:
   - type: cron
     schedule: 22 13 * * *

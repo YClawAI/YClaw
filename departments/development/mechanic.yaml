@@ -12,11 +12,18 @@ model:
   maxTokens: 8192
 
 system_prompts:
+  - claudeception.md
+  - skill-usage.md
   - mission_statement.md
   - chain-of-command.md
+  - daily-standup-dev.md
   - engineering-standards.md
+  - mechanic-workflow.md
 
 triggers:
+  - type: cron
+    schedule: "6 13 * * *"
+    task: daily_standup
   - type: event
     event: architect:mechanic_task
     task: execute_mechanic_task
@@ -42,6 +49,7 @@ event_subscriptions:
   - ci:lockfile_drift
 
 event_publications:
+  - standup:report
   - mechanic:task_completed
   - mechanic:task_failed
 

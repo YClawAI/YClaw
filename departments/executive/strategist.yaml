@@ -15,6 +15,7 @@ system_prompts:
   - daily-standup.md
   - executive-directive.md
   - protocol-overview.md
+  - escalation-policy.md
   - model-review.md
   - strategist-workflow.md
   - strategist-heartbeat.md
