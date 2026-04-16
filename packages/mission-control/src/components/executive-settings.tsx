@@ -8,7 +8,7 @@ import type { AgentCardConfig } from './agent-settings-card';
 import type { ModelInfo } from '@/types/gateway';
 import { useDepartmentSettings } from '@/hooks/use-department-settings';
 
-// ── SVG Icons ────────────────────────────────────────────────────────────────
+// ── SVG Icons ─────────────────────────────────────────────────────────────────────
 
 function DocumentIcon({ className }: { className?: string }) {
   return (
@@ -42,7 +42,7 @@ function BellIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Info tooltip ──────────────────────────────────────────────────────────────
+// ── Info tooltip ───────────────────────────────────────────────────────────────────────
 
 function InfoTooltip({ text }: { text: string }) {
   const [show, setShow] = useState(false);
@@ -63,7 +63,7 @@ function InfoTooltip({ text }: { text: string }) {
     <span ref={ref} className="inline-flex">
       <button
         type="button"
-        className="w-4 h-4 rounded-full border border-terminal-dim/40 text-terminal-dim text-[9px] font-bold leading-none flex items-center justify-center hover:border-terminal-text hover:text-terminal-text transition-colors"
+        className="w-4 h-4 rounded-full border border-mc-text-tertiary/40 text-mc-text-tertiary text-[9px] font-bold leading-none flex items-center justify-center hover:border-mc-text hover:text-mc-text transition-colors duration-mc ease-mc-out"
         onMouseEnter={open}
         onMouseLeave={close}
         onClick={() => (show ? close() : open())}
@@ -73,7 +73,7 @@ function InfoTooltip({ text }: { text: string }) {
       </button>
       {show && pos && (
         <div
-          className="fixed w-56 p-2.5 rounded border border-terminal-border bg-terminal-surface shadow-2xl text-[10px] text-terminal-dim leading-relaxed z-[100]"
+          className="fixed w-56 p-2.5 rounded-panel border border-mc-border bg-mc-surface shadow-2xl font-sans text-[10px] text-mc-text-tertiary leading-relaxed z-[100]"
           style={{ top: pos.top, left: pos.left }}
           onMouseEnter={open}
           onMouseLeave={close}
@@ -85,13 +85,12 @@ function InfoTooltip({ text }: { text: string }) {
   );
 }
 
-// ── Collapsible Section ──────────────────────────────────────────────────────
+// ── Collapsible Section ───────────────────────────────────────────────────────────────────
 
 const SECTION_EXPANDED_STYLES: Record<string, string> = {
-  'terminal-cyan': 'border-terminal-cyan/50 bg-terminal-cyan/5',
-  'terminal-purple': 'border-terminal-purple/50 bg-terminal-purple/5',
-  'terminal-orange': 'border-terminal-orange/50 bg-terminal-orange/5',
-  'terminal-yellow': 'border-terminal-yellow/50 bg-terminal-yellow/5',
+  'mc-accent': 'border-mc-accent/50 bg-mc-accent/5',
+  'mc-info': 'border-mc-info/50 bg-mc-info/5',
+  'mc-warning': 'border-mc-warning/50 bg-mc-warning/5',
 };
 
 function SettingsSection({
@@ -111,19 +110,19 @@ function SettingsSection({
   headerExtra?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const expandedStyle = SECTION_EXPANDED_STYLES[iconColor] ?? 'border-terminal-border';
+  const expandedStyle = SECTION_EXPANDED_STYLES[iconColor] ?? 'border-mc-border';
   return (
     <section className="mb-4">
       <button
         onClick={onToggle}
         aria-expanded={expanded}
-        className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
-          expanded ? expandedStyle : 'border-terminal-border hover:border-terminal-muted'
+        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-panel border transition-colors duration-mc ease-mc-out ${
+          expanded ? expandedStyle : 'border-mc-border hover:border-mc-border-hover'
         }`}
       >
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+          <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
             {label}
           </span>
           {headerExtra && (
@@ -132,41 +131,36 @@ function SettingsSection({
             </span>
           )}
         </div>
-        <span className="text-terminal-dim text-xs">{expanded ? '\u2212' : '+'}</span>
+        <span className="text-mc-text-tertiary text-xs">{expanded ? '\u2212' : '+'}</span>
       </button>
       {expanded && <div className="mt-3 pl-1 space-y-4">{children}</div>}
     </section>
   );
 }
 
-// ── Toggle Switch ────────────────────────────────────────────────────────────
+// ── Toggle Switch ─────────────────────────────────────────────────────────────────────────
 
 const TOGGLE_STYLES: Record<string, { on: string; off: string; knob: string }> = {
-  'terminal-orange': {
-    on: 'bg-terminal-orange/50 border-terminal-orange/30',
-    off: 'bg-terminal-orange/20 border-terminal-orange/30',
-    knob: 'bg-terminal-orange',
-  },
-  'terminal-yellow': {
-    on: 'bg-terminal-yellow/50 border-terminal-yellow/30',
-    off: 'bg-terminal-yellow/20 border-terminal-yellow/30',
-    knob: 'bg-terminal-yellow',
+  'mc-warning': {
+    on: 'bg-mc-warning/50 border-mc-warning/30',
+    off: 'bg-mc-warning/20 border-mc-warning/30',
+    knob: 'bg-mc-warning',
   },
 };
 
 function ToggleSwitch({
   checked,
   onChange,
-  color = 'terminal-orange',
+  color = 'mc-warning',
 }: {
   checked: boolean;
   onChange: (val: boolean) => void;
   color?: string;
 }) {
-  const styles = TOGGLE_STYLES[color] ?? TOGGLE_STYLES['terminal-orange']!;
+  const styles = TOGGLE_STYLES[color] ?? TOGGLE_STYLES['mc-warning']!;
   return (
     <button
-      className={`relative w-10 h-5 rounded-full border transition-colors ${
+      className={`relative w-10 h-5 rounded-full border transition-colors duration-mc ease-mc-out ${
         checked ? styles.on : styles.off
       }`}
       role="switch"
@@ -180,7 +174,7 @@ function ToggleSwitch({
   );
 }
 
-// ── Static Data (from strategist.yaml / reviewer.yaml) ──────────────────────
+// ── Static Data (from strategist.yaml / reviewer.yaml) ───────────────────────────
 
 const DEFAULT_MODELS: ModelInfo[] = [
   { id: 'claude-opus-4-6', provider: 'anthropic', name: 'Claude Opus 4.6', available: true },
@@ -249,7 +243,7 @@ const REVIEWER_CONFIG: AgentCardConfig = {
 
 const AGENT_CONFIGS: AgentCardConfig[] = [STRATEGIST_CONFIG, REVIEWER_CONFIG];
 
-// ── Form State ───────────────────────────────────────────────────────────────
+// ── Form State ───────────────────────────────────────────────────────────────────────────────
 
 interface ExecFormState {
   directive: string;
@@ -320,7 +314,7 @@ const INITIAL_FORM: ExecFormState = {
 const DIRECTIVE_TOOLTIP =
   'The department directive is shared instructions read by all agents in this department before every task. It defines priorities, focus areas, and rules of engagement. Update it whenever your goals change.';
 
-// ── Main Component ───────────────────────────────────────────────────────────
+// ── Main Component ──────────────────────────────────────────────────────────────────────────
 
 interface ExecutiveSettingsProps {
   open: boolean;
@@ -468,26 +462,26 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
       {/* ── Section 1: Department Directive ───────────────────────── */}
       <SettingsSection
         label="Department Directive"
-        icon={<DocumentIcon className="w-4 h-4 text-terminal-cyan" />}
-        iconColor="terminal-cyan"
+        icon={<DocumentIcon className="w-4 h-4 text-mc-accent" />}
+        iconColor="mc-accent"
         expanded={expanded['directive'] ?? false}
         onToggle={() => toggle('directive')}
         headerExtra={<InfoTooltip text={DIRECTIVE_TOOLTIP} />}
       >
         <div>
           <textarea
-            className="w-full bg-terminal-bg border border-terminal-border rounded p-2 text-xs text-terminal-text font-mono resize-y min-h-[120px] focus:outline-none focus:border-terminal-cyan placeholder:text-terminal-dim/40"
+            className="w-full bg-mc-surface border border-mc-border rounded-panel p-2 font-sans text-xs text-mc-text resize-y min-h-[120px] focus:outline-none focus:border-mc-accent transition-colors duration-mc ease-mc-out placeholder:text-mc-text-tertiary/40"
             placeholder="e.g., Focus on Q1 launch. Prioritize security reviews over feature work. All external communications require Reviewer approval before publishing."
             value={form.directive}
             onChange={(e) => updateField('directive', e.target.value)}
             rows={6}
           />
           <div className="flex items-center justify-between mt-1">
-            <span className="text-[9px] text-terminal-dim/50">
+            <span className="font-sans text-[9px] text-mc-text-tertiary/50">
               Last updated: Mar 14, 2026
             </span>
-            <span className={`text-[10px] font-mono ${
-              form.directive.length > 500 ? 'text-terminal-yellow' : 'text-terminal-dim'
+            <span className={`text-[10px] font-mono tabular-nums ${
+              form.directive.length > 500 ? 'text-mc-warning' : 'text-mc-text-tertiary'
             }`}>
               {form.directive.length} chars
             </span>
@@ -498,8 +492,8 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
       {/* ── Section 2: Agents ────────────────────────────────────── */}
       <SettingsSection
         label="Agents"
-        icon={<UsersIcon className="w-4 h-4 text-terminal-purple" />}
-        iconColor="terminal-purple"
+        icon={<UsersIcon className="w-4 h-4 text-mc-info" />}
+        iconColor="mc-info"
         expanded={expanded['agents'] ?? false}
         onToggle={() => toggle('agents')}
       >
@@ -528,42 +522,42 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
               />
             );
           })}
-          <div className="text-[10px] text-terminal-dim/60 pl-1 space-y-0.5">
+          <div className="font-sans text-[10px] text-mc-text-tertiary/60 pl-1 space-y-0.5">
             <div>Agent schedules are managed via YAML configs</div>
           </div>
         </div>
       </SettingsSection>
 
-      {/* ── Section 3: Workflow & Routing ─────────────────────────── */}
+      {/* ── Section 3: Workflow & Routing ────────────────────────── */}
       <SettingsSection
         label="Workflow & Routing"
-        icon={<GitBranchIcon className="w-4 h-4 text-terminal-orange" />}
-        iconColor="terminal-orange"
+        icon={<GitBranchIcon className="w-4 h-4 text-mc-warning" />}
+        iconColor="mc-warning"
         expanded={expanded['workflow'] ?? false}
         onToggle={() => toggle('workflow')}
       >
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-xs text-terminal-text block">
+            <span className="font-sans text-xs text-mc-text block">
               Require Reviewer approval before execution
             </span>
-            <span className="text-[10px] text-terminal-dim">
+            <span className="font-sans text-[10px] text-mc-text-tertiary">
               Strategist decisions must pass Reviewer before acting
             </span>
           </div>
           <ToggleSwitch
             checked={form.requireReviewerApproval}
             onChange={(val) => updateField('requireReviewerApproval', val)}
-            color="terminal-orange"
+            color="mc-warning"
           />
         </div>
 
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">
             Review Threshold
           </label>
           <select
-            className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-orange"
+            className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-warning transition-colors duration-mc ease-mc-out"
             value={form.reviewThreshold}
             onChange={(e) => updateField('reviewThreshold', e.target.value)}
           >
@@ -574,11 +568,11 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
         </div>
 
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">
             Escalation Behavior
           </label>
           <select
-            className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-orange"
+            className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-warning transition-colors duration-mc ease-mc-out"
             value={form.escalationBehavior}
             onChange={(e) => updateField('escalationBehavior', e.target.value)}
           >
@@ -589,7 +583,7 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
         </div>
 
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-2">
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-2">
             Content Types Requiring Review
           </label>
           <div className="space-y-2">
@@ -606,25 +600,25 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
                   type="checkbox"
                   checked={form[ct.key]}
                   onChange={(e) => updateField(ct.key, e.target.checked)}
-                  className="accent-terminal-orange"
+                  className="accent-mc-warning"
                 />
-                <span className="text-xs text-terminal-text">{ct.label}</span>
+                <span className="font-sans text-xs text-mc-text">{ct.label}</span>
               </label>
             ))}
           </div>
         </div>
       </SettingsSection>
 
-      {/* ── Section 4: Notifications ──────────────────────────────── */}
+      {/* ── Section 4: Notifications ─────────────────────────── */}
       <SettingsSection
         label="Notifications"
-        icon={<BellIcon className="w-4 h-4 text-terminal-yellow" />}
-        iconColor="terminal-yellow"
+        icon={<BellIcon className="w-4 h-4 text-mc-warning" />}
+        iconColor="mc-warning"
         expanded={expanded['notifications'] ?? false}
         onToggle={() => toggle('notifications')}
       >
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-2">
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-2">
             Alert Types
           </label>
           <div className="space-y-3">
@@ -638,13 +632,13 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
             ] as const).map((item) => (
               <div key={item.key} className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-terminal-text block">{item.label}</span>
-                  <span className="text-[10px] text-terminal-dim">{item.desc}</span>
+                  <span className="font-sans text-xs text-mc-text block">{item.label}</span>
+                  <span className="font-sans text-[10px] text-mc-text-tertiary">{item.desc}</span>
                 </div>
                 <ToggleSwitch
                   checked={form[item.key]}
                   onChange={(val) => updateField(item.key, val)}
-                  color="terminal-yellow"
+                  color="mc-warning"
                 />
               </div>
             ))}
@@ -652,7 +646,7 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
         </div>
 
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">
             Slack Channel
           </label>
           <input
@@ -660,7 +654,7 @@ export function ExecutiveSettings({ open, onClose }: ExecutiveSettingsProps) {
             value={form.slackChannel}
             onChange={(e) => updateField('slackChannel', e.target.value)}
             placeholder="#channel-name"
-            className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-yellow"
+            className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-warning transition-colors duration-mc ease-mc-out"
           />
         </div>
       </SettingsSection>
