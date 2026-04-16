@@ -18,24 +18,55 @@ system_prompts:
   - mission_statement.md
   - chain-of-command.md
   - daily-standup.md
+  - protocol-overview.md
+  - escalation-policy.md
   - data-integrity.md
+  - librarian-curation-workflow.md
 
 triggers:
   - type: cron
     schedule: "18 13 * * *"
     task: daily_standup
+  # 13:30 UTC — lightweight intake pass between standup (13:18) and the deep
+  # daily_curation at 14:00. Spec originally called for 14:00 but that would
+  # collide with daily_curation; split into a fast triage + deep curation.
+  - type: cron
+    schedule: "30 13 * * *"
+    task: inbox_triage
   - type: cron
     schedule: "0 14 * * *"
     task: daily_curation
   - type: cron
     schedule: "0 8 * * 1"
     task: weekly_curation
+  - type: cron
+    schedule: "0 9 * * 5"
+    task: knowledge_hygiene_audit
+  # Strategist → Librarian directives (was missing — Librarian had no way to
+  # receive directed work from Strategist, per 2026-04-16 audit).
+  - type: event
+    event: strategist:librarian_directive
+    task: handle_directive
+  # Observe + normalize vault contributions from other agents.
+  - type: event
+    event: vault:entry_created
+    task: ingest_vault_contribution
+  - type: event
+    event: vault:entry_updated
+    task: review_vault_update
+  # Persist operational/architectural knowledge into the permanent vault.
+  - type: event
+    event: sentinel:incident_report
+    task: curate_incident_report
+  - type: event
+    event: architect:spec_finalized
+    task: curate_architecture_decision
   - type: event
     event: claudeception:reflect
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 
@@ -55,6 +86,11 @@ data_sources: []
 
 event_subscriptions:
   - claudeception:reflect
+  - strategist:librarian_directive
+  - vault:entry_created
+  - vault:entry_updated
+  - sentinel:incident_report
+  - architect:spec_finalized
 
 event_publications:
   - standup:report
@@ -65,4 +101,7 @@ review_bypass: []
 heartbeat:
   precheck:
     enabled: true
-    maxSilenceHours: 26
+    # 12h: Librarian is a daily-cadence agent. If it misses both its curation
+    # cron AND its standup, an alert should fire. 26h effectively disabled
+    # monitoring (2026-04-16 audit).
+    maxSilenceHours: 12

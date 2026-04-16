@@ -18,6 +18,7 @@ system_prompts:
   - chain-of-command.md
   - daily-standup.md
   - protocol-overview.md
+  - executive-directive.md
   - engineering-standards.md
   - escalation-policy.md
   - sentinel-quality-workflow.md
@@ -36,7 +37,9 @@ triggers:
     schedule: "0 17 * * 5"
     task: weekly_repo_digest
   - type: event
-    event: deployer:deploy_complete
+    # Deployer was retired in AO migration (2026-03-27). Architect now publishes
+    # deploy_complete after AO successfully ships a new ECS revision.
+    event: architect:deploy_complete
     task: post_deploy_verification
   # Deploy Governance v2: execute approved CRITICAL-tier deployments.
   # Moved from Strategist (separation of duties — the agent that assesses
@@ -46,13 +49,17 @@ triggers:
     task: execute_approved_deploy
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.2
       maxTokens: 4096
   - type: event
     event: strategist:sentinel_directive
     task: handle_directive
   - type: cron
+    # Every 30 min = 48 LLM calls/day. Previously */5 (288 calls/day, unacceptable).
+    # TODO: Replace with lightweight cURL/script probe that only escalates to LLM
+    # on anomaly (threshold breach or state change). Target: 0 LLM calls/day on
+    # the happy path + LLM only on failure. Tracked in ops-audit 2026-04-16.
     schedule: "*/30 * * * *"
     task: ao_health_check
   - type: event
@@ -60,12 +67,15 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 
 actions:
   - deploy:status
+  # deploy:assess added for deployment_health cron (every 4h). Referenced in README
+  # and workflow; was missing from YAML ("hallucinated tool" wiring bug).
+  - deploy:assess
   # deploy:execute moved here from Strategist (Deploy Governance v2 separation of duties).
   - deploy:execute
   - github:get_contents
@@ -84,7 +94,7 @@ data_sources: []
 event_subscriptions:
   - strategist:sentinel_directive
   - claudeception:reflect
-  - deployer:deploy_complete
+  - architect:deploy_complete
   # Deploy Governance v2 — Sentinel now handles approved-deploy execution.
   - deploy:approved
 

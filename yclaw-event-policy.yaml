@@ -28,6 +28,7 @@ sources:
       - "strategist:treasurer_directive"
       - "strategist:guide_directive"
       - "strategist:reviewer_directive"
+      - "strategist:librarian_directive"
 
   # Reviewer — review verdicts
   agent:reviewer:

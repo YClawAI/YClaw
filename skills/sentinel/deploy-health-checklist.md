@@ -31,17 +31,17 @@ If `deploy:status` returns degraded state (running < desired, rollback in progre
 - Publish `sentinel:alert`
 - Post details to #yclaw-alerts
 
-### 3. your-landing-repo (Vercel — exclude from ECS checks)
+### 3. yclaw-site (Vercel — exclude from ECS checks)
 
-`your-landing-repo` is deployed via **Vercel auto-deploy** (triggered on push to `main`). It does NOT
+`yclaw-site` is deployed via **Vercel auto-deploy** (triggered on push to `main`). It does NOT
 have an ECS service. Do NOT check ECS or `deploy:status` for this repo.
 
-To verify your-landing-repo health, use `github:get_contents` to check recent GitHub Actions workflow
-runs on the `your-org/your-landing-repo` repo:
+To verify yclaw-site health, use `github:get_contents` to check recent GitHub Actions workflow
+runs on the `YClawAI/yclaw-site` repo:
 - Is the latest `deploy` workflow green?
 - Any failing builds on `main` in the last 24 hours?
 
-If your-landing-repo CI is failing, post a warning to #yclaw-operations. Do NOT classify it as
+If yclaw-site CI is failing, post a warning to #yclaw-operations. Do NOT classify it as
 "DORMANT" — Vercel auto-deploys mean the absence of a recent ECS deploy is expected and healthy.
 
 ### 4. CI Pipeline
@@ -81,7 +81,7 @@ Check Discord #yclaw-operations and #yclaw-alerts for:
 | 3+ failed deploys in 24h | 🔴 Critical | `sentinel:alert` + #yclaw-alerts |
 | Agent error loop detected | 🟡 Warning | Post to #yclaw-operations |
 | SHA baseline stale >14d | 🟢 Low | Auto-advance baseline, log only |
-| your-landing-repo CI failing | 🟡 Warning | Post to #yclaw-operations |
+| yclaw-site CI failing | 🟡 Warning | Post to #yclaw-operations |
 
 ## Reporting
 Post a brief status summary to #yclaw-operations after each check:

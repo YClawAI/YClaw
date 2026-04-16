@@ -1,5 +1,3 @@
-<!-- CUSTOMIZE FOR YOUR ORGANIZATION -->
-
 # Sentinel Quality Audit Workflow
 
 > Loaded by the Sentinel agent. Defines the quality audit sequence.
@@ -15,22 +13,20 @@ Lightweight quality sweep focused on machine-verifiable standards, NOT style opi
 
 Call `repo:list` to get all registered repos.
 
-### Step 2: Quick Scan Each Repo
+### Step 2: Read Each Repo (direct, no codegen)
 
-For each repo, call `codegen:execute` with:
-```json
-{
-  "repo": "<repo name>",
-  "task": "Quick quality audit. Check ONLY machine-verifiable issues:\n1. CLAUDE.md staleness — does it reference files/components that no longer exist?\n2. Broken imports — any imports that point to missing modules?\n3. Dead exports — exported functions/types with zero consumers?\n4. Test coverage gaps — new files without corresponding test files?\n5. Security: hardcoded secrets, exposed API keys, SQL injection vectors?\n\nOutput as JSON: { repo, issues: [{ severity: 'high'|'medium'|'low', file, line, description }] }",
-  "run_tests": false,
-  "backend": "claude",
-  "agent_name": "sentinel"
-}
-```
+For each repo, use `github:get_contents` to inspect machine-verifiable signals:
+
+- `CLAUDE.md` — does it reference files/components that no longer exist? Cross-check paths with `github:get_contents`.
+- `package.json` / `Cargo.toml` — dependency count trend, obvious deprecations.
+- Recent commits via `github:get_diff` on the default branch — scan for hardcoded secrets, exposed API keys, SQL-concat patterns, `.env` content committed accidentally.
+- Test layout — any new source file in the last 7 days without a corresponding test file?
+
+**Do NOT use `codegen:execute` or `codegen:status`.** Sentinel is a read-only auditor — it reports findings, it does NOT generate code. If a finding warrants a fix, file a GitHub issue (human creates) or publish a `sentinel:alert` event for the Strategist to route to Architect/Mechanic via `codegen` governance. This is the correct separation of duties.
 
 ### Step 3: Triage and Report
 
-- **High severity**: publish `sentinel:alert` event + Slack alert to [your-development-channel]
+- **High severity**: publish `sentinel:alert` event + Discord alert to `1489421639274729502`
 - **Medium severity**: aggregate into weekly summary
 - **Low severity**: log only, include in next daily_summary
 
@@ -48,13 +44,11 @@ For high-severity findings, call `event:publish` with:
 }
 ```
 
-Then notify via Slack:
+Then notify via `discord:alert`:
 ```json
 {
-  "channel": "[your-development-channel]",
-  "text": "Quality Alert: <repo> has <count> high-severity issues:\n<top 3 findings>",
-  "username": "Sentinel",
-  "icon_emoji": ":shield:"
+  "channel": "1489421639274729502",
+  "text": "Quality Alert: <repo> has <count> high-severity issues:\n<top 3 findings>"
 }
 ```
 
@@ -98,19 +92,23 @@ Generate a weekly repository activity digest. Summarize PRs merged, issues close
 
 ---
 
-## Task: post_deploy_verification (triggered by event: deployer:deploy_complete)
+## Task: post_deploy_verification (triggered by event: architect:deploy_complete)
 
 After a deployment completes, verify service health, check for error spikes in logs, and confirm the deployment is stable. Report to operations channel.
 
 ---
 
-## Task: ao_health_check (triggered by cron: every 5 minutes)
+## Task: ao_health_check (triggered by cron: every 30 minutes)
 
 Probe AO service health and alert on sustained failures. This is a monitoring-only task — no side effects on healthy paths.
 
+**Early-exit rule (cost control):** If the probe returns 200 with queue depth > 0 and no circuit breakers open, report healthy and STOP — do not perform deep analysis. Only run the full diagnostic flow (Steps 2–4) when an anomaly is detected. This keeps the happy path cheap.
+
+> ⚠️ **TODO:** This task is the target of a planned migration to a lightweight non-LLM probe (cURL/script) that only escalates to the LLM on threshold breach. Until then, the 30-minute cadence + early-exit rule is the cost mitigation.
+
 ### Step 1: Call AO Health Probe
 
-Call the AO `/health/deep` endpoint via `codegen:status` or the `ao:deep_health` action to retrieve current AO service status.
+Call the AO `/health/deep` endpoint. (Sentinel does not currently hold a dedicated `ao:*` HTTP action — this step is performed via the agent runtime's built-in HTTP tooling. If no tooling is available to the agent at runtime, record the probe as "failed: no action" and proceed to Step 2 consecutive-failure tracking.) Treat a response time > 5 seconds as a failure.
 
 Expected response shape:
 ```json
@@ -194,7 +192,8 @@ Queue depth: <queue_depth>
 - **NEVER** trip the circuit breaker on health check failures — use the deep health endpoint, not spawn.
 - **ALWAYS** include the queue depth in alert messages for context.
 - **Timeout**: health probe must complete within 5 seconds — treat timeout as a failure.
-- **No false positives**: a single failed check is noise. Alert only after 3 consecutive failures (15 min sustained).
+- **No false positives**: a single failed check is noise. Alert only after 3 consecutive failures (~90 min sustained at 30-minute cadence).
+- **Early-exit on healthy**: if Step 1 returns healthy with queue depth > 0, STOP after the memory reset — do not run deep analysis. Deep analysis is reserved for anomalies.
 
 ---
 
