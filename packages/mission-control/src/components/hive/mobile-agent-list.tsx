@@ -47,10 +47,10 @@ export function MobileAgentList({ agentStatusRef, onAgentTap }: MobileAgentListP
         <div key={dept.id} className="mb-3">
           <button
             onClick={() => toggleDept(dept.id)}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-gray-800/50 text-sm font-medium text-gray-300"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-chip border border-mc-border bg-transparent font-sans text-sm font-medium text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
           >
             <span>{dept.label}</span>
-            <span className="text-xs text-gray-500">
+            <span className="font-mono tabular-nums text-xs text-mc-text-tertiary">
               {dept.agents.length} agents
               {collapsed.has(dept.id) ? ' \u25B8' : ' \u25BE'}
             </span>

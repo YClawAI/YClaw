@@ -3,10 +3,10 @@
 import type { AgentRealtimeStatus } from './hive-types';
 
 const STATE_INDICATORS: Record<string, { emoji: string; color: string }> = {
-  idle: { emoji: '\u{1F4A4}', color: 'text-gray-400' },
-  running: { emoji: '\u{1F7E2}', color: 'text-green-400' },
-  error: { emoji: '\u{1F534}', color: 'text-red-400' },
-  paused: { emoji: '\u23F8\uFE0F', color: 'text-yellow-400' },
+  idle: { emoji: '\u{1F4A4}', color: 'text-mc-text-tertiary' },
+  running: { emoji: '\u{1F7E2}', color: 'text-mc-success' },
+  error: { emoji: '\u{1F534}', color: 'text-mc-danger' },
+  paused: { emoji: '\u23F8\uFE0F', color: 'text-mc-warning' },
 };
 
 interface MobileAgentCardProps {
@@ -27,21 +27,21 @@ export function MobileAgentCard({ agentName, status, onTap }: MobileAgentCardPro
   return (
     <button
       onClick={onTap}
-      className="w-full flex items-center gap-3 px-3 py-3 rounded-lg bg-gray-900/60 hover:bg-gray-800/60 active:bg-gray-700/60 transition-colors text-left"
+      className="w-full flex items-center gap-3 px-3 py-3 rounded-panel border border-mc-border bg-transparent hover:border-mc-border-hover hover:bg-mc-surface-hover active:bg-mc-surface-hover transition-colors duration-mc ease-mc-out text-left"
     >
       <span className="text-lg">{indicator.emoji}</span>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-100 capitalize">
+          <span className="font-sans text-sm font-medium text-mc-text capitalize">
             {agentName}
           </span>
           {execCount > 0 && (
-            <span className="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300">
+            <span className="font-mono tabular-nums text-xs px-1.5 py-0.5 rounded-badge border border-mc-accent/40 bg-mc-accent-dim text-mc-accent">
               {execCount}
             </span>
           )}
         </div>
-        <div className={`text-xs ${indicator.color} truncate`}>
+        <div className={`font-sans text-xs ${indicator.color} truncate`}>
           {state === 'running' && status?.execCount5m
             ? `Active \u2014 ${execCount} executions (5m)`
             : state === 'error'
@@ -51,7 +51,7 @@ export function MobileAgentCard({ agentName, status, onTap }: MobileAgentCardPro
             : `Idle \u2014 last run ${lastRunLabel}`}
         </div>
       </div>
-      <span className="text-gray-600 text-sm">\u203A</span>
+      <span className="font-sans text-mc-text-tertiary text-sm">\u203A</span>
     </button>
   );
 }

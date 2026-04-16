@@ -16,16 +16,20 @@ export function MobileHiveSummary({ agentStatusRef }: MobileHiveSummaryProps) {
   return (
     <div className="px-4 pt-4 space-y-4">
       {/* Fleet Status */}
-      <div className="bg-gray-800/50 rounded-lg p-4">
-        <div className="text-xs text-gray-400 uppercase tracking-widest mb-1">Fleet Status</div>
-        <div className="text-2xl font-bold text-white font-mono">
-          {onlineCount} <span className="text-sm text-gray-400">/ {AGENTS.length} online</span>
+      <div className="border border-mc-border rounded-panel bg-transparent p-4 transition-colors duration-mc ease-mc-out hover:border-mc-border-hover">
+        <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-1">
+          Fleet Status
+        </div>
+        <div className="font-mono tabular-nums text-2xl text-mc-text">
+          {onlineCount} <span className="font-sans font-extralight text-sm text-mc-text-secondary">/ {AGENTS.length} online</span>
         </div>
       </div>
 
       {/* Department Breakdown */}
       <div className="space-y-2">
-        <div className="text-xs text-gray-400 uppercase tracking-widest">Departments</div>
+        <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label">
+          Departments
+        </div>
         {DEPARTMENTS.map(dept => {
           const meta = DEPT_META[dept];
           const agents = getAgentsByDept(dept);
@@ -37,13 +41,13 @@ export function MobileHiveSummary({ agentStatusRef }: MobileHiveSummaryProps) {
             <a
               key={dept}
               href={`/departments/${dept}`}
-              className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors"
+              className="flex items-center justify-between p-3 border border-mc-border rounded-panel bg-transparent hover:border-mc-border-hover hover:bg-mc-surface-hover transition-colors duration-mc ease-mc-out"
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm">{meta?.icon ?? '◇'}</span>
-                <span className="text-sm text-gray-200 capitalize">{meta?.label ?? dept}</span>
+                <span className="font-sans text-sm text-mc-text capitalize">{meta?.label ?? dept}</span>
               </div>
-              <div className="text-xs font-mono text-gray-400">
+              <div className="font-mono tabular-nums text-xs text-mc-text-secondary">
                 {deptOnline}/{agents.length}
               </div>
             </a>
