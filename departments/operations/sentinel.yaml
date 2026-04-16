@@ -40,7 +40,7 @@ triggers:
     event: strategist:sentinel_directive
     task: handle_directive
   - type: cron
-    schedule: "*/5 * * * *"
+    schedule: "*/30 * * * *"
     task: ao_health_check
   - type: event
     event: claudeception:reflect

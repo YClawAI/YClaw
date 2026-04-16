@@ -27,16 +27,16 @@ triggers:
     schedule: "10 13 * * *"
     task: daily_standup
   - type: cron
-    schedule: "0 0 31 12 *"        # DISABLED — re-enable when review + publish pipeline works
+    schedule: "0 14 * * 1-5"       # Weekdays 14:00 UTC
     task: daily_content_batch
   - type: cron
-    schedule: "0 0 31 12 *"        # DISABLED
+    schedule: "30 16 * * 1-5"      # Weekdays 16:30 UTC
     task: midday_post
   - type: cron
-    schedule: "0 0 31 12 *"        # DISABLED
+    schedule: "0 22 * * 1-5"       # Weekdays 22:00 UTC
     task: afternoon_engagement
   - type: cron
-    schedule: "0 0 31 12 *"        # DISABLED
+    schedule: "0 15 * * 6,0"       # Weekends 15:00 UTC
     task: weekend_content
   - type: event
     event: forge:asset_ready
