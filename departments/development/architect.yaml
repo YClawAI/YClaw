@@ -23,6 +23,7 @@ system_prompts:
   - executive-directive.md
   - escalation-policy.md
   - architect-workflow.md
+  # architect-workflow-reference.md — loaded on-demand via vault:read for deep technical tasks
 
 triggers:
   - type: cron
