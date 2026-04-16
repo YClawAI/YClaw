@@ -49,7 +49,7 @@ triggers:
     task: execute_approved_deploy
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.2
       maxTokens: 4096
   - type: event
@@ -67,7 +67,7 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 

@@ -27,12 +27,21 @@ triggers:
   - type: cron
     schedule: "18 13 * * *"
     task: daily_standup
+  # 13:30 UTC — lightweight intake pass between standup (13:18) and the deep
+  # daily_curation at 14:00. Spec originally called for 14:00 but that would
+  # collide with daily_curation; split into a fast triage + deep curation.
+  - type: cron
+    schedule: "30 13 * * *"
+    task: inbox_triage
   - type: cron
     schedule: "0 14 * * *"
     task: daily_curation
   - type: cron
     schedule: "0 8 * * 1"
     task: weekly_curation
+  - type: cron
+    schedule: "0 9 * * 5"
+    task: knowledge_hygiene_audit
   # Strategist → Librarian directives (was missing — Librarian had no way to
   # receive directed work from Strategist, per 2026-04-16 audit).
   - type: event
@@ -57,7 +66,7 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 

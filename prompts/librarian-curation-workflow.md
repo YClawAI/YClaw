@@ -68,6 +68,37 @@ Keep it tight. Do NOT list every entry touched — aggregate counts only.
 
 ---
 
+## Task: inbox_triage (triggered by cron: 13:30 UTC)
+
+Fast intake pass. Target completion: 2 minutes. Runs between standup (13:18) and the deep `daily_curation` (14:00).
+
+### Step 1: Enumerate Inbox
+
+Call `vault:search` on `vault/05-inbox/` to list every pending item with its size and newest-first timestamp.
+
+### Step 2: Quick Classify
+
+For each item, make a single classification decision — do NOT perform full Normalize/Link/Publish yet:
+
+- **Drop** (noise) — delete from inbox.
+- **Obvious duplicate** of an existing entry — archive to `vault/99-archive/` with `archive_reason: inbox_obvious_dup`.
+- **Defer to daily_curation** — leave in inbox for the deep pass at 14:00.
+- **Urgent** (flag `status: uncertain` or security-tagged) — promote to the front of the daily_curation queue by renaming with a `00-priority-` prefix.
+
+Do NOT write to the permanent vault from `inbox_triage` — that's `daily_curation`'s job. Triage is only about reducing the inbox surface area before the deep pass starts.
+
+### Step 3: Short Report
+
+If any items were dropped, archived, or priority-flagged, record counters in agent memory under `inbox_triage_last_run:{date}`. Publish nothing. Counters roll into the next `librarian:curation_complete` from daily_curation.
+
+### Rules for inbox_triage
+
+- **No vault writes** outside of moves/renames within `vault/05-inbox/` and `vault/99-archive/`.
+- **No new entries created** — only classification/movement.
+- **No external notifications** — triage is internal.
+
+---
+
 ## Task: daily_curation (triggered by cron: 14:00 UTC)
 
 End-to-end pass over `vault/05-inbox/`. Target completion: 5 minutes.
@@ -136,6 +167,33 @@ Publish `librarian:curation_complete` with payload `run: "weekly_curation"` and 
 - `orphans_flagged`
 
 Post a Discord summary to `#yclaw-operations` if any counter exceeds 10.
+
+---
+
+## Task: knowledge_hygiene_audit (triggered by cron: Friday 09:00 UTC)
+
+Mid-week vault health check. Target completion: 10 minutes. Narrower than `weekly_curation` — focuses on broken links and schema violations only, since those change faster than orphans, staleness, or size anomalies.
+
+### Step 1: Broken Link Scan
+
+For every `see_also`, `superseded_by`, and `conflicts_with` pointer in every vault entry, confirm the target exists via `vault:read`. Auto-fix archived-target links; flag hard-deleted targets.
+
+See `vault-hygiene-audit/SKILL.md` check 3 for full mechanics.
+
+### Step 2: Schema Violation Sweep
+
+Every entry missing a required field (`title`, `body`, `tags`, `source_agent`, `source_event`, timestamps, `confidence`, `status`). Attempt backfill from `original_source`; otherwise move to `vault/05-inbox/` with a `needs_review.md` sibling.
+
+See `vault-hygiene-audit/SKILL.md` check 4 for full mechanics.
+
+### Step 3: Report
+
+Publish `librarian:curation_complete` with payload `run: "knowledge_hygiene_audit"` and the two relevant counter sets. If any counter exceeds 10, post a brief Discord summary to the operations channel; otherwise stay silent.
+
+### Rules for knowledge_hygiene_audit
+
+- Skip orphan/stale/size/tag-vocabulary checks — those live in `weekly_curation`. This task is deliberately narrower so it runs fast and catches the two highest-churn violation classes before the weekend.
+- Never auto-delete anything. Links and entries only move (to archive or inbox), never vanish.
 
 ---
 
