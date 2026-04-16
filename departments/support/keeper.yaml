@@ -20,6 +20,7 @@ system_prompts:
   - keeper-telegram-safety.md
   - data-integrity.md
   - escalation-policy.md
+  - executive-directive.md
 
 triggers:
   - type: cron

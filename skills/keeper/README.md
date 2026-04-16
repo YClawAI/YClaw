@@ -13,6 +13,7 @@ Keeper moderates the YCLAW community, answers framework questions using an appro
 | `faq-bank.md` | Approved FAQ for community questions. Covers what YCLAW is, how to get started, configuration, supported providers, and common questions. Keep updated as the framework evolves. |
 | `moderation-rules.md` | Moderation rulebook with four severity levels (INFO, WARNING, MUTE, BAN), auto-delete patterns, abuse detection, and escalation procedures. All bans escalate to team lead immediately. |
 | `platform-guide.md` | Community management guide. Defines channel structure, message formatting, anti-spam configuration, admin command handling, and new member onboarding flow. |
+| `abuse-patterns.md` | AI/SaaS-specific abuse detection reference. Covers prompt injection sharing, malicious configs, fake official resources, social engineering, credential harvesting, spam raids, and impersonation. |
 
 ## Key Behaviors
 
