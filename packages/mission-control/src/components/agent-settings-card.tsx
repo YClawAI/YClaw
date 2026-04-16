@@ -5,7 +5,7 @@ import { HealthDot } from './health-dot';
 import { ModelConfig } from './openclaw-settings-drawer';
 import type { ModelInfo } from '@/types/gateway';
 
-// ── Cron-to-human helper ─────────────────────────────────────────────────────
+// ── Cron-to-human helper ─────────────────────────────────────────────────────────────────
 
 const DOW_NAMES: Record<string, string> = {
   '0': 'Sunday', '1': 'Monday', '2': 'Tuesday', '3': 'Wednesday',
@@ -101,7 +101,7 @@ function fakeNextRun(cron: string): string {
   return `Next: ${timeStr}`;
 }
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────────────────────────
 
 export interface AgentIntegration {
   platform: string;
@@ -133,19 +133,19 @@ export interface AgentCardConfig {
   eventTriggers: AgentEventTrigger[];
 }
 
-// ── Sub-section header ───────────────────────────────────────────────────────
+// ── Sub-section header ──────────────────────────────────────────────────────────────────
 
 function SubSectionHeader({ title }: { title: string }) {
   return (
-    <div className="border-t border-terminal-border/40 pt-3 mt-3">
-      <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim mb-2">
+    <div className="border-t border-mc-border/40 pt-3 mt-3">
+      <h4 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-tertiary mb-2">
         {title}
       </h4>
     </div>
   );
 }
 
-// ── Chevron icon ─────────────────────────────────────────────────────────────
+// ── Chevron icon ─────────────────────────────────────────────────────────────────────────
 
 function ChevronIcon({ open, className }: { open: boolean; className?: string }) {
   return (
@@ -175,14 +175,14 @@ function MiniToggle({
 }) {
   const colorMap = {
     blue: {
-      on: 'bg-terminal-blue/50 border-terminal-blue/30',
-      off: 'bg-terminal-blue/20 border-terminal-blue/30',
-      knob: 'bg-terminal-blue',
+      on: 'bg-mc-info/50 border-mc-info/30',
+      off: 'bg-mc-info/20 border-mc-info/30',
+      knob: 'bg-mc-info',
     },
     green: {
-      on: 'bg-terminal-green/50 border-terminal-green/30',
-      off: 'bg-terminal-green/20 border-terminal-green/30',
-      knob: 'bg-terminal-green',
+      on: 'bg-mc-success/50 border-mc-success/30',
+      off: 'bg-mc-success/20 border-mc-success/30',
+      knob: 'bg-mc-success',
     },
   };
   const styles = colorMap[color];
@@ -190,7 +190,7 @@ function MiniToggle({
     <button
       type="button"
       onClick={onChange}
-      className={`relative w-8 h-4 rounded-full border transition-colors shrink-0 ml-2 ${
+      className={`relative w-8 h-4 rounded-full border transition-colors duration-mc ease-mc-out shrink-0 ml-2 ${
         checked ? styles.on : styles.off
       }`}
       role="switch"
@@ -205,7 +205,7 @@ function MiniToggle({
   );
 }
 
-// ── Agent Card ───────────────────────────────────────────────────────────────
+// ── Agent Card ──────────────────────────────────────────────────────────────────────────
 
 interface AgentCardProps {
   config: AgentCardConfig;
@@ -250,27 +250,27 @@ export function AgentCard({
   const totalActions = config.integrations.reduce((sum, ig) => sum + ig.actions.length, 0);
 
   return (
-    <div className="bg-terminal-muted/20 border border-terminal-border rounded overflow-hidden">
+    <div className="bg-mc-surface/50 border border-mc-border rounded-panel overflow-hidden">
       {/* Collapsible header */}
       <button
         type="button"
         onClick={() => setCardOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-terminal-muted/10 transition-colors"
+        className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-mc-surface/30 transition-colors duration-mc ease-mc-out"
       >
         <div className="flex items-center gap-2">
-          <ChevronIcon open={cardOpen} className="w-3 h-3 text-terminal-dim" />
-          <span className="text-xs font-bold text-terminal-text">{config.label}</span>
+          <ChevronIcon open={cardOpen} className="w-3 h-3 text-mc-text-tertiary" />
+          <span className="font-sans text-xs font-medium text-mc-text">{config.label}</span>
           {config.role && (
-            <span className="text-[9px] px-1.5 py-0.5 rounded border border-terminal-purple/40 text-terminal-purple bg-terminal-purple/10">
+            <span className="font-sans text-[9px] px-1.5 py-0.5 rounded-panel border border-mc-info/40 text-mc-info bg-mc-info/10">
               {config.role}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 text-[9px] text-terminal-dim">
+        <div className="flex items-center gap-2 font-mono tabular-nums text-[9px] text-mc-text-tertiary">
           <span>{config.cronTriggers.length} crons</span>
-          <span className="text-terminal-border">|</span>
+          <span className="text-mc-border">|</span>
           <span>{config.eventTriggers.length} events</span>
-          <span className="text-terminal-border">|</span>
+          <span className="text-mc-border">|</span>
           <span>{totalActions} actions</span>
         </div>
       </button>
@@ -289,15 +289,15 @@ export function AgentCard({
           {/* b) Agent Skills (learned) */}
           <SubSectionHeader title="Agent Skills" />
           {config.learnedSkills.length === 0 ? (
-            <p className="text-[10px] text-terminal-dim italic">
+            <p className="font-sans text-[10px] text-mc-text-tertiary italic">
               No learned skills yet — added automatically via Claudeception
             </p>
           ) : (
             <div className="space-y-1">
               {config.learnedSkills.map((skill) => (
-                <div key={skill} className="flex items-center gap-2 text-xs">
+                <div key={skill} className="flex items-center gap-2 font-sans text-xs">
                   <HealthDot healthy={true} />
-                  <span className="text-terminal-text">{skill}</span>
+                  <span className="text-mc-text">{skill}</span>
                 </div>
               ))}
             </div>
@@ -311,14 +311,14 @@ export function AgentCard({
                 key={ig.platform}
                 type="button"
                 onClick={() => togglePlatform(ig.platform)}
-                className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors flex items-center gap-1 ${
+                className={`font-sans text-[10px] px-1.5 py-0.5 rounded-panel border transition-colors duration-mc ease-mc-out flex items-center gap-1 ${
                   integrationsExpanded[ig.platform]
-                    ? 'border-terminal-muted bg-terminal-muted/20 text-terminal-text'
-                    : 'border-terminal-border text-terminal-text hover:border-terminal-muted'
+                    ? 'border-mc-border-hover bg-mc-surface/50 text-mc-text'
+                    : 'border-mc-border text-mc-text hover:border-mc-border-hover'
                 }`}
               >
                 <span>{ig.platform}</span>
-                <span className="text-terminal-dim">({ig.actions.length})</span>
+                <span className="text-mc-text-tertiary">({ig.actions.length})</span>
               </button>
             ))}
           </div>
@@ -326,7 +326,7 @@ export function AgentCard({
             integrationsExpanded[ig.platform] ? (
               <div
                 key={`${ig.platform}-detail`}
-                className="mt-1.5 p-2 bg-terminal-bg/50 border border-terminal-border/40 rounded text-[10px] text-terminal-dim font-mono flex flex-wrap gap-x-3 gap-y-0.5"
+                className="mt-1.5 p-2 bg-mc-surface/50 border border-mc-border/40 rounded-panel text-[10px] text-mc-text-tertiary font-mono flex flex-wrap gap-x-3 gap-y-0.5"
               >
                 {ig.actions.map((a) => (
                   <span key={a}>{a}</span>
@@ -350,21 +350,21 @@ export function AgentCard({
                       }`}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 text-[11px]">
-                          <span className="text-terminal-text font-medium truncate">
+                        <div className="flex items-center gap-1.5 font-sans text-[11px]">
+                          <span className="text-mc-text font-medium truncate">
                             {cron.task.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                           </span>
                           {cron.modelOverride && (
-                            <span className="text-[8px] px-1 py-px rounded border border-terminal-blue/40 text-terminal-blue bg-terminal-blue/10 shrink-0">
+                            <span className="font-mono tabular-nums text-[8px] px-1 py-px rounded-panel border border-mc-info/40 text-mc-info bg-mc-info/10 shrink-0">
                               {cron.modelOverride}
                             </span>
                           )}
                         </div>
-                        <div className="text-[10px] text-terminal-dim" title={cron.cron}>
+                        <div className="font-sans text-[10px] text-mc-text-tertiary" title={cron.cron}>
                           {enabled ? cronToHuman(cron.cron) : 'Paused'}
                         </div>
                         {enabled && (
-                          <div className="text-[9px] text-terminal-dim/60">
+                          <div className="font-sans text-[9px] text-mc-text-tertiary/60">
                             {fakeNextRun(cron.cron)}
                           </div>
                         )}
@@ -396,21 +396,21 @@ export function AgentCard({
                       }`}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 text-[11px]">
-                          <span className="text-terminal-text font-medium truncate">
+                        <div className="flex items-center gap-1.5 font-sans text-[11px]">
+                          <span className="text-mc-text font-medium truncate">
                             {evt.label}
                           </span>
                           {evt.modelOverride && (
-                            <span className="text-[8px] px-1 py-px rounded border border-terminal-blue/40 text-terminal-blue bg-terminal-blue/10 shrink-0">
+                            <span className="font-mono tabular-nums text-[8px] px-1 py-px rounded-panel border border-mc-info/40 text-mc-info bg-mc-info/10 shrink-0">
                               {evt.modelOverride}
                             </span>
                           )}
                         </div>
-                        <div className="text-[10px] text-terminal-dim font-mono">
+                        <div className="text-[10px] text-mc-text-tertiary font-mono">
                           {enabled ? evt.event : 'Paused'}
                         </div>
                         {evt.subtitle && enabled && (
-                          <div className="text-[9px] text-terminal-dim/60 italic">
+                          <div className="font-sans text-[9px] text-mc-text-tertiary/60 italic">
                             {evt.subtitle}
                           </div>
                         )}
