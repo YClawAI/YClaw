@@ -10,7 +10,7 @@ import {
 import type { AgentCardConfig, AlertDef } from './department-settings-shared';
 import { useDepartmentSettings } from '@/hooks/use-department-settings';
 
-// ── Icons ────────────────────────────────────────────────────────────────────
+// ── Icons ───────────────────────────────────────────────────────────────────────
 
 function CodeIcon({ className }: { className?: string }) {
   return (
@@ -28,7 +28,7 @@ function RocketIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Agent Configs ────────────────────────────────────────────────────────────
+// ── Agent Configs ──────────────────────────────────────────────────────────────────
 
 const ARCHITECT: AgentCardConfig = {
   name: 'architect',
@@ -137,7 +137,7 @@ const DESIGNER: AgentCardConfig = {
 
 const AGENTS: AgentCardConfig[] = [ARCHITECT, BUILDER, DEPLOYER, DESIGNER];
 
-// ── Notifications ────────────────────────────────────────────────────────────
+// ── Notifications ─────────────────────────────────────────────────────────────────
 
 const ALERTS: AlertDef[] = [
   { key: 'ciFailure', label: 'CI failure', desc: 'Alert when CI fails on a PR' },
@@ -147,7 +147,7 @@ const ALERTS: AlertDef[] = [
   { key: 'techDebtHigh', label: 'Tech debt threshold', desc: 'Alert when tech debt score exceeds threshold' },
 ];
 
-// ── Form State ───────────────────────────────────────────────────────────────
+// ── Form State ─────────────────────────────────────────────────────────────────────
 
 interface DevForm {
   directive: string;
@@ -181,7 +181,7 @@ const INITIAL: DevForm = {
   slackChannel: '#yclaw-dev',
 };
 
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────────────────────────────
 
 interface Props { open: boolean; onClose: () => void }
 
@@ -247,46 +247,46 @@ export function DevelopmentSettings({ open, onClose }: Props) {
       />
 
       {/* Repository Config */}
-      <SettingsSection label="Repository Config" icon={<CodeIcon className="w-4 h-4 text-terminal-green" />} iconColor="terminal-green" expanded={exp['repo'] ?? false} onToggle={() => tog('repo')}>
+      <SettingsSection label="Repository Config" icon={<CodeIcon className="w-4 h-4 text-mc-success" />} iconColor="mc-success" expanded={exp['repo'] ?? false} onToggle={() => tog('repo')}>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Auto-assign issues to Builder</span><span className="text-[10px] text-terminal-dim">New issues are automatically routed to Builder</span></div>
-          <ToggleSwitch checked={form.autoAssignIssues} onChange={(v) => set('autoAssignIssues', v)} color="terminal-green" />
+          <div><span className="font-sans text-xs text-mc-text block">Auto-assign issues to Builder</span><span className="font-sans text-[10px] text-mc-text-tertiary">New issues are automatically routed to Builder</span></div>
+          <ToggleSwitch checked={form.autoAssignIssues} onChange={(v) => set('autoAssignIssues', v)} color="mc-success" />
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Require Architect review for all PRs</span><span className="text-[10px] text-terminal-dim">PRs must have Architect approval before merge</span></div>
-          <ToggleSwitch checked={form.requireArchitectReview} onChange={(v) => set('requireArchitectReview', v)} color="terminal-green" />
+          <div><span className="font-sans text-xs text-mc-text block">Require Architect review for all PRs</span><span className="font-sans text-[10px] text-mc-text-tertiary">PRs must have Architect approval before merge</span></div>
+          <ToggleSwitch checked={form.requireArchitectReview} onChange={(v) => set('requireArchitectReview', v)} color="mc-success" />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Default Branch Strategy</label>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green" value={form.branchStrategy} onChange={(e) => set('branchStrategy', e.target.value)}>
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Default Branch Strategy</label>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-success transition-colors duration-mc ease-mc-out" value={form.branchStrategy} onChange={(e) => set('branchStrategy', e.target.value)}>
             <option value="feature">Feature branches</option>
             <option value="trunk">Trunk-based</option>
           </select>
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">CI must pass before merge</span><span className="text-[10px] text-terminal-dim">Block merges when CI checks fail</span></div>
-          <ToggleSwitch checked={form.ciMustPass} onChange={(v) => set('ciMustPass', v)} color="terminal-green" />
+          <div><span className="font-sans text-xs text-mc-text block">CI must pass before merge</span><span className="font-sans text-[10px] text-mc-text-tertiary">Block merges when CI checks fail</span></div>
+          <ToggleSwitch checked={form.ciMustPass} onChange={(v) => set('ciMustPass', v)} color="mc-success" />
         </div>
       </SettingsSection>
 
       {/* CI/CD Rules */}
-      <SettingsSection label="CI/CD Rules" icon={<RocketIcon className="w-4 h-4 text-terminal-blue" />} iconColor="terminal-blue" expanded={exp['cicd'] ?? false} onToggle={() => tog('cicd')}>
-        <p className="text-[10px] text-terminal-dim italic mb-2">Managed via deploy-governance.ts in core — settings preview only</p>
+      <SettingsSection label="CI/CD Rules" icon={<RocketIcon className="w-4 h-4 text-mc-info" />} iconColor="mc-info" expanded={exp['cicd'] ?? false} onToggle={() => tog('cicd')}>
+        <p className="font-sans text-[10px] text-mc-text-tertiary italic mb-2">Managed via deploy-governance.ts in core — settings preview only</p>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Auto-deploy on CI pass</span><span className="text-[10px] text-terminal-dim">Trigger deploy assessment when CI passes</span></div>
-          <ToggleSwitch checked={form.autoDeployOnCi} onChange={(v) => set('autoDeployOnCi', v)} color="terminal-blue" />
+          <div><span className="font-sans text-xs text-mc-text block">Auto-deploy on CI pass</span><span className="font-sans text-[10px] text-mc-text-tertiary">Trigger deploy assessment when CI passes</span></div>
+          <ToggleSwitch checked={form.autoDeployOnCi} onChange={(v) => set('autoDeployOnCi', v)} color="mc-info" />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Deploy Risk Threshold</label>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue" value={form.deployRiskThreshold} onChange={(e) => set('deployRiskThreshold', e.target.value)}>
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Deploy Risk Threshold</label>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-info transition-colors duration-mc ease-mc-out" value={form.deployRiskThreshold} onChange={(e) => set('deployRiskThreshold', e.target.value)}>
             <option value="all">All changes</option>
             <option value="medium">Medium+ risk</option>
             <option value="critical">Critical only</option>
           </select>
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Require Deployer sign-off for infrastructure</span><span className="text-[10px] text-terminal-dim">Infrastructure changes need explicit Deployer approval</span></div>
-          <ToggleSwitch checked={form.requireDeployerSignoff} onChange={(v) => set('requireDeployerSignoff', v)} color="terminal-blue" />
+          <div><span className="font-sans text-xs text-mc-text block">Require Deployer sign-off for infrastructure</span><span className="font-sans text-[10px] text-mc-text-tertiary">Infrastructure changes need explicit Deployer approval</span></div>
+          <ToggleSwitch checked={form.requireDeployerSignoff} onChange={(v) => set('requireDeployerSignoff', v)} color="mc-info" />
         </div>
       </SettingsSection>
 
