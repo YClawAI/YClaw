@@ -15,6 +15,7 @@ system_prompts:
   - skill-usage.md
   - mission_statement.md
   - chain-of-command.md
+  - protocol-overview.md
   - daily-standup.md
   - keeper-telegram-safety.md
   - data-integrity.md
@@ -41,7 +42,7 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 
@@ -77,6 +78,8 @@ data_sources: []
 event_subscriptions:
   - claudeception:reflect
   - telegram:message
+  - discord:message
+  - discord:mention
   - strategist:keeper_directive
 
 event_publications:

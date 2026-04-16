@@ -17,6 +17,7 @@ system_prompts:
   - mission_statement.md
   - chain-of-command.md
   - protocol-overview.md
+  - daily-standup.md
   - data-integrity.md
   - brand-voice.md
   - escalation-policy.md
@@ -36,7 +37,7 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 
