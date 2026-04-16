@@ -41,21 +41,21 @@ flowchart TD
 
 | Direction | Event |
 |-----------|-------|
-| Subscribes | `telegram:message` (default — customize for your platform), `keeper:directive`, `claudeception:reflect` |
-| Publishes | `keeper:support_case`, `keeper:community_health` |
+| Subscribes | `telegram:message`, `discord:message`, `discord:mention`, `strategist:keeper_directive`, `claudeception:reflect` |
+| Publishes | `standup:report`, `keeper:support_case`, `keeper:community_health` |
 
 ### Guide
 
 | Direction | Event |
 |-----------|-------|
-| Subscribes | `keeper:support_case`, `guide:directive`, `claudeception:reflect` |
+| Subscribes | `keeper:support_case`, `strategist:guide_directive`, `claudeception:reflect` |
 | Publishes | `standup:report`, `guide:case_resolved`, `guide:case_escalated` |
 
 ## Scheduled Tasks (Crons)
 
 | Agent | Schedule (UTC) | Task |
 |-------|----------------|------|
-| Keeper | *None (disabled by default)* | Enable after configuring community channels |
+| Keeper | 13:20 daily | `daily_standup` |
 | Guide | 13:24 daily | `daily_standup` |
 
 ### Keeper: Disabled Crons
@@ -66,20 +66,19 @@ The following crons are commented out in Keeper's config. Enable them after conf
 |----------------|------|-------------|
 | 08:00 daily | `morning_stats` | Community statistics summary |
 | 15:00 Friday | `community_highlights` | Weekly community highlights |
-| 13:20 daily | `daily_standup` | Daily standup report |
 
 ## Key Capabilities
 
 ### Keeper: Community Moderation
 
-Keeper is purely event-driven by default -- it responds only to incoming `telegram:message` events. It handles:
+Keeper handles Telegram and Discord community events (`telegram:message`, `discord:message`, `discord:mention`) and runs a daily standup cron. It handles:
 
 - **Moderation actions**: Ban, restrict, delete messages, set permissions
 - **FAQ responses**: Answers common community questions
 - **Escalation**: Complex cases published as `keeper:support_case` for Guide
 - **Community health**: Reports community sentiment via `keeper:community_health`
 
-Keeper uses the `keeper-community-safety.md` and `data-integrity.md` system prompts to enforce safe community interaction. Configure your platform-specific moderation rules in these prompt files.
+Keeper uses the `keeper-telegram-safety.md` and `data-integrity.md` system prompts to enforce safe community interaction. Configure your platform-specific moderation rules in these prompt files.
 
 ### Guide: Tiered Support Resolution
 
@@ -89,14 +88,13 @@ Guide receives escalated cases from Keeper and provides deeper troubleshooting:
 - **Email**: Sends resolution emails for ticket-based support
 - **Escalation to Development**: Unresolvable cases published as `guide:case_escalated`
 
-Guide uses `product-overview.md` as a system prompt for deep product knowledge when resolving user issues.
+Guide uses `protocol-overview.md` as a system prompt for deep product knowledge when resolving user issues.
 
 ### Default Safe Mode
 
-Both agents operate in a restricted mode by default until you configure your community channels:
-- Keeper has all proactive crons disabled (no outbound messaging without triggers)
-- Keeper responds only to incoming messages
-- Guide runs normally but only processes escalated cases
+Both agents operate with conservative defaults until you configure your community channels:
+- Keeper runs the `daily_standup` cron plus community-event triggers (Telegram + Discord); the `morning_stats` and `community_highlights` crons remain commented out until you enable proactive community posting
+- Guide processes escalated cases from Keeper and runs its own `daily_standup` cron
 
 ## Actions Available
 
