@@ -43,7 +43,7 @@ export function SettingsDrawer({ open, onClose, title, children, footer }: Setti
         />
       )}
       <div
-        className={`fixed top-0 bottom-0 z-40 w-full max-w-md bg-terminal-surface border-l border-terminal-border shadow-2xl flex flex-col max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:max-w-full max-sm:max-h-[80vh] max-sm:rounded-t-xl max-sm:border-t max-sm:border-l-0 transition-all duration-200 ${
+        className={`fixed top-0 bottom-0 z-40 w-full max-w-md bg-mc-bg/95 backdrop-blur-sm border-l border-mc-border shadow-2xl flex flex-col max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:max-w-full max-sm:max-h-[80vh] max-sm:rounded-t-panel max-sm:border-t max-sm:border-l-0 transition-all duration-mc ease-mc-out ${
           open ? 'max-sm:translate-y-0' : 'translate-x-full max-sm:translate-x-0 max-sm:translate-y-full'
         }`}
         style={{
@@ -52,11 +52,11 @@ export function SettingsDrawer({ open, onClose, title, children, footer }: Setti
         }}
         aria-hidden={!open}
       >
-        <div className="shrink-0 bg-terminal-surface px-6 py-4 border-b border-terminal-border flex items-center justify-between z-10">
-          <h2 className="text-sm font-bold text-terminal-text">{title}</h2>
+        <div className="shrink-0 px-6 py-4 border-b border-mc-border flex items-center justify-between z-10">
+          <h2 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">{title}</h2>
           <button
             onClick={onClose}
-            className="text-terminal-dim hover:text-terminal-text transition-colors text-lg"
+            className="text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out text-lg"
           >
             &times;
           </button>

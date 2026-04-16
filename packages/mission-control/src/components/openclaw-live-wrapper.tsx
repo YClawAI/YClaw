@@ -28,8 +28,8 @@ export function OpenClawLiveWrapper({ children }: { children: React.ReactNode })
   return (
     <div>
       {!connected && (
-        <div className="mb-4 px-3 py-2 bg-terminal-yellow/10 border border-terminal-yellow/30 rounded text-xs text-terminal-yellow flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-terminal-yellow animate-pulse" />
+        <div className="mb-4 px-3 py-2 bg-mc-warning/10 border border-mc-warning/40 rounded-panel font-sans text-xs text-mc-warning flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-mc-warning animate-mc-pulse shadow-[0_0_6px_currentColor]" />
           Reconnecting to gateway...
         </div>
       )}

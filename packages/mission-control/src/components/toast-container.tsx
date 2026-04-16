@@ -3,9 +3,9 @@
 import { useToastStore } from '@/stores/toast-store';
 
 const BORDER_COLORS: Record<string, string> = {
-  success: 'border-terminal-green',
-  error: 'border-terminal-red',
-  info: 'border-terminal-blue',
+  success: 'border-l-mc-success',
+  error: 'border-l-mc-danger',
+  info: 'border-l-mc-info',
 };
 
 export function ToastContainer() {
@@ -19,15 +19,15 @@ export function ToastContainer() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`bg-terminal-surface border border-terminal-border border-l-2 ${BORDER_COLORS[toast.type] ?? 'border-terminal-border'} rounded px-4 py-3 shadow-lg animate-in slide-in-from-right`}
+          className={`bg-mc-bg/95 backdrop-blur-sm border border-mc-border border-l-2 ${BORDER_COLORS[toast.type] ?? 'border-l-mc-border'} rounded-panel px-4 py-3 shadow-lg animate-in slide-in-from-right`}
         >
           <div className="flex items-start gap-2">
-            <span className="text-xs font-mono text-terminal-text flex-1">
+            <span className="font-sans text-xs text-mc-text flex-1">
               {toast.message}
             </span>
             <button
               onClick={() => remove(toast.id)}
-              className="text-terminal-dim hover:text-terminal-text text-xs shrink-0"
+              className="text-mc-text-tertiary hover:text-mc-text text-xs shrink-0 transition-colors duration-mc ease-mc-out"
             >
               &times;
             </button>
