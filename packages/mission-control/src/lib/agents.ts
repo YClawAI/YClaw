@@ -87,6 +87,40 @@ export const DEPT_BORDER_COLORS: Record<Department, string> = {
   support: 'border-terminal-yellow',
 };
 
+// ─── SpaceX mc-* dept variants (Phase 2+) ──────────────────────────────
+// Consumed by files that have been migrated to the SpaceX palette. The
+// terminal-* variants above remain for un-migrated consumers and are
+// deleted in Phase 6 once every file has flipped. See DESIGN-SYSTEM.md
+// for the department color remap (purple → cyan brand pivot).
+// ────────────────────────────────────────────────────────────────────
+
+export const DEPT_COLORS_MC: Record<Department, string> = {
+  executive: 'text-mc-dept-executive',
+  development: 'text-mc-dept-development',
+  marketing: 'text-mc-dept-marketing',
+  operations: 'text-mc-dept-operations',
+  finance: 'text-mc-dept-finance',
+  support: 'text-mc-dept-support',
+};
+
+export const DEPT_BG_COLORS_MC: Record<Department, string> = {
+  executive: 'bg-mc-dept-executive/10 border-mc-dept-executive/30',
+  development: 'bg-mc-dept-development/10 border-mc-dept-development/30',
+  marketing: 'bg-mc-dept-marketing/10 border-mc-dept-marketing/30',
+  operations: 'bg-mc-dept-operations/10 border-mc-dept-operations/30',
+  finance: 'bg-mc-dept-finance/10 border-mc-dept-finance/30',
+  support: 'bg-mc-dept-support/10 border-mc-dept-support/30',
+};
+
+export const DEPT_BORDER_COLORS_MC: Record<Department, string> = {
+  executive: 'border-mc-dept-executive',
+  development: 'border-mc-dept-development',
+  marketing: 'border-mc-dept-marketing',
+  operations: 'border-mc-dept-operations',
+  finance: 'border-mc-dept-finance',
+  support: 'border-mc-dept-support',
+};
+
 export function getAgent(name: string): AgentInfo | undefined {
   return AGENTS.find((a) => a.name === name);
 }
