@@ -21,14 +21,10 @@ system_prompts:
   - strategist-heartbeat.md
   - strategist-objectives.md
 triggers:
-  - type: cron
-    schedule: 45 13 * * *
-    task: standup_synthesis
-    model:
-      provider: anthropic
-      model: claude-sonnet-4-20250514
-      temperature: 0.3
-      maxTokens: 4096
+  # Standup synthesis is event-driven (batch_event below). Removed the 13:45 cron
+  # duplicate that would race the batch_event with a different model. The batch_event
+  # is the single canonical path; if it fails to fire, the heartbeat watchdog can
+  # surface the gap.
   - type: cron
     schedule: 0 14 * * 1
     task: weekly_directive
@@ -56,8 +52,10 @@ triggers:
   - type: batch_event
     events:
       - standup:report
-    min_count: 10
-    timeout_ms: 1800000
+    # Lowered from 10 → 8 so synthesis fires even if a few agents miss their standup.
+    min_count: 8
+    # Lowered from 30min → 20min so partial reports surface faster on agent outages.
+    timeout_ms: 1200000
     task: standup_synthesis
     model:
       provider: anthropic

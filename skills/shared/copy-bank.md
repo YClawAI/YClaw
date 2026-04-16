@@ -1,6 +1,30 @@
 # YCLAW — Copy Bank
 
-> Pre-approved copy for every page and section. Use this first. If the copy you need isn't here, write new copy following `.ai/BRAND_VOICE.md`.
+> Pre-approved copy for YCLAW external surfaces. Use this first. If the copy you need isn't
+> here, write new copy following `prompts/brand-voice.md` and submit to Reviewer.
+>
+> All copy here is factual, self-hosted, OSS-first. No fabricated metrics, no financial
+> language, no claims YCLAW doesn't back in code.
+
+---
+
+## Tagline & Positioning
+
+### Taglines (pick one per context)
+
+- "AI agent orchestration, built for teams that ship."
+- "Agents with departments, not demos."
+- "The open-source harness for multi-agent organizations."
+- "Run an org of AI agents on infrastructure you own."
+
+### One-line descriptions
+
+- "Open-source AI agent orchestration framework with real departments, event-driven coordination, and human-in-the-loop approval gates."
+- "Self-hosted, model-agnostic infrastructure for running autonomous AI agent organizations."
+
+### Longer description (README / website hero)
+
+YCLAW is the infrastructure to run an organization of AI agents — departments, event-driven coordination, approval gates, persistent memory, and production-grade deployment. Extracted from a system that ran 12 autonomous agents for over a year. Self-hosted under AGPL-3.0. Model-agnostic.
 
 ---
 
@@ -9,205 +33,109 @@
 ### Hero
 
 **Headline options (pick one):**
-- "Your attention is already valuable."
-- "Your attention, rewarded."
-- "Every second you watch, something accrues."
-- "The currency of watching."
+- "AI agent orchestration, built for teams that ship."
+- "Agents, coordinated."
+- "The open-source harness for multi-agent organizations."
 
 **Subheadline:**
-"A Solana protocol that rewards creators and watchers across nine platforms."
+"Departments, events, approvals, memory — the infrastructure AI agents need to actually work together. Self-hosted. Model-agnostic. AGPL-3.0."
 
-**CTAs:**
-- Primary: "Get the Extension"
-- Secondary: "Read the Docs"
+**Primary CTAs:**
+- "Read the Docs"
+- "View on GitHub"
 
-### Stats Bar
+**Secondary CTA:**
+- "Deploy YCLAW"
 
-| Stat | Label |
-|---|---|
-| $4.2M | Total Value Staked |
-| 12,847 | Active Watchers |
-| 347 | Creator Tokens |
-| 9 | Platforms |
+### Feature Grid
 
-*(These are placeholder values — replace with live data.)*
+**Department Structure**
+"Organize agents into real departments — Executive, Development, Marketing, Operations, Finance, Support. Each agent has a scoped role, configurable model, and declared actions."
 
-### Features Grid
+**Event-Driven Coordination**
+"Redis Streams event bus with HMAC-signed envelopes. Agents publish and subscribe to typed events. No polling, no brittle prompt chains."
 
-**Watch to Earn**
-"Chrome extension tracks verified watching across YouTube, Twitch, Kick, Rumble, X, and more. Every second counts."
+**Approval Gates**
+"Human-in-the-loop checkpoints for high-risk actions. Configure per-action risk tiers. Deploys, safety changes, and external integrations all pass through governed approval."
 
-**Creator Tokens**
-"Creators launch personal tokens with bonding curve pricing. Early believers get the best entry. The community is the market."
+**Persistent Agent Memory**
+"MongoDB-backed per-agent memory that survives across executions. Agents remember, reflect, and learn without rebuilding context every run."
 
-**Staking Rewards**
-"Stake tokens, accrue options every second. When the period closes, the protocol mints and exercises options into real tokens. Claim your share."
+**Model-Agnostic**
+"Works with Anthropic, OpenAI, Google, OpenRouter, or any compatible LLM provider. Per-agent, per-task model overrides. No vendor lock-in."
 
-**Creator Rewards Contest**
-"Monthly leaderboard. Your watch time — weighted by commitment level — determines how much of each creator's options get minted. Stakers who watch count 9x."
-
-**Governance**
-"Stake $YCLAW to govern the protocol. Vote on epoch parameters, creator onboarding, and treasury allocation."
-
-**DeFi Native**
-"Built on Solana with Mayflower AMM. Bonding curves, options minting, lending, and USDC-native trading. Fully composable."
+**Self-Hosted**
+"Docker Compose deploy or ECS Fargate. Your infrastructure, your data, your control. No SaaS dependency."
 
 ### Footer
 
-"Built on Solana. Powered by Mayflower."
+"Open source under AGPL-3.0. Built on OpenClaw."
 
-Links: Protocol, Creators, Leaderboard, Docs, X, Telegram, GitHub
-
----
-
-## How It Works Page
-
-### Section: For Watchers
-
-**Headline:** "Install. Watch. Earn."
-
-**Step 1 — Install YClaw Watch**
-"Add the Chrome extension. Connect your wallet. That's the setup."
-
-**Step 2 — Watch What You Watch**
-"YouTube, Twitch, Kick, Rumble, X, Parti, Arena, Abstract, Pump.fun — YClaw runs silently across all of them."
-
-**Step 3 — Boost the Leaderboard**
-"Your watch time is weighted by your relationship to the creator. Followers get 1.25x. Subscribers get 6x. Stakers get 9x. The higher the creator ranks, the more rewards get minted."
-
-**Step 4 — Stake and Claim**
-"Stake creator tokens to earn options that accrue every second. When the period closes, the protocol mints tokens based on leaderboard position. Claim your share."
-
-### Section: For Creators
-
-**Headline:** "Your audience already pays attention. Let them pay in."
-
-**Step 1 — Launch Your Token**
-"Create your token on YClaw. Bonding curve pricing means the price rises with demand. No presale. No gatekeepers."
-
-**Step 2 — Grow Your Economy**
-"Your watchers stake your token and boost your leaderboard score. Staker-viewers count 9x. The higher you rank, the more of your accrued options get minted each month."
-
-**Step 3 — Earn Together**
-"Set your creator/staker split (default 70/30). When the period closes, minted tokens are divided between you and your stakers. The protocol does the rest."
+Links: Docs, GitHub, Architecture, Discord, License
 
 ---
 
-## Explore Page (Token Explorer)
+## README — Key Sections
 
-**Page Title:** "Explore"
-**Subtitle:** "Every creator. Every token. Every opportunity."
+### One-paragraph pitch
 
-**Empty state:** "No tokens match your search. Try different filters."
+YCLAW is an open-source AI agent orchestration framework. It gives you the infrastructure to run a full organization of AI agents — departments, event-driven coordination, approval gates, persistent memory, and production deployment — on infrastructure you own. Extracted from a system that ran 12 autonomous agents for over a year before open-sourcing. Self-hosted. Model-agnostic. AGPL-3.0.
 
-**Column headers:**
-| Column | Label |
-|---|---|
-| Token | Token |
-| Price | Price |
-| 24h Change | 24h |
-| Market Cap | mCap |
-| Staked | Staked |
-| Volume | Volume |
-| Rewards Split | Split |
+### Quickstart preface
 
----
+"YCLAW runs on Node 20 LTS, MongoDB, and Redis. Docker Compose for local development, ECS Fargate for production. Your AI assistant deploys YCLAW and then programs the agents using your organization's context — departments, prompts, schedules, events."
 
-## Token Detail Page
+### Why YCLAW
 
-**Section labels:**
-- "Overview"
-- "Your Position"
-- "Recent Activity"
-- "Rewards History"
-- "Holders"
-
-**Action buttons:**
-- "Stake"
-- "Trade" (Buy / Sell sub-tabs)
-- "Claim"
-
-**Rewards card:**
-- "Accrued Options" — the live-updating options count
-- "Claimable Rewards" — tokens ready to claim
-- "Next Period" — countdown or period number
-
-**Empty position state:** "You don't have a position in this token yet. Stake to start earning rewards."
+- **Infrastructure, not demos.** Real department structures, event buses, approval gates.
+- **Production-tested.** Ran 12 agents for over a year before open-sourcing.
+- **Model-agnostic.** Anthropic, OpenAI, Google, OpenRouter — bring your own provider.
+- **Self-hosted.** Docker Compose or ECS. Your data stays with you.
+- **AGPL-3.0.** Fork it. Run it. Extend it. Contribute back.
 
 ---
 
-## Portfolio Page
+## Social Posts (Reference Tone)
 
-**Page Title:** "Portfolio"
-**Subtitle:** "Everything you've staked, earned, and claimed."
+### X / Twitter (new feature announcement)
 
-**Summary cards:**
-- "Total Value" — portfolio value in USD
-- "Total Staked" — across all tokens
-- "Unclaimed Rewards" — claimable now
-- "Total Earned" — lifetime earnings
+"YCLAW now supports [feature]. Departments, events, approvals — the infrastructure multi-agent systems need. Open source, self-hosted, model-agnostic. github.com/YClawAI/YClaw"
 
-**Empty state:** "Your portfolio is empty. Explore creators to find your first stake."
+### X / Twitter (technical deep-dive opener)
 
----
+"Our event bus uses HMAC-signed Redis Streams. Every inter-agent message is verifiable. Here's why that matters for multi-agent systems:"
 
-## Leaderboard Page
+### GitHub Release Notes (format)
 
-**Page Title:** "Leaderboard"
-**Subtitle:** "The Creator Rewards Contest. Top 25 earn mint percentages."
+```
+## What's New
 
-**Column headers:** Rank, Creator, Score, Hours Streamed, Mint %
+- <feature 1 — factual, one line>
+- <feature 2 — factual, one line>
 
-**Categories:** Global, By Category
+## Breaking Changes
 
-**Your rank callout:** "You're #12 this month."
+- <what broke, what to do>
 
----
+## Upgrade Notes
 
-## Governance Page
+- <commands or steps>
 
-**Page Title:** "Governance"
-**Subtitle:** "Your voice shapes the protocol."
-
-**Deposit CTA:** "Stake $YCLAW to Vote"
-**Description:** "Deposit $YCLAW to receive voter weight. Your weight determines your share of epoch rewards and your voting power on protocol proposals."
+Full changelog: https://github.com/YClawAI/YClaw/compare/<prev>...<this>
+```
 
 ---
 
-## Chrome Extension Copy
-
-**Header:** "YCLAW" (wordmark) + watching indicator dot
-
-**Active session card:**
-- Creator name
-- Platform (youtube.com, twitch.tv, etc.)
-- Session time: "01:47:22"
-- Earned: "+1,847 pts"
-
-**Stats row:**
-- Rank: "#12"
-- Total: "84.2K"
-- Staked: "5"
-
-**Not watching state:** "Not tracking. Open a supported platform to start."
-
-**Login CTA:** "Connect Wallet"
-
-**Supported platforms list:**
-"YouTube, Twitch, Kick, Rumble, X, Parti, Arena, Abstract, Pump.fun"
-
----
-
-## Notification Copy
+## Notifications
 
 | Event | Copy |
 |---|---|
-| Period closed | "Period #[N] closed. Your rewards are ready to claim." |
-| Rank change (up) | "You moved to #[N] on the leaderboard." |
-| Rank change (down) | "Your rank dropped to #[N]. Keep watching." |
-| New creator token | "@[creator] just launched $[SYMBOL]." |
-| Rewards claimable | "You have [N] unclaimed options across [N] tokens." |
-| New platform added | "YClaw now tracks [Platform]. [N] platforms and counting." |
+| PR opened by agent | "[agent] opened PR #[N] on [repo]: [title]" |
+| Deploy approved | "[env] deploy approved. Canary starting." |
+| Deploy promoted | "[env] deploy promoted. Production live on v[version]." |
+| Approval requested | "[agent] requested approval for [action]. Review in Mission Control." |
+| Safety block | "[agent] content blocked by review gate: [reason]" |
+| Circuit breaker open | "Project [project] circuit open (3 failures in 2h). Investigate before re-dispatching." |
 
 ---
 
@@ -215,14 +143,11 @@ Links: Protocol, Creators, Leaderboard, Docs, X, Telegram, GitHub
 
 | Situation | Copy |
 |---|---|
-| Transaction failed | "That transaction didn't go through. Your tokens are safe — try again in a moment." |
-| Session interrupted | "Session interrupted. Your points up to now are saved. Refresh to continue." |
-| Wallet not connected | "Connect your wallet to continue." |
-| Wallet connection failed | "Couldn't connect to wallet. Make sure it's unlocked and try again." |
-| Insufficient balance | "Not enough tokens. You need [N] more to complete this action." |
-| Network error | "Network hiccup. Your data is safe. Retrying..." |
-| Slippage exceeded | "Price moved too much since you started. Adjust slippage or try again." |
-| Period not closed | "This period hasn't closed yet. Rewards will be available after the next period close." |
+| Config invalid | "Agent config failed validation: [details]. Fix in `departments/<agent>.yaml`." |
+| Missing secret | "Required secret [name] not found. Add it to your secrets manager before retrying." |
+| Approval timeout | "Action timed out waiting for approval. Retry or escalate in Mission Control." |
+| LLM provider error | "LLM call failed: [provider] returned [status]. Check provider status and credentials." |
+| Event bus unavailable | "Event bus unreachable. Agents will resume coordination once Redis recovers." |
 
 ---
 
@@ -230,17 +155,31 @@ Links: Protocol, Creators, Leaderboard, Docs, X, Telegram, GitHub
 
 | Context | Copy |
 |---|---|
-| No rewards | "No rewards yet. Start watching to earn your first points." |
-| No staked tokens | "No staked tokens. Explore creators to find your first stake." |
-| No activity | "No activity yet. Your timeline fills up as you watch and stake." |
-| No search results | "Nothing found. Try different search terms." |
-| No holders | "No holders yet. Be the first to stake." |
-| Extension not installed | "Install YClaw Watch to start earning." |
+| No active tasks | "No active tasks. Agents are idle or awaiting triggers." |
+| No pending approvals | "No approvals pending. Everything high-risk has been reviewed." |
+| No recent events | "No recent events on this channel." |
+| No agents in department | "No agents configured in this department. Add one in `departments/`." |
 
 ---
 
 ## Meta / SEO
 
-**Title tag:** "YClaw — Your attention, rewarded."
-**Meta description:** "A Solana protocol that rewards creators and watchers across nine platforms. Install the Chrome extension. Watch what you watch. Start earning."
-**OG Image text:** "Your attention is already valuable."
+**Title tag:** "YCLAW — Open-source AI agent orchestration framework"
+**Meta description:** "Run an organization of AI agents with real departments, event-driven coordination, and human-in-the-loop approval gates. Self-hosted. Model-agnostic. AGPL-3.0."
+**OG image text:** "Agents, coordinated."
+
+---
+
+## Words We Use / Words We Don't
+
+See `prompts/brand-voice.md` for the canonical list. Short version:
+
+| Use | Don't Use |
+|---|---|
+| Agent orchestration | AI-powered solution |
+| Open source | Proprietary |
+| Self-hosted | Cloud-only |
+| Model-agnostic | AI/ML (generic) |
+| Department structure | Org chart |
+| Event-driven | Real-time (overloaded) |
+| Approval gate | Manual review (vague) |

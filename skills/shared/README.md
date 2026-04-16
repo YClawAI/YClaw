@@ -12,10 +12,9 @@ This directory contains universal knowledge assets (protocol reference, copy ban
 
 | File | Description |
 |------|-------------|
-| `protocol-overview/SKILL.md` | Authoritative technical description of the YClaw. Covers participant types (watchers, creators, stakers), bonding curve mechanics, the Creator Rewards Program, Chrome extension behavior, leaderboard scoring, governance ($YCLAW), on-chain program addresses, API endpoints, fee structure, and key metrics. The single source of truth for all protocol claims. |
-| `creator-rewards-program.md` | Deep technical reference for the Creator Rewards Program. Includes state diagrams for market period lifecycle, staker position lifecycle, and off-chain period processing. Documents on-chain account structures (XeenonMarket, XeenonPosition, XeenonMarketPeriod) (XeenonMarket/XeenonPosition are immutable on-chain Solana program identifiers, not branding), instructions, error codes, events, options accrual math, real-time UI estimates, and source file locations across repos. |
-| `copy-bank.md` | Pre-approved copy for all pages and sections of the YClaw product. Covers landing page (hero, features, footer), how-it-works page, explore page, token detail page, portfolio page, leaderboard page, governance page, Chrome extension UI copy, notifications, error messages, empty states, and SEO metadata. |
-| `faq-bank.md` | Central FAQ knowledge base with 50+ entries across 9 categories: Getting Started, Watching & Earning, Tokens & Bonding Curve, Staking & Options, Creator Rewards Contest, Creator Questions, Governance, Technical & Troubleshooting, and Safety & Trust. Each entry includes confidence level and supported platforms. Includes a key terminology appendix. |
+| `protocol-overview/SKILL.md` | Authoritative technical description of YCLAW — the open-source AI agent orchestration framework. Covers department structure, event-bus coordination, approval gates, agent memory, model-agnostic LLM integration, and self-hosted deployment. The single source of truth for all framework claims. |
+| `copy-bank.md` | Pre-approved copy for YCLAW external surfaces (landing page, README, social posts, notifications, error messages, empty states, SEO). Messaging follows `prompts/brand-voice.md`. |
+| `faq-bank.md` | Central FAQ knowledge base for YCLAW — what it is, how to deploy, how agents coordinate, extensibility, open-source model, and operational troubleshooting. |
 
 ### Behavioral Skills (Always Active)
 
