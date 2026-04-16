@@ -2,6 +2,16 @@
 
 > Defines the exact sequence for each Strategist task type.
 > Follow these sequences — do not skip steps.
+>
+> **Split review note (P2, 2026-04-16):** This file was reviewed for task-specific
+> extraction. Decision: keep whole. At 343 lines / ~13KB it covers 10+ task types,
+> and having a single operating manual beats scattering across 10 tiny files. The
+> heartbeat section (line ~8) already forwards to the dedicated `strategist-heartbeat.md`
+> which IS loaded by the heartbeat cron's `prompts:` override. The remaining task
+> sections document operating sequences Strategist actually references cross-task —
+> splitting them would create dead references and churn without a meaningful token
+> savings (weekly_directive / standup_synthesis already load the full file via
+> explicit `prompts:` blocks on their triggers).
 
 ---
 

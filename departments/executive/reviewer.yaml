@@ -33,6 +33,14 @@ triggers:
     model: claude-sonnet-4-20250514
     temperature: 0.0
     maxTokens: 2048
+# Universal content review event. ANY agent publishing externally MUST emit this
+# before the publish to route through Reviewer. Added P2 because the ember:/scout:
+# events below only cover two agents — Guide, Keeper, Architect, Sentinel and any
+# future external-publishing agent need a single canonical event. The existing
+# ember:content_ready and scout:outreach_ready remain for backward compatibility.
+- type: event
+  event: content:review_required
+  task: review_content
 - type: event
   event: review:pending
   task: review_content
@@ -76,6 +84,7 @@ data_sources: []
 event_subscriptions:
 - strategist:reviewer_directive
 - claudeception:reflect
+- content:review_required
 - review:pending
 - ember:content_ready
 - scout:outreach_ready

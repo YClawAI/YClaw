@@ -1,8 +1,47 @@
 # YCLAW Review Rules
 
-> Version: 1.0
-> Last Updated: 2026-04-10
+> Version: 1.1
+> Last Updated: 2026-04-16
 > Applies to: All agents producing content for external channels
+
+## Universal Review Event (P2)
+
+**Any agent publishing externally MUST emit `content:review_required` before the publish.**
+
+This is the single canonical event that routes content through Reviewer regardless of
+source agent. Previously Reviewer only caught content from Ember (`ember:content_ready`)
+and Scout (`scout:outreach_ready`); if Guide, Keeper, Architect, Sentinel, or any future
+agent produces external-facing content and doesn't emit one of those two specific events,
+review is bypassed entirely. `content:review_required` closes that gap.
+
+Agents that MUST emit `content:review_required` before publishing:
+
+| Agent | When |
+|---|---|
+| **Ember** | Backward-compat: `ember:content_ready` still works; new agents should use `content:review_required` |
+| **Scout** | Backward-compat: `scout:outreach_ready` still works; new agents should use `content:review_required` |
+| **Guide** | Every externally-visible support response posted to a public channel |
+| **Keeper** | Every public moderation notice, community announcement, or pinned message |
+| **Architect** | Any public-facing content (rare — usually internal; but if posting externally, route through Reviewer) |
+| **Sentinel** | Status pages, public incident comms |
+| **Any agent with `discord:message` to a public channel** | Default: emit `content:review_required` unless the channel is explicitly private / internal |
+
+Publication permissions are enforced in `yclaw-event-policy.yaml` under `agent:*:allowedEventTypes`.
+
+Event payload shape:
+```json
+{
+  "source": "<emitting agent>",
+  "type": "content:review_required",
+  "payload": {
+    "agent": "<emitting agent name>",
+    "content": "<full text to review>",
+    "content_type": "tweet | thread | announcement | outreach | blog | telegram | discord_post | github_comment",
+    "target_platform": "x | telegram | instagram | tiktok | discord | github | blog",
+    "urgency": "low | medium | high"
+  }
+}
+```
 
 ## Review Routing
 

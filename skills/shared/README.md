@@ -32,6 +32,12 @@ This directory contains universal knowledge assets (protocol reference, copy ban
 | `skillforge/SKILL.md` | Skill router and creator. Routes inputs to existing skills (>=80% match), improves existing skills (50-79%), or creates new skills (<50%). Defines the standard skill directory structure (`SKILL.md`, `references/`, `scripts/`). |
 | `vitest-esm-class-mock/SKILL.md` | Pattern for mocking class constructors in vitest v4 with ESM modules. Solves the problem where `vi.fn().mockImplementation()` loses its implementation after `vi.clearAllMocks()`. Uses `vi.hoisted()` + real class in `vi.mock()` factory. Includes anti-pattern warning and verification steps. |
 
+### Governance Skills (On-Demand)
+
+| File | Description |
+|------|-------------|
+| `contamination-check/SKILL.md` | Detect and prevent product-specific terminology contamination across `skills/` and `prompts/`. Run after bulk content updates, skill imports, or agent config changes. Includes layered-exclusion grep patterns, prevention rules, and quarantine response procedure. Documents the P0 cleanup incident that necessitated this skill. |
+
 ## Governance
 
 Skills follow a four-tier trust system:

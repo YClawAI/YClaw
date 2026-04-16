@@ -8,6 +8,9 @@ model:
   temperature: 0.7
   maxTokens: 8192
 system_prompts:
+  # Always-loaded core. P2 moved model-review.md and strategist-objectives.md
+  # to task-specific `prompts:` blocks on the cron triggers that need them —
+  # they were being loaded on every heartbeat and alert unnecessarily.
   - claudeception.md
   - skill-usage.md
   - mission_statement.md
@@ -16,10 +19,8 @@ system_prompts:
   - executive-directive.md
   - protocol-overview.md
   - escalation-policy.md
-  - model-review.md
   - strategist-workflow.md
   - strategist-heartbeat.md
-  - strategist-objectives.md
 triggers:
   # Standup synthesis is event-driven (batch_event below). Removed the 13:45 cron
   # duplicate that would race the batch_event with a different model. The batch_event
@@ -28,6 +29,18 @@ triggers:
   - type: cron
     schedule: 0 14 * * 1
     task: weekly_directive
+    # weekly_directive loads strategist-objectives.md for the always-on strategic goals.
+    prompts:
+      - claudeception.md
+      - skill-usage.md
+      - mission_statement.md
+      - chain-of-command.md
+      - daily-standup.md
+      - executive-directive.md
+      - protocol-overview.md
+      - escalation-policy.md
+      - strategist-workflow.md
+      - strategist-objectives.md
   - type: cron
     schedule: 0 14 * * 3
     task: midweek_review
@@ -37,6 +50,17 @@ triggers:
   - type: cron
     schedule: 0 14 1-7 * 1
     task: model_review
+    # model_review is the only task that needs model-review.md — first Monday monthly.
+    prompts:
+      - claudeception.md
+      - skill-usage.md
+      - mission_statement.md
+      - chain-of-command.md
+      - executive-directive.md
+      - protocol-overview.md
+      - escalation-policy.md
+      - strategist-workflow.md
+      - model-review.md
   - type: cron
     schedule: '*/30 * * * *'
     task: heartbeat
@@ -62,6 +86,19 @@ triggers:
       model: claude-opus-4-6
       temperature: 0.5
       maxTokens: 8192
+    # standup_synthesis loads strategist-objectives.md so synthesis can surface
+    # blockers against the always-on strategic goals.
+    prompts:
+      - claudeception.md
+      - skill-usage.md
+      - mission_statement.md
+      - chain-of-command.md
+      - daily-standup.md
+      - executive-directive.md
+      - protocol-overview.md
+      - escalation-policy.md
+      - strategist-workflow.md
+      - strategist-objectives.md
   - type: event
     event: claudeception:reflect
     task: self_reflection
