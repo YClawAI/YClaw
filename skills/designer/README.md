@@ -40,6 +40,12 @@ Detailed specifications for every UI component in the YClaw frontend. Each compo
 
 **File:** `component-specs/SKILL.md`
 
+### review-boundary
+
+Defines when Designer reviews vs builds autonomously. Covers the three modes: **Review Only** (frontend PRs from AO/Mechanic — check tokens, accessibility, flag-don't-fix), **Build Autonomously** (new components, token updates, Figma-to-code when directed), and **Escalate** (logic changes disguised as design, API/data-model changes, breaking component APIs). Includes coordination rules with Forge and Architect.
+
+**File:** `review-boundary/SKILL.md`
+
 ## Triggers
 
 | Event | Task |

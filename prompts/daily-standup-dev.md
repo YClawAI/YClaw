@@ -2,6 +2,8 @@
 
 Extends the base standup protocol. Dev agents: Architect, Designer, Mechanic.
 
+> See also: `data-verification-rules.md` for org-wide verification standards.
+
 ## DATA SOURCING RULES (MANDATORY)
 
 When reporting task status, completions, or blockers:
