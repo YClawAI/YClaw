@@ -42,7 +42,7 @@ This verifies:
 - MongoDB is connected
 
 ### Step 4: Check for Startup Errors
-Use `github:get_contents` on recent CI logs or check Slack #yclaw-alerts for:
+Use `github:get_contents` on recent CI logs or check Discord #yclaw-alerts for:
 - Container crash loops (OOMKilled, exit code 1)
 - Redis connection failures
 - MongoDB connection failures
