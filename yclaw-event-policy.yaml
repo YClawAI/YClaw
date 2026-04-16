@@ -73,6 +73,7 @@ sources:
     allowedEventTypes:
       - "standup:report"
       - "ember:needs_asset"
+      - "ember:asset_revision_requested"
       - "ember:content_ready"
       - "review:pending"
       # Universal content review gate (P2) — kept alongside ember:content_ready for compat.
@@ -83,6 +84,7 @@ sources:
     allowedEventTypes:
       - "standup:report"
       - "forge:asset_ready"
+      - "forge:asset_failed"
 
   # Scout — research and outreach events
   agent:scout:

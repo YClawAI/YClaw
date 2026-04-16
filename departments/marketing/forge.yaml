@@ -14,6 +14,8 @@ system_prompts:
   - mission_statement.md
   - chain-of-command.md
   - daily-standup.md
+  - protocol-overview.md
+  - brand-voice.md
   - design-system.md
   - component-specs.md
   - forge-workflow.md
@@ -21,9 +23,18 @@ triggers:
   - type: cron
     schedule: 14 13 * * *
     task: daily_standup
+  - type: cron
+    schedule: "0 10 * * 1"         # Monday 10:00 UTC — weekly asset pack
+    task: weekly_asset_generation
+  - type: cron
+    schedule: "0 9 1 * *"          # 1st of month — profile/banner review
+    task: monthly_brand_review
   - type: event
     event: ember:needs_asset
     task: create_asset
+  - type: event
+    event: ember:asset_revision_requested
+    task: revise_asset
   - type: event
     event: strategist:slack_delegation
     task: handle_slack_delegation
@@ -35,7 +46,7 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 actions:
@@ -60,10 +71,12 @@ event_subscriptions:
   - strategist:forge_directive
   - claudeception:reflect
   - ember:needs_asset
+  - ember:asset_revision_requested
   - strategist:slack_delegation
 event_publications:
   - standup:report
   - forge:asset_ready
+  - forge:asset_failed
 review_bypass: []
 
 heartbeat:

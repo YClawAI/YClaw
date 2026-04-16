@@ -18,15 +18,18 @@ system_prompts:
   - mission_statement.md
   - chain-of-command.md
   - daily-standup.md
+  - protocol-overview.md
+  - executive-directive.md
   - brand-voice.md
   - review-submission.md
+  - content-safety-rules.md
 
 triggers:
   - type: cron
     schedule: "12 13 * * *"
     task: daily_standup
   - type: cron
-    schedule: "0 8 * * 1-5"
+    schedule: "0 8 * * 1,3,5"     # Mon/Wed/Fri only (was daily)
     task: daily_intel_scan
   - type: cron
     schedule: "0 10 * * 1"
@@ -48,27 +51,31 @@ triggers:
   - type: event
     event: strategist:scout_directive
     task: handle_directive
-  - type: event
-    event: discord:message
-    task: monitor_discord_intel
+  # discord:message trigger DISABLED — too broad, fires on every message.
+  # TODO: Replace with channel-filtered monitoring or hourly digest cron.
+  # - type: cron
+  #   schedule: "0 */2 * * *"
+  #   task: discord_intel_digest
   - type: event
     event: claudeception:reflect
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 actions:
   - vault:read
   - vault:search
-  - vault:write
+  # vault:write — DISABLED to prevent contaminated intel from corrupting knowledge base.
+  # Scout should publish intel via scout:intel_report event for Strategist review.
   - x:search
   - x:lookup
   - x:user
   - x:user_tweets
   - twitter:read_metrics
-  - email:send
+  # email:send — DISABLED until outreach templates are validated and review gate confirmed.
+  # Scout should draft outreach and submit via review:pending for human approval.
   - discord:get_channel_history
   - event:publish
 
