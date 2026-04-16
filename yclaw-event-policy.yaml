@@ -155,6 +155,35 @@ sources:
       - "github:pr_merged"
       - "github:repository_created"
 
+# Subscribe permissions — which agents can listen to which event types.
+# Default: agents can subscribe to any event they have a trigger for.
+# This section defines additional restrictions or explicit grants.
+subscriptions:
+  # Strategist can listen to everything (org-wide visibility)
+  agent:strategist:
+    allowedEventTypes:
+      - "*"
+
+  # Sentinel monitors all system events
+  agent:sentinel:
+    allowedEventTypes:
+      - "deploy:*"
+      - "ao:*"
+      - "github:*"
+      - "sentinel:*"
+      - "architect:*"
+
+  # Reviewer only needs content events
+  agent:reviewer:
+    allowedEventTypes:
+      - "ember:*"
+      - "scout:*"
+      - "review:*"
+      - "reviewer:*"
+
+  # Default: any agent can subscribe to events listed in its triggers[].event
+  default: "trigger-scoped"
+
 # Fields that are NEVER allowed in ANY event payload, regardless of schema.
 # These are the exact fields used in the April 2, 2026 attack.
 globalDeniedFields:

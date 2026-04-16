@@ -18,6 +18,7 @@ system_prompts:
   - chain-of-command.md
   - daily-standup-dev.md
   - engineering-standards.md
+  - mechanic-workflow.md
 
 triggers:
   - type: cron

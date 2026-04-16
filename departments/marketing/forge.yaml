@@ -16,6 +16,7 @@ system_prompts:
   - daily-standup.md
   - design-system.md
   - component-specs.md
+  - forge-workflow.md
 triggers:
   - type: cron
     schedule: 14 13 * * *
