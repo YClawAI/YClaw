@@ -49,6 +49,10 @@ sources:
       - "architect:task_complete"
       - "architect:task_blocked"
       - "architect:deploy_review"
+      - "architect:design_directive"
+      - "architect:mechanic_task"
+      - "architect:task_complete"
+      - "architect:task_blocked"
       - "deploy:assess"
       - "deploy:approve"
 
