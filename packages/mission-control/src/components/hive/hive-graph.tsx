@@ -93,7 +93,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
   const router = useRouter();
   const hideTooltipTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  // ── Build graph data ──────────────────────────────────────────────────
+  // ── Build graph data ───────────────────────────────────────
   const graphData = useMemo(() => {
     const nodes: HiveNode[] = [];
     const links: HiveLink[] = [];
@@ -170,7 +170,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
     return { nodes, links };
   }, []);
 
-  // ── Responsive sizing ─────────────────────────────────────────────────
+  // ── Responsive sizing ───────────────────────────────────────
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -188,7 +188,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
     return () => observer.disconnect();
   }, []);
 
-  // ── Configure d3 forces ───────────────────────────────────────────────
+  // ── Configure d3 forces ─────────────────────────────────────
   useEffect(() => {
     if (forcesConfigured.current) return;
 
@@ -220,7 +220,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
     return () => clearInterval(check);
   }, []);
 
-  // ── Background: department zone nebulae ───────────────────────────────
+  // ── Background: department zone nebulae ───────────────────────
   const paintDeptZones = useCallback(
     (ctx: CanvasRenderingContext2D, globalScale: number) => {
       const nodes = graphData.nodes;
@@ -432,7 +432,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
     [agentActivity, hoveredNode, agentStatusRef, externalActivityRef],
   );
 
-  // ── Pointer area for hit detection ────────────────────────────────────
+  // ── Pointer area for hit detection ──────────────────────────────
   const paintPointerArea = useCallback(
     (node: any, color: string, ctx: CanvasRenderingContext2D) => {
       const n = node as HiveNode;
@@ -446,7 +446,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
     [],
   );
 
-  // ── Mouse tracking for tooltip position ───────────────────────────────
+  // ── Mouse tracking for tooltip position ─────────────────────────
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (rect) {
@@ -457,7 +457,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
     }
   }, []);
 
-  // ── Hover handler ─────────────────────────────────────────────────────
+  // ── Hover handler ───────────────────────────────────────────
   const handleNodeHover = useCallback((node: any) => {
     const n = node as HiveNode | null;
     // Show tooltip for agents, externals, and orchestrator (not dept anchors)
@@ -471,7 +471,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
     }
   }, []);
 
-  // ── Click handler — navigate to agent detail page ──────────────────────
+  // ── Click handler — navigate to agent detail page ───────────────────
   const handleNodeClick = useCallback((node: any) => {
     const n = node as HiveNode;
     if (n.type === 'agent') {
@@ -560,7 +560,7 @@ export function HiveGraph({ agentActivity, particleEngine, agentStatusRef, exter
         } : undefined}
       />
 
-      {/* ── Tooltip ────────────────────────────────────────────────── */}
+      {/* ── Tooltip ─────────────────────────────────────── */}
       {hoveredNode && (
         <div
           className="absolute z-20"
@@ -610,17 +610,17 @@ function HiveTooltip({
 
   return (
     <div
-      className="bg-terminal-surface/95 backdrop-blur-sm border border-terminal-border rounded-lg shadow-2xl p-3 min-w-[180px]"
+      className="bg-mc-bg/95 backdrop-blur-sm border border-mc-border rounded-panel shadow-2xl p-3 min-w-[180px]"
       style={{ borderColor: hexAlpha(color, 0.3) }}
     >
       <div className="flex items-center gap-2.5 mb-2">
         <span className="text-lg">{node.emoji}</span>
         <div>
-          <div className="text-sm font-bold text-terminal-text">
+          <div className="font-sans text-sm font-medium text-mc-text">
             {node.label}
           </div>
           <div
-            className="text-[10px] uppercase tracking-wider"
+            className="font-sans text-[10px] uppercase tracking-label"
             style={{ color }}
           >
             {deptLabel}
@@ -630,7 +630,7 @@ function HiveTooltip({
 
       {node.role === 'lead' && (
         <span
-          className="inline-block px-1.5 py-0.5 text-[10px] rounded mb-1.5 border"
+          className="inline-block px-1.5 py-0.5 font-sans text-[10px] font-medium uppercase tracking-label rounded-badge mb-1.5 border"
           style={{
             color,
             backgroundColor: hexAlpha(color, 0.1),
@@ -642,23 +642,23 @@ function HiveTooltip({
       )}
 
       {node.description && (
-        <p className="text-xs text-terminal-dim leading-relaxed">
+        <p className="font-sans text-xs text-mc-text-secondary leading-relaxed">
           {node.description}
         </p>
       )}
 
-      <div className="mt-2 pt-2 border-t border-terminal-border flex items-center justify-between">
+      <div className="mt-2 pt-2 border-t border-mc-border flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span
-            className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-terminal-green animate-pulse' : 'bg-terminal-dim'}`}
+            className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-mc-success animate-mc-pulse shadow-[0_0_6px_currentColor]' : 'bg-mc-text-tertiary'}`}
           />
-          <span className="text-[10px] text-terminal-dim">
+          <span className="font-sans text-[10px] text-mc-text-secondary">
             {isActive ? 'Active' : 'Idle'}
           </span>
         </div>
         <Link
           href={`/agents/${node.id}`}
-          className="text-[10px] text-terminal-purple hover:text-terminal-text transition-colors pointer-events-auto"
+          className="font-sans text-[10px] text-mc-accent hover:text-mc-text transition-colors duration-mc ease-mc-out pointer-events-auto"
         >
           View →
         </Link>
@@ -672,10 +672,10 @@ function HiveTooltip({
 // ---------------------------------------------------------------------------
 function HiveLoader() {
   return (
-    <div className="w-full h-full flex items-center justify-center bg-terminal-bg">
+    <div className="w-full h-full flex items-center justify-center bg-mc-bg">
       <div className="text-center">
-        <div className="inline-flex items-center gap-2 text-terminal-dim text-xs">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-terminal-purple animate-pulse" />
+        <div className="inline-flex items-center gap-2 font-sans text-mc-text-secondary text-xs">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-mc-accent animate-mc-pulse shadow-[0_0_6px_currentColor]" />
           Initializing Hive...
         </div>
       </div>
