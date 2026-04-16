@@ -1,8 +1,85 @@
-<!-- CUSTOMIZE FOR YOUR ORGANIZATION -->
-
 # Component Specifications
 
 > How each component should look, behave, and animate. Reference this before building any component.
+
+---
+
+## CSS Baselines
+
+Canonical CSS snippets for the three primitive components (card, button, input) plus the float-up animation. Use these values as the source of truth for any variant built on top.
+
+### Card
+
+```css
+.card {
+  background: var(--brand-bg-card);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: border-color 400ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card:hover {
+  border-color: var(--brand-border-hover);
+  box-shadow: var(--shadow-glow-sm);
+}
+```
+
+### Buttons
+
+```css
+.btn-primary {
+  background: var(--brand-primary);
+  color: var(--brand-text-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--brand-text-primary);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--brand-text-secondary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+}
+```
+
+### Form Input
+
+```css
+.input {
+  background: var(--brand-bg-primary);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-md);
+  color: var(--brand-text-primary);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-body);
+}
+.input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: var(--shadow-glow-sm);
+  outline: none;
+}
+```
+
+### Animation: float-up
+
+```css
+@keyframes float-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Duration: 400ms, Easing: cubic-bezier(0.4, 0, 0.2, 1) */
+/* Stagger: 100ms per element */
+/* Never slide horizontally. Fade + subtle vertical only. */
+```
 
 ---
 

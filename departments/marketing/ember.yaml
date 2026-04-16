@@ -18,9 +18,12 @@ system_prompts:
   - mission_statement.md
   - chain-of-command.md
   - daily-standup.md
+  - protocol-overview.md
+  - executive-directive.md
   - brand-voice.md
   - review-submission.md
   - content-templates.md
+  - content-safety-rules.md
 
 triggers:
   - type: cron
@@ -55,7 +58,7 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 actions:
@@ -68,9 +71,8 @@ actions:
   - twitter:like
   - twitter:retweet
   - twitter:media_upload
-  - twitter:update_profile
-  - twitter:update_profile_image
-  - twitter:update_profile_banner
+  # twitter:update_profile* — moved to Strategist. Profile changes require directive + approval.
+  # Forge creates assets, Strategist executes profile updates via forge:asset_ready pipeline.
   - x:search
   - x:lookup
   - x:user
@@ -95,6 +97,7 @@ event_subscriptions:
 event_publications:
   - standup:report
   - ember:needs_asset
+  - ember:asset_revision_requested
   - ember:content_ready
   - review:pending
 
