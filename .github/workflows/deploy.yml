@@ -439,14 +439,37 @@ jobs:
             --region $AWS_REGION
 
       - name: Wait for deployment to stabilize
-        timeout-minutes: 12
+        timeout-minutes: 18
         run: |
-          echo "Waiting for MC service to stabilize..."
-          aws ecs wait services-stable \
-            --cluster $ECS_CLUSTER \
-            --services $ECS_SERVICE \
-            --region $AWS_REGION
-          echo "MC deployment stable"
+          echo "Waiting for MC service to stabilize (up to 15 min)..."
+          # Custom polling loop — Next.js cold compilation + ALB health checks
+          # can exceed the default 10-min aws ecs wait timeout.
+          for i in $(seq 1 60); do
+            STATUS=$(aws ecs describe-services \
+              --cluster $ECS_CLUSTER \
+              --services $ECS_SERVICE \
+              --region $AWS_REGION \
+              --query 'services[0].deployments[?status==`PRIMARY`].rolloutState' \
+              --output text)
+            RUNNING=$(aws ecs describe-services \
+              --cluster $ECS_CLUSTER \
+              --services $ECS_SERVICE \
+              --region $AWS_REGION \
+              --query 'services[0].{r:runningCount,d:desiredCount}' \
+              --output text)
+            echo "  [$i/60] rolloutState=$STATUS running/desired=$RUNNING"
+            if [ "$STATUS" = "COMPLETED" ]; then
+              echo "MC deployment stable"
+              exit 0
+            fi
+            if [ "$STATUS" = "FAILED" ]; then
+              echo "::error::MC deployment FAILED"
+              exit 1
+            fi
+            sleep 15
+          done
+          echo "::error::MC deployment did not stabilize within 15 minutes"
+          exit 1
 
   # --- Deploy Agent Orchestrator (AO) ---
   deploy-ao:

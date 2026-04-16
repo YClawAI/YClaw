@@ -1,15 +1,22 @@
-# YCLAW Code Owners
-# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# YCLAW Code Owners — Security & Infrastructure Paths Only
+#
+# NO catch-all. AO bot PRs on safe paths merge autonomously.
+# Only sensitive paths require human review.
+# See: GitHub Rulesets for actor-based review policy.
 
-# Default — all changes need core team review
-* @DannyDesert
-
-# Security-critical paths — admin review required
+# CI/CD workflows — changes here can compromise the entire pipeline
 .github/workflows/ @DannyDesert
+.github/CODEOWNERS @DannyDesert
+
+# Security infrastructure — event ACL, review gates, auth
 packages/core/src/security/ @DannyDesert
 packages/core/src/review/ @DannyDesert
-SECURITY.md @DannyDesert
+yclaw-event-policy.yaml @DannyDesert
 
-# Infrastructure
+# Deployment infrastructure
 deploy/ @DannyDesert
 Dockerfile @DannyDesert
+docker-compose*.yml @DannyDesert
+
+# Security documentation
+SECURITY.md @DannyDesert

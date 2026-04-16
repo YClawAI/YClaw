@@ -70,6 +70,8 @@ sources:
   system:webhook:
     allowedEventTypes:
       - "github:*"
+      - "github:issue_closed"
+      - "github:pr_merged"
 
 # Fields that are NEVER allowed in ANY event payload, regardless of schema.
 # These are the exact fields used in the April 2, 2026 attack.
