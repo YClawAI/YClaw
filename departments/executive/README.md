@@ -59,13 +59,11 @@ flowchart TD
 
 | Agent | Schedule (UTC) | Task |
 |-------|----------------|------|
-| Strategist | 13:45 daily | `standup_synthesis` |
 | Strategist | 14:00 Monday | `weekly_directive` |
 | Strategist | 14:00 Wednesday | `midweek_review` |
 | Strategist | 07:00 1st of month | `monthly_strategy` |
 | Strategist | 14:00 1st Monday of month | `model_review` |
 | Strategist | Every 30 min (13:00-03:00 UTC) | `heartbeat` |
-| Reviewer | 13:00 daily | `daily_standup` |
 
 ## Key Capabilities
 

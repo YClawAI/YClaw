@@ -80,11 +80,9 @@ Librarian does NOT write Sentinel's alerts to the vault directly. Only resolved 
 | Schedule (UTC) | Agent | Task | Description |
 |----------------|-------|------|-------------|
 | 13:15 daily | Sentinel | `daily_standup` | Daily standup report |
-| 13:18 daily | Librarian | `daily_standup` | Daily standup report |
 | 13:30 daily | Librarian | `inbox_triage` | Fast triage of `vault/05-inbox/` |
 | 14:00 daily | Librarian | `daily_curation` | Deep pass: normalize, tag, link, publish |
 | Every 4h | Sentinel | `deployment_health` | Check deployment pipeline health |
-| Every 30m | Sentinel | `ao_health_check` | Probe AO `/health/deep` (early-exit on healthy) |
 | 10:00 Mon,Thu | Sentinel | `code_quality_audit` | Read-only quality sweep across repos |
 | 08:00 Monday | Librarian | `weekly_curation` | Full hygiene audit: orphans, stale, broken links, schema |
 | 09:00 Friday | Librarian | `knowledge_hygiene_audit` | Narrow mid-week check: broken links + schema only |

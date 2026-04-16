@@ -56,7 +56,6 @@ flowchart TD
 | Agent | Schedule (UTC) | Task |
 |-------|----------------|------|
 | Keeper | 13:20 daily | `daily_standup` |
-| Guide | 13:24 daily | `daily_standup` |
 
 ### Keeper: Disabled Crons
 
@@ -94,7 +93,7 @@ Guide uses `protocol-overview.md` as a system prompt for deep product knowledge 
 
 Both agents operate with conservative defaults until you configure your community channels:
 - Keeper runs the `daily_standup` cron plus community-event triggers (Telegram + Discord); the `morning_stats` and `community_highlights` crons remain commented out until you enable proactive community posting
-- Guide processes escalated cases from Keeper and runs its own `daily_standup` cron
+- Guide processes escalated cases from Keeper (standup consolidated under Keeper)
 
 ## Actions Available
 

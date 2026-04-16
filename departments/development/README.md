@@ -58,7 +58,6 @@ flowchart TD
 |-------|----------------|------|
 | Architect | 13:02 daily | `daily_standup` |
 | Architect | 20:00 Sunday | `tech_debt_scan` |
-| Designer | 13:08 daily | `daily_standup` |
 
 ## Key Capabilities
 

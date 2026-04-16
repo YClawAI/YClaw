@@ -68,7 +68,7 @@ For each recommended per-task override, provide the exact YAML:
   task: standup_synthesis
   model:
     provider: anthropic
-    model: claude-sonnet-4-20250514
+    model: claude-sonnet-4-6
     temperature: 0.5
     maxTokens: 4096
 ```
