@@ -10,7 +10,7 @@ import {
 import type { AgentCardConfig, AlertDef } from './department-settings-shared';
 import { useDepartmentSettings } from '@/hooks/use-department-settings';
 
-// ── Icons ────────────────────────────────────────────────────────────────────
+// ── Icons ───────────────────────────────────────────────────────────────────────
 
 function BookOpenIcon({ className }: { className?: string }) {
   return (
@@ -36,7 +36,7 @@ function RouteIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Agent Config ─────────────────────────────────────────────────────────────
+// ── Agent Config ──────────────────────────────────────────────────────────────────
 
 const SENTINEL: AgentCardConfig = {
   name: 'sentinel',
@@ -87,7 +87,7 @@ const LIBRARIAN: AgentCardConfig = {
 
 const AGENTS: AgentCardConfig[] = [SENTINEL, LIBRARIAN];
 
-// ── Runbooks ─────────────────────────────────────────────────────────────────
+// ── Runbooks ─────────────────────────────────────────────────────────────────────
 
 interface RunbookDef {
   id: string;
@@ -103,7 +103,7 @@ const RUNBOOKS: RunbookDef[] = [
   { id: 'postDeploy', filename: 'post-deploy-verification.md', label: 'Post-Deploy Verification', lineCount: '77 lines', placeholder: '# Post-Deploy Verification\n\nCanary analysis procedures, traffic shift criteria, error budget checks...' },
 ];
 
-// ── Notifications ────────────────────────────────────────────────────────────
+// ── Notifications ─────────────────────────────────────────────────────────────────
 
 const ALERTS: AlertDef[] = [
   { key: 'deployHealthDone', label: 'Deploy health check completed', desc: 'Notify when scheduled health check finishes' },
@@ -114,7 +114,7 @@ const ALERTS: AlertDef[] = [
   { key: 'serviceRestart', label: 'Service restart triggered', desc: 'Alert when auto-restart fires for a failed service' },
 ];
 
-// ── Form State ───────────────────────────────────────────────────────────────
+// ── Form State ─────────────────────────────────────────────────────────────────────
 
 interface OpsForm {
   directive: string;
@@ -160,7 +160,7 @@ const INITIAL: OpsForm = {
   slackChannel: '#yclaw-operations',
 };
 
-// ── Runbook Item (expand/collapse with editable textarea) ────────────────────
+// ── Runbook Item (expand/collapse with editable textarea) ────────────────
 
 function RunbookItem({
   doc,
@@ -173,27 +173,27 @@ function RunbookItem({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-terminal-border/60 rounded overflow-hidden">
+    <div className="border border-mc-border/60 rounded-panel overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-terminal-muted/10 transition-colors ${
-          open ? 'bg-terminal-muted/10' : ''
+        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-mc-surface/50 transition-colors duration-mc ease-mc-out ${
+          open ? 'bg-mc-surface/50' : ''
         }`}
       >
         <div className="min-w-0">
-          <div className="text-xs text-terminal-text font-medium">{doc.label}</div>
-          <div className="text-[9px] text-terminal-dim">{doc.lineCount} · Used by: Sentinel</div>
+          <div className="font-sans text-xs text-mc-text font-medium">{doc.label}</div>
+          <div className="font-sans text-[9px] text-mc-text-tertiary">{doc.lineCount} · Used by: Sentinel</div>
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-2">
-          <span className="text-[9px] text-terminal-dim font-mono">{doc.filename}</span>
-          <span className="text-terminal-dim text-xs">{open ? '\u2212' : '+'}</span>
+          <span className="text-[9px] text-mc-text-tertiary font-mono">{doc.filename}</span>
+          <span className="text-mc-text-tertiary text-xs">{open ? '\u2212' : '+'}</span>
         </div>
       </button>
       {open && (
         <div className="px-3 pb-3">
           <textarea
-            className="w-full bg-terminal-bg border border-terminal-border rounded p-2 text-xs text-terminal-text font-mono resize-y focus:outline-none focus:border-terminal-green placeholder:text-terminal-dim/40"
+            className="w-full bg-mc-surface border border-mc-border rounded-panel p-2 text-xs text-mc-text font-mono resize-y focus:outline-none focus:border-mc-success placeholder:text-mc-text-tertiary/40 transition-colors duration-mc ease-mc-out"
             style={{ maxHeight: 300, minHeight: value ? 150 : 80 }}
             placeholder={doc.placeholder}
             value={value}
@@ -206,7 +206,7 @@ function RunbookItem({
   );
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────────────────────────────
 
 interface Props { open: boolean; onClose: () => void }
 
@@ -282,8 +282,8 @@ export function OperationsSettings({ open, onClose }: Props) {
       {/* 3. Runbooks */}
       <SettingsSection
         label="Runbooks"
-        icon={<BookOpenIcon className="w-4 h-4 text-terminal-cyan" />}
-        iconColor="terminal-cyan"
+        icon={<BookOpenIcon className="w-4 h-4 text-mc-accent" />}
+        iconColor="mc-accent"
         expanded={exp['runbooks'] ?? false}
         onToggle={() => tog('runbooks')}
         headerExtra={
@@ -303,13 +303,13 @@ export function OperationsSettings({ open, onClose }: Props) {
       </SettingsSection>
 
       {/* 4. Health Monitoring */}
-      <SettingsSection label="Health Monitoring" icon={<ActivityIcon className="w-4 h-4 text-terminal-green" />} iconColor="terminal-green" expanded={exp['health'] ?? false} onToggle={() => tog('health')}>
+      <SettingsSection label="Health Monitoring" icon={<ActivityIcon className="w-4 h-4 text-mc-success" />} iconColor="mc-success" expanded={exp['health'] ?? false} onToggle={() => tog('health')}>
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest">Health Check Interval</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">Health Check Interval</label>
             <InfoTooltip text="How often Sentinel checks deployment health and service status." />
           </div>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green" value={form.healthCheckInterval} onChange={(e) => set('healthCheckInterval', e.target.value)}>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-success transition-colors duration-mc ease-mc-out" value={form.healthCheckInterval} onChange={(e) => set('healthCheckInterval', e.target.value)}>
             <option value="1h">Every 1 hour</option>
             <option value="2h">Every 2 hours</option>
             <option value="4h">Every 4 hours</option>
@@ -318,16 +318,16 @@ export function OperationsSettings({ open, onClose }: Props) {
           </select>
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Auto-restart failed services</span><span className="text-[10px] text-terminal-dim">Automatically attempt restart on service failure</span></div>
-          <ToggleSwitch checked={form.autoRestart} onChange={(v) => set('autoRestart', v)} color="terminal-green" />
+          <div><span className="font-sans text-xs text-mc-text block">Auto-restart failed services</span><span className="font-sans text-[10px] text-mc-text-tertiary">Automatically attempt restart on service failure</span></div>
+          <ToggleSwitch checked={form.autoRestart} onChange={(v) => set('autoRestart', v)} color="mc-success" />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Consecutive Failures Before Alert</label>
-          <input type="number" min={1} max={10} className="w-24 bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green" value={form.failuresBeforeAlert} onChange={(e) => set('failuresBeforeAlert', e.target.value)} />
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Consecutive Failures Before Alert</label>
+          <input type="number" min={1} max={10} className="w-24 bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-mono tabular-nums text-xs text-mc-text focus:outline-none focus:border-mc-success transition-colors duration-mc ease-mc-out" value={form.failuresBeforeAlert} onChange={(e) => set('failuresBeforeAlert', e.target.value)} />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Code Quality Audit Frequency</label>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green" value={form.auditFrequency} onChange={(e) => set('auditFrequency', e.target.value)}>
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Code Quality Audit Frequency</label>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-success transition-colors duration-mc ease-mc-out" value={form.auditFrequency} onChange={(e) => set('auditFrequency', e.target.value)}>
             <option value="daily">Daily</option>
             <option value="mwf">Mon-Wed-Fri</option>
             <option value="mon-thu">Mon & Thu</option>
@@ -336,52 +336,52 @@ export function OperationsSettings({ open, onClose }: Props) {
         </div>
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest">Min Code Quality Score</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">Min Code Quality Score</label>
             <InfoTooltip text="Sentinel flags repos scoring below this threshold." />
           </div>
-          <input type="number" min={0} max={100} className="w-24 bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green" value={form.minQualityScore} onChange={(e) => set('minQualityScore', e.target.value)} />
-          <span className="text-[9px] text-terminal-dim ml-2">/ 100</span>
+          <input type="number" min={0} max={100} className="w-24 bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-mono tabular-nums text-xs text-mc-text focus:outline-none focus:border-mc-success transition-colors duration-mc ease-mc-out" value={form.minQualityScore} onChange={(e) => set('minQualityScore', e.target.value)} />
+          <span className="font-sans text-[9px] text-mc-text-tertiary ml-2">/ 100</span>
         </div>
       </SettingsSection>
 
       {/* 5. Alert Routing */}
-      <SettingsSection label="Alert Routing" icon={<RouteIcon className="w-4 h-4 text-terminal-orange" />} iconColor="terminal-orange" expanded={exp['routing'] ?? false} onToggle={() => tog('routing')}>
+      <SettingsSection label="Alert Routing" icon={<RouteIcon className="w-4 h-4 text-mc-warning" />} iconColor="mc-warning" expanded={exp['routing'] ?? false} onToggle={() => tog('routing')}>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Default Alert Severity</label>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-orange" value={form.defaultSeverity} onChange={(e) => set('defaultSeverity', e.target.value)}>
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Default Alert Severity</label>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-warning transition-colors duration-mc ease-mc-out" value={form.defaultSeverity} onChange={(e) => set('defaultSeverity', e.target.value)}>
             <option value="info">Info</option>
             <option value="warning">Warning</option>
             <option value="critical">Critical</option>
           </select>
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Deploy failure → immediate alert</span><span className="text-[10px] text-terminal-dim">Send alert immediately on deploy failure</span></div>
-          <ToggleSwitch checked={form.deployFailImmediate} onChange={(v) => set('deployFailImmediate', v)} color="terminal-orange" />
+          <div><span className="font-sans text-xs text-mc-text block">Deploy failure → immediate alert</span><span className="font-sans text-[10px] text-mc-text-tertiary">Send alert immediately on deploy failure</span></div>
+          <ToggleSwitch checked={form.deployFailImmediate} onChange={(v) => set('deployFailImmediate', v)} color="mc-warning" />
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Code quality drop → daily digest</span><span className="text-[10px] text-terminal-dim">Batch quality alerts into a daily summary</span></div>
-          <ToggleSwitch checked={form.qualityDropDigest} onChange={(v) => set('qualityDropDigest', v)} color="terminal-orange" />
+          <div><span className="font-sans text-xs text-mc-text block">Code quality drop → daily digest</span><span className="font-sans text-[10px] text-mc-text-tertiary">Batch quality alerts into a daily summary</span></div>
+          <ToggleSwitch checked={form.qualityDropDigest} onChange={(v) => set('qualityDropDigest', v)} color="mc-warning" />
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Service degradation → immediate alert</span><span className="text-[10px] text-terminal-dim">Alert immediately on service health degradation</span></div>
-          <ToggleSwitch checked={form.degradationImmediate} onChange={(v) => set('degradationImmediate', v)} color="terminal-orange" />
+          <div><span className="font-sans text-xs text-mc-text block">Service degradation → immediate alert</span><span className="font-sans text-[10px] text-mc-text-tertiary">Alert immediately on service health degradation</span></div>
+          <ToggleSwitch checked={form.degradationImmediate} onChange={(v) => set('degradationImmediate', v)} color="mc-warning" />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Primary Alert Channel</label>
-          <input type="text" className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-orange" value={form.primaryChannel} onChange={(e) => set('primaryChannel', e.target.value)} placeholder="#yclaw-alerts" />
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Primary Alert Channel</label>
+          <input type="text" className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-warning transition-colors duration-mc ease-mc-out" value={form.primaryChannel} onChange={(e) => set('primaryChannel', e.target.value)} placeholder="#yclaw-alerts" />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Secondary Alert Channel</label>
-          <input type="text" className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-orange" value={form.secondaryChannel} onChange={(e) => set('secondaryChannel', e.target.value)} placeholder="#yclaw-operations" />
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Secondary Alert Channel</label>
+          <input type="text" className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-warning transition-colors duration-mc ease-mc-out" value={form.secondaryChannel} onChange={(e) => set('secondaryChannel', e.target.value)} placeholder="#yclaw-operations" />
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-xs text-terminal-text block">Escalate critical alerts to Executive</span>
-            <span className="text-[10px] text-terminal-dim">Routes critical infrastructure alerts to the Strategist</span>
+            <span className="font-sans text-xs text-mc-text block">Escalate critical alerts to Executive</span>
+            <span className="font-sans text-[10px] text-mc-text-tertiary">Routes critical infrastructure alerts to the Strategist</span>
           </div>
           <div className="flex items-center gap-1.5">
             <InfoTooltip text="Routes critical infrastructure alerts to the Strategist for executive visibility." />
-            <ToggleSwitch checked={form.escalateToExec} onChange={(v) => set('escalateToExec', v)} color="terminal-orange" />
+            <ToggleSwitch checked={form.escalateToExec} onChange={(v) => set('escalateToExec', v)} color="mc-warning" />
           </div>
         </div>
       </SettingsSection>
