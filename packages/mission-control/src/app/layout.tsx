@@ -111,7 +111,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="bg-terminal-bg text-terminal-text font-mono min-h-screen">
+      <body className="bg-mc-bg text-mc-text font-sans min-h-screen">
         <Providers>
           <div className="flex h-screen overflow-hidden">
             <SidebarWrapper>
