@@ -1,51 +1,68 @@
-# YClaw FAQ — Pre-Launch
+# YCLAW FAQ
 
-⚠️ PRE-LAUNCH VERSION: YClaw is not live yet. Do NOT share protocol mechanics,
-tokenomics, staking details, or bonding curve specifics. See faq-bank-postlaunch.md
-for the full FAQ to restore after legal clearance.
-
-Voice: warm, restrained, no exclamation marks. Keep answers general and vision-focused.
+Voice: warm, technically grounded, no exclamation marks.
 
 ---
 
-## What is YClaw?
+## What is YCLAW?
 
-YClaw is an attention rewards protocol being built on Solana. The vision is simple: your attention is already valuable — YClaw lets you keep that value. We're building tools that connect creators and their audiences in a new way.
+YCLAW is an open-source framework for running autonomous AI agent organizations. You define departments, assign agents with specific roles, and they coordinate through an event bus with built-in approval gates. Think of it as an operating system for AI teams.
 
-## When does YClaw launch?
+## Is YCLAW open source?
 
-We haven't announced a launch date yet. Follow us on X and join our Telegram for updates. We'll share news there first.
+Yes. The framework is fully open source. You can self-host, customize, and contribute.
 
-## Who is behind YClaw?
+## How do I get started?
 
-YClaw is developed by YClaw, a team of protocol designers and engineers. More details will be available closer to launch.
+Clone the repo, configure your agents in YAML files, set up your LLM provider API keys, and deploy. The README has a quickstart guide.
 
-## How will YClaw work?
+## What LLM providers does YCLAW support?
 
-At a high level, YClaw will use a Chrome extension to track attention across multiple streaming and content platforms. Creators and their audiences both benefit. We'll share the full details when we're ready to launch.
+YCLAW supports multiple providers including Anthropic (Claude), OpenAI, Google (Gemini), xAI (Grok), and any OpenRouter-compatible model. Configure your preferred provider per agent.
 
-## Is there a token?
+## How do departments and agents work?
 
-We'll share details about the protocol's token design closer to launch. For now, we're focused on building.
+Agents are organized into departments (Executive, Development, Operations, Finance, Support, Marketing). Each agent has a YAML config defining its model, prompts, skills, actions, and triggers. Agents communicate through events and can be triggered by crons, events, or directives.
 
-## How do I stay updated?
+## What is the event bus?
 
-- Telegram: Join our community (pinned link)
-- X/Twitter: Follow our official X account
-- Website: Check our official site for announcements
+The event bus is how agents communicate. Agents publish events (e.g., `sentinel:alert`) and subscribe to events from other agents. This enables cross-department coordination without direct coupling.
 
-## How do I become a creator on YClaw?
+## What are approval gates?
 
-We'll announce the creator onboarding process closer to launch. If you're interested, stay connected via Telegram and we'll share details when ready.
+Approval gates are safety controls that require human approval before agents execute certain actions. This prevents autonomous agents from taking destructive actions without oversight.
 
-## Is YClaw safe?
+## Can I add my own agents?
 
-Security is a top priority. We'll share audit and security details as part of our launch. In the meantime: never share your seed phrase with anyone, and always verify links through official channels.
+Yes. Create a new YAML config in the appropriate department directory, define system prompts, skills, actions, and triggers. The framework discovers and loads agents automatically.
 
-## I have a question not covered here.
+## Do I need coding experience?
 
-Drop it in the Telegram community. We're here and happy to help with what we can share right now.
+Basic familiarity with YAML configuration and command-line tools is helpful. You don't need to write code to configure agents, but custom skills and prompts are written in Markdown.
+
+## Does YCLAW have a token?
+
+No. YCLAW is a software framework, not a blockchain or token project.
+
+## Is YCLAW a blockchain/DeFi/Solana project?
+
+No. YCLAW is infrastructure for orchestrating AI agent teams. It has no blockchain components, no tokens, and no on-chain mechanics.
+
+## Where can I get help?
+
+- **Discord:** Join our community for real-time help
+- **Telegram:** Community discussion
+- **GitHub Issues:** Bug reports and feature requests
+- **Docs:** Check the repository documentation
+
+## How do I report a bug?
+
+Open a GitHub issue with: description of the problem, steps to reproduce, expected vs actual behavior, and your environment details (OS, Node version, model provider).
+
+## How do I contribute?
+
+Fork the repo, make your changes, and open a pull request. See CONTRIBUTING.md for guidelines.
 
 ---
 
-**Status:** Pre-launch lockdown. Full FAQ available in faq-bank-postlaunch.md after legal clearance.
+**Status:** Active FAQ. Keep updated as the framework evolves.

@@ -2,7 +2,7 @@
 
 The Support department handles community moderation and user support. It contains two agents that form a tiered support pipeline: Keeper handles first-contact moderation, and Guide resolves escalated cases via deeper troubleshooting and email.
 
-> **Note:** The default YAML configs use `telegram:*` actions and events. If your community uses a different platform, replace these with your platform's action identifiers (e.g., `discord:*`, `slack:*`).
+> **Note:** The YAML configs include both `telegram:*` and `discord:*` actions. Configure your community channels in the agent YAML files.
 
 ## Agents
 
@@ -31,7 +31,7 @@ flowchart TD
     KEEPER -- keeper:community_health --> STRATEGIST[Strategist<br/>Executive]
     EMAIL --> GUIDE
 
-    GUIDE -- guide:case_resolved --> SLACK[Slack Notification]
+    GUIDE -- guide:case_resolved --> DISCORD[Discord Notification]
     GUIDE -- guide:case_escalated --> DEV[Development]
 ```
 
@@ -111,9 +111,16 @@ Both agents operate in a restricted mode by default until you configure your com
 | `telegram:set_permissions` | x | |
 | `telegram:dm` | | x |
 | `email:send` | | x |
-| `slack:message` | x | x |
-| `slack:alert` | x | |
-| `slack:thread_reply` | | x |
+| `github:get_contents` | | x |
+| `vault:read` | | x |
+| `vault:search` | | x |
+| `discord:message` | x | x |
+| `discord:alert` | x | |
+| `discord:thread_reply` | x | x |
+| `discord:create_thread` | x | |
+| `discord:get_channel_history` | x | |
+| `discord:get_thread` | x | x |
+| `discord:react` | x | x |
 | `event:publish` | x | x |
 
 ## Configuration Files
