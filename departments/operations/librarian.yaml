@@ -8,7 +8,7 @@ description: >-
 
 model:
   provider: anthropic
-  model: claude-sonnet-4-6
+  model: claude-haiku-4-5
   temperature: 0.0
   maxTokens: 8192
 
@@ -24,12 +24,9 @@ system_prompts:
   - librarian-curation-workflow.md
 
 triggers:
-  - type: cron
-    schedule: "18 13 * * *"
-    task: daily_standup
-  # 13:30 UTC — lightweight intake pass between standup (13:18) and the deep
-  # daily_curation at 14:00. Spec originally called for 14:00 but that would
-  # collide with daily_curation; split into a fast triage + deep curation.
+  # 13:30 UTC — lightweight intake pass before the deep daily_curation at 14:00.
+  # Spec originally called for 14:00 but that would collide with daily_curation;
+  # split into a fast triage + deep curation.
   - type: cron
     schedule: "30 13 * * *"
     task: inbox_triage

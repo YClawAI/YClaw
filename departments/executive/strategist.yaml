@@ -62,11 +62,11 @@ triggers:
       - strategist-workflow.md
       - model-review.md
   - type: cron
-    schedule: '*/30 * * * *'
+    schedule: '0 */4 * * *'
     task: heartbeat
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.3
       maxTokens: 4096
     prompts:
@@ -104,7 +104,7 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
   - type: event
@@ -112,7 +112,7 @@ triggers:
     task: handle_system_alert
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.3
       maxTokens: 4096
   - type: event
@@ -120,7 +120,7 @@ triggers:
     task: handle_ao_failure
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.3
       maxTokens: 4096
   - type: event
@@ -128,7 +128,7 @@ triggers:
     task: handle_ao_failure
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.3
       maxTokens: 4096
   - type: event
@@ -136,7 +136,7 @@ triggers:
     task: handle_blocked_task
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.3
       maxTokens: 4096
   # Deploy Governance v2: Strategist now ONLY assesses (deploy:assess). Execution

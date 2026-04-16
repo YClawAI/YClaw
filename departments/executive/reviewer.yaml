@@ -19,9 +19,6 @@ system_prompts:
 - reviewer-workflow.md
 - protocol-overview.md
 triggers:
-- type: cron
-  schedule: 0 13 * * *
-  task: daily_standup
 # Lightweight stale-review watchdog. Every 2 hours Reviewer checks its own pending
 # queue and flags any submission waiting >4h or if queue depth exceeds 5. Sonnet
 # (cheap) — this is monitoring, not review execution.
@@ -30,7 +27,7 @@ triggers:
   task: review_queue_check
   model:
     provider: anthropic
-    model: claude-sonnet-4-20250514
+    model: claude-sonnet-4-6
     temperature: 0.0
     maxTokens: 2048
 # Universal content review event. ANY agent publishing externally MUST emit this

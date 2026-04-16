@@ -55,13 +55,6 @@ triggers:
   - type: event
     event: strategist:sentinel_directive
     task: handle_directive
-  - type: cron
-    # Every 30 min = 48 LLM calls/day. Previously */5 (288 calls/day, unacceptable).
-    # TODO: Replace with lightweight cURL/script probe that only escalates to LLM
-    # on anomaly (threshold breach or state change). Target: 0 LLM calls/day on
-    # the happy path + LLM only on failure. Tracked in ops-audit 2026-04-16.
-    schedule: "*/30 * * * *"
-    task: ao_health_check
   - type: event
     event: claudeception:reflect
     task: self_reflection

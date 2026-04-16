@@ -75,7 +75,7 @@ The Strategist uses a `batch_event` trigger to collect `standup:report` events f
 
 ### Strategist: Heartbeat
 
-The heartbeat task runs every 30 minutes during active hours (13:00--03:00 UTC). It uses a lighter model (`claude-sonnet-4-20250514`) and a reduced prompt set to monitor system health at low cost.
+The heartbeat task runs every 4 hours. It uses a lighter model (`claude-sonnet-4-6`) and a reduced prompt set to monitor system health at low cost.
 
 ### Strategist: Cross-Department Directives
 
