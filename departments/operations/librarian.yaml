@@ -18,7 +18,10 @@ system_prompts:
   - mission_statement.md
   - chain-of-command.md
   - daily-standup.md
+  - protocol-overview.md
+  - escalation-policy.md
   - data-integrity.md
+  - librarian-curation-workflow.md
 
 triggers:
   - type: cron
@@ -30,6 +33,25 @@ triggers:
   - type: cron
     schedule: "0 8 * * 1"
     task: weekly_curation
+  # Strategist → Librarian directives (was missing — Librarian had no way to
+  # receive directed work from Strategist, per 2026-04-16 audit).
+  - type: event
+    event: strategist:librarian_directive
+    task: handle_directive
+  # Observe + normalize vault contributions from other agents.
+  - type: event
+    event: vault:entry_created
+    task: ingest_vault_contribution
+  - type: event
+    event: vault:entry_updated
+    task: review_vault_update
+  # Persist operational/architectural knowledge into the permanent vault.
+  - type: event
+    event: sentinel:incident_report
+    task: curate_incident_report
+  - type: event
+    event: architect:spec_finalized
+    task: curate_architecture_decision
   - type: event
     event: claudeception:reflect
     task: self_reflection
@@ -55,6 +77,11 @@ data_sources: []
 
 event_subscriptions:
   - claudeception:reflect
+  - strategist:librarian_directive
+  - vault:entry_created
+  - vault:entry_updated
+  - sentinel:incident_report
+  - architect:spec_finalized
 
 event_publications:
   - standup:report

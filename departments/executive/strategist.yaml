@@ -198,6 +198,7 @@ event_publications:
   - strategist:treasurer_directive
   - strategist:guide_directive
   - strategist:reviewer_directive
+  - strategist:librarian_directive
 review_bypass: []
 
 # Strategist is the most critical coordination agent. A silent Strategist means
