@@ -10,61 +10,109 @@
 schemaVersion: "1.0"
 
 sources:
-  # Reviewer agent — review-related events only
+  # Executive ────────────────────────────────────────────────────────────
+  # Strategist — strategic directives (wildcard across strategist:* events)
+  agent:strategist:
+    allowedEventTypes:
+      - "strategist:*"
+
+  # Reviewer — review verdicts
   agent:reviewer:
     allowedEventTypes:
       - "reviewer:flagged"
       - "reviewer:approved"
       - "reviewer:rejected"
 
-  # Safety agent — safety events only
-  agent:safety:
-    allowedEventTypes:
-      - "safety:modify"
-      - "safety:alert"
-
-  # Deployer / AO — deploy events only
-  agent:deployer:
-    allowedEventTypes:
-      - "deploy:execute"
-      - "deploy:status"
-      - "deploy:rollback"
-
-  # Architect — build directives and deploy governance
+  # Development ──────────────────────────────────────────────────────────
+  # Architect — build directives, deploy governance, and AO coordination
   agent:architect:
     allowedEventTypes:
       - "architect:build_directive"
       - "architect:repair_directive"
       - "architect:pr_review"
       - "architect:deploy_review"
+      - "architect:design_directive"
+      - "architect:mechanic_task"
+      - "architect:task_complete"
+      - "architect:task_blocked"
       - "deploy:assess"
       - "deploy:approve"
 
-  # Strategist — strategic directives
-  agent:strategist:
+  # Designer — design events
+  agent:designer:
     allowedEventTypes:
-      - "strategist:*"
+      - "designer:review_complete"
+      - "designer:design_update"
+      - "designer:mockup_ready"
 
-  # Sentinel — operational events
-  agent:sentinel:
+  # Mechanic — maintenance events
+  agent:mechanic:
     allowedEventTypes:
-      - "sentinel:alert"
-      - "sentinel:health"
+      - "mechanic:task_complete"
+      - "mechanic:lockfile_updated"
 
+  # Marketing ────────────────────────────────────────────────────────────
   # Ember — content events only
   agent:ember:
     allowedEventTypes:
       - "content:draft"
       - "content:published"
 
-  # Builder / AO — build result events
-  agent:builder:
+  # Forge — asset creation events
+  agent:forge:
     allowedEventTypes:
-      - "builder:task_complete"
-      - "builder:task_failed"
-      - "builder:task_blocked"
-      - "builder:pr_ready"
-      - "builder:spawn_failed"
+      - "forge:asset_ready"
+      - "forge:asset_failed"
+
+  # Scout — research and outreach events
+  agent:scout:
+    allowedEventTypes:
+      - "scout:intel_report"
+      - "scout:outreach_ready"
+      - "scout:competitor_alert"
+
+  # Operations ───────────────────────────────────────────────────────────
+  # Sentinel — operational events
+  agent:sentinel:
+    allowedEventTypes:
+      - "sentinel:alert"
+      - "sentinel:health"
+
+  # Librarian — knowledge management events
+  agent:librarian:
+    allowedEventTypes:
+      - "librarian:knowledge_update"
+      - "librarian:curation_complete"
+
+  # Finance ──────────────────────────────────────────────────────────────
+  # Treasurer — financial events
+  agent:treasurer:
+    allowedEventTypes:
+      - "treasurer:report_ready"
+      - "treasurer:budget_alert"
+
+  # Support ──────────────────────────────────────────────────────────────
+  # Guide — support events
+  agent:guide:
+    allowedEventTypes:
+      - "guide:case_resolved"
+      - "guide:escalation"
+
+  # Keeper — community moderation events
+  agent:keeper:
+    allowedEventTypes:
+      - "keeper:support_case"
+      - "keeper:moderation_action"
+
+  # System sources ───────────────────────────────────────────────────────
+  # AO (the coding agent) — build result events
+  system:ao:
+    allowedEventTypes:
+      - "ao:task_completed"
+      - "ao:task_failed"
+      - "ao:task_blocked"
+      - "ao:pr_ready"
+      - "ao:spawn_failed"
 
   # GitHub webhook handler — github events
   system:webhook:

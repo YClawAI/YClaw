@@ -47,7 +47,7 @@ triggers:
   # Stale issue sweep — catches issues missed by real-time event triggers
   # Removes stale in-progress labels, delegates eligible unworked issues to AO
   - type: cron
-    schedule: "*/30 * * * *"
+    schedule: "0 */6 * * *"
     task: stale_issue_sweep
     model:
       provider: anthropic
