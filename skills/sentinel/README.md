@@ -10,7 +10,7 @@ Sentinel watches over the YClaw Agents platform. It performs scheduled health ch
 
 | File | Description |
 |------|-------------|
-| `code-audit-standards.md` | Code quality audit standards for `code_quality_audit` tasks (Mon/Thu schedule). Defines three severity levels (High: hardcoded secrets, SQL injection, broken imports; Medium: dead exports, missing error handling, test gaps; Low: stale TODOs, unused deps). Includes a `codegen:execute` template for scanning repos. Sentinel reports findings only -- it never opens PRs or commits fixes. |
+| `code-audit-standards.md` | Code quality audit standards for `code_quality_audit` tasks (Mon/Thu schedule). Defines three severity levels (High: hardcoded secrets, SQL injection, broken imports; Medium: dead exports, missing error handling, test gaps; Low: stale TODOs, unused deps). Uses `github:get_contents` and `github:get_diff` for read-only repo scanning. Sentinel reports findings only -- it never opens PRs or commits fixes. |
 | `deploy-health-checklist.md` | Periodic health checklist for `deployment_health` cron tasks (every 4 hours). Checks API health (`GET /health`), recent deployment status, CI pipeline state, and event bus errors. Posts one-liner status summaries to operations channel; posts full details only when issues are found. |
 | `post-deploy-verification.md` | Post-deployment verification procedure triggered by `architect:deploy_complete` events (Deployer was retired in the AO migration). Waits 2 minutes for stabilization, runs health check, triggers a smoke test on a lightweight agent (strategist), and checks for startup errors. Posts results to operations channel (pass) or publishes `sentinel:alert` + posts to alerts channel (fail). Recommends rollback commands but does not execute them (safety constraint). |
 
@@ -25,5 +25,5 @@ Sentinel watches over the YClaw Agents platform. It performs scheduled health ch
 
 - Subscribes to `architect:deploy_complete` events from **Architect** (Deployer retired in AO migration).
 - Publishes `sentinel:alert` events consumed by the alerting pipeline.
-- Uses `codegen:execute` to run code audits on target repositories via the codegen system.
+- Uses `github:get_contents` and `github:get_diff` to read-only scan target repositories for code quality issues.
 - Absorbed some monitoring functions from the removed Signal agent (PR #312).

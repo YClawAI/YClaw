@@ -4,7 +4,8 @@
 
 ## Audit Scope
 
-Use `codegen:execute` to scan repos for machine-verifiable issues ONLY.
+Use `github:get_contents` and `github:get_diff` to scan repos for machine-verifiable issues ONLY.
+**Do NOT use `codegen:execute` or `codegen:status`.** Sentinel is a read-only auditor.
 Never flag style opinions (naming, formatting, whitespace).
 
 ## Severity Levels
@@ -29,17 +30,30 @@ Never flag style opinions (naming, formatting, whitespace).
 - **Console.log statements** left in production code
 - **Missing JSDoc** on public API functions
 
-## codegen:execute Template
+## Read-Only Scan Approach
 
+Use `github:get_contents` to fetch source files and `github:get_diff` to inspect recent changes.
+Sentinel **never executes code** — all analysis is performed by reading file contents directly.
+
+Example: fetch a file for inspection
 ```json
 {
-  "repo": "<repo name>",
-  "task": "Code quality audit. Check ONLY machine-verifiable issues:\n1. Hardcoded secrets (API keys, tokens, passwords)\n2. Broken imports (missing modules)\n3. Dead exports (zero consumers)\n4. Test coverage gaps (new files without tests)\n5. Security: SQL injection, exposed endpoints\n\nOutput as JSON: { repo, issues: [{ severity: 'high'|'medium'|'low', file, line, description }] }",
-  "run_tests": false,
-  "backend": "claude",
-  "agent_name": "sentinel"
+  "repo": "<org>/<repo-name>",
+  "path": "<file-path>"
 }
 ```
+
+Example: inspect recent changes for a targeted diff review
+```json
+{
+  "repo": "<org>/<repo-name>",
+  "base": "<base-sha-or-branch>",
+  "head": "HEAD"
+}
+```
+
+For each file retrieved, inspect the raw content for the severity-level issues listed above.
+Aggregate findings and report as: `{ repo, issues: [{ severity, file, line, description }] }`
 
 ## Rules
 

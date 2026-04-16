@@ -65,7 +65,7 @@ auto-advance the baseline to the last successfully deployed commit. Do NOT raise
 for this condition.
 
 ### 6. Event Bus
-Check Slack #yclaw-operations and #yclaw-alerts for:
+Check Discord #yclaw-operations and #yclaw-alerts for:
 - Agent error patterns (same agent failing repeatedly)
 - Event delivery failures
 - Redis connection issues
