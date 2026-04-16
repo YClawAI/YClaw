@@ -82,7 +82,7 @@ data_sources:
   # Designer can also load design references on-demand via github:get_contents.
   - type: github_repo
     name: style-guide
-    repo: your-org/STYLE-GUIDE
+    repo: YClawAI/yclaw-style-guide  # TODO: repo does not exist yet — create YClawAI/yclaw-style-guide when ready
     description: "Brand voice, identity system, and design guidelines"
 
 event_subscriptions:

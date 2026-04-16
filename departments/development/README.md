@@ -1,6 +1,6 @@
 # Development Department
 
-The Development department owns code review, design enforcement, and development coordination. It contains two agents that collaborate through events to ensure code quality and design consistency.
+The Development department owns code review, design enforcement, and constrained mechanical repo operations. It contains three agents that collaborate through events to ensure code quality, design consistency, and reliable shell-level task execution.
 
 ## Agents
 
@@ -8,6 +8,7 @@ The Development department owns code review, design enforcement, and development
 |-------|-------|------|
 | **Architect** | claude-opus-4-6 | **Department Lead.** Reviews PRs for quality and security, plans project architecture, and coordinates with Operations on deployment readiness. |
 | **Designer** | claude-sonnet-4-6 | Design system enforcer. Reviews frontend PRs for visual consistency, accessibility, and brand alignment. Shares the design system source of truth with Forge (Marketing). |
+| **Mechanic** | claude-sonnet-4-6 | Constrained task runner for shell-required repo operations (lockfile sync, formatting, linting, branch rebasing). Does not write feature code or plan architecture. |
 
 ## Agent Interaction Flow
 
@@ -69,20 +70,26 @@ Architect reviews all incoming PRs for code quality, security, and architectural
 
 Designer shares the design system with Forge (Marketing) and subscribes to `forge:asset_ready` to integrate design updates into the frontend. This keeps creative output and frontend implementation in sync through executive coordination.
 
+### Mechanic: Constrained Shell Execution
+
+Mechanic executes whitelisted shell-required repo operations (lockfile sync, formatting, linting, branch rebasing). It is triggered by Architect directives (`architect:mechanic_task`) and CI events (`ci:lockfile_drift`). Mechanic does not plan, review, or write feature code — it is a narrow executor for tasks that require shell access that the other agents cannot perform safely via the GitHub API alone.
+
 ## Actions Available
 
-| Action | Architect | Designer |
-|--------|:---------:|:--------:|
-| `github:pr_comment` | x | x |
-| `github:pr_review` | x | x |
-| `github:commit_file` | x | x |
-| `github:get_contents` | x | x |
-| `github:create_branch` | x | x |
-| `github:get_diff` | x | x |
-| `github:create_issue` | x | x |
-| `slack:message` | x | x |
-| `event:publish` | x | x |
-| `figma:*` | | x |
+| Action | Architect | Designer | Mechanic |
+|--------|:---------:|:--------:|:--------:|
+| `github:pr_comment` | x | x | x |
+| `github:pr_review` | x | x | |
+| `github:commit_file` | x | x | x |
+| `github:commit_batch` | | | x |
+| `github:get_contents` | x | x | x |
+| `github:create_branch` | x | x | x |
+| `github:get_diff` | x | x | x |
+| `github:create_issue` | x | x | |
+| `discord:message` | x | x | x |
+| `discord:thread_reply` | | | x |
+| `event:publish` | x | x | x |
+| `figma:*` | | x | |
 
 ## Customization
 
@@ -92,3 +99,4 @@ Customize `prompts/architect-workflow.md` and `prompts/designer-workflow.md` for
 
 - [`architect.yaml`](architect.yaml) -- Architect agent config
 - [`designer.yaml`](designer.yaml) -- Designer agent config
+- [`mechanic.yaml`](mechanic.yaml) -- Mechanic agent config

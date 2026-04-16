@@ -146,7 +146,6 @@ actions:
   - discord:react
   - event:publish
   - deploy:assess
-  - deploy:execute
 
 data_sources: []
 
@@ -177,5 +176,5 @@ review_bypass: []
 
 heartbeat:
   precheck:
-    enabled: false
+    enabled: true
     maxSilenceHours: 6
