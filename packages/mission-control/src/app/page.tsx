@@ -11,6 +11,7 @@ import { OrgSidecar } from '@/components/org-sidecar';
 import { getEcsFleetStatus } from '@/lib/actions/ecs-fleet';
 import { AlertBoard } from '@/components/alert-board';
 import { getActiveAlerts } from '@/lib/alerts';
+import { Metric } from '@/components/ui';
 
 interface AgentActivity {
   agentId?: string;
@@ -96,19 +97,20 @@ async function getDashboardData() {
 
 export default async function MissionControlHome() {
   const { agentActivity, recentRuns, activeAgents, totalAgents, sessionCount, queueDepth, redisAvailable, ecsStatus, derivedAlerts } = await getDashboardData();
+  void ecsStatus;
   return (
     <div className="space-y-6">
       {/* ── Zone 1: The Hive — Live Agent Visualization ──────────── */}
       <section
-        className="relative bg-terminal-surface border border-terminal-border rounded overflow-hidden"
+        className="relative bg-transparent border border-mc-border rounded-panel overflow-hidden transition-colors duration-mc ease-mc-out hover:border-mc-border-hover"
         style={{ height: 'clamp(450px, 60vh, 750px)' }}
       >
         {/* Header overlay */}
         <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+          <h2 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">
             THE HIVE
           </h2>
-          <span className="text-[10px] text-terminal-dim/40 hidden sm:inline">
+          <span className="font-sans text-[10px] text-mc-text-tertiary hidden sm:inline">
             Live Agent Visualization
           </span>
         </div>
@@ -131,14 +133,14 @@ export default async function MissionControlHome() {
               >
                 <span
                   className="w-1.5 h-1.5 rounded-full"
-                  style={{ backgroundColor: hex }}
+                  style={{ backgroundColor: hex, boxShadow: `0 0 6px ${hex}` }}
                 />
-                <span className="text-terminal-dim">{meta.label}</span>
-                <span className="font-mono" style={{ color: hex }}>
+                <span className="font-sans text-mc-text-secondary">{meta.label}</span>
+                <span className="font-mono tabular-nums" style={{ color: hex }}>
                   {agents.length}
                 </span>
                 {activeCount > 0 && (
-                  <span className="text-terminal-green font-mono">
+                  <span className="font-mono tabular-nums text-mc-success">
                     ({activeCount})
                   </span>
                 )}
@@ -152,36 +154,41 @@ export default async function MissionControlHome() {
 
       </section>
 
-      {/* ── Section header with Settings ────────────────────────── */}
+      {/* ── Section header with Settings ──────────────────────── */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold text-terminal-text">Mission Control</h2>
+        <h2 className="font-sans text-xl font-extralight text-mc-text">Mission Control</h2>
         <OrgSidecar />
       </div>
 
-      {/* ── Zone 2: KPI Stats ────────────────────────────────────── */}
+      {/* ── Zone 2: KPI Stats ───────────────────────────────── */}
       <section>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
+          <Metric
             label="Active Agents"
             value={`${activeAgents}/${totalAgents}`}
-            sub={`${totalAgents - activeAgents} idle`}
+            trend={`${totalAgents - activeAgents} idle`}
+            trendTone="neutral"
           />
-          <StatCard label="Active Sessions" value={sessionCount.toString()} />
-          <StatCard
-            label="Tasks in Queue"
-            value={redisAvailable ? queueDepth.toString() : '—'}
-            sub={redisAvailable ? undefined : 'Redis reconnecting'}
-            href="/system/queues"
-          />
-          <StatCard
+          <Metric label="Active Sessions" value={sessionCount.toString()} />
+          <Link href="/system/queues" className="block">
+            <Metric
+              label="Tasks in Queue"
+              value={redisAvailable ? queueDepth.toString() : '—'}
+              trend={redisAvailable ? undefined : 'Redis reconnecting'}
+              trendTone={redisAvailable ? 'neutral' : 'danger'}
+            />
+          </Link>
+          <Metric
             label="Active Alerts"
             value={derivedAlerts.length.toString()}
-            sub={derivedAlerts.length === 0 ? 'No active alerts' : `${derivedAlerts.length} alert${derivedAlerts.length !== 1 ? 's' : ''} detected`}
+            trend={derivedAlerts.length === 0 ? 'No active alerts' : `${derivedAlerts.length} alert${derivedAlerts.length !== 1 ? 's' : ''} detected`}
+            trendTone={derivedAlerts.length === 0 ? 'success' : 'danger'}
+            accent={derivedAlerts.length === 0 ? 'success' : 'danger'}
           />
         </div>
       </section>
 
-      {/* ── Zone 3: Activity Feed + Quick Actions ────────────────── */}
+      {/* ── Zone 3: Activity Feed + Quick Actions ───────────────── */}
       <section>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-3">
@@ -192,8 +199,8 @@ export default async function MissionControlHome() {
             <AlertBoard alerts={derivedAlerts} />
 
             {/* Top Active Agents */}
-            <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+            <div className="border border-mc-border rounded-panel bg-transparent p-4 transition-colors duration-mc ease-mc-out hover:border-mc-border-hover">
+              <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">
                 Top Active
               </h3>
               {Object.entries(agentActivity)
@@ -209,11 +216,11 @@ export default async function MissionControlHome() {
                     >
                       <div className="flex items-center gap-2">
                         <span>{agent?.emoji || '?'}</span>
-                        <span className="text-terminal-text">
+                        <span className="font-sans text-mc-text">
                           {agent?.label || name}
                         </span>
                       </div>
-                      <span className="text-terminal-cyan font-mono">
+                      <span className="text-mc-accent font-mono tabular-nums">
                         {act.activeSessions} sessions
                       </span>
                     </div>
@@ -222,39 +229,39 @@ export default async function MissionControlHome() {
               {Object.values(agentActivity).every(
                 (a) => a.activeSessions === 0,
               ) && (
-                <div className="text-xs text-terminal-dim">
+                <div className="font-sans text-xs text-mc-text-tertiary">
                   No active agents
                 </div>
               )}
             </div>
 
             {/* Quick Links */}
-            <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+            <div className="border border-mc-border rounded-panel bg-transparent p-4 transition-colors duration-mc ease-mc-out hover:border-mc-border-hover">
+              <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">
                 Quick Links
               </h3>
               <div className="space-y-1.5">
                 <Link
                   href="/openclaw"
-                  className="block text-xs text-terminal-purple hover:text-terminal-text transition-colors font-mono"
+                  className="block font-mono text-xs text-mc-accent hover:text-mc-text transition-colors duration-mc ease-mc-out"
                 >
                   &rarr; OpenClaw Orchestrator
                 </Link>
                 <Link
                   href="/system/queues"
-                  className="block text-xs text-terminal-blue hover:text-terminal-text transition-colors font-mono"
+                  className="block font-mono text-xs text-mc-dept-development hover:text-mc-text transition-colors duration-mc ease-mc-out"
                 >
                   &rarr; Task Queue
                 </Link>
                 <Link
                   href="/system/approvals"
-                  className="block text-xs text-terminal-orange hover:text-terminal-text transition-colors font-mono"
+                  className="block font-mono text-xs text-mc-warning hover:text-mc-text transition-colors duration-mc ease-mc-out"
                 >
                   &rarr; Pending Approvals
                 </Link>
                 <Link
                   href="/system/vault"
-                  className="block text-xs text-terminal-green hover:text-terminal-text transition-colors font-mono"
+                  className="block font-mono text-xs text-mc-success hover:text-mc-text transition-colors duration-mc ease-mc-out"
                 >
                   &rarr; Claudeception Vault
                 </Link>
@@ -265,31 +272,4 @@ export default async function MissionControlHome() {
       </section>
     </div>
   );
-}
-
-function StatCard({
-  label,
-  value,
-  sub,
-  href,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  href?: string;
-}) {
-  const content = (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4 hover:border-terminal-muted transition-colors">
-      <div className="text-2xl font-bold text-terminal-text font-mono">
-        {value}
-      </div>
-      <div className="text-xs text-terminal-dim mt-1">{label}</div>
-      {sub && (
-        <div className="text-[10px] text-terminal-dim/60 mt-0.5">{sub}</div>
-      )}
-    </div>
-  );
-
-  if (href) return <Link href={href}>{content}</Link>;
-  return content;
 }
