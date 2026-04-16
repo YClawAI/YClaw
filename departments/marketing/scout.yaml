@@ -18,6 +18,7 @@ system_prompts:
   - mission_statement.md
   - chain-of-command.md
   - daily-standup.md
+  - brand-voice.md
   - review-submission.md
 
 triggers:

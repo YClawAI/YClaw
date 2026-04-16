@@ -15,11 +15,15 @@ system_prompts:
   - skill-usage.md
   - mission_statement.md
   - chain-of-command.md
+  - daily-standup.md
   - keeper-telegram-safety.md
   - data-integrity.md
+  - escalation-policy.md
 
 triggers:
-  # Purely event-driven — enable crons below when ready
+  - type: cron
+    schedule: "20 13 * * *"
+    task: daily_standup
   - type: event
     event: telegram:message
     task: handle_message
@@ -49,9 +53,6 @@ triggers:
 # - type: cron
 #   schedule: "0 15 * * 5"
 #   task: community_highlights
-# - type: cron
-#   schedule: "20 13 * * *"
-#   task: daily_standup
 # ============================================================
 
 actions:
@@ -79,6 +80,7 @@ event_subscriptions:
   - strategist:keeper_directive
 
 event_publications:
+  - standup:report
   - keeper:support_case
   - keeper:community_health
 
