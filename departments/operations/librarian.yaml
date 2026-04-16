@@ -65,4 +65,7 @@ review_bypass: []
 heartbeat:
   precheck:
     enabled: true
-    maxSilenceHours: 26
+    # 12h: Librarian is a daily-cadence agent. If it misses both its curation
+    # cron AND its standup, an alert should fire. 26h effectively disabled
+    # monitoring (2026-04-16 audit).
+    maxSilenceHours: 12

@@ -29,7 +29,7 @@ flowchart TD
     CRON_QUALITY --> SENTINEL
     CRON_DIGEST --> SENTINEL
 
-    SENTINEL -- sentinel:alert --> SLACK[Slack Alerts]
+    SENTINEL -- sentinel:alert --> DISCORD[Discord Alerts]
     SENTINEL -- sentinel:status_report --> STRATEGIST[Strategist<br/>Executive]
     SENTINEL -- sentinel:quality_report --> STRATEGIST
 ```
@@ -40,7 +40,7 @@ flowchart TD
 
 | Direction | Event |
 |-----------|-------|
-| Subscribes | `sentinel:directive`, `claudeception:reflect` |
+| Subscribes | `strategist:sentinel_directive`, `claudeception:reflect`, `architect:deploy_complete`, `deploy:approved` |
 | Publishes | `standup:report`, `sentinel:alert`, `sentinel:status_report`, `sentinel:quality_report` |
 
 ## Scheduled Tasks (Crons)
@@ -56,11 +56,11 @@ flowchart TD
 
 ### Post-Deploy Verification
 
-After deployments complete, Sentinel runs post-deployment checks to verify the release is healthy. If problems are detected, Sentinel publishes `sentinel:alert` to notify the team via Slack.
+After Architect publishes `architect:deploy_complete` (the AO orchestrator shipped a new ECS revision), Sentinel runs post-deployment checks to verify the release is healthy. If problems are detected, Sentinel publishes `sentinel:alert` and notifies the team via Discord. The Deployer agent was retired in the AO migration (2026-03-27).
 
 ### Code Quality Audits
 
-Sentinel runs code quality audits twice a week (Monday and Thursday). It uses `codegen:execute` and `codegen:status` to inspect repositories and produce quality reports.
+Sentinel runs code quality audits twice a week (Monday and Thursday). It uses `github:get_contents` and `github:get_diff` to inspect repositories directly and produce quality reports. Sentinel does NOT run `codegen:execute` — it is a read-only auditor that publishes findings as events; remediation is routed to Architect/Mechanic via Strategist.
 
 ### Deployment Health Monitoring
 
@@ -72,21 +72,26 @@ Every Friday at 17:00 UTC, Sentinel produces a summary of repository activity ac
 
 ## Actions Available
 
-| Action | Sentinel |
-|--------|:--------:|
-| `deploy:assess` | x |
-| `deploy:status` | x |
-| `codegen:execute` | x |
-| `codegen:status` | x |
-| `github:get_contents` | x |
-| `github:get_diff` | x |
-| `repo:list` | x |
-| `slack:message` | x |
-| `slack:alert` | x |
-| `slack:thread_reply` | x |
-| `event:publish` | x |
+| Action | Sentinel | Librarian |
+|--------|:--------:|:---------:|
+| `deploy:assess` | x | |
+| `deploy:status` | x | |
+| `deploy:execute` | x | |
+| `github:get_contents` | x | x |
+| `github:get_diff` | x | |
+| `github:commit_file` | | x |
+| `repo:list` | x | |
+| `vault:read` / `vault:search` / `vault:write` / `vault:graph_query` | | x |
+| `discord:message` | x | x |
+| `discord:thread_reply` | x | x |
+| `discord:get_channel_history` | x | |
+| `discord:get_thread` | x | |
+| `discord:react` | x | x |
+| `discord:alert` | x | |
+| `event:publish` | x | x |
 
 ## Configuration Files
 
 - [`sentinel.yaml`](sentinel.yaml) -- Sentinel agent config
+- [`librarian.yaml`](librarian.yaml) -- Librarian agent config
 
