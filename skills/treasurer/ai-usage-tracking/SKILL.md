@@ -66,7 +66,7 @@ Include AI usage in the `weekly_spend` task:
 ## Alert Thresholds
 
 - **OpenRouter daily > $5.00** → flag in report (agent fleet running hot)
-- **OpenRouter weekly > $25.00** → immediate Slack alert
+- **OpenRouter weekly > $25.00** → immediate Discord alert
 - **Total estimated monthly > $200** → escalate to team lead
 
 ## Future Improvements

@@ -1,54 +1,28 @@
 # Treasury Operations
 
-> Loaded by the Treasurer agent. Defines data sources, wallet addresses, and
-> operational procedures for treasury monitoring.
+> Loaded by the Treasurer agent. Defines data sources, monitoring procedures,
+> and operational rules for treasury and cost monitoring.
 
 ---
 
 ## Data Access
 
-### Solana — Helius RPC (Primary)
-- **Endpoint:** `https://mainnet.helius-rpc.com/?api-key=<HELIUS_API_KEY>`
-- **Env var:** `HELIUS_API_KEY` (set in production secrets)
-- **Enhanced APIs:** DAS (Digital Asset Standard), parsed transactions, priority fees, webhooks
-- **Docs:** https://docs.helius.dev
+### AI Provider Spend
+- **OpenRouter:** Automated via `openrouter_usage` data source (daily, weekly, monthly spend)
+- **Anthropic:** Manual — check https://console.anthropic.com/settings/billing
+- **OpenAI:** Manual — check https://platform.openai.com/usage
+- **xAI/Grok:** Manual — check https://console.x.ai/team/billing
+- **Google/Gemini:** Manual — check https://console.cloud.google.com/billing
 
-Use the `solana_rpc` data source type to query balances, token accounts, and transaction history.
+### Infrastructure Costs
+- **AWS Cost Explorer:** Via `aws_cost_monthly` data source (requires IAM `ce:GetCostAndUsage`)
+- **MongoDB Atlas:** Via `mongodb_atlas_billing` data source (requires API keys)
+- **Redis Cloud:** Via `redis_cloud_billing` data source (requires API keys)
 
-### Ethereum / Multichain — Alchemy
-- **Env var:** `ALCHEMY_API_KEY` (set in production secrets)
-- **Chains:** Ethereum, Polygon, Arbitrum, Optimism, Base, etc.
-- **Docs:** https://docs.alchemy.com
-
-### Key Solana RPC Methods
-
-**Check SOL balance:**
-```json
-{ "method": "getBalance", "params": ["<wallet_address>"] }
-```
-
-**Check USDC/SPL token balance:**
-```json
-{ "method": "getTokenAccountsByOwner", "params": ["<wallet_address>", { "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" }] }
-```
-
-**Recent transactions:**
-```json
-{ "method": "getSignaturesForAddress", "params": ["<wallet_address>", { "limit": 20 }] }
-```
-
-### Helius Enhanced APIs
-
-**Parsed transaction history (human-readable):**
-```
-GET https://api.helius.xyz/v0/addresses/<wallet>/transactions?api-key=${HELIUS_API_KEY}
-```
-
-**Token balances (all SPL tokens at once):**
-```
-POST https://mainnet.helius-rpc.com/?api-key=<HELIUS_API_KEY>
-{ "jsonrpc": "2.0", "id": 1, "method": "getAssetsByOwner", "params": { "ownerAddress": "<wallet>" } }
-```
+### Future Data Sources (Not Yet Active)
+- **LiteLLM:** Via `litellm_spend` — requires LiteLLM proxy (not active in YCLAW)
+- **Blockchain wallets:** Can be configured via `solana_rpc` or `api` data source types when needed
+- **Banking:** Can be configured via `teller` data source type when needed
 
 ---
 
@@ -56,66 +30,52 @@ POST https://mainnet.helius-rpc.com/?api-key=<HELIUS_API_KEY>
 
 | Task | Frequency | What to Check |
 |------|-----------|---------------|
-| `treasury_check` | Daily 7am UTC | SOL + USDC balances across all treasury wallets, flag anomalies |
-| `weekly_spend` | Monday 8am UTC | Net inflows/outflows, LLM API costs (Anthropic + OpenRouter), infra costs |
-| `monthly_summary` | 1st of month 8am UTC | Full treasury report: balances, burn rate, runway estimate |
+| `treasury_check` | Daily 7am UTC | AI spend across providers, infra costs, flag anomalies |
+| `weekly_spend` | Monday 8am UTC | Net spend breakdown by category, burn rate trend, budget variance |
+| `monthly_summary` | 1st of month 8am UTC | Full financial report: all costs, burn rate, runway estimate |
 
 ## Alert Thresholds
 
-- **SOL balance < 5 SOL** on any treasury wallet → immediate Slack alert
-- **USDC balance drops > 20% in 24h** → immediate Slack alert
-- **Unknown outbound transaction > $1,000** → immediate Slack alert + escalate to team lead
+### AI Spend
+- **OpenRouter daily > $5.00** → flag in report (agent fleet running hot)
+- **OpenRouter weekly > $25.00** → immediate Discord alert
+- **Total estimated monthly AI > $200** → escalate to team lead
+
+### Infrastructure
+- **AWS monthly > $500** → flag in weekly report
+- **AWS monthly > $1,000** → immediate Discord alert + escalate
+- **MongoDB Atlas > $100/month** → flag in report
+- **Redis Cloud > $50/month** → flag in report
+- **Any service +50% MoM increase** → immediate Discord alert
+
+### General
 - **Monthly burn rate exceeds budget** → flag in weekly report
+- **Runway < 6 months** → immediate Discord alert + escalate
 
 ## Reporting Format
 
-Use this template for treasury reports:
-
 ```
-💰 Treasury Report — [DATE]
+💰 Financial Report — [DATE]
 
-SOL Balances:
-• Treasury: [amount] SOL ($[usd])
-• Fee Payer: [amount] SOL ($[usd])
+AI Spend (last 30 days):
+• OpenRouter (automated): $[amount]
+• Anthropic (manual, last updated [date]): $[amount]
+• OpenAI (manual): $[amount]
+• Other: $[amount]
+• Total AI: $[total]/month
 
-USDC Balances:
-• Treasury: [amount] USDC
+Infrastructure (last 30 days):
+• AWS: $[total]
+• MongoDB Atlas: $[amount]
+• Redis Cloud: $[amount]
+• Total Infra: $[total]/month
 
-Burn Rate:
-• LLM API (est): $[amount]/month
-• Infrastructure: $[amount]/month
-• Total: $[amount]/month
-
+Total Monthly Burn: $[total]
 Runway: [months] at current burn
+
+Data Source Coverage: [X]/[Y] sources active
+⚠️ Estimates may be incomplete — [list unavailable sources]
 ```
-
-## Banking
-
-Treasurer has read-only access to YClaw's bank accounts via the Teller.io API:
-- **Checking account** — operational funds, payroll, vendor payments
-- **Credit card** — business expenses
-
-Data sources:
-- `bank_accounts` — lists all connected accounts (type, name, status, last four digits)
-- `bank_balances` — fetches available + ledger balances for all accounts
-
-### Banking Report Template
-
-```
-🏦 Banking Summary — [DATE]
-
-Checking Account (****[last4]):
-• Available: $[amount]
-• Ledger: $[amount]
-
-Credit Card (****[last4]):
-• Available Credit: $[amount]
-• Current Balance: $[amount]
-```
-
-### Alert Thresholds
-- **Checking balance < $10,000** → immediate Slack alert
-- **Credit card utilization > 80%** → flag in weekly report
 
 ## What You Cannot Do
 
@@ -124,3 +84,4 @@ Credit Card (****[last4]):
 - Never make investment recommendations
 - Never predict token prices
 - Report numbers factually — no editorializing
+- Always note which data sources were unavailable

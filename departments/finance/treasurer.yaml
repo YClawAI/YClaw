@@ -14,6 +14,9 @@ system_prompts:
   - chain-of-command.md
   - daily-standup.md
   - data-integrity.md
+  - protocol-overview.md
+  - escalation-policy.md
+  - executive-directive.md
 triggers:
   - type: cron
     schedule: 22 13 * * *
@@ -35,38 +38,17 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 actions:
-  - github:commit_file
   - github:get_contents
-  - github:create_branch
   - discord:message
   - discord:thread_reply
   - discord:react
   - discord:alert
   - event:publish
 data_sources:
-  # ---- Solana wallets (example) ----
-  # - name: treasury_sol
-  #   type: solana_rpc
-  #   config:
-  #     rpcUrl: https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}
-  #     method: getBalance
-  #     params:
-  #       - <WALLET_ADDRESS>
-
-  # ---- EVM wallets (example) ----
-  # - name: treasury_eth
-  #   type: api
-  #   config:
-  #     url: https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}
-  #     method: POST
-  #     headers:
-  #       Content-Type: application/json
-  #     body: '{"jsonrpc":"2.0","id":1,"method":"eth_getBalance","params":["<WALLET_ADDRESS>","latest"]}'
-
   # ---- Infrastructure cost sources ----
   # NOTE: litellm_spend requires LiteLLM proxy to be configured (not active in YCLAW).
   # Treasurer will skip this source gracefully if the fetcher is not registered.
@@ -87,15 +69,10 @@ data_sources:
     type: redis_cloud
     config: {}
 
-  # ---- Bank accounts (example) ----
-  # - name: bank_accounts
-  #   type: teller
-  #   config:
-  #     endpoint: /accounts
-  # - name: bank_balances
-  #   type: teller
-  #   config:
-  #     endpoint: /accounts/balances
+  # ---- Future sources (add when needed) ----
+  # Blockchain wallets, banking integrations, and additional cost
+  # sources can be added here using supported data source types.
+  # See departments/finance/README.md for configuration details.
 event_subscriptions:
   - strategist:treasurer_directive
   - claudeception:reflect

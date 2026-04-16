@@ -64,7 +64,7 @@ Total Infra: $[total]/month
 ## Alert Thresholds
 
 - **AWS monthly > $500** → flag in weekly report
-- **AWS monthly > $1,000** → immediate Slack alert + escalate to team lead
+- **AWS monthly > $1,000** → immediate Discord alert + escalate to team lead
 - **MongoDB Atlas > $100/month** → flag in report
 - **Redis Cloud > $50/month** → flag in report
 - **Any service with >50% MoM increase** → immediate alert
@@ -85,7 +85,7 @@ Total Monthly Burn = AI Costs + Infra Costs + Other
 ```
 AI:    OpenRouter + Anthropic + OpenAI + xAI + Gemini
 Infra: AWS + MongoDB Atlas + Redis Cloud + Alchemy + Helius
-Other: GitHub Pro, Slack, other SaaS
+Other: GitHub Pro, Discord, other SaaS
 ```
 
 Runway = Treasury Balance / Monthly Burn Rate
