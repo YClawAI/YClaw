@@ -27,6 +27,15 @@ Diagnostic steps for common YCLAW framework issues:
 - **Agent Behavior** — wrong responses, contaminated skills, context window, event handling.
 - **Integrations** — Discord bot setup, Telegram bot config, channel permissions.
 
+### bug-report-intake.md
+
+Structured intake checklist and escalation template for when users report potential bugs:
+
+- **Information to collect** — required fields (description, reproduction steps, error messages, YCLAW version) and helpful fields (environment, config, logs, frequency, workaround).
+- **Intake template** — user-facing question script for gathering details.
+- **Escalation format** — standardized bug report template for `guide:case_escalated` events to Architect.
+- **Rules** — never ask for credentials, always anonymize users, escalate security issues privately to Sentinel + team lead.
+
 ## Integration
 
 - Receives escalated cases from **Keeper** (community moderator).
