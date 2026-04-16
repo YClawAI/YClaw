@@ -76,20 +76,35 @@ Mechanic executes whitelisted shell-required repo operations (lockfile sync, for
 
 ## Actions Available
 
+Table reflects each agent's actual YAML `actions:` block as of this commit.
+
 | Action | Architect | Designer | Mechanic |
 |--------|:---------:|:--------:|:--------:|
-| `github:pr_comment` | x | x | x |
-| `github:pr_review` | x | x | |
-| `github:commit_file` | x | x | x |
-| `github:commit_batch` | | | x |
 | `github:get_contents` | x | x | x |
-| `github:create_branch` | x | x | x |
 | `github:get_diff` | x | x | x |
+| `github:pr_comment` | x | x | x |
+| `github:create_branch` | | x | x |
+| `github:commit_file` | | x | x |
+| `github:commit_batch` | | | x |
+| `github:get_issue` | x | | |
 | `github:create_issue` | x | x | |
+| `github:list_issues` | x | | |
+| `github:update_issue` | x | | |
+| `github:add_labels` | x | | |
+| `github:remove_label` | x | | |
+| `github:pr_review` | | x | |
+| `ao:status` | x | | |
+| `repo:list` | x | | |
+| `vault:read` | x | | |
+| `vault:search` | x | | |
+| `vault:write` | x | | |
+| `deploy:assess` | x | | |
 | `discord:message` | x | x | x |
-| `discord:thread_reply` | | | x |
+| `discord:thread_reply` | x | x | x |
+| `discord:react` | x | x | |
 | `event:publish` | x | x | x |
-| `figma:*` | | x | |
+| `figma:*` (9 actions) | | x | |
+| `stitch:*` (7 actions) | | x | |
 
 ## Customization
 

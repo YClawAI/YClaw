@@ -19,6 +19,7 @@ system_prompts:
   - daily-standup-dev.md
   - engineering-standards.md
   - protocol-overview.md
+  - escalation-policy-dev.md
   - designer-workflow.md
 
 triggers:
@@ -45,7 +46,7 @@ triggers:
     task: self_reflection
     model:
       provider: anthropic
-      model: claude-sonnet-4-20250514
+      model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
 actions:

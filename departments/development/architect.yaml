@@ -20,6 +20,7 @@ system_prompts:
   - daily-standup-dev.md
   - engineering-standards.md
   - protocol-overview.md
+  - escalation-policy-dev.md
   - executive-directive.md
   - escalation-policy.md
   - architect-workflow.md

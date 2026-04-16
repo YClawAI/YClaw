@@ -16,6 +16,7 @@ system_prompts:
   - skill-usage.md
   - mission_statement.md
   - chain-of-command.md
+  - protocol-overview.md
   - daily-standup-dev.md
   - engineering-standards.md
   - mechanic-workflow.md
