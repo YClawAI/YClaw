@@ -36,6 +36,7 @@ sources:
       - "reviewer:flagged"
       - "reviewer:approved"
       - "reviewer:rejected"
+      - "reviewer:queue_stale"
 
   # Development ──────────────────────────────────────────────────────────
   # Architect — build directives, deploy governance, and AO coordination

@@ -101,25 +101,33 @@ The Strategist handles `slack:app_mention` events, enabling team members to inte
 | `github:commit_file` | x | |
 | `github:get_contents` | x | x |
 | `github:create_branch` | x | |
-| `github:get_diff` | x | |
-| `github:pr_review` | x | |
-| `github:pr_comment` | x | |
-| `github:get_issue` | x | |
+| `github:get_diff` | x | x |
+| `github:pr_review` | x | x |
+| `github:pr_comment` | x | x |
+| `github:get_issue` | x | x |
 | `github:list_issues` | x | |
-| `twitter:update_profile` | x | |
-| `twitter:update_profile_image` | x | |
-| `twitter:update_profile_banner` | x | |
+| `github:create_issue` | | x |
+| `vault:read` | x | x |
+| `vault:search` | x | x |
 | `x:search` | x | x |
 | `x:user` | x | |
 | `telegram:announce` | x | |
-| `slack:message` | x | x |
-| `slack:thread_reply` | x | x |
-| `slack:alert` | | x |
+| `telegram:set_title` | x | |
+| `telegram:set_description` | x | |
+| `discord:message` | x | x |
+| `discord:thread_reply` | x | x |
+| `discord:react` | x | x |
+| `discord:alert` | | x |
 | `event:publish` | x | x |
 | `deploy:assess` | x | |
-| `deploy:execute` | x | |
-| `task:query` | x | |
+| `deploy:execute` | | |
+| `task:query` | x | x |
 | `task:summary` | x | |
+
+Notes:
+- `twitter:update_profile*` moved from Strategist to Ember (marketing owns the brand surface).
+- `deploy:execute` moved from Strategist to Sentinel (separation of duties). Strategist retains `deploy:assess` for coordination.
+- Reviewer gained PR/issue read + `github:create_issue` + `vault:read/search` + `task:query` (review queue monitoring).
 
 ## Configuration Files
 

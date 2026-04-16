@@ -270,32 +270,9 @@ What is blocking the task? Missing access? Dependency on another task? Design de
 
 ---
 
-## Task: execute_approved_deploy (triggered by deploy:approved)
-
-A CRITICAL-tier deployment has been approved by Architect. Execute it immediately.
-
-The event payload contains:
-- `deployment_id` — the assessment ID
-- `repo` — repository name
-- `environment` — target environment
-- `commit_sha` — commit to deploy (may be null)
-
-### Step 1: Execute
-
-Call `deploy:execute` with the payload fields:
-```json
-{
-  "repo": "<repo from payload>",
-  "environment": "<environment from payload>",
-  "deployment_id": "<deployment_id from payload>",
-  "commit_sha": "<commit_sha from payload, if present>"
-}
-```
-
-### Step 2: Report
-
-If deployment succeeds, post to #yclaw-development confirming successful deploy.
-If deployment fails, post to #yclaw-alerts with the error and escalate via `strategist:architect_directive`.
+<!-- Task: execute_approved_deploy was moved to Sentinel for separation of duties.
+     See prompts/sentinel-quality-workflow.md. Strategist no longer executes deploys;
+     it only assesses (deploy:assess). -->
 
 ---
 

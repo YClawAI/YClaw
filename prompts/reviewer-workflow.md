@@ -148,6 +148,48 @@ Agents to watch: [any agents consistently scoring low]
 
 ---
 
+## Task: review_queue_check (cron every 2 hours)
+
+Lightweight monitoring check — NOT a review execution. Your job here is to detect
+stale reviews so they don't silently pile up.
+
+### Step 1: Query pending reviews
+- Use `task:query` (scoped to reviewer's own pending tasks) or equivalent to list
+  pending `review:pending`, `ember:content_ready`, and `scout:outreach_ready` events
+  you have not yet processed.
+
+### Step 2: Check thresholds
+- Flag any review pending >4 hours
+- Flag if total queue depth >5
+
+### Step 3: Alert (only if thresholds hit)
+If any threshold is hit, publish ONE event:
+```json
+{
+  "source": "reviewer",
+  "type": "reviewer:queue_stale",
+  "payload": {
+    "stale_count": <N>,
+    "queue_depth": <N>,
+    "oldest_age_hours": <N>,
+    "oldest_event": "<type>",
+    "oldest_source_agent": "<agent>"
+  }
+}
+```
+Also post to #yclaw-executive:
+`⚠️ Reviewer queue stale — [N] reviews >4h pending, queue depth [N]`
+
+### Step 4: Stay silent if clean
+If no stale reviews and queue depth within limits, produce no output. This is a
+watchdog, not a standup.
+
+**Do NOT:**
+- Do NOT execute full content review here. This is monitoring only.
+- Do NOT use the full review_content pipeline. Use only task:query + event:publish + discord:message.
+
+---
+
 ## Task: handle_directive (triggered by event: strategist:reviewer_directive)
 
 Receive and execute a review directive from the Strategist. This could be reviewing specific content, auditing a PR, or checking compliance on pending posts.

@@ -102,16 +102,15 @@ triggers:
       model: claude-sonnet-4-20250514
       temperature: 0.3
       maxTokens: 4096
-  # Deploy Governance v2: execute approved CRITICAL-tier deployments
-  - type: event
-    event: deploy:approved
-    task: execute_approved_deploy
-    model:
-      provider: anthropic
-      model: claude-sonnet-4-20250514
-      temperature: 0.2
-      maxTokens: 4096
+  # Deploy Governance v2: Strategist now ONLY assesses (deploy:assess). Execution
+  # of approved CRITICAL-tier deployments was moved to Sentinel for separation
+  # of duties (the agent that decides should not also execute). The
+  # deploy:approved → execute_approved_deploy trigger now lives on Sentinel.
 actions:
+  # NOTE: github:commit_file and github:create_branch are intentionally unscoped
+  # in the current config schema. These should be path-scoped to the directories
+  # Strategist legitimately writes to: docs/, departments/executive/, prompts/strategist*.
+  # TODO: when the config schema supports path-scoping, restrict these actions.
   - github:commit_file
   - github:get_contents
   - github:create_branch
@@ -122,9 +121,7 @@ actions:
   - github:pr_comment
   - github:get_issue
   - github:list_issues
-  - twitter:update_profile
-  - twitter:update_profile_image
-  - twitter:update_profile_banner
+  # twitter:update_profile* moved to Ember (marketing owns the brand surface).
   - x:search
   - x:user
   - telegram:announce
@@ -135,14 +132,14 @@ actions:
   - discord:react
   - event:publish
   - deploy:assess
-  - deploy:execute
+  # deploy:execute removed — separation of duties. Now owned by Sentinel.
   - task:query
   - task:summary
 data_sources: []
 event_subscriptions:
   - claudeception:reflect
   - standup:report
-  - deploy:approved
+  # deploy:approved subscription removed — execution moved to Sentinel.
   - sentinel:alert
   - ao:task_failed
   - ao:spawn_failed
@@ -165,3 +162,10 @@ event_publications:
   - strategist:guide_directive
   - strategist:reviewer_directive
 review_bypass: []
+
+# Strategist is the most critical coordination agent. A silent Strategist means
+# the org's coordination layer is down — escalate fast (4h vs Reviewer/Sentinel's 6h).
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 4

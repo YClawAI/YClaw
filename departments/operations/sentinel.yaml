@@ -38,6 +38,17 @@ triggers:
   - type: event
     event: deployer:deploy_complete
     task: post_deploy_verification
+  # Deploy Governance v2: execute approved CRITICAL-tier deployments.
+  # Moved from Strategist (separation of duties — the agent that assesses
+  # should not also execute). Subscription permissions already allow deploy:*.
+  - type: event
+    event: deploy:approved
+    task: execute_approved_deploy
+    model:
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+      temperature: 0.2
+      maxTokens: 4096
   - type: event
     event: strategist:sentinel_directive
     task: handle_directive
@@ -55,6 +66,8 @@ triggers:
 
 actions:
   - deploy:status
+  # deploy:execute moved here from Strategist (Deploy Governance v2 separation of duties).
+  - deploy:execute
   - github:get_contents
   - github:get_diff
   - repo:list
@@ -72,6 +85,8 @@ event_subscriptions:
   - strategist:sentinel_directive
   - claudeception:reflect
   - deployer:deploy_complete
+  # Deploy Governance v2 — Sentinel now handles approved-deploy execution.
+  - deploy:approved
 
 event_publications:
   - standup:report
