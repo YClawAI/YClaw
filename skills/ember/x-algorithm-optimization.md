@@ -71,7 +71,7 @@ Given our brand voice (warm restraint, no exclamation marks, no hype):
 
 ## Validation Notes
 
-*This section tracks what actually works for @YClaw__Protocol vs what the algo says should work.*
+*This section tracks what actually works for @YClaw_ai vs what the algo says should work.*
 *Update after reviewing post performance via x:lookup.*
 
 No data yet — awaiting first content cycle.

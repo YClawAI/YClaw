@@ -18,12 +18,12 @@
 ### 3. Significance Inflation
 **Detect:** "It's important to note", "Significantly", "It's worth mentioning", "Notably"
 **Fix:** If it's worth saying, say it. The reader decides importance.
-**YClaw example:** "YClaw rewards attention" not "It's important to note that YClaw rewards attention"
+**YClaw example:** "YClaw orchestrates agents" not "It's important to note that YClaw orchestrates agents"
 
 ### 4. False Depth
 **Detect:** "This raises important questions about", "The implications are far-reaching"
 **Fix:** State the specific implication. No vague gesturing.
-**YClaw example:** "Stakers earn options on floor price" not "This raises important questions about value accrual"
+**YClaw example:** "Departments route events through the approval gate" not "This raises important questions about governance architecture"
 
 ### 5. Performative Nuance
 **Detect:** "It's not that simple", "There are many factors to consider", "This is a complex issue"
@@ -32,7 +32,7 @@
 ### 6. Rule of Three Lists
 **Detect:** Three-item lists used reflexively (especially adjective triplets)
 **Fix:** Use the number of items the content actually needs. Two is fine. Four is fine.
-**YClaw example:** "YClaw makes attention visible and valuable" not "visible, valuable, and verifiable"
+**YClaw example:** "YClaw makes agent coordination visible and governable" not "visible, valuable, and verifiable"
 
 ---
 
@@ -49,12 +49,12 @@
 ### 9. Copula Avoidance
 **Detect:** "serves as", "functions as", "acts as" (instead of "is")
 **Fix:** Use "is" when something IS something.
-**YClaw example:** "YClaw is an attention rewards protocol" not "YClaw serves as an attention rewards protocol"
+**YClaw example:** "YClaw is an AI agent orchestration framework" not "YClaw serves as an AI agent orchestration framework"
 
 ### 10. Hollow Verbs
 **Detect:** "leverage", "utilize", "facilitate", "implement", "optimize"
 **Fix:** "use", "do", "help", "build", "improve"
-**YClaw example:** "Stakers use options to borrow USDC" not "Stakers leverage options to facilitate borrowing"
+**YClaw example:** "Agents use events to coordinate" not "Agents leverage events to facilitate coordination"
 
 ### 11. Hedge Stacking
 **Detect:** "It could potentially", "This might possibly", "may perhaps"
@@ -63,7 +63,7 @@
 ### 12. Passive Voice (Agentless)
 **Detect:** "It has been observed", "It should be noted", "It can be seen that"
 **Fix:** Name the actor or delete. "We noticed" or just state the fact.
-**YClaw example:** "Creators set their payout split" not "The payout split can be configured"
+**YClaw example:** "Operators set the approval gate policy" not "The approval gate policy can be configured"
 
 ---
 
@@ -72,7 +72,7 @@
 ### 13. Uniform Sentence Length
 **Detect:** Multiple sentences of similar length in a row (15-25 words each)
 **Fix:** Vary rhythm. Mix short punches (3-8 words) with longer explanations.
-**YClaw example:** "Watch. Earn. Own the moment." — then follow with a longer sentence.
+**YClaw example:** "Route. Review. Ship." — then follow with a longer sentence.
 
 ### 14. Mechanical Paragraphing
 **Detect:** Every paragraph is 3-4 sentences. Topic sentence, support, conclusion.
@@ -91,9 +91,9 @@
 **Fix:** Let facts carry weight. One emotional beat per piece, maximum.
 
 ### 18. "Landscape" and "Ecosystem"
-**Detect:** "the crypto landscape", "the DeFi ecosystem", "the Web3 space"
-**Fix:** Name the specific thing. "Solana DeFi" not "the DeFi landscape"
-**YClaw example:** "Solana creator tokens" not "the creator token ecosystem"
+**Detect:** "the AI landscape", "the agent ecosystem", "the multi-agent space"
+**Fix:** Name the specific thing. "CrewAI and AutoGen" not "the agent landscape"
+**YClaw example:** "event-driven orchestration frameworks" not "the orchestration ecosystem"
 
 ---
 

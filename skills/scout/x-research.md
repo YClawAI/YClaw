@@ -111,11 +111,11 @@ Keep `max_results` at 10 unless deeper research is needed. 24-hour deduplication
 
 ## Competitive Intel Targets
 
-Key accounts and topics to monitor for YClaw-relevant intel:
-- **Attention economy**: `"attention economy" OR "creator tokens" OR "watch to earn"`
-- **Solana ecosystem**: `"solana" (creator OR attention OR token)` 
-- **Competitors**: Search for specific competitor names and products
-- **AI agents**: `"AI agents" (crypto OR web3 OR autonomous)`
-- **Creator economy**: `"creator economy" (blockchain OR token OR decentralized)`
+Key accounts and topics to monitor for YCLAW-relevant intel:
+- **AI agent frameworks**: `"AI agent framework" (open source OR orchestration OR multi-agent)`
+- **Direct competitors**: `"CrewAI" OR "AutoGen" OR "LangGraph" (launch OR update OR enterprise)`
+- **Multi-agent systems**: `"multi-agent system" (production OR deploy OR scale)`
+- **Agent orchestration**: `"agent orchestration" -crypto -DeFi -token`
+- **AI agent governance**: `"AI agents" (department OR coordination OR approval OR governance)`
 
 Update this list as the competitive landscape evolves.
