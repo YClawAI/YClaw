@@ -11,14 +11,28 @@ schemaVersion: "1.0"
 
 sources:
   # Executive ────────────────────────────────────────────────────────────
-  # Strategist — strategic directives (wildcard across strategist:* events)
+  # Strategist — strategic directives
   agent:strategist:
     allowedEventTypes:
-      - "strategist:*"
+      - "strategist:weekly_directive"
+      - "strategist:midweek_adjustment"
+      - "strategist:architect_directive"
+      - "strategist:designer_directive"
+      - "strategist:design_generate"
+      - "strategist:standup_synthesis"
+      - "strategist:sentinel_directive"
+      - "strategist:keeper_directive"
+      - "strategist:ember_directive"
+      - "strategist:forge_directive"
+      - "strategist:scout_directive"
+      - "strategist:treasurer_directive"
+      - "strategist:guide_directive"
+      - "strategist:reviewer_directive"
 
   # Reviewer — review verdicts
   agent:reviewer:
     allowedEventTypes:
+      - "standup:report"
       - "reviewer:flagged"
       - "reviewer:approved"
       - "reviewer:rejected"
@@ -27,82 +41,90 @@ sources:
   # Architect — build directives, deploy governance, and AO coordination
   agent:architect:
     allowedEventTypes:
+      - "standup:report"
       - "architect:build_directive"
-      - "architect:repair_directive"
       - "architect:pr_review"
-      - "architect:deploy_review"
       - "architect:design_directive"
       - "architect:mechanic_task"
       - "architect:task_complete"
       - "architect:task_blocked"
+      - "architect:deploy_review"
       - "deploy:assess"
       - "deploy:approve"
 
   # Designer — design events
   agent:designer:
     allowedEventTypes:
-      - "designer:review_complete"
-      - "designer:design_update"
-      - "designer:mockup_ready"
+      - "standup:report"
+      - "designer:design_review"
+      - "designer:design_generated"
 
   # Mechanic — maintenance events
   agent:mechanic:
     allowedEventTypes:
-      - "mechanic:task_complete"
-      - "mechanic:lockfile_updated"
+      - "mechanic:task_completed"
+      - "mechanic:task_failed"
 
   # Marketing ────────────────────────────────────────────────────────────
   # Ember — content events only
   agent:ember:
     allowedEventTypes:
-      - "content:draft"
-      - "content:published"
+      - "standup:report"
+      - "ember:needs_asset"
+      - "ember:content_ready"
+      - "review:pending"
 
   # Forge — asset creation events
   agent:forge:
     allowedEventTypes:
+      - "standup:report"
       - "forge:asset_ready"
-      - "forge:asset_failed"
 
   # Scout — research and outreach events
   agent:scout:
     allowedEventTypes:
+      - "standup:report"
       - "scout:intel_report"
       - "scout:outreach_ready"
-      - "scout:competitor_alert"
+      - "scout:pipeline_report"
+      - "review:pending"
 
   # Operations ───────────────────────────────────────────────────────────
   # Sentinel — operational events
   agent:sentinel:
     allowedEventTypes:
+      - "standup:report"
       - "sentinel:alert"
-      - "sentinel:health"
+      - "sentinel:status_report"
+      - "sentinel:quality_report"
 
   # Librarian — knowledge management events
   agent:librarian:
     allowedEventTypes:
-      - "librarian:knowledge_update"
+      - "standup:report"
       - "librarian:curation_complete"
 
   # Finance ──────────────────────────────────────────────────────────────
   # Treasurer — financial events
   agent:treasurer:
     allowedEventTypes:
-      - "treasurer:report_ready"
-      - "treasurer:budget_alert"
+      - "standup:report"
+      - "treasurer:low_balance"
+      - "treasurer:spend_report"
 
   # Support ──────────────────────────────────────────────────────────────
   # Guide — support events
   agent:guide:
     allowedEventTypes:
+      - "standup:report"
       - "guide:case_resolved"
-      - "guide:escalation"
+      - "guide:case_escalated"
 
   # Keeper — community moderation events
   agent:keeper:
     allowedEventTypes:
       - "keeper:support_case"
-      - "keeper:moderation_action"
+      - "keeper:community_health"
 
   # System sources ───────────────────────────────────────────────────────
   # AO (the coding agent) — build result events
@@ -113,13 +135,23 @@ sources:
       - "ao:task_blocked"
       - "ao:pr_ready"
       - "ao:spawn_failed"
+      - "ao:pr_merged"
 
   # GitHub webhook handler — github events
   system:webhook:
     allowedEventTypes:
-      - "github:*"
+      - "github:pr_opened"
+      - "github:pr_updated"
+      - "github:issue_assigned"
+      - "github:issue_opened"
+      - "github:issue_labeled"
+      - "github:pr_review_submitted"
+      - "github:pr_review_comment"
+      - "github:ci_pass"
+      - "github:ci_fail"
       - "github:issue_closed"
       - "github:pr_merged"
+      - "github:repository_created"
 
 # Fields that are NEVER allowed in ANY event payload, regardless of schema.
 # These are the exact fields used in the April 2, 2026 attack.
