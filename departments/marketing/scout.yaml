@@ -22,6 +22,7 @@ system_prompts:
   - executive-directive.md
   - brand-voice.md
   - review-submission.md
+  - content-safety-rules.md
 
 triggers:
   - type: cron

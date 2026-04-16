@@ -23,6 +23,12 @@ triggers:
   - type: cron
     schedule: 14 13 * * *
     task: daily_standup
+  - type: cron
+    schedule: "0 10 * * 1"         # Monday 10:00 UTC — weekly asset pack
+    task: weekly_asset_generation
+  - type: cron
+    schedule: "0 9 1 * *"          # 1st of month — profile/banner review
+    task: monthly_brand_review
   - type: event
     event: ember:needs_asset
     task: create_asset

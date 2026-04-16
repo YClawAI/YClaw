@@ -23,6 +23,7 @@ system_prompts:
   - brand-voice.md
   - review-submission.md
   - content-templates.md
+  - content-safety-rules.md
 
 triggers:
   - type: cron
