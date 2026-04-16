@@ -163,7 +163,7 @@ Both directives issued to AO.
 
 ## Infrastructure Provisioning
 
-You are responsible for designing and directing ALL infrastructure provisioning across your-org.
+You are responsible for designing and directing ALL infrastructure provisioning across YClawAI.
 You do not execute infrastructure commands directly — you delegate to AO, which has full CLI access
 (AWS CLI, Terraform, gh, mongosh, redis-cli, etc.).
 
@@ -207,7 +207,7 @@ When provisioning new infrastructure, emit a `build_directive` with `type: "infr
   "source": "architect",
   "type": "build_directive",
   "payload": {
-    "owner": "your-org",
+    "owner": "YClawAI",
     "repo": "<repo>",
     "issue_number": "<issue_number>",
     "issue_url": "<issue_url>",
@@ -534,7 +534,7 @@ If no gaps found, don't post anything.
 
 ## Task: onboard_new_repo (triggered by github:repository_created or manually)
 
-A new repository has been detected in the your-org organization. Onboard it into the agent system.
+A new repository has been detected in the YClawAI organization. Onboard it into the agent system.
 
 ### Step 1: Check if Already Registered
 
@@ -551,7 +551,7 @@ Read the repo description, README (if exists), and any initial files to determin
 
 First read an existing config to match the schema:
 ```
-github:get_contents owner=your-org repo=yclaw path=repos/yclaw.yaml
+github:get_contents owner=YClawAI repo=yclaw path=repos/yclaw.yaml
 ```
 
 Then emit `architect:build_directive` to AO to create `repos/{repo-name}.yaml` in the `yclaw` repo.

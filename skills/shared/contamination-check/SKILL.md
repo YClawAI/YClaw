@@ -43,7 +43,8 @@ grep -rn -iE "bonding curve|\bTVL\b|staking|chrome extension|watch-to-earn|atten
 grep -rn -iE "gaze protocol|gaze-agents|gazeprotocol|crediez|\bGZC\b" skills/ prompts/ 2>/dev/null
 
 # Placeholder / template markers left unresolved
-grep -rn -E "<!-- CUSTOMIZE|<!-- TODO|XXX:|FIXME:" skills/ prompts/ 2>/dev/null
+# Matches HTML-comment CUSTOMIZE/TODO tags and XXX/FIXME code markers
+grep -rn -E "CUSTOMIZE\b|TODO\s*-->|XXX:|FIXME:" skills/ prompts/ 2>/dev/null
 ```
 
 ### Layered exclusion (the meta-problem)
@@ -96,14 +97,15 @@ Expected: zero hits after layered exclusion on a clean repo.
 2. **No imports without review** — a skill pulled from another project is reviewed
    BEFORE merge for product-specific terminology. Grep it with the patterns above
    during review.
-3. **Template markers resolved** — no `<!-- CUSTOMIZE -->` or `[your-*-channel]`
-   placeholders allowed in merged shared skills. CI should fail on any hit.
+3. **Template markers resolved** — no unresolved placeholder markers (HTML-comment
+   CUSTOMIZE tags, bracketed channel template syntax, etc.) allowed in merged shared
+   skills. CI should fail on any hit.
 
 ### Rules for new agent prompts (`prompts/`)
 
-1. **Placeholder audit on merge** — any prompt with `<!-- CUSTOMIZE -->` blocks merge
-   until the placeholder is resolved OR the markers are explicitly converted to
-   forked-project scaffolding markers (different token).
+1. **Placeholder audit on merge** — any prompt with unresolved CUSTOMIZE marker tags
+   blocks merge until the placeholder is resolved OR the markers are explicitly
+   converted to forked-project scaffolding markers (different token).
 2. **Canonical product reference** — if a prompt references "the product", it must
    reference YClaw specifically, not a generic / inherited description.
 3. **Cross-file consistency** — if prompt A references a skill or file path, the
