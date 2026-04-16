@@ -18,6 +18,8 @@ system_prompts:
   - chain-of-command.md
   - daily-standup.md
   - protocol-overview.md
+  - engineering-standards.md
+  - escalation-policy.md
   - sentinel-quality-workflow.md
 
 triggers:

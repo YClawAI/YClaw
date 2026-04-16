@@ -19,6 +19,9 @@ system_prompts:
   - chain-of-command.md
   - daily-standup-dev.md
   - engineering-standards.md
+  - protocol-overview.md
+  - executive-directive.md
+  - escalation-policy.md
   - architect-workflow.md
 
 triggers:

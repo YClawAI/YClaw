@@ -62,6 +62,7 @@ sources:
   # Mechanic — maintenance events
   agent:mechanic:
     allowedEventTypes:
+      - "standup:report"
       - "mechanic:task_completed"
       - "mechanic:task_failed"
 
@@ -123,6 +124,7 @@ sources:
   # Keeper — community moderation events
   agent:keeper:
     allowedEventTypes:
+      - "standup:report"
       - "keeper:support_case"
       - "keeper:community_health"
 

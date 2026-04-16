@@ -18,6 +18,8 @@ system_prompts:
   - chain-of-command.md
   - protocol-overview.md
   - data-integrity.md
+  - brand-voice.md
+  - escalation-policy.md
 
 triggers:
   - type: cron

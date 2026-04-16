@@ -17,8 +17,13 @@ system_prompts:
   - skill-usage.md
   - mission_statement.md
   - chain-of-command.md
+  - daily-standup.md
+  - data-integrity.md
 
 triggers:
+  - type: cron
+    schedule: "18 13 * * *"
+    task: daily_standup
   - type: cron
     schedule: "0 14 * * *"
     task: daily_curation
