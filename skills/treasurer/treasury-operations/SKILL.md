@@ -36,21 +36,32 @@
 
 ## Alert Thresholds
 
+Severity tiers follow the shared `escalation-policy.md`:
+
+| Tier | Authoritative label | Treasurer action |
+|------|---------------------|------------------|
+| CRITICAL | Immediate Escalation | `discord:alert` → `#yclaw-alerts` + `event:publish` `sentinel:alert` (severity=CRITICAL) |
+| HIGH | Standard Escalation | `discord:message` → `#yclaw-finance` (severity=HIGH) |
+| MEDIUM | Informational | Flag in next daily/weekly report (severity=MEDIUM) |
+
 ### AI Spend
-- **OpenRouter daily > $5.00** → flag in report (agent fleet running hot)
-- **OpenRouter weekly > $25.00** → immediate Discord alert
-- **Total estimated monthly AI > $200** → escalate to team lead
+- **OpenRouter daily > $5.00** → MEDIUM (flag in report, agent fleet running hot)
+- **OpenRouter weekly > $25.00** → HIGH (Discord message to `#yclaw-finance`)
+- **Total estimated monthly AI > $200** → CRITICAL (Discord alert + escalate to team lead)
 
 ### Infrastructure
-- **AWS monthly > $500** → flag in weekly report
-- **AWS monthly > $1,000** → immediate Discord alert + escalate
-- **MongoDB Atlas > $100/month** → flag in report
-- **Redis Cloud > $50/month** → flag in report
-- **Any service +50% MoM increase** → immediate Discord alert
+- **AWS monthly > $500** → MEDIUM (flag in weekly report)
+- **AWS monthly > $1,000** → CRITICAL (Discord alert + escalate)
+- **MongoDB Atlas > $100/month** → MEDIUM (flag in report)
+- **Redis Cloud > $50/month** → MEDIUM (flag in report)
+- **Any service +50% MoM increase** → HIGH (Discord message to `#yclaw-finance`)
 
 ### General
-- **Monthly burn rate exceeds budget** → flag in weekly report
-- **Runway < 6 months** → immediate Discord alert + escalate
+- **Monthly burn rate exceeds budget** → HIGH (flag in weekly report + Discord message)
+- **Runway < 6 months** → CRITICAL (Discord alert + escalate)
+
+See `escalation-policy.md` for the authoritative severity definitions and
+escalation chain.
 
 ## Reporting Format
 
