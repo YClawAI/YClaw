@@ -16,7 +16,7 @@ Before researching models, collect actual data:
 - For each agent: total executions, total tokens (input/output), cache hit rates
 - For each task type: average tokens per execution, frequency, success rate
 - Identify the top 5 most expensive agent+task combinations
-- Check Treasurer's latest spend report in [your-finance-channel]
+- Check Treasurer's latest spend report in `#yclaw-finance`
 
 ### 2. Research Current Model Landscape
 
@@ -68,7 +68,7 @@ For each recommended per-task override, provide the exact YAML:
   task: standup_synthesis
   model:
     provider: anthropic
-    model: claude-sonnet-4-20250514
+    model: claude-sonnet-4-6
     temperature: 0.5
     maxTokens: 4096
 ```
@@ -104,5 +104,5 @@ Provide the exact trigger YAML blocks for all recommended per-task overrides so 
 
 ### 6. Delivery
 
-Post the completed report to **[your-executive-channel]** Slack channel.
+Post the completed report to **`#yclaw-executive`** Discord channel.
 Tag any changes that need [Executive]/[AI Chief of Staff] approval vs. auto-approvable.

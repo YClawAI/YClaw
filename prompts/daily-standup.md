@@ -80,7 +80,7 @@ Skip `proposed_adaptations` unless you have a specific, actionable change. "Cont
 
 ## Strategist Synthesis
 
-The Strategist collects standup reports and posts a brief to [your-executive-channel]:
+The Strategist collects standup reports and posts a brief to `#yclaw-executive`:
 
 ```
 📋 Standup — {date}
@@ -106,7 +106,7 @@ Do NOT pad it.
 `event:publish` — pass `source`, `type`, `payload` as **top-level fields** (not nested).
 `discord:message` — always include `channel` and `text`. Never send empty messages. If nothing to report, skip the action.
 
-Department channels: [your-executive-channel], [your-development-channel], [your-marketing-channel], [your-operations-channel], [your-finance-channel], [your-support-channel]
+Department channels: `#yclaw-executive`, `#yclaw-development`, `#yclaw-marketing`, `#yclaw-operations`, `#yclaw-finance`, `#yclaw-support`
 
 ---
 

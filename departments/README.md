@@ -157,7 +157,7 @@ All agents run a daily standup task on a staggered schedule between 13:00 and 13
 
 ### Claudeception Self-Reflection
 
-Every agent subscribes to `claudeception:reflect` events and has a `self_reflection` task. This task uses a lighter model (`claude-sonnet-4-20250514` at temperature 0.5, 4096 tokens) to enable agents to learn from their experiences and capture reusable knowledge.
+Every agent subscribes to `claudeception:reflect` events and has a `self_reflection` task. This task uses a lighter model (`claude-sonnet-4-6` at temperature 0.5, 4096 tokens) to enable agents to learn from their experiences and capture reusable knowledge.
 
 ### System Prompts
 

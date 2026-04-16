@@ -59,13 +59,11 @@ flowchart TD
 
 | Agent | Schedule (UTC) | Task |
 |-------|----------------|------|
-| Strategist | 13:45 daily | `standup_synthesis` |
 | Strategist | 14:00 Monday | `weekly_directive` |
 | Strategist | 14:00 Wednesday | `midweek_review` |
 | Strategist | 07:00 1st of month | `monthly_strategy` |
 | Strategist | 14:00 1st Monday of month | `model_review` |
 | Strategist | Every 30 min (13:00-03:00 UTC) | `heartbeat` |
-| Reviewer | 13:00 daily | `daily_standup` |
 
 ## Key Capabilities
 
@@ -75,7 +73,7 @@ The Strategist uses a `batch_event` trigger to collect `standup:report` events f
 
 ### Strategist: Heartbeat
 
-The heartbeat task runs every 30 minutes during active hours (13:00--03:00 UTC). It uses a lighter model (`claude-sonnet-4-20250514`) and a reduced prompt set to monitor system health at low cost.
+The heartbeat task runs every 4 hours. It uses a lighter model (`claude-sonnet-4-6`) and a reduced prompt set to monitor system health at low cost.
 
 ### Strategist: Cross-Department Directives
 

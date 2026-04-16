@@ -84,7 +84,6 @@ flowchart LR
 | Ember | 16:30 Mon-Fri | `midday_post` | 12:30 PM ET |
 | Ember | 22:00 Mon-Fri | `afternoon_engagement` | 6:00 PM ET |
 | Ember | 15:00 Sat-Sun | `weekend_content` | 11:00 AM ET |
-| Forge | 13:14 daily | `daily_standup` | |
 
 ## Key Capabilities
 

@@ -23,9 +23,6 @@ system_prompts:
   - designer-workflow.md
 
 triggers:
-  - type: cron
-    schedule: "8 13 * * *"
-    task: daily_standup
   - type: event
     event: ao:pr_ready
     task: design_review

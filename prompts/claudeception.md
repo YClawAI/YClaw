@@ -86,13 +86,13 @@ description: |
   [Precise description: (1) exact use cases, (2) trigger conditions like
   error messages or symptoms, (3) what problem this solves. Be specific
   enough for search/matching to surface it.]
-author: [your-agent-name]
+author: {agent-name}
 version: 1.0.0
-date: [YYYY-MM-DD]
+date: {YYYY-MM-DD}
 metadata:
   type: post-task
-  agent: [your-agent-name]
-  department: [your-department]
+  agent: {agent-name}
+  department: {department}
 ---
 
 # [Skill Name]

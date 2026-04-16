@@ -21,9 +21,6 @@ system_prompts:
   - forge-workflow.md
 triggers:
   - type: cron
-    schedule: 14 13 * * *
-    task: daily_standup
-  - type: cron
     schedule: "0 10 * * 1"         # Monday 10:00 UTC — weekly asset pack
     task: weekly_asset_generation
   - type: cron
