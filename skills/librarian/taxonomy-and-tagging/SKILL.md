@@ -40,7 +40,7 @@ The originating agent. Exactly one. Examples:
 - `source:sentinel`, `source:architect`, `source:scout`, `source:ember`, `source:librarian`, `source:strategist`, `source:manual` (directive-driven, no single source agent).
 
 ### `status:*`
-One of the temporal lifecycle states. Exactly one.
+One of the temporal lifecycle states. Exactly one from the canonical five, unless the entry is actively in a conflict state (see exception below).
 
 | Tag | Meaning |
 |-----|---------|
@@ -49,6 +49,8 @@ One of the temporal lifecycle states. Exactly one.
 | `status:stale` | Flagged by hygiene audit as possibly outdated; may still be useful |
 | `status:superseded` | Explicitly replaced by a newer entry (keep a `superseded_by` link) |
 | `status:archived` | Soft-deleted; lives in `vault/99-archive/` |
+
+**Exception: `status:conflict`.** Owned by `deduplication-and-merge/SKILL.md`. Applied transiently to entries where two agents contributed contradicting claims; pairs with the entry's `conflicts:` field. An entry carrying `status:conflict` retains one of the canonical five as its base status — the conflict tag is additive for this narrow case. When the conflict is resolved (human adjudication via Strategist), the `status:conflict` tag is removed and the base status may change (e.g., to `superseded` for the loser of the adjudication). Do NOT use `status:conflict` outside the dedup/merge flow.
 
 ## Optional Tag Namespaces
 

@@ -50,7 +50,7 @@ If the two entries **contradict** each other on a factual claim:
 
 1. **Do NOT auto-merge.** Silent merge of contradictions corrupts the knowledge base.
 2. Add a `conflicts:` field on the canonical entry with both claims, each tagged with `source_agent` + `timestamp` + the specific conflicting text.
-3. Apply `status:conflict` tag. (Note: this is a narrow exception to the taxonomy — `conflict` is one of two permitted non-controlled-vocabulary status values, alongside the core five. Document in `taxonomy-and-tagging/SKILL.md` if promoting to the main vocabulary.)
+3. Apply the additive `status:conflict` tag alongside the entry's existing canonical status (see `taxonomy-and-tagging/SKILL.md` — the status exception is documented there). The base status (`status:current` / `status:draft` / etc.) remains; `conflict` is added, not substituted.
 4. Publish `sentinel:alert` with severity MEDIUM and `alertType: vault_conflict`. Strategist adjudicates or delegates to a human.
 5. Do NOT mark the duplicate as superseded until the conflict resolves — both live until a decision is made.
 

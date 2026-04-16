@@ -102,7 +102,7 @@ Every vault entry SHOULD have these fields. Missing fields block publication and
 | `created_at` | ISO-8601 | yes |
 | `updated_at` | ISO-8601 | yes |
 | `confidence` | enum | yes |
-| `status` | enum (`draft`, `active`, `stale`, `archived`) | yes |
+| `status` | enum (`draft`, `current`, `stale`, `superseded`, `archived`) | yes |
 | `see_also` | array<path> | no |
 | `history` | array<object> | no |
 | `conflicts` | array<object> | no |

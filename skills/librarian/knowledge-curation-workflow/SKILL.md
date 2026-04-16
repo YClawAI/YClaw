@@ -72,7 +72,7 @@ Every entry written MUST have:
 | `updated_at` | yes | ISO-8601 UTC (= `created_at` on first write) |
 | `tags` | yes | Controlled vocabulary only |
 | `confidence` | yes | `verified` / `inferred` / `uncertain` |
-| `status` | yes | `draft` / `active` / `stale` / `archived` |
+| `status` | yes | `draft` / `current` / `stale` / `superseded` / `archived` (see `taxonomy-and-tagging/SKILL.md` for authoritative enum) |
 
 Missing any required field → entry goes to `vault/05-inbox/` with a sibling `needs_review.md` explaining what's missing. Do NOT publish incomplete entries into the canonical tree.
 
