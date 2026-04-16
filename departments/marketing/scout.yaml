@@ -28,7 +28,7 @@ triggers:
     schedule: "12 13 * * *"
     task: daily_standup
   - type: cron
-    schedule: "0 8 * * 1-5"
+    schedule: "0 8 * * 1,3,5"     # Mon/Wed/Fri only (was daily)
     task: daily_intel_scan
   - type: cron
     schedule: "0 10 * * 1"
