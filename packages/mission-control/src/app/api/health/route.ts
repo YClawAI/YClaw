@@ -12,80 +12,76 @@ interface HealthCheck {
   message?: string;
 }
 
+// Per-check timeout so a slow dependency can't hang past the ALB 5s window.
+const CHECK_TIMEOUT_MS = 2500;
+
+function withTimeout<T>(
+  p: Promise<T>,
+  ms: number,
+  label: string,
+): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms),
+    ),
+  ]);
+}
+
 export async function GET() {
-  const checks: HealthCheck[] = [];
-
-  // ── MongoDB ──────────────────────────────────────────────────────
-  try {
-    const db = await getDb();
-    if (db) {
+  // Run all checks in parallel so total wall time is max(individual) not sum.
+  // Each check also has a per-check timeout cap to keep the route under the
+  // ALB 5s health check timeout even if a dep hangs.
+  const [mongoResult, redisResult, gatewayResult, operatorsResult] = await Promise.allSettled([
+    withTimeout((async () => {
+      const db = await getDb();
+      if (!db) return { name: 'mongodb', status: 'down' as const, message: 'Not configured or unreachable' };
       await db.command({ ping: 1 });
-      checks.push({ name: 'mongodb', status: 'ok' });
-    } else {
-      checks.push({ name: 'mongodb', status: 'down', message: 'Not configured or unreachable' });
-    }
-  } catch (err) {
-    checks.push({
-      name: 'mongodb',
-      status: 'down',
-      message: err instanceof Error ? err.message : 'Unreachable',
-    });
-  }
+      return { name: 'mongodb', status: 'ok' as const };
+    })(), CHECK_TIMEOUT_MS, 'mongodb'),
 
-  // ── Redis ────────────────────────────────────────────────────────
-  try {
-    const pong = await redisPing();
-    if (pong) {
-      checks.push({ name: 'redis', status: 'ok' });
-    } else {
+    withTimeout((async () => {
+      const pong = await redisPing();
+      if (pong) return { name: 'redis', status: 'ok' as const };
       const state = getRedisConnectionState();
-      checks.push({
+      return {
         name: 'redis',
-        status: state === 'reconnecting' ? 'degraded' : 'down',
+        status: state === 'reconnecting' ? 'degraded' as const : 'down' as const,
         message: `Connection state: ${state}`,
-      });
-    }
-  } catch (err) {
-    checks.push({
-      name: 'redis',
-      status: 'down',
-      message: err instanceof Error ? err.message : 'Unreachable',
-    });
-  }
+      };
+    })(), CHECK_TIMEOUT_MS, 'redis'),
 
-  // ── Gateway (WebSocket) ──────────────────────────────────────────
-  try {
-    const gateway = getGateway();
-    if (gateway.connected) {
-      checks.push({ name: 'gateway', status: 'ok' });
-    } else {
-      checks.push({ name: 'gateway', status: 'degraded', message: 'Not connected' });
-    }
-  } catch (err) {
-    checks.push({
-      name: 'gateway',
-      status: 'down',
-      message: err instanceof Error ? err.message : 'Unavailable',
-    });
-  }
+    withTimeout((async () => {
+      const gateway = getGateway();
+      return gateway.connected
+        ? { name: 'gateway', status: 'ok' as const }
+        : { name: 'gateway', status: 'degraded' as const, message: 'Not connected' };
+    })(), CHECK_TIMEOUT_MS, 'gateway'),
 
-  // ── Operator subsystem (core API) ────────────────────────────────
-  try {
-    const result = await fetchCoreApi<unknown>('/v1/operators', { cache: 'no-store' });
-    if (result.ok) {
-      checks.push({ name: 'operators', status: 'ok' });
-    } else if (result.status === 503) {
-      checks.push({ name: 'operators', status: 'degraded', message: result.error ?? 'Service unavailable' });
-    } else {
-      checks.push({ name: 'operators', status: 'down', message: result.error ?? `HTTP ${result.status}` });
-    }
-  } catch (err) {
-    checks.push({
-      name: 'operators',
-      status: 'down',
-      message: err instanceof Error ? err.message : 'Unreachable',
-    });
-  }
+    withTimeout((async () => {
+      const result = await fetchCoreApi<unknown>('/v1/operators', { cache: 'no-store' });
+      if (result.ok) return { name: 'operators', status: 'ok' as const };
+      if (result.status === 503) {
+        return { name: 'operators', status: 'degraded' as const, message: result.error ?? 'Service unavailable' };
+      }
+      return { name: 'operators', status: 'down' as const, message: result.error ?? `HTTP ${result.status}` };
+    })(), CHECK_TIMEOUT_MS, 'operators'),
+  ]);
+
+  const checks: HealthCheck[] = [
+    mongoResult.status === 'fulfilled'
+      ? mongoResult.value
+      : { name: 'mongodb', status: 'down', message: mongoResult.reason instanceof Error ? mongoResult.reason.message : 'Unreachable' },
+    redisResult.status === 'fulfilled'
+      ? redisResult.value
+      : { name: 'redis', status: 'down', message: redisResult.reason instanceof Error ? redisResult.reason.message : 'Unreachable' },
+    gatewayResult.status === 'fulfilled'
+      ? gatewayResult.value
+      : { name: 'gateway', status: 'down', message: gatewayResult.reason instanceof Error ? gatewayResult.reason.message : 'Unavailable' },
+    operatorsResult.status === 'fulfilled'
+      ? operatorsResult.value
+      : { name: 'operators', status: 'down', message: operatorsResult.reason instanceof Error ? operatorsResult.reason.message : 'Unreachable' },
+  ];
 
   // ── Aggregate ────────────────────────────────────────────────────
   // Core deps (mongodb, redis) must be up for a healthy ALB response.
