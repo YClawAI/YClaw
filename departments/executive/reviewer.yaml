@@ -22,6 +22,25 @@ triggers:
 - type: cron
   schedule: 0 13 * * *
   task: daily_standup
+# Lightweight stale-review watchdog. Every 2 hours Reviewer checks its own pending
+# queue and flags any submission waiting >4h or if queue depth exceeds 5. Sonnet
+# (cheap) — this is monitoring, not review execution.
+- type: cron
+  schedule: 0 */2 * * *
+  task: review_queue_check
+  model:
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    temperature: 0.0
+    maxTokens: 2048
+# Universal content review event. ANY agent publishing externally MUST emit this
+# before the publish to route through Reviewer. Added P2 because the ember:/scout:
+# events below only cover two agents — Guide, Keeper, Architect, Sentinel and any
+# future external-publishing agent need a single canonical event. The existing
+# ember:content_ready and scout:outreach_ready remain for backward compatibility.
+- type: event
+  event: content:review_required
+  task: review_content
 - type: event
   event: review:pending
   task: review_content
@@ -44,6 +63,17 @@ triggers:
     maxTokens: 4096
 actions:
 - github:get_contents
+# Added P1: Reviewer needs to see PR changes, check issue context, annotate reviews,
+# file compliance issues, and reference policy docs. Previously under-permissioned.
+- github:get_diff
+- github:get_issue
+- github:pr_review
+- github:pr_comment
+- github:create_issue
+- vault:read
+- vault:search
+# task:query needed by review_queue_check cron — read-only status query.
+- task:query
 - x:search
 - discord:message
 - discord:thread_reply
@@ -54,6 +84,7 @@ data_sources: []
 event_subscriptions:
 - strategist:reviewer_directive
 - claudeception:reflect
+- content:review_required
 - review:pending
 - ember:content_ready
 - scout:outreach_ready
@@ -61,6 +92,8 @@ event_publications:
 - standup:report
 - reviewer:approved
 - reviewer:flagged
+# Published by review_queue_check cron when pending reviews exceed staleness/depth thresholds.
+- reviewer:queue_stale
 review_bypass: []
 
 heartbeat:

@@ -2,6 +2,16 @@
 
 > Defines the exact sequence for each Strategist task type.
 > Follow these sequences — do not skip steps.
+>
+> **Split review note (P2, 2026-04-16):** This file was reviewed for task-specific
+> extraction. Decision: keep whole. At 343 lines / ~13KB it covers 10+ task types,
+> and having a single operating manual beats scattering across 10 tiny files. The
+> heartbeat section (line ~8) already forwards to the dedicated `strategist-heartbeat.md`
+> which IS loaded by the heartbeat cron's `prompts:` override. The remaining task
+> sections document operating sequences Strategist actually references cross-task —
+> splitting them would create dead references and churn without a meaningful token
+> savings (weekly_directive / standup_synthesis already load the full file via
+> explicit `prompts:` blocks on their triggers).
 
 ---
 
@@ -270,32 +280,9 @@ What is blocking the task? Missing access? Dependency on another task? Design de
 
 ---
 
-## Task: execute_approved_deploy (triggered by deploy:approved)
-
-A CRITICAL-tier deployment has been approved by Architect. Execute it immediately.
-
-The event payload contains:
-- `deployment_id` — the assessment ID
-- `repo` — repository name
-- `environment` — target environment
-- `commit_sha` — commit to deploy (may be null)
-
-### Step 1: Execute
-
-Call `deploy:execute` with the payload fields:
-```json
-{
-  "repo": "<repo from payload>",
-  "environment": "<environment from payload>",
-  "deployment_id": "<deployment_id from payload>",
-  "commit_sha": "<commit_sha from payload, if present>"
-}
-```
-
-### Step 2: Report
-
-If deployment succeeds, post to #yclaw-development confirming successful deploy.
-If deployment fails, post to #yclaw-alerts with the error and escalate via `strategist:architect_directive`.
+<!-- Task: execute_approved_deploy was moved to Sentinel for separation of duties.
+     See prompts/sentinel-quality-workflow.md. Strategist no longer executes deploys;
+     it only assesses (deploy:assess). -->
 
 ---
 

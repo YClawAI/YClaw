@@ -8,6 +8,9 @@ model:
   temperature: 0.7
   maxTokens: 8192
 system_prompts:
+  # Always-loaded core. P2 moved model-review.md and strategist-objectives.md
+  # to task-specific `prompts:` blocks on the cron triggers that need them —
+  # they were being loaded on every heartbeat and alert unnecessarily.
   - claudeception.md
   - skill-usage.md
   - mission_statement.md
@@ -16,22 +19,28 @@ system_prompts:
   - executive-directive.md
   - protocol-overview.md
   - escalation-policy.md
-  - model-review.md
   - strategist-workflow.md
   - strategist-heartbeat.md
-  - strategist-objectives.md
 triggers:
-  - type: cron
-    schedule: 45 13 * * *
-    task: standup_synthesis
-    model:
-      provider: anthropic
-      model: claude-sonnet-4-20250514
-      temperature: 0.3
-      maxTokens: 4096
+  # Standup synthesis is event-driven (batch_event below). Removed the 13:45 cron
+  # duplicate that would race the batch_event with a different model. The batch_event
+  # is the single canonical path; if it fails to fire, the heartbeat watchdog can
+  # surface the gap.
   - type: cron
     schedule: 0 14 * * 1
     task: weekly_directive
+    # weekly_directive loads strategist-objectives.md for the always-on strategic goals.
+    prompts:
+      - claudeception.md
+      - skill-usage.md
+      - mission_statement.md
+      - chain-of-command.md
+      - daily-standup.md
+      - executive-directive.md
+      - protocol-overview.md
+      - escalation-policy.md
+      - strategist-workflow.md
+      - strategist-objectives.md
   - type: cron
     schedule: 0 14 * * 3
     task: midweek_review
@@ -41,6 +50,17 @@ triggers:
   - type: cron
     schedule: 0 14 1-7 * 1
     task: model_review
+    # model_review is the only task that needs model-review.md — first Monday monthly.
+    prompts:
+      - claudeception.md
+      - skill-usage.md
+      - mission_statement.md
+      - chain-of-command.md
+      - executive-directive.md
+      - protocol-overview.md
+      - escalation-policy.md
+      - strategist-workflow.md
+      - model-review.md
   - type: cron
     schedule: '*/30 * * * *'
     task: heartbeat
@@ -56,14 +76,29 @@ triggers:
   - type: batch_event
     events:
       - standup:report
-    min_count: 10
-    timeout_ms: 1800000
+    # Lowered from 10 → 8 so synthesis fires even if a few agents miss their standup.
+    min_count: 8
+    # Lowered from 30min → 20min so partial reports surface faster on agent outages.
+    timeout_ms: 1200000
     task: standup_synthesis
     model:
       provider: anthropic
       model: claude-opus-4-6
       temperature: 0.5
       maxTokens: 8192
+    # standup_synthesis loads strategist-objectives.md so synthesis can surface
+    # blockers against the always-on strategic goals.
+    prompts:
+      - claudeception.md
+      - skill-usage.md
+      - mission_statement.md
+      - chain-of-command.md
+      - daily-standup.md
+      - executive-directive.md
+      - protocol-overview.md
+      - escalation-policy.md
+      - strategist-workflow.md
+      - strategist-objectives.md
   - type: event
     event: claudeception:reflect
     task: self_reflection
@@ -104,16 +139,15 @@ triggers:
       model: claude-sonnet-4-20250514
       temperature: 0.3
       maxTokens: 4096
-  # Deploy Governance v2: execute approved CRITICAL-tier deployments
-  - type: event
-    event: deploy:approved
-    task: execute_approved_deploy
-    model:
-      provider: anthropic
-      model: claude-sonnet-4-20250514
-      temperature: 0.2
-      maxTokens: 4096
+  # Deploy Governance v2: Strategist now ONLY assesses (deploy:assess). Execution
+  # of approved CRITICAL-tier deployments was moved to Sentinel for separation
+  # of duties (the agent that decides should not also execute). The
+  # deploy:approved → execute_approved_deploy trigger now lives on Sentinel.
 actions:
+  # NOTE: github:commit_file and github:create_branch are intentionally unscoped
+  # in the current config schema. These should be path-scoped to the directories
+  # Strategist legitimately writes to: docs/, departments/executive/, prompts/strategist*.
+  # TODO: when the config schema supports path-scoping, restrict these actions.
   - github:commit_file
   - github:get_contents
   - github:create_branch
@@ -124,9 +158,7 @@ actions:
   - github:pr_comment
   - github:get_issue
   - github:list_issues
-  - twitter:update_profile
-  - twitter:update_profile_image
-  - twitter:update_profile_banner
+  # twitter:update_profile* moved to Ember (marketing owns the brand surface).
   - x:search
   - x:user
   - telegram:announce
@@ -137,14 +169,14 @@ actions:
   - discord:react
   - event:publish
   - deploy:assess
-  - deploy:execute
+  # deploy:execute removed — separation of duties. Now owned by Sentinel.
   - task:query
   - task:summary
 data_sources: []
 event_subscriptions:
   - claudeception:reflect
   - standup:report
-  - deploy:approved
+  # deploy:approved subscription removed — execution moved to Sentinel.
   - sentinel:alert
   - ao:task_failed
   - ao:spawn_failed
@@ -167,3 +199,10 @@ event_publications:
   - strategist:guide_directive
   - strategist:reviewer_directive
 review_bypass: []
+
+# Strategist is the most critical coordination agent. A silent Strategist means
+# the org's coordination layer is down — escalate fast (4h vs Reviewer/Sentinel's 6h).
+heartbeat:
+  precheck:
+    enabled: true
+    maxSilenceHours: 4

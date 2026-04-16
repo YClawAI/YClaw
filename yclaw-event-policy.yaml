@@ -36,6 +36,7 @@ sources:
       - "reviewer:flagged"
       - "reviewer:approved"
       - "reviewer:rejected"
+      - "reviewer:queue_stale"
 
   # Development ──────────────────────────────────────────────────────────
   # Architect — build directives, deploy governance, and AO coordination
@@ -74,6 +75,8 @@ sources:
       - "ember:needs_asset"
       - "ember:content_ready"
       - "review:pending"
+      # Universal content review gate (P2) — kept alongside ember:content_ready for compat.
+      - "content:review_required"
 
   # Forge — asset creation events
   agent:forge:
@@ -89,6 +92,8 @@ sources:
       - "scout:outreach_ready"
       - "scout:pipeline_report"
       - "review:pending"
+      # Universal content review gate (P2) — kept alongside scout:outreach_ready for compat.
+      - "content:review_required"
 
   # Operations ───────────────────────────────────────────────────────────
   # Sentinel — operational events
@@ -120,6 +125,8 @@ sources:
       - "standup:report"
       - "guide:case_resolved"
       - "guide:case_escalated"
+      # Universal content review gate (P2) — required before externally visible support responses.
+      - "content:review_required"
 
   # Keeper — community moderation events
   agent:keeper:
@@ -127,6 +134,8 @@ sources:
       - "standup:report"
       - "keeper:support_case"
       - "keeper:community_health"
+      # Universal content review gate (P2) — required before posting moderation notices publicly.
+      - "content:review_required"
 
   # System sources ───────────────────────────────────────────────────────
   # AO (the coding agent) — build result events

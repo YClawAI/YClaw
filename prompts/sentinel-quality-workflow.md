@@ -204,6 +204,48 @@ Handle infrastructure-related questions or requests from Discord mentions. Diagn
 
 ---
 
+## Task: execute_approved_deploy (triggered by event: deploy:approved)
+
+A CRITICAL-tier deployment has been approved by Architect. Execute it immediately.
+This task moved from Strategist to Sentinel for separation of duties — the agent
+that assesses (Strategist via `deploy:assess`) should not also execute.
+
+The event payload contains:
+- `deployment_id` — the assessment ID
+- `repo` — repository name
+- `environment` — target environment
+- `commit_sha` — commit to deploy (may be null)
+
+### Step 1: Execute
+
+Call `deploy:execute` with the payload fields:
+```json
+{
+  "repo": "<repo from payload>",
+  "environment": "<environment from payload>",
+  "deployment_id": "<deployment_id from payload>",
+  "commit_sha": "<commit_sha from payload, if present>"
+}
+```
+
+### Step 2: Report
+
+If deployment succeeds, post to #yclaw-development confirming successful deploy.
+If deployment fails, post to #yclaw-alerts with the error. Do NOT attempt to
+re-execute — route failure back to Architect via `sentinel:alert` for triage.
+
+### Rules for execute_approved_deploy
+
+- **NEVER re-assess** — the Architect-approved payload is authoritative; do not
+  second-guess. If you have concerns, surface them via `sentinel:alert` but still
+  execute the approved deploy unless the payload is clearly malformed.
+- **NEVER execute without a deploy:approved event** — no proactive deploys from
+  Sentinel.
+- **ONE deploy at a time per repo+env** — the deploy flood protection layer
+  prevents concurrent executions; trust it and don't try to work around it.
+
+---
+
 ## Task: self_reflection (triggered by event: claudeception:reflect)
 
 Reflect on recent work. What went well? What failed? What would you do differently? Extract reusable learnings and patterns. Write findings to memory.
