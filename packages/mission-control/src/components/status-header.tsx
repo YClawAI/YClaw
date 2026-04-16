@@ -41,18 +41,18 @@ function ConnDot({
   longLabel: string;
 }) {
   const dotClass = reconnecting
-    ? 'bg-terminal-orange shadow-[0_0_4px_#fab387]'
+    ? 'bg-mc-warning animate-mc-pulse shadow-[0_0_6px_currentColor] text-mc-warning'
     : healthy
-      ? 'bg-terminal-green shadow-[0_0_4px_#a6e3a1]'
-      : 'bg-terminal-red shadow-[0_0_4px_#f38ba8]';
+      ? 'bg-mc-success animate-mc-pulse shadow-[0_0_6px_currentColor] text-mc-success'
+      : 'bg-mc-danger animate-mc-pulse shadow-[0_0_6px_currentColor] text-mc-danger';
   const textClass = reconnecting
-    ? 'text-terminal-orange'
-    : healthy ? 'text-terminal-dim' : 'text-terminal-red';
+    ? 'text-mc-warning'
+    : healthy ? 'text-mc-text-tertiary' : 'text-mc-danger';
   const titleStatus = reconnecting ? 'reconnecting' : healthy ? 'connected' : 'disconnected';
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 font-mono text-[10px]"
+      className="inline-flex items-center gap-1.5 font-sans text-[10px] uppercase tracking-label"
       title={`${longLabel}: ${titleStatus}`}
     >
       <span className={`inline-block w-1.5 h-1.5 rounded-full ${dotClass}`} />
@@ -88,13 +88,13 @@ export function StatusHeader({ initialHealth, initialFleetStatus, initialEcsStat
   });
 
   return (
-    <header className="h-14 shrink-0 bg-terminal-bg/80 backdrop-blur-sm border-b border-terminal-border flex items-center px-4 gap-4">
+    <header className="h-14 shrink-0 bg-mc-bg/80 backdrop-blur-sm border-b border-mc-border flex items-center px-4 gap-4">
       <Link href="/" className="flex items-center gap-2 shrink-0">
-        <span className="text-terminal-purple text-sm">◈</span>
-        <span className="font-mono text-xs font-bold text-terminal-text tracking-wide">Mission Control</span>
+        <span className="text-mc-accent text-sm">◈</span>
+        <span className="font-sans text-xs font-medium text-mc-text tracking-label uppercase">Mission Control</span>
       </Link>
 
-      <div className="h-4 w-px bg-terminal-border" />
+      <div className="h-4 w-px bg-mc-border" />
 
       <div className="flex items-center gap-3">
         <ConnDot
@@ -106,7 +106,7 @@ export function StatusHeader({ initialHealth, initialFleetStatus, initialEcsStat
         <ConnDot healthy={health.redis} reconnecting={health.redisState === 'reconnecting'} shortLabel="Redis" longLabel="Redis" />
       </div>
 
-      <div className="h-4 w-px bg-terminal-border" />
+      <div className="h-4 w-px bg-mc-border" />
 
       <FleetKillSwitch initialStatus={initialFleetStatus} initialEcsStatus={initialEcsStatus} />
 
@@ -114,16 +114,16 @@ export function StatusHeader({ initialHealth, initialFleetStatus, initialEcsStat
 
       <button
         onClick={() => toggleChat()}
-        className="text-terminal-dim hover:text-terminal-purple transition-colors text-sm"
+        className="text-mc-text-tertiary hover:text-mc-accent transition-colors duration-mc ease-mc-out text-sm"
         title="Chat with OpenClaw"
       >
         💬
       </button>
 
-      <button className="relative text-terminal-dim hover:text-terminal-text transition-colors text-sm" title="Alerts">
+      <button className="relative text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out text-sm" title="Alerts">
         🔔
         {alertCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-terminal-red text-white text-[8px] rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-mc-danger text-white font-mono tabular-nums text-[8px] rounded-full flex items-center justify-center">
             {alertCount}
           </span>
         )}

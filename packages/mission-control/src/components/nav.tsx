@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { DEPARTMENTS, DEPT_META, DEPT_COLORS, getAgentsByDept } from '@/lib/agents';
+import { DEPARTMENTS, DEPT_META, DEPT_COLORS_MC, getAgentsByDept } from '@/lib/agents';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import { useChatStore } from '@/stores/chat-store';
 import { SidebarAgentItem } from './sidebar-agent-item';
@@ -178,16 +178,16 @@ function NavLink({ href, icon, label, badge, badgeColor, collapsed }: NavLinkPro
   const pathname = usePathname();
   const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
   const badgeClasses = badgeColor === 'red'
-    ? 'text-[10px] font-mono text-terminal-red bg-terminal-red/10 px-1.5 py-0.5 rounded'
-    : 'text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded';
+    ? 'font-mono tabular-nums text-[10px] text-mc-danger bg-mc-danger/10 border border-mc-danger/40 px-1.5 py-0.5 rounded-badge'
+    : 'font-mono tabular-nums text-[10px] text-mc-text-tertiary bg-mc-surface border border-mc-border px-1.5 py-0.5 rounded-badge';
 
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-3 py-2 rounded text-sm font-mono transition-colors ${
+      className={`flex items-center gap-3 px-3 py-2 rounded-panel font-sans text-[13px] transition-colors duration-mc ease-mc-out ${
         isActive
-          ? 'bg-terminal-muted text-terminal-text border-l-2 border-terminal-purple'
-          : 'text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface'
+          ? 'bg-mc-surface text-mc-text border-l-2 border-mc-accent'
+          : 'text-mc-text-tertiary hover:text-mc-text hover:bg-mc-surface-hover'
       }`}
       title={collapsed ? label : undefined}
     >
@@ -207,10 +207,10 @@ function NavLink({ href, icon, label, badge, badgeColor, collapsed }: NavLinkPro
 }
 
 function SectionLabel({ label, collapsed }: { label: string; collapsed: boolean }) {
-  if (collapsed) return <div className="h-px bg-terminal-border mx-2 my-3" />;
+  if (collapsed) return <div className="h-px bg-mc-border mx-2 my-3" />;
   return (
     <div className="px-3 mt-5 mb-2">
-      <span className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim/60">{label}</span>
+      <span className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-tertiary/70">{label}</span>
     </div>
   );
 }
@@ -259,13 +259,13 @@ export function Nav({ agentStatuses }: NavProps) {
       <div className="px-3 mb-4 flex items-center justify-between">
         {!collapsed && (
           <div>
-            <div className="font-mono text-sm font-bold text-terminal-purple tracking-widest">YCLAW</div>
-            <div className="font-mono text-[10px] text-terminal-dim tracking-widest">MISSION CONTROL</div>
+            <div className="font-sans text-sm font-medium text-mc-accent tracking-label uppercase">YCLAW</div>
+            <div className="font-sans text-[10px] text-mc-text-tertiary tracking-label uppercase">Mission Control</div>
           </div>
         )}
         <button
           onClick={toggleCollapsed}
-          className="text-terminal-dim hover:text-terminal-text transition-colors text-xs p-1"
+          className="text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out text-xs p-1"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -287,7 +287,7 @@ export function Nav({ agentStatuses }: NavProps) {
       <SectionLabel label="Departments" collapsed={collapsed} />
       {DEPARTMENTS.map((dept) => {
         const meta = DEPT_META[dept];
-        const colorClass = DEPT_COLORS[dept];
+        const colorClass = DEPT_COLORS_MC[dept];
         const agents = getAgentsByDept(dept);
         const isActive = pathname.startsWith(`/departments/${dept}`);
         const isExpanded = expandedDepts[dept] ?? false;
@@ -298,10 +298,10 @@ export function Nav({ agentStatuses }: NavProps) {
             <div className="flex items-center">
               <Link
                 href={`/departments/${dept}`}
-                className={`flex-1 flex items-center gap-3 px-3 py-2 rounded-l text-sm font-mono transition-colors ${
+                className={`flex-1 flex items-center gap-3 px-3 py-2 rounded-l-panel font-sans text-[13px] transition-colors duration-mc ease-mc-out ${
                   isActive
-                    ? 'bg-terminal-muted text-terminal-text border-l-2 border-terminal-purple'
-                    : 'text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface'
+                    ? 'bg-mc-surface text-mc-text border-l-2 border-mc-accent'
+                    : 'text-mc-text-tertiary hover:text-mc-text hover:bg-mc-surface-hover'
                 }`}
                 title={collapsed ? meta.label : undefined}
               >
@@ -313,7 +313,7 @@ export function Nav({ agentStatuses }: NavProps) {
               {!collapsed && (
                 <button
                   onClick={() => toggleDept(dept)}
-                  className="px-2 py-2 text-terminal-dim hover:text-terminal-text transition-colors text-[10px]"
+                  className="px-2 py-2 text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out text-[10px]"
                 >
                   {isExpanded ? '▾' : '▸'}
                 </button>
@@ -351,20 +351,20 @@ export function Nav({ agentStatuses }: NavProps) {
       <div className="flex-1" />
 
       {/* Bottom */}
-      <div className="border-t border-terminal-border pt-3 mt-3 space-y-1">
+      <div className="border-t border-mc-border pt-3 mt-3 space-y-1">
         {!collapsed && (
           <button
             onClick={toggleChat}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded text-sm font-mono text-terminal-dim hover:text-terminal-purple hover:bg-terminal-surface transition-colors border border-terminal-border"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-panel font-sans text-xs text-mc-text-tertiary hover:text-mc-accent hover:bg-mc-surface-hover transition-colors duration-mc ease-mc-out border border-mc-border hover:border-mc-border-hover"
           >
             <span className="w-4 flex items-center justify-center"><IconChat /></span>
-            <span className="flex-1 text-left text-xs">Chat with OpenClaw</span>
+            <span className="flex-1 text-left uppercase tracking-label">Chat with OpenClaw</span>
           </button>
         )}
         {collapsed && (
           <button
             onClick={toggleChat}
-            className="w-full flex items-center justify-center py-2 text-terminal-dim hover:text-terminal-purple transition-colors"
+            className="w-full flex items-center justify-center py-2 text-mc-text-tertiary hover:text-mc-accent transition-colors duration-mc ease-mc-out"
             title="Chat with OpenClaw"
           >
             <IconChat />
