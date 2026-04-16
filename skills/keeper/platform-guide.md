@@ -1,26 +1,12 @@
-# Telegram Community Management Guide
+# Community Management Guide
 
 ## Channel Structure
 
-**Two-Channel Model:**
-1. **Announcement Channel** — protocol updates, token launches, period closes, ecosystem news
-2. **Discussion Group** (moderated by @YClaw_Keeper_Bot) — active moderation, staker questions, real-time engagement
+**Discord + Telegram Model:**
+- **Discord:** Primary community hub — multiple channels for development, operations, support, general discussion
+- **Telegram:** Community discussion group, moderated by bot
 
-## Bot Capabilities
-
-@YClaw_Keeper_Bot has full Telegram Bot API access:
-
-| Action | Method |
-|--------|--------|
-| Send messages | `sendMessage` |
-| Pin messages | `pinChatMessage` |
-| Delete messages | `deleteMessage` |
-| Ban users | `banChatMember` |
-| Restrict users | `restrictChatMember` |
-| Reply to messages | `sendMessage` (reply_to) |
-| Set permissions | `setChatPermissions` |
-
-## Message Formatting
+## Message Formatting (Telegram)
 
 ```
 *bold text*
@@ -32,13 +18,13 @@ __underline__
 
 **Announcement structure:**
 ```
-📍 [FEATURE] [Title]
+📍 [TYPE] [Title]
 
 [Summary sentence]
 
 [Details with context]
 
-[Link to full discussion]
+[Link to full discussion / docs / issue]
 ```
 
 ## Community Management Norms
@@ -47,57 +33,45 @@ __underline__
 - Acknowledge suggestions within 24 hours
 - Daily presence but not constant scrolling appearance
 
-**When to chime in:** Technical questions, staker strategy, builder questions, misinformation corrections
-**When to stay silent:** Price speculation, trading advice, competitor commentary
+**When to chime in:** Technical questions about YCLAW, setup help, configuration issues, misinformation corrections, welcoming new members
+**When to stay silent:** Unrelated tech debates, speculation about roadmap not yet announced, conversations flowing fine without you
 
 ## New Member Experience
 
 **Welcome message (auto-sent):**
 ```
-Welcome to YClaw Community.
+Welcome to the YCLAW community.
 
 Here you'll find:
-• Updates on platform development
-• Technical discussions with builders
-• Calibration of community options
-• Direct access to team
+• Updates on framework development
+• Technical discussions with contributors
+• Help with setup and configuration
+• Direct access to the team
 
-Start: Read pinned resources
-Questions: Ask in channel
-Feedback: DM @YClaw_Keeper_Bot
+Start: Read pinned resources and docs
+Questions: Ask in the channel
+Bugs: Open a GitHub issue
+Contribute: Check CONTRIBUTING.md
 
 Looking forward to building with you.
 ```
 
 **Onboarding flow:**
 1. Auto-welcome with resources link
-2. Pinned "Start Here" message
-3. Redirect to thread for introductions
+2. Pinned "Start Here" message with docs + quickstart
+3. Redirect to appropriate channel for their question type
 
 ## Anti-Spam Configuration
 
 - Restricted permissions for new members (read-only first 60 minutes)
 - Require admin approval for links (first 24 hours)
 - Mute stickers/GIFs/games unless explicitly enabled
-- Hide group members list from non-verified members
 
 ## Admin Command Handling
 
-Only chat admins can request management actions by mentioning @YClaw_Keeper_Bot.
-
-**Required fields in event payload:**
-- `isAdmin` = true (sender must be group admin/creator)
-- `isBotMention` or `isReplyToBot` = true (message directed at bot)
+Only chat admins can request management actions by mentioning the bot.
 
 **Non-admins:** Politely decline management requests. Still answer FAQ/support questions.
-
-**Supported admin commands:**
-- Change group name/description
-- Update group permissions
-- Generate invite link
-- Pin/unpin messages
-- Ban/restrict users
-- Post announcements
 
 **Destructive actions** (ban, restrict, permission changes): Confirm before executing.
 **Non-destructive actions** (set title, pin, invite link): Execute immediately and confirm.
