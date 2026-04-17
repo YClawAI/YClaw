@@ -52,15 +52,15 @@ export function BurnVelocity({ initialDailySpendCents }: { initialDailySpendCent
 
   return (
     <div className="flex items-center gap-3 font-mono">
-      <span className={`text-2xl font-bold transition-all duration-300 ${flash ? 'text-terminal-red scale-105' : 'text-terminal-text'}`}>
+      <span className={`text-2xl font-bold transition-all duration-300 ${flash ? 'text-mc-danger scale-105' : 'text-mc-text'}`}>
         ${dollars.toFixed(2)}
       </span>
-      <span className="text-xs text-terminal-dim">today</span>
+      <span className="text-xs text-mc-text-tertiary">today</span>
       {elapsedSec > 60 && (
-        <div className="text-xs text-terminal-red/70 flex items-center gap-1">
-          <span className={`inline-block w-1.5 h-1.5 rounded-full ${flash ? 'bg-terminal-red animate-ping' : 'bg-terminal-red/50'}`} />
+        <div className="text-xs text-mc-danger/70 flex items-center gap-1">
+          <span className={`inline-block w-1.5 h-1.5 rounded-full ${flash ? 'bg-mc-danger animate-ping' : 'bg-mc-danger/50'}`} />
           <span>~${avgPerSecond}/sec</span>
-          <span className="text-[10px] text-terminal-dim">avg since midnight</span>
+          <span className="text-[10px] text-mc-text-tertiary">avg since midnight</span>
         </div>
       )}
     </div>

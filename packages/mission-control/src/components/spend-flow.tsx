@@ -15,14 +15,14 @@ function mapModelToProvider(model: string): string {
 }
 
 const PROVIDER_COLORS: Record<string, string> = {
-  Anthropic: 'bg-terminal-purple',
-  OpenAI: 'bg-terminal-green',
-  Google: 'bg-terminal-blue',
-  OpenRouter: 'bg-terminal-orange',
-  AWS: 'bg-terminal-yellow',
-  MongoDB: 'bg-terminal-green/60',
-  Redis: 'bg-terminal-red/60',
-  Other: 'bg-terminal-dim',
+  Anthropic: 'bg-mc-accent',
+  OpenAI: 'bg-mc-success',
+  Google: 'bg-mc-info',
+  OpenRouter: 'bg-mc-blocked',
+  AWS: 'bg-mc-warning',
+  MongoDB: 'bg-mc-success/60',
+  Redis: 'bg-mc-danger/60',
+  Other: 'bg-mc-text-tertiary',
 };
 
 export function SpendFlow({
@@ -63,14 +63,14 @@ export function SpendFlow({
 
   const todayDiff = todayCents - yesterdayCents;
   const diffSign = todayDiff >= 0 ? '+' : '';
-  const diffColor = todayDiff > 0 ? 'text-terminal-red' : 'text-terminal-green';
+  const diffColor = todayDiff > 0 ? 'text-mc-danger' : 'text-mc-success';
 
   return (
     <div>
       {/* Flow bar */}
       {total > 0 && (
         <div className="mb-4">
-          <div className="flex h-6 rounded-full overflow-hidden border border-terminal-border">
+          <div className="flex h-6 rounded-full overflow-hidden border border-mc-border">
             {segments.map((seg) => {
               const pct = (seg.value / total) * 100;
               if (pct < 1) return null;
@@ -95,7 +95,7 @@ export function SpendFlow({
             {segments.map((seg) => (
               <div key={seg.label} className="flex items-center gap-1.5">
                 <span className={`w-2 h-2 rounded-full ${seg.color}`} />
-                <span className="text-[10px] text-terminal-dim">
+                <span className="text-[10px] text-mc-text-tertiary">
                   {seg.label}: ${(seg.value / 100).toFixed(2)}
                 </span>
               </div>
@@ -106,13 +106,13 @@ export function SpendFlow({
 
       {/* Summary line */}
       <div className="flex items-center gap-4 text-xs font-mono">
-        <span className="text-terminal-text">
+        <span className="text-mc-text">
           Today: <span className="font-bold">${(todayCents / 100).toFixed(2)}</span>
         </span>
         <span className={diffColor}>
           vs yesterday: {diffSign}${(Math.abs(todayDiff) / 100).toFixed(2)}
         </span>
-        <span className="text-terminal-dim">
+        <span className="text-mc-text-tertiary">
           7d avg: ${(weekAvgCents / 100).toFixed(2)}
         </span>
       </div>
