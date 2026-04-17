@@ -40,7 +40,7 @@
 
 /* Audit timeline new-event highlight */
 @keyframes highlight-fade {
-  0% { background-color: rgba(59, 130, 246, 0.15); }
+  0% { background-color: rgba(90, 200, 250, 0.15); }
   100% { background-color: transparent; }
 }
 .animate-highlight {

@@ -160,3 +160,55 @@ These components are kept as-is and imported into new pages:
 - `FleetKillSwitch` — status header logic
 - `RefreshTrigger` — server-component pages
 - `SystemBadge` — agent cards
+
+---
+
+## SpaceX Token Migration Notes (mc-* palette)
+
+> These notes apply to files migrated to the `mc-*` design token namespace (PR #126).
+> The `terminal-*` palette above remains frozen for all un-migrated files.
+> Migration rule: a file uses `terminal-*` **or** `mc-*`, never both — whole files flip in one commit.
+
+### mc-blocked vs mc-dept-marketing — Amber Collision
+
+Both `mc-blocked` and `mc-dept-marketing` resolve to `#FF9F0A` (iOS system amber).
+
+| Token | Hex | Semantic Role |
+|---|---|---|
+| `mc-blocked` | `#FF9F0A` | Agent/task blocked status indicator |
+| `mc-dept-marketing` | `#FF9F0A` | Marketing department accent color |
+
+**Rule:** These tokens must **not** be substituted for each other. Always use the semantically correct token for the context — `mc-blocked` for status indicators, `mc-dept-marketing` for department theming. The shared value is intentional (Marketing's warmth palette aligns with the warning/blocked hue) but the tokens carry different semantic contracts. Mixing them will break status-color logic if either token value diverges in a future palette revision.
+
+---
+
+### EVENT_CATEGORY_COLORS — Canvas Event Palette
+
+Defined in `src/components/hive/hive-types.ts` as the canonical color mapping for hive particle events. **This file is read-only for palette edits** — to change a color, update `EVENT_CATEGORY_COLORS` in `hive-types.ts` directly; do not override it elsewhere.
+
+These are raw hex values used directly by the canvas renderer (`CanvasRenderingContext2D`) and are not Tailwind tokens. Canvas APIs require hex/rgba strings; the `mc-*` CSS custom properties are not available in canvas draw calls.
+
+| Category | Hex | Semantic Group |
+|---|---|---|
+| `pr` | `#a855f7` | Inter-agent — purple (pull request) |
+| `content` | `#22c55e` | Inter-agent — green (content push) |
+| `task` | `#f59e0b` | Inter-agent — amber (task assignment) |
+| `alert` | `#ef4444` | Inter-agent — red (alert / error) |
+| `directive` | `#fbbf24` | Inter-agent — yellow (directive) |
+| `heartbeat` | `#6b7280` | Inter-agent — gray (heartbeat ping) |
+| `github_outbound` | `#8b5cf6` | External outbound — violet |
+| `twitter_outbound` | `#1d9bf0` | External outbound — Twitter blue |
+| `slack_outbound` | `#e01e5a` | External outbound — Slack red |
+| `web_outbound` | `#6b7280` | External outbound — gray |
+| `figma_outbound` | `#a259ff` | External outbound — Figma purple |
+| `api_outbound` | `#94a3b8` | External outbound — slate |
+| `llm_call` | `#f59e0b` | External outbound — amber |
+| `github_inbound` | `#a78bfa` | External inbound — lighter violet |
+| `twitter_inbound` | `#38bdf8` | External inbound — sky blue |
+| `slack_inbound` | `#f472b6` | External inbound — pink |
+| `web_inbound` | `#9ca3af` | External inbound — light gray |
+| `openclaw_trigger` | `#ef4444` | OpenClaw — red |
+| `openclaw_directive` | `#f97316` | OpenClaw — orange |
+| `openclaw_response` | `#fb923c` | OpenClaw — light orange |
+
+**Palette intent:** Outbound events use cooler, dimmer hues; inbound events use warmer, brighter variants of the same family. OpenClaw interactions use the red/orange family to signal elevated authority. Inter-agent events span the full visible spectrum by semantic weight.
