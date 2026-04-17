@@ -9,15 +9,15 @@ import type { UnifiedEvent, EventLogPage } from '@/lib/event-log-queries';
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 const STATUS_STYLES: Record<string, string> = {
-  active:    'text-terminal-green bg-terminal-green/10 border-terminal-green/30',
-  running:   'text-terminal-green bg-terminal-green/10 border-terminal-green/30',
-  completed: 'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30',
-  success:   'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30',
-  merged:    'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30',
-  failed:    'text-terminal-red bg-terminal-red/10 border-terminal-red/30',
-  error:     'text-terminal-red bg-terminal-red/10 border-terminal-red/30',
-  pending:   'text-terminal-yellow bg-terminal-yellow/10 border-terminal-yellow/30',
-  queued:    'text-terminal-yellow bg-terminal-yellow/10 border-terminal-yellow/30',
+  active:    'text-mc-success bg-mc-success/10 border-mc-success/30',
+  running:   'text-mc-success bg-mc-success/10 border-mc-success/30',
+  completed: 'text-mc-info bg-mc-info/10 border-mc-info/30',
+  success:   'text-mc-info bg-mc-info/10 border-mc-info/30',
+  merged:    'text-mc-info bg-mc-info/10 border-mc-info/30',
+  failed:    'text-mc-danger bg-mc-danger/10 border-mc-danger/30',
+  error:     'text-mc-danger bg-mc-danger/10 border-mc-danger/30',
+  pending:   'text-mc-warning bg-mc-warning/10 border-mc-warning/30',
+  queued:    'text-mc-warning bg-mc-warning/10 border-mc-warning/30',
 };
 
 function formatTimeAgo(dateStr: string): string {
@@ -33,8 +33,8 @@ function formatTimeAgo(dateStr: string): string {
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status?: string }) {
-  if (!status) return <span className="text-terminal-dim/50">—</span>;
-  const style = STATUS_STYLES[status.toLowerCase()] ?? 'text-terminal-dim bg-terminal-muted border-terminal-border';
+  if (!status) return <span className="text-mc-text-tertiary/50">—</span>;
+  const style = STATUS_STYLES[status.toLowerCase()] ?? 'text-mc-text-tertiary bg-mc-border border-mc-border';
   return (
     <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono border ${style}`}>
       {status}
@@ -56,12 +56,12 @@ function FilterBar({
   onReset: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 bg-terminal-surface border border-terminal-border rounded px-3 py-2 mb-4">
+    <div className="flex flex-wrap items-center gap-2 bg-mc-surface-hover border border-mc-border rounded px-3 py-2 mb-4">
       {/* Agent */}
       <select
         value={filters.agent}
         onChange={(e) => onChange({ agent: e.target.value })}
-        className="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue"
+        className="bg-mc-bg border border-mc-border rounded px-2 py-1 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
       >
         <option value="">All agents</option>
         {agents.map((a) => {
@@ -78,7 +78,7 @@ function FilterBar({
       <select
         value={filters.type}
         onChange={(e) => onChange({ type: e.target.value })}
-        className="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue"
+        className="bg-mc-bg border border-mc-border rounded px-2 py-1 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
       >
         <option value="">All types</option>
         {types.map((t) => (
@@ -90,7 +90,7 @@ function FilterBar({
       <select
         value={filters.status}
         onChange={(e) => onChange({ status: e.target.value })}
-        className="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue"
+        className="bg-mc-bg border border-mc-border rounded px-2 py-1 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
       >
         <option value="">All statuses</option>
         {['active', 'running', 'completed', 'success', 'failed', 'error', 'pending', 'queued'].map((s) => (
@@ -103,7 +103,7 @@ function FilterBar({
         type="datetime-local"
         value={filters.from}
         onChange={(e) => onChange({ from: e.target.value })}
-        className="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue"
+        className="bg-mc-bg border border-mc-border rounded px-2 py-1 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
         placeholder="From"
       />
 
@@ -112,7 +112,7 @@ function FilterBar({
         type="datetime-local"
         value={filters.to}
         onChange={(e) => onChange({ to: e.target.value })}
-        className="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue"
+        className="bg-mc-bg border border-mc-border rounded px-2 py-1 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
         placeholder="To"
       />
 
@@ -120,7 +120,7 @@ function FilterBar({
       {(filters.agent || filters.type || filters.status || filters.from || filters.to) && (
         <button
           onClick={onReset}
-          className="text-[10px] font-mono text-terminal-dim hover:text-terminal-text border border-terminal-border rounded px-2 py-1 transition-colors"
+          className="text-[10px] font-mono text-mc-text-tertiary hover:text-mc-text border border-mc-border rounded px-2 py-1 transition-colors"
         >
           Clear
         </button>
@@ -239,14 +239,14 @@ export function EventLogTable({ initialData, agents, types }: EventLogTableProps
       />
 
       {/* Table header */}
-      <div className="bg-terminal-surface border border-terminal-border rounded overflow-hidden">
+      <div className="bg-mc-surface-hover border border-mc-border rounded overflow-hidden">
         {/* Status bar */}
-        <div className="px-4 py-2 border-b border-terminal-border flex items-center justify-between gap-2">
+        <div className="px-4 py-2 border-b border-mc-border flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary">
               Event Log
             </span>
-            <span className="text-[10px] font-mono text-terminal-dim">
+            <span className="text-[10px] font-mono text-mc-text-tertiary">
               {total} event{total !== 1 ? 's' : ''}
             </span>
           </div>
@@ -254,13 +254,13 @@ export function EventLogTable({ initialData, agents, types }: EventLogTableProps
             {liveCount > 0 && page !== 1 && (
               <button
                 onClick={() => { setPage(1); setLiveCount(0); }}
-                className="text-[10px] font-mono text-terminal-green bg-terminal-green/10 border border-terminal-green/30 rounded px-2 py-0.5 hover:bg-terminal-green/20 transition-colors"
+                className="text-[10px] font-mono text-mc-success bg-mc-success/10 border border-mc-success/30 rounded px-2 py-0.5 hover:bg-mc-success/20 transition-colors"
               >
                 ↑ {liveCount} new
               </button>
             )}
             <span
-              className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-terminal-green animate-pulse' : 'bg-terminal-dim'}`}
+              className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-mc-success animate-pulse' : 'bg-mc-text-tertiary'}`}
               title={connected ? 'Live' : 'Connecting…'}
             />
           </div>
@@ -268,30 +268,33 @@ export function EventLogTable({ initialData, agents, types }: EventLogTableProps
 
         {/* Table */}
         {isPending ? (
-          <div className="px-4 py-6 text-xs text-terminal-dim text-center animate-pulse">Loading…</div>
+          <div className="px-4 py-6 text-xs text-mc-text-tertiary text-center animate-pulse">Loading…</div>
         ) : events.length === 0 ? (
-          <div className="px-4 py-6 text-xs text-terminal-dim text-center">No events found</div>
+          <div className="px-4 py-6 text-xs text-mc-text-tertiary text-center">No events found</div>
         ) : (
-          <div className="divide-y divide-terminal-border">
+          <div className="divide-y divide-mc-border">
             {events.map((event) => {
               const agent = AGENTS.find((a) => a.name === event.agentId);
               return (
                 <button
                   key={event.id}
                   onClick={() => openDetail(event)}
-                  className="w-full text-left px-4 py-2.5 flex items-center gap-3 text-xs hover:bg-terminal-muted/30 transition-colors"
+                  className="w-full text-left px-4 py-2.5 flex items-center gap-3 text-xs hover:bg-mc-border/30 transition-colors"
                 >
                   {/* Agent */}
                   <span className="text-sm w-5 shrink-0">{agent?.emoji ?? '?'}</span>
-                  <span className="text-terminal-text font-semibold w-24 shrink-0 truncate">
+                  <span className="text-mc-text font-semibold w-24 shrink-0 truncate">
                     {agent?.label ?? event.agentId}
                   </span>
 
-                  {/* Type badge */}
+                  {/* Type badge — event_log (persistent) vs. in-memory.
+                      Pre-flip used purple for event_log + cyan for others; mechanical flip
+                      collapsed both to mc-accent. Route event_log to mc-dept-finance
+                      (only iOS-palette purple) to preserve the two-way distinction. */}
                   <span className={`shrink-0 px-1.5 py-0.5 rounded border text-[10px] font-mono ${
                     event.source === 'event_log'
-                      ? 'text-terminal-purple bg-terminal-purple/10 border-terminal-purple/30'
-                      : 'text-terminal-cyan bg-terminal-cyan/10 border-terminal-cyan/30'
+                      ? 'text-mc-dept-finance bg-mc-dept-finance/10 border-mc-dept-finance/30'
+                      : 'text-mc-accent bg-mc-accent/10 border-mc-accent/30'
                   }`}>
                     {event.type}
                   </span>
@@ -303,13 +306,13 @@ export function EventLogTable({ initialData, agents, types }: EventLogTableProps
 
                   {/* Task */}
                   {event.taskId && (
-                    <span className="text-terminal-dim font-mono truncate max-w-[160px]">
+                    <span className="text-mc-text-tertiary font-mono truncate max-w-[160px]">
                       {event.taskId}
                     </span>
                   )}
 
                   {/* Time */}
-                  <span className="ml-auto shrink-0 text-terminal-dim">
+                  <span className="ml-auto shrink-0 text-mc-text-tertiary">
                     {mounted ? formatTimeAgo(event.createdAt) : '—'}
                   </span>
                 </button>
@@ -320,21 +323,21 @@ export function EventLogTable({ initialData, agents, types }: EventLogTableProps
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-4 py-2 border-t border-terminal-border flex items-center justify-between">
+          <div className="px-4 py-2 border-t border-mc-border flex items-center justify-between">
             <button
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
-              className="text-[10px] font-mono text-terminal-dim disabled:opacity-40 hover:text-terminal-text transition-colors px-2 py-1 border border-terminal-border rounded disabled:cursor-not-allowed"
+              className="text-[10px] font-mono text-mc-text-tertiary disabled:opacity-40 hover:text-mc-text transition-colors px-2 py-1 border border-mc-border rounded disabled:cursor-not-allowed"
             >
               ← Prev
             </button>
-            <span className="text-[10px] font-mono text-terminal-dim">
+            <span className="text-[10px] font-mono text-mc-text-tertiary">
               Page {page} / {totalPages}
             </span>
             <button
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="text-[10px] font-mono text-terminal-dim disabled:opacity-40 hover:text-terminal-text transition-colors px-2 py-1 border border-terminal-border rounded disabled:cursor-not-allowed"
+              className="text-[10px] font-mono text-mc-text-tertiary disabled:opacity-40 hover:text-mc-text transition-colors px-2 py-1 border border-mc-border rounded disabled:cursor-not-allowed"
             >
               Next →
             </button>
