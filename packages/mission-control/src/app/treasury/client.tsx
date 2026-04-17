@@ -23,32 +23,32 @@ function formatDollars(d: number): string {
 }
 
 function runwayColor(status: TreasuryData['runway']['status']): string {
-  if (status === 'critical') return 'text-terminal-red';
-  if (status === 'warning') return 'text-terminal-yellow';
-  return 'text-terminal-green';
+  if (status === 'critical') return 'text-mc-danger';
+  if (status === 'warning') return 'text-mc-warning';
+  return 'text-mc-success';
 }
 
 function severityStyle(s: AttentionItem['severity']): string {
-  if (s === 'critical') return 'border-terminal-red/40 bg-terminal-red/5';
-  if (s === 'warning') return 'border-terminal-yellow/40 bg-terminal-yellow/5';
-  return 'border-terminal-border bg-terminal-surface';
+  if (s === 'critical') return 'border-mc-danger/40 bg-mc-danger/5';
+  if (s === 'warning') return 'border-mc-warning/40 bg-mc-warning/5';
+  return 'border-mc-border bg-mc-surface-hover';
 }
 
 function severityDot(s: AttentionItem['severity']): string {
-  if (s === 'critical') return 'bg-terminal-red';
-  if (s === 'warning') return 'bg-terminal-yellow';
-  return 'bg-terminal-dim';
+  if (s === 'critical') return 'bg-mc-danger';
+  if (s === 'warning') return 'bg-mc-warning';
+  return 'bg-mc-text-tertiary';
 }
 
 type Tab = 'all' | 'agents' | 'assets' | 'infra';
 
 const CHAIN_COLORS: Record<string, string> = {
-  solana: 'bg-terminal-purple',
-  ethereum: 'bg-terminal-blue',
-  base: 'bg-terminal-cyan',
-  arbitrum: 'bg-terminal-orange',
-  optimism: 'bg-terminal-red',
-  polygon: 'bg-terminal-green',
+  solana: 'bg-mc-accent',
+  ethereum: 'bg-mc-info',
+  base: 'bg-mc-accent',
+  arbitrum: 'bg-mc-blocked',
+  optimism: 'bg-mc-danger',
+  polygon: 'bg-mc-success',
 };
 
 const CHAIN_LABELS: Record<string, string> = {
@@ -166,11 +166,11 @@ export function TreasuryClient({
     <div>
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg font-bold text-terminal-text tracking-wide">Treasury</h1>
+        <h1 className="text-lg font-bold text-mc-text tracking-wide">Treasury</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setFinSettingsOpen(true)}
-            className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded hover:bg-terminal-surface transition-colors text-terminal-dim hover:text-terminal-text"
+            className="px-3 py-1.5 text-xs font-mono border border-mc-border rounded hover:bg-mc-surface-hover transition-colors text-mc-text-tertiary hover:text-mc-text"
           >
             Settings
           </button>
@@ -179,17 +179,17 @@ export function TreasuryClient({
 
       {/* ── Runway Hero ── */}
       <section className="mb-6">
-        <div className="bg-terminal-surface border border-terminal-border rounded-lg p-5">
+        <div className="bg-mc-surface-hover border border-mc-border rounded-lg p-5">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-terminal-dim uppercase tracking-widest mb-1">Runway</div>
+              <div className="text-xs text-mc-text-tertiary uppercase tracking-widest mb-1">Runway</div>
               <div className={`text-4xl font-bold font-mono ${runwayColor(data.runway.status)}`}>
                 {data.runway.daysRemaining > 9000 ? '∞' : data.runway.daysRemaining} <span className="text-lg">days</span>
               </div>
-              <div className="text-xs text-terminal-dim mt-1">
+              <div className="text-xs text-mc-text-tertiary mt-1">
                 Assets: {formatDollars(data.runway.totalAssets)} (Fiat {formatDollars(bankingTotal)} + Crypto {formatDollars(cryptoTotal)})
               </div>
-              <div className="text-xs text-terminal-dim">
+              <div className="text-xs text-mc-text-tertiary">
                 Burning: {formatDollars(data.runway.monthlyBurn)}/mo (LLM {formatDollars(llmMonthly)} + Infra {formatDollars(infraMonthly)})
               </div>
             </div>
@@ -197,7 +197,7 @@ export function TreasuryClient({
               <div className={`w-4 h-4 rounded-full ${runwayColor(data.runway.status).replace('text-', 'bg-')}`} />
               <button
                 onClick={() => setRunwayExpanded(!runwayExpanded)}
-                className="text-[10px] text-terminal-dim hover:text-terminal-text"
+                className="text-[10px] text-mc-text-tertiary hover:text-mc-text"
               >
                 {runwayExpanded ? 'collapse' : 'expand breakdown'}
               </button>
@@ -205,22 +205,22 @@ export function TreasuryClient({
           </div>
 
           {runwayExpanded && (
-            <div className="mt-4 pt-4 border-t border-terminal-border grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="mt-4 pt-4 border-t border-mc-border grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <div className="text-[10px] text-terminal-dim uppercase">Fiat (Banking)</div>
-                <div className="text-sm font-mono text-terminal-text">{formatDollars(bankingTotal)}</div>
+                <div className="text-[10px] text-mc-text-tertiary uppercase">Fiat (Banking)</div>
+                <div className="text-sm font-mono text-mc-text">{formatDollars(bankingTotal)}</div>
               </div>
               <div>
-                <div className="text-[10px] text-terminal-dim uppercase">Crypto</div>
-                <div className="text-sm font-mono text-terminal-text">{formatDollars(cryptoTotal)}</div>
+                <div className="text-[10px] text-mc-text-tertiary uppercase">Crypto</div>
+                <div className="text-sm font-mono text-mc-text">{formatDollars(cryptoTotal)}</div>
               </div>
               <div>
-                <div className="text-[10px] text-terminal-dim uppercase">LLM Spend (30d)</div>
-                <div className="text-sm font-mono text-terminal-red">{formatDollars(llmMonthly)}</div>
+                <div className="text-[10px] text-mc-text-tertiary uppercase">LLM Spend (30d)</div>
+                <div className="text-sm font-mono text-mc-danger">{formatDollars(llmMonthly)}</div>
               </div>
               <div>
-                <div className="text-[10px] text-terminal-dim uppercase">Infra (Monthly)</div>
-                <div className="text-sm font-mono text-terminal-red">{formatDollars(infraMonthly)}</div>
+                <div className="text-[10px] text-mc-text-tertiary uppercase">Infra (Monthly)</div>
+                <div className="text-sm font-mono text-mc-danger">{formatDollars(infraMonthly)}</div>
               </div>
             </div>
           )}
@@ -230,7 +230,7 @@ export function TreasuryClient({
       {/* ── Needs Attention ── */}
       {attentionItems.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-yellow mb-3">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-mc-warning mb-3">
             Needs Attention
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -239,16 +239,16 @@ export function TreasuryClient({
                 <div className="flex items-start gap-2">
                   <span className={`w-2 h-2 rounded-full mt-1 shrink-0 ${severityDot(item.severity)}`} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold text-terminal-text truncate">{item.title}</div>
-                    <div className="text-[10px] text-terminal-dim mt-0.5">{item.description}</div>
+                    <div className="text-xs font-bold text-mc-text truncate">{item.title}</div>
+                    <div className="text-[10px] text-mc-text-tertiary mt-0.5">{item.description}</div>
                     {item.metric && (
-                      <div className="text-[10px] font-mono text-terminal-dim mt-1">{item.metric}</div>
+                      <div className="text-[10px] font-mono text-mc-text-tertiary mt-1">{item.metric}</div>
                     )}
                   </div>
                   {item.action && (
                     <button
                       onClick={() => setFinSettingsOpen(true)}
-                      className="text-[10px] text-terminal-cyan hover:underline shrink-0"
+                      className="text-[10px] text-mc-accent hover:underline shrink-0"
                     >
                       {item.action.label} &rarr;
                     </button>
@@ -262,9 +262,9 @@ export function TreasuryClient({
 
       {/* ── Daily Burn ── */}
       <section className="mb-6">
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-blue">Daily Burn</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-mc-info">Daily Burn</h3>
             <BurnVelocity initialDailySpendCents={data.llmSpend.todaySpendCents} />
           </div>
           <SpendFlow
@@ -283,15 +283,15 @@ export function TreasuryClient({
 
       {/* ── Tabs ── */}
       <section className="mb-6">
-        <div className="flex border-b border-terminal-border mb-4">
+        <div className="flex border-b border-mc-border mb-4">
           {(['all', 'agents', 'assets', 'infra'] as const).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={`px-4 py-2 text-xs font-mono transition-colors border-b-2 ${
                 tab === t
-                  ? 'border-terminal-cyan text-terminal-cyan'
-                  : 'border-transparent text-terminal-dim hover:text-terminal-text'
+                  ? 'border-mc-accent text-mc-accent'
+                  : 'border-transparent text-mc-text-tertiary hover:text-mc-text'
               }`}
             >
               {t === 'all' ? 'All' : t === 'agents' ? 'Agents' : t === 'assets' ? 'Assets' : 'Infra'}
@@ -332,51 +332,51 @@ function AllTab({ data, budgetRows, onAgentClick }: { data: TreasuryData; budget
     <div className="space-y-6">
       {/* Budget summary */}
       {data.budget.config.mode !== 'off' && (
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-terminal-dim uppercase">Budget Status</span>
+            <span className="text-xs font-bold text-mc-text-tertiary uppercase">Budget Status</span>
             <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${
               data.budget.config.mode === 'enforcing'
-                ? 'bg-terminal-green/10 text-terminal-green'
-                : 'bg-terminal-yellow/10 text-terminal-yellow'
+                ? 'bg-mc-success/10 text-mc-success'
+                : 'bg-mc-warning/10 text-mc-warning'
             }`}>
               {data.budget.config.mode}
             </span>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <div className="text-[10px] text-terminal-dim mb-1">Fleet Daily</div>
-              <div className="w-full bg-terminal-border rounded-full h-2">
+              <div className="text-[10px] text-mc-text-tertiary mb-1">Fleet Daily</div>
+              <div className="w-full bg-mc-border rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all ${
                     data.budget.fleetDailySpendCents >= data.budget.config.globalDailyLimitCents
-                      ? 'bg-terminal-red'
+                      ? 'bg-mc-danger'
                       : data.budget.fleetDailySpendCents >= data.budget.config.globalDailyLimitCents * 0.8
-                        ? 'bg-terminal-yellow'
-                        : 'bg-terminal-green'
+                        ? 'bg-mc-warning'
+                        : 'bg-mc-success'
                   }`}
                   style={{ width: `${Math.min((data.budget.fleetDailySpendCents / Math.max(data.budget.config.globalDailyLimitCents, 1)) * 100, 100)}%` }}
                 />
               </div>
-              <div className="text-[10px] text-terminal-dim mt-0.5 font-mono">
+              <div className="text-[10px] text-mc-text-tertiary mt-0.5 font-mono">
                 {formatUsd(data.budget.fleetDailySpendCents)} / {formatUsd(data.budget.config.globalDailyLimitCents)}
               </div>
             </div>
             <div className="flex-1">
-              <div className="text-[10px] text-terminal-dim mb-1">Fleet Monthly</div>
-              <div className="w-full bg-terminal-border rounded-full h-2">
+              <div className="text-[10px] text-mc-text-tertiary mb-1">Fleet Monthly</div>
+              <div className="w-full bg-mc-border rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all ${
                     data.budget.fleetMonthlySpendCents >= data.budget.config.globalMonthlyLimitCents
-                      ? 'bg-terminal-red'
+                      ? 'bg-mc-danger'
                       : data.budget.fleetMonthlySpendCents >= data.budget.config.globalMonthlyLimitCents * 0.8
-                        ? 'bg-terminal-yellow'
-                        : 'bg-terminal-green'
+                        ? 'bg-mc-warning'
+                        : 'bg-mc-success'
                   }`}
                   style={{ width: `${Math.min((data.budget.fleetMonthlySpendCents / Math.max(data.budget.config.globalMonthlyLimitCents, 1)) * 100, 100)}%` }}
                 />
               </div>
-              <div className="text-[10px] text-terminal-dim mt-0.5 font-mono">
+              <div className="text-[10px] text-mc-text-tertiary mt-0.5 font-mono">
                 {formatUsd(data.budget.fleetMonthlySpendCents)} / {formatUsd(data.budget.config.globalMonthlyLimitCents)}
               </div>
             </div>
@@ -386,13 +386,13 @@ function AllTab({ data, budgetRows, onAgentClick }: { data: TreasuryData; budget
 
       {/* Top 5 agents by spend */}
       <div>
-        <h4 className="text-xs font-bold text-terminal-dim uppercase mb-2">Top Agents (This Month)</h4>
-        <div className="border border-terminal-border rounded overflow-hidden">
+        <h4 className="text-xs font-bold text-mc-text-tertiary uppercase mb-2">Top Agents (This Month)</h4>
+        <div className="border border-mc-border rounded overflow-hidden">
           <table className="w-full text-xs font-mono">
-            <thead className="bg-terminal-surface border-b border-terminal-border">
+            <thead className="bg-mc-surface-hover border-b border-mc-border">
               <tr>
                 {['Agent', 'Daily', 'Monthly', 'Status'].map(h => (
-                  <th key={h} className="text-left px-3 py-1.5 text-terminal-dim font-normal">{h}</th>
+                  <th key={h} className="text-left px-3 py-1.5 text-mc-text-tertiary font-normal">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -403,18 +403,18 @@ function AllTab({ data, budgetRows, onAgentClick }: { data: TreasuryData; budget
                   ? (agent.dailySpendCents / budgetRow.dailyLimitCents) * 100
                   : 0;
                 return (
-                  <tr key={agent.agentId} className="border-b border-terminal-border/50 hover:bg-terminal-surface/50">
+                  <tr key={agent.agentId} className="border-b border-mc-border/50 hover:bg-mc-surface-hover/50">
                     <td className="px-3 py-1.5">
-                      <button onClick={() => onAgentClick(agent.agentId)} className="text-terminal-cyan hover:underline">
+                      <button onClick={() => onAgentClick(agent.agentId)} className="text-mc-accent hover:underline">
                         {agent.emoji && <span className="mr-1">{agent.emoji}</span>}
                         {agent.label}
                       </button>
                     </td>
-                    <td className="px-3 py-1.5 text-terminal-text">{formatUsd(agent.dailySpendCents)}</td>
-                    <td className="px-3 py-1.5 text-terminal-text">{formatUsd(agent.spendCents)}</td>
+                    <td className="px-3 py-1.5 text-mc-text">{formatUsd(agent.dailySpendCents)}</td>
+                    <td className="px-3 py-1.5 text-mc-text">{formatUsd(agent.spendCents)}</td>
                     <td className="px-3 py-1.5">
                       <span className={`text-[10px] font-bold ${
-                        dailyPct >= 100 ? 'text-terminal-red' : dailyPct >= 80 ? 'text-terminal-yellow' : 'text-terminal-green'
+                        dailyPct >= 100 ? 'text-mc-danger' : dailyPct >= 80 ? 'text-mc-warning' : 'text-mc-success'
                       }`}>
                         {dailyPct >= 100 ? 'over' : dailyPct >= 80 ? 'warn' : 'ok'}
                       </span>
@@ -430,7 +430,7 @@ function AllTab({ data, budgetRows, onAgentClick }: { data: TreasuryData; budget
       {/* Crypto by chain */}
       {data.crypto && data.crypto.totalUsd > 0 && (
         <div>
-          <h4 className="text-xs font-bold text-terminal-dim uppercase mb-2">Crypto by Chain</h4>
+          <h4 className="text-xs font-bold text-mc-text-tertiary uppercase mb-2">Crypto by Chain</h4>
           <div className="space-y-1.5">
             {Object.entries(data.crypto.byChain)
               .sort((a, b) => b[1] - a[1])
@@ -438,14 +438,14 @@ function AllTab({ data, budgetRows, onAgentClick }: { data: TreasuryData; budget
                 const pct = data.crypto!.totalUsd > 0 ? (usd / data.crypto!.totalUsd) * 100 : 0;
                 return (
                   <div key={chain} className="flex items-center gap-2">
-                    <span className="text-[10px] text-terminal-dim w-16">{CHAIN_LABELS[chain] ?? chain}</span>
-                    <div className="flex-1 bg-terminal-border rounded-full h-2">
+                    <span className="text-[10px] text-mc-text-tertiary w-16">{CHAIN_LABELS[chain] ?? chain}</span>
+                    <div className="flex-1 bg-mc-border rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full ${CHAIN_COLORS[chain] ?? 'bg-terminal-dim'}`}
+                        className={`h-2 rounded-full ${CHAIN_COLORS[chain] ?? 'bg-mc-text-tertiary'}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-terminal-text w-20 text-right">
+                    <span className="text-[10px] font-mono text-mc-text w-20 text-right">
                       ${usd.toFixed(0)} ({pct.toFixed(0)}%)
                     </span>
                   </div>
@@ -458,12 +458,12 @@ function AllTab({ data, budgetRows, onAgentClick }: { data: TreasuryData; budget
       {/* Banking summary */}
       {data.banking && data.banking.accounts.length > 0 && (
         <div>
-          <h4 className="text-xs font-bold text-terminal-dim uppercase mb-2">Banking</h4>
+          <h4 className="text-xs font-bold text-mc-text-tertiary uppercase mb-2">Banking</h4>
           <div className="space-y-1">
             {data.banking.accounts.map(account => (
-              <div key={account.id} className="flex items-center justify-between text-xs px-3 py-1.5 bg-terminal-surface border border-terminal-border rounded">
-                <span className="text-terminal-text">{account.name}</span>
-                <span className="font-mono text-terminal-green">${account.availableBalance.toLocaleString()}</span>
+              <div key={account.id} className="flex items-center justify-between text-xs px-3 py-1.5 bg-mc-surface-hover border border-mc-border rounded">
+                <span className="text-mc-text">{account.name}</span>
+                <span className="font-mono text-mc-success">${account.availableBalance.toLocaleString()}</span>
               </div>
             ))}
           </div>
@@ -489,12 +489,12 @@ function AgentsTab({
   return (
     <div className="space-y-6">
       {/* Per-agent table */}
-      <div className="border border-terminal-border rounded overflow-hidden">
+      <div className="border border-mc-border rounded overflow-hidden">
         <table className="w-full text-xs font-mono">
-          <thead className="bg-terminal-surface border-b border-terminal-border">
+          <thead className="bg-mc-surface-hover border-b border-mc-border">
             <tr>
               {['Agent', 'Daily Spend', 'Monthly Spend', 'Requests', 'Budget', 'Status', ''].map(h => (
-                <th key={h} className="text-left px-3 py-2 text-terminal-dim font-normal">{h}</th>
+                <th key={h} className="text-left px-3 py-2 text-mc-text-tertiary font-normal">{h}</th>
               ))}
             </tr>
           </thead>
@@ -505,29 +505,29 @@ function AgentsTab({
                 ? (agent.dailySpendCents / budgetRow.dailyLimitCents) * 100
                 : 0;
               const statusText = dailyPct >= 100 ? 'over' : dailyPct >= 80 ? 'warn' : 'ok';
-              const statusColor = dailyPct >= 100 ? 'text-terminal-red' : dailyPct >= 80 ? 'text-terminal-yellow' : 'text-terminal-green';
+              const statusColor = dailyPct >= 100 ? 'text-mc-danger' : dailyPct >= 80 ? 'text-mc-warning' : 'text-mc-success';
 
               return (
-                <tr key={agent.agentId} className="border-b border-terminal-border/50 hover:bg-terminal-surface/50">
+                <tr key={agent.agentId} className="border-b border-mc-border/50 hover:bg-mc-surface-hover/50">
                   <td className="px-3 py-2">
-                    <button onClick={() => onAgentClick(agent.agentId)} className="text-terminal-cyan hover:underline">
+                    <button onClick={() => onAgentClick(agent.agentId)} className="text-mc-accent hover:underline">
                       {agent.emoji && <span className="mr-1">{agent.emoji}</span>}
                       {agent.label}
                     </button>
                   </td>
-                  <td className="px-3 py-2 text-terminal-text">{formatUsd(agent.dailySpendCents)}</td>
-                  <td className="px-3 py-2 text-terminal-text">{formatUsd(agent.spendCents)}</td>
-                  <td className="px-3 py-2 text-terminal-dim">{agent.requests.toLocaleString()}</td>
+                  <td className="px-3 py-2 text-mc-text">{formatUsd(agent.dailySpendCents)}</td>
+                  <td className="px-3 py-2 text-mc-text">{formatUsd(agent.spendCents)}</td>
+                  <td className="px-3 py-2 text-mc-text-tertiary">{agent.requests.toLocaleString()}</td>
                   <td className="px-3 py-2">
                     {budgetRow && (
                       <div className="flex items-center gap-1.5">
-                        <div className="w-12 bg-terminal-border rounded-full h-1.5">
+                        <div className="w-12 bg-mc-border rounded-full h-1.5">
                           <div
-                            className={`h-1.5 rounded-full ${dailyPct >= 100 ? 'bg-terminal-red' : dailyPct >= 80 ? 'bg-terminal-yellow' : 'bg-terminal-green'}`}
+                            className={`h-1.5 rounded-full ${dailyPct >= 100 ? 'bg-mc-danger' : dailyPct >= 80 ? 'bg-mc-warning' : 'bg-mc-success'}`}
                             style={{ width: `${Math.min(dailyPct, 100)}%` }}
                           />
                         </div>
-                        <span className="text-[10px] text-terminal-dim">{dailyPct.toFixed(0)}%</span>
+                        <span className="text-[10px] text-mc-text-tertiary">{dailyPct.toFixed(0)}%</span>
                       </div>
                     )}
                   </td>
@@ -535,7 +535,7 @@ function AgentsTab({
                   <td className="px-3 py-2">
                     <button
                       onClick={onBudgetClick}
-                      className="text-terminal-dim hover:text-terminal-text transition-colors"
+                      className="text-mc-text-tertiary hover:text-mc-text transition-colors"
                       title="Budget settings"
                     >
                       &#9881;
@@ -550,8 +550,8 @@ function AgentsTab({
 
       {/* Daily spend sparkline */}
       {data.llmSpend.dailyTrend.length > 0 && (
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-          <div className="text-xs text-terminal-dim mb-2">Daily Spend (last 14 days)</div>
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+          <div className="text-xs text-mc-text-tertiary mb-2">Daily Spend (last 14 days)</div>
           <div className="flex items-end gap-1.5 h-20">
             {data.llmSpend.dailyTrend.map(d => {
               const maxCents = Math.max(...data.llmSpend.dailyTrend.map(x => x.spendCents), 1);
@@ -559,11 +559,11 @@ function AgentsTab({
               return (
                 <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
                   <div
-                    className="w-full bg-terminal-blue/40 rounded-t hover:bg-terminal-blue/60 transition-colors"
+                    className="w-full bg-mc-info/40 rounded-t hover:bg-mc-info/60 transition-colors"
                     style={{ height: `${Math.max(pct, 3)}%` }}
                     title={`${d.date}: ${formatUsd(d.spendCents)}`}
                   />
-                  <span className="text-terminal-dim" style={{ writingMode: 'vertical-lr', fontSize: '8px' }}>
+                  <span className="text-mc-text-tertiary" style={{ writingMode: 'vertical-lr', fontSize: '8px' }}>
                     {d.date.slice(5)}
                   </span>
                 </div>
@@ -576,13 +576,13 @@ function AgentsTab({
       {/* By model breakdown */}
       {data.llmSpend.byModel.length > 0 && (
         <div>
-          <h4 className="text-xs font-bold text-terminal-dim uppercase mb-2">By Model</h4>
-          <div className="border border-terminal-border rounded overflow-hidden">
+          <h4 className="text-xs font-bold text-mc-text-tertiary uppercase mb-2">By Model</h4>
+          <div className="border border-mc-border rounded overflow-hidden">
             <table className="w-full text-xs font-mono">
-              <thead className="bg-terminal-surface border-b border-terminal-border">
+              <thead className="bg-mc-surface-hover border-b border-mc-border">
                 <tr>
                   {['Model', 'Spend', 'Requests', 'Share'].map(h => (
-                    <th key={h} className="text-left px-3 py-1.5 text-terminal-dim font-normal">{h}</th>
+                    <th key={h} className="text-left px-3 py-1.5 text-mc-text-tertiary font-normal">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -591,16 +591,16 @@ function AgentsTab({
                   const total = data.llmSpend.byModel.reduce((s, x) => s + x.spendCents, 0);
                   const share = total > 0 ? (m.spendCents / total) * 100 : 0;
                   return (
-                    <tr key={m.model} className="border-b border-terminal-border/50">
-                      <td className="px-3 py-1.5 text-terminal-text">{m.model}</td>
-                      <td className="px-3 py-1.5 text-terminal-green">{formatUsd(m.spendCents)}</td>
-                      <td className="px-3 py-1.5 text-terminal-dim">{m.requests.toLocaleString()}</td>
+                    <tr key={m.model} className="border-b border-mc-border/50">
+                      <td className="px-3 py-1.5 text-mc-text">{m.model}</td>
+                      <td className="px-3 py-1.5 text-mc-success">{formatUsd(m.spendCents)}</td>
+                      <td className="px-3 py-1.5 text-mc-text-tertiary">{m.requests.toLocaleString()}</td>
                       <td className="px-3 py-1.5">
                         <div className="flex items-center gap-2">
-                          <div className="w-12 bg-terminal-border rounded-full h-1.5">
-                            <div className="h-1.5 rounded-full bg-terminal-blue" style={{ width: `${share}%` }} />
+                          <div className="w-12 bg-mc-border rounded-full h-1.5">
+                            <div className="h-1.5 rounded-full bg-mc-info" style={{ width: `${share}%` }} />
                           </div>
-                          <span className="text-terminal-dim">{share.toFixed(0)}%</span>
+                          <span className="text-mc-text-tertiary">{share.toFixed(0)}%</span>
                         </div>
                       </td>
                     </tr>
@@ -624,8 +624,8 @@ function AssetsTab({ data }: { data: TreasuryData }) {
       {data.crypto && data.crypto.holdings.length > 0 ? (
         <>
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-terminal-dim uppercase">Crypto Holdings</h4>
-            <span className="text-sm font-bold text-terminal-green font-mono">
+            <h4 className="text-xs font-bold text-mc-text-tertiary uppercase">Crypto Holdings</h4>
+            <span className="text-sm font-bold text-mc-success font-mono">
               ${data.crypto.totalUsd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </span>
           </div>
@@ -638,10 +638,10 @@ function AssetsTab({ data }: { data: TreasuryData }) {
             return (
               <div key={category}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold text-terminal-dim uppercase tracking-widest">
+                  <span className="text-[10px] font-bold text-mc-text-tertiary uppercase tracking-widest">
                     {category}
                   </span>
-                  <span className="text-[10px] font-mono text-terminal-dim">
+                  <span className="text-[10px] font-mono text-mc-text-tertiary">
                     ${catTotal.toFixed(0)}
                   </span>
                 </div>
@@ -651,31 +651,31 @@ function AssetsTab({ data }: { data: TreasuryData }) {
                       key={h.address}
                       className={`border rounded p-3 ${
                         CHAIN_COLORS[h.chain]
-                          ? `bg-${h.chain === 'solana' ? 'terminal-purple' : h.chain === 'ethereum' ? 'terminal-blue' : h.chain === 'base' ? 'terminal-cyan' : 'terminal-orange'}/5 border-${h.chain === 'solana' ? 'terminal-purple' : h.chain === 'ethereum' ? 'terminal-blue' : h.chain === 'base' ? 'terminal-cyan' : 'terminal-orange'}/20`
-                          : 'border-terminal-border bg-terminal-surface'
+                          ? `bg-${h.chain === 'solana' ? 'mc-accent' : h.chain === 'ethereum' ? 'mc-info' : h.chain === 'base' ? 'mc-accent' : 'mc-blocked'}/5 border-${h.chain === 'solana' ? 'mc-accent' : h.chain === 'ethereum' ? 'mc-info' : h.chain === 'base' ? 'mc-accent' : 'mc-blocked'}/20`
+                          : 'border-mc-border bg-mc-surface-hover'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <div>
-                          <span className="text-[10px] font-bold text-terminal-dim uppercase">{CHAIN_LABELS[h.chain] ?? h.chain}</span>
-                          {h.label && <span className="text-[10px] text-terminal-dim ml-2">{h.label}</span>}
+                          <span className="text-[10px] font-bold text-mc-text-tertiary uppercase">{CHAIN_LABELS[h.chain] ?? h.chain}</span>
+                          {h.label && <span className="text-[10px] text-mc-text-tertiary ml-2">{h.label}</span>}
                         </div>
-                        <span className="text-[10px] font-mono text-terminal-dim">
+                        <span className="text-[10px] font-mono text-mc-text-tertiary">
                           {h.address.slice(0, 6)}...{h.address.slice(-4)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-terminal-text">
+                        <span className="text-xs text-mc-text">
                           {h.nativeBalance.toFixed(4)} {h.nativeSymbol}
                         </span>
-                        <span className="text-xs font-bold text-terminal-green">${h.usdValue.toFixed(2)}</span>
+                        <span className="text-xs font-bold text-mc-success">${h.usdValue.toFixed(2)}</span>
                       </div>
                       {h.tokens.length > 0 && (
                         <div className="mt-1 space-y-0.5">
                           {h.tokens.map((t, i) => (
                             <div key={i} className="flex items-center justify-between text-[10px]">
-                              <span className="text-terminal-dim">{t.balance.toFixed(2)} {t.symbol}</span>
-                              <span className="text-terminal-green">${t.usdValue.toFixed(2)}</span>
+                              <span className="text-mc-text-tertiary">{t.balance.toFixed(2)} {t.symbol}</span>
+                              <span className="text-mc-success">${t.usdValue.toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
@@ -688,44 +688,44 @@ function AssetsTab({ data }: { data: TreasuryData }) {
           })}
         </>
       ) : (
-        <div className="text-xs text-terminal-dim">No crypto holdings data available.</div>
+        <div className="text-xs text-mc-text-tertiary">No crypto holdings data available.</div>
       )}
 
       {/* Banking */}
       {data.banking && data.banking.accounts.length > 0 ? (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-xs font-bold text-terminal-dim uppercase">Banking</h4>
-            <span className="text-sm font-bold text-terminal-green font-mono">
+            <h4 className="text-xs font-bold text-mc-text-tertiary uppercase">Banking</h4>
+            <span className="text-sm font-bold text-mc-success font-mono">
               ${data.banking.totalAvailable.toLocaleString()}
             </span>
           </div>
           <div className="space-y-2">
             {data.banking.accounts.map(account => (
-              <div key={account.id} className="bg-terminal-surface border border-terminal-border rounded p-3">
+              <div key={account.id} className="bg-mc-surface-hover border border-mc-border rounded p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-bold text-terminal-text">{account.name}</div>
-                    <div className="text-[10px] text-terminal-dim">{account.institution} &middot; {account.type}</div>
+                    <div className="text-xs font-bold text-mc-text">{account.name}</div>
+                    <div className="text-[10px] text-mc-text-tertiary">{account.institution} &middot; {account.type}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-bold text-terminal-green font-mono">
+                    <div className="text-sm font-bold text-mc-success font-mono">
                       ${account.availableBalance.toLocaleString()}
                     </div>
-                    <div className="text-[10px] text-terminal-dim">available</div>
+                    <div className="text-[10px] text-mc-text-tertiary">available</div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
           {data.lastUpdated.banking && (
-            <div className="text-[10px] text-terminal-dim mt-1">
+            <div className="text-[10px] text-mc-text-tertiary mt-1">
               Last synced: {new Date(data.lastUpdated.banking).toLocaleString()}
             </div>
           )}
         </div>
       ) : (
-        <div className="text-xs text-terminal-dim">No banking data available. Treasurer syncs daily via Teller.io.</div>
+        <div className="text-xs text-mc-text-tertiary">No banking data available. Treasurer syncs daily via Teller.io.</div>
       )}
     </div>
   );
@@ -735,7 +735,7 @@ function AssetsTab({ data }: { data: TreasuryData }) {
 
 function InfraTab({ data }: { data: TreasuryData }) {
   if (!data.infraCosts) {
-    return <div className="text-xs text-terminal-dim">No infrastructure cost data available. Treasurer syncs via AWS Cost Explorer, Atlas, and Redis Cloud APIs.</div>;
+    return <div className="text-xs text-mc-text-tertiary">No infrastructure cost data available. Treasurer syncs via AWS Cost Explorer, Atlas, and Redis Cloud APIs.</div>;
   }
 
   const infra = data.infraCosts;
@@ -743,9 +743,9 @@ function InfraTab({ data }: { data: TreasuryData }) {
   return (
     <div className="space-y-6">
       {/* Total */}
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-        <div className="text-xs text-terminal-dim uppercase mb-1">Total Infrastructure (Monthly)</div>
-        <div className="text-2xl font-bold font-mono text-terminal-red">
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+        <div className="text-xs text-mc-text-tertiary uppercase mb-1">Total Infrastructure (Monthly)</div>
+        <div className="text-2xl font-bold font-mono text-mc-danger">
           {formatUsd(infra.totalMonthlyCents)}
         </div>
       </div>
@@ -754,19 +754,19 @@ function InfraTab({ data }: { data: TreasuryData }) {
       {infra.aws.byService.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-xs font-bold text-terminal-dim uppercase">AWS Services</h4>
-            <span className="text-xs font-mono text-terminal-text">{formatUsd(infra.aws.totalMonthlyCents)}/mo</span>
+            <h4 className="text-xs font-bold text-mc-text-tertiary uppercase">AWS Services</h4>
+            <span className="text-xs font-mono text-mc-text">{formatUsd(infra.aws.totalMonthlyCents)}/mo</span>
           </div>
           <div className="space-y-1.5">
             {infra.aws.byService.sort((a, b) => b.costCents - a.costCents).map(svc => {
               const pct = infra.aws.totalMonthlyCents > 0 ? (svc.costCents / infra.aws.totalMonthlyCents) * 100 : 0;
               return (
                 <div key={svc.service} className="flex items-center gap-2">
-                  <span className="text-[10px] text-terminal-dim w-28 truncate">{svc.service}</span>
-                  <div className="flex-1 bg-terminal-border rounded-full h-2">
-                    <div className="h-2 rounded-full bg-terminal-yellow" style={{ width: `${pct}%` }} />
+                  <span className="text-[10px] text-mc-text-tertiary w-28 truncate">{svc.service}</span>
+                  <div className="flex-1 bg-mc-border rounded-full h-2">
+                    <div className="h-2 rounded-full bg-mc-warning" style={{ width: `${pct}%` }} />
                   </div>
-                  <span className="text-[10px] font-mono text-terminal-text w-16 text-right">{formatUsd(svc.costCents)}</span>
+                  <span className="text-[10px] font-mono text-mc-text w-16 text-right">{formatUsd(svc.costCents)}</span>
                 </div>
               );
             })}
@@ -775,25 +775,25 @@ function InfraTab({ data }: { data: TreasuryData }) {
       )}
 
       {/* MongoDB Atlas */}
-      <div className="bg-terminal-surface border border-terminal-border rounded p-3 flex items-center justify-between">
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-3 flex items-center justify-between">
         <div>
-          <div className="text-xs font-bold text-terminal-text">MongoDB Atlas</div>
-          <div className="text-[10px] text-terminal-dim">Database hosting</div>
+          <div className="text-xs font-bold text-mc-text">MongoDB Atlas</div>
+          <div className="text-[10px] text-mc-text-tertiary">Database hosting</div>
         </div>
-        <span className="text-sm font-mono text-terminal-text">{formatUsd(infra.mongoAtlas.monthlyCents)}/mo</span>
+        <span className="text-sm font-mono text-mc-text">{formatUsd(infra.mongoAtlas.monthlyCents)}/mo</span>
       </div>
 
       {/* Redis Cloud */}
-      <div className="bg-terminal-surface border border-terminal-border rounded p-3 flex items-center justify-between">
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-3 flex items-center justify-between">
         <div>
-          <div className="text-xs font-bold text-terminal-text">Redis Cloud</div>
-          <div className="text-[10px] text-terminal-dim">Cache & pub/sub</div>
+          <div className="text-xs font-bold text-mc-text">Redis Cloud</div>
+          <div className="text-[10px] text-mc-text-tertiary">Cache & pub/sub</div>
         </div>
-        <span className="text-sm font-mono text-terminal-text">{formatUsd(infra.redisCloud.monthlyCents)}/mo</span>
+        <span className="text-sm font-mono text-mc-text">{formatUsd(infra.redisCloud.monthlyCents)}/mo</span>
       </div>
 
       {data.lastUpdated.infra && (
-        <div className="text-[10px] text-terminal-dim">
+        <div className="text-[10px] text-mc-text-tertiary">
           Last synced: {new Date(data.lastUpdated.infra).toLocaleString()}
         </div>
       )}
