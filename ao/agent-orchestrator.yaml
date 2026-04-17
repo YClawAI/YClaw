@@ -29,6 +29,7 @@ projects:
 
     agentConfig:
       permissions: permissionless
+      model: claude-opus-4-7
 
     scm:
       plugin: github
