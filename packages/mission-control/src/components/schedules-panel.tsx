@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-// ─── Local Types ────────────────────────────────────────────────────────────────
+// ─── Local Types ───────────────────────────────────────────────────────────────────────
 
 export interface ScheduleEntry {
   agent: string;
@@ -14,7 +14,7 @@ export interface ScheduleEntry {
   status?: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────────────
 
 function statusDotClass(status?: string): string {
   if (status === 'healthy') return 'bg-mc-success';
@@ -39,7 +39,7 @@ function formatTime(iso: string): string {
   }
 }
 
-// ─── Chevron Icon ───────────────────────────────────────────────────────────────
+// ─── Chevron Icon ────────────────────────────────────────────────────────────────────
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -59,7 +59,7 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────────────────
+// ─── Main Component ──────────────────────────────────────────────────────────────────
 
 interface SchedulesPanelProps {
   schedules: ScheduleEntry[];
@@ -72,8 +72,14 @@ export function SchedulesPanel({ schedules, title = 'Schedules & Triggers', defa
 
   if (schedules.length === 0) {
     return (
-      <div className="bg-mc-surface-hover border border-mc-border rounded p-4 flex items-center justify-center py-8">
-        <span className="text-xs text-mc-text-tertiary">No schedules configured</span>
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+        <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+          No schedules
+        </div>
+        <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+          No recurring triggers configured. Configured schedules appear here with status indicators.
+        </p>
       </div>
     );
   }

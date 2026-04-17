@@ -6,7 +6,7 @@ import { EventDetailDrawer } from './event-detail-drawer';
 import { AGENTS } from '@/lib/agents';
 import type { UnifiedEvent, EventLogPage } from '@/lib/event-log-queries';
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 const STATUS_STYLES: Record<string, string> = {
   active:    'text-mc-success bg-mc-success/10 border-mc-success/30',
@@ -30,7 +30,7 @@ function formatTimeAgo(dateStr: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-// ── Sub-components ───────────────────────────────────────────────────────────
+// ── Sub-components ───────────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status?: string }) {
   if (!status) return <span className="text-mc-text-tertiary/50">—</span>;
@@ -129,7 +129,7 @@ function FilterBar({
   );
 }
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────────────
 
 interface FilterState {
   agent: string;
@@ -153,7 +153,7 @@ interface EventLogTableProps {
   types: string[];
 }
 
-// ── Main component ───────────────────────────────────────────────────────────
+// ── Main component ───────────────────────────────────────────────────────────────────
 
 export function EventLogTable({ initialData, agents, types }: EventLogTableProps) {
   const [data, setData] = useState<EventLogPage>(initialData);
@@ -270,7 +270,15 @@ export function EventLogTable({ initialData, agents, types }: EventLogTableProps
         {isPending ? (
           <div className="px-4 py-6 text-xs text-mc-text-tertiary text-center animate-pulse">Loading…</div>
         ) : events.length === 0 ? (
-          <div className="px-4 py-6 text-xs text-mc-text-tertiary text-center">No events found</div>
+          <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 m-4 flex flex-col items-center justify-center gap-2 text-center">
+            <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+            <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+              No events
+            </div>
+            <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+              Waiting for agent activity. The log streams live from the gateway.
+            </p>
+          </div>
         ) : (
           <div className="divide-y divide-mc-border">
             {events.map((event) => {
