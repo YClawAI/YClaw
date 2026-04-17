@@ -19,10 +19,10 @@ function formatRelativeTime(iso: string): string {
 }
 
 const STATUS_DOT: Record<string, { color: string; pulse: boolean }> = {
-  idle: { color: 'bg-terminal-muted', pulse: false },
-  active: { color: 'bg-terminal-green', pulse: true },
-  error: { color: 'bg-terminal-red', pulse: false },
-  unknown: { color: 'bg-terminal-dim', pulse: false },
+  idle: { color: 'bg-mc-border', pulse: false },
+  active: { color: 'bg-mc-success', pulse: true },
+  error: { color: 'bg-mc-danger', pulse: false },
+  unknown: { color: 'bg-mc-text-tertiary', pulse: false },
 };
 
 export function ExecutiveAgentCard({ agent, status, lastRunAt, currentTask }: ExecutiveAgentCardProps) {
@@ -40,31 +40,31 @@ export function ExecutiveAgentCard({ agent, status, lastRunAt, currentTask }: Ex
       />
 
       {/* Extended info overlay */}
-      <div className="mt-px bg-terminal-surface border border-t-0 border-terminal-border rounded-b px-4 py-2.5 space-y-1.5">
+      <div className="mt-px bg-mc-surface-hover border border-t-0 border-mc-border rounded-b px-4 py-2.5 space-y-1.5">
         {/* Status dot */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-terminal-dim">Status:</span>
+          <span className="text-[10px] text-mc-text-tertiary">Status:</span>
           <span
-            className={`inline-block w-2 h-2 rounded-full ${STATUS_DOT[status ?? 'unknown']?.color ?? 'bg-terminal-dim'} ${
+            className={`inline-block w-2 h-2 rounded-full ${STATUS_DOT[status ?? 'unknown']?.color ?? 'bg-mc-text-tertiary'} ${
               STATUS_DOT[status ?? 'unknown']?.pulse ? 'animate-pulse' : ''
             }`}
           />
-          <span className="text-[10px] text-terminal-dim">
+          <span className="text-[10px] text-mc-text-tertiary">
             {status ?? 'unknown'}
           </span>
         </div>
         {/* Last run */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-terminal-dim">Last run:</span>
-          <span className="text-[10px] font-mono text-terminal-cyan">
+          <span className="text-[10px] text-mc-text-tertiary">Last run:</span>
+          <span className="text-[10px] font-mono text-mc-accent">
             {lastRunAt ? formatRelativeTime(lastRunAt) : 'never'}
           </span>
         </div>
         {/* Current task */}
         {currentTask && (
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-terminal-dim shrink-0">Task:</span>
-            <span className="text-[10px] text-terminal-text truncate">{currentTask}</span>
+            <span className="text-[10px] text-mc-text-tertiary shrink-0">Task:</span>
+            <span className="text-[10px] text-mc-text truncate">{currentTask}</span>
           </div>
         )}
       </div>

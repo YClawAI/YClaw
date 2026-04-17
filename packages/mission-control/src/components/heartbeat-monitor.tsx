@@ -26,9 +26,9 @@ interface HeartbeatMonitorProps {
 }
 
 const CELL_COLORS: Record<string, string> = {
-  ran: 'bg-terminal-green',
-  idle: 'bg-terminal-muted',
-  error: 'bg-terminal-red',
+  ran: 'bg-mc-success',
+  idle: 'bg-mc-border',
+  error: 'bg-mc-danger',
 };
 
 function isBucketData(item: HeartbeatData | HeartbeatBucketData): item is HeartbeatBucketData {
@@ -61,13 +61,13 @@ function formatTooltip(hour: number, status: string, count: number): string {
 
 export function HeartbeatMonitor({ data }: HeartbeatMonitorProps) {
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-      <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-4">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+      <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-4">
         Heartbeat Monitor
       </h3>
 
       {data.length === 0 ? (
-        <div className="text-xs text-terminal-dim text-center py-8">
+        <div className="text-xs text-mc-text-tertiary text-center py-8">
           Awaiting fleet data
         </div>
       ) : (
@@ -77,7 +77,7 @@ export function HeartbeatMonitor({ data }: HeartbeatMonitorProps) {
             {Array.from({ length: 24 }, (_, i) => (
               <div
                 key={i}
-                className="flex-1 text-center text-terminal-dim"
+                className="flex-1 text-center text-mc-text-tertiary"
                 style={{ fontSize: '7px' }}
               >
                 {i % 6 === 0 ? `${String(i).padStart(2, '0')}` : ''}
@@ -92,7 +92,7 @@ export function HeartbeatMonitor({ data }: HeartbeatMonitorProps) {
                 <div key={hb.agentId} className="flex items-center gap-3">
                   {/* Agent info */}
                   <div className="w-24 shrink-0">
-                    <span className="text-xs text-terminal-text truncate">{hb.agentId}</span>
+                    <span className="text-xs text-mc-text truncate">{hb.agentId}</span>
                   </div>
 
                   {/* 24h heatmap strip */}
@@ -112,15 +112,15 @@ export function HeartbeatMonitor({ data }: HeartbeatMonitorProps) {
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-terminal-border">
+          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-mc-border">
             {[
-              { label: 'Ran', color: 'bg-terminal-green' },
-              { label: 'Idle', color: 'bg-terminal-muted opacity-30' },
-              { label: 'Error', color: 'bg-terminal-red' },
+              { label: 'Ran', color: 'bg-mc-success' },
+              { label: 'Idle', color: 'bg-mc-border opacity-30' },
+              { label: 'Error', color: 'bg-mc-danger' },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-1.5">
                 <div className={`w-2.5 h-2.5 rounded-sm ${item.color}`} />
-                <span className="text-[10px] text-terminal-dim">{item.label}</span>
+                <span className="text-[10px] text-mc-text-tertiary">{item.label}</span>
               </div>
             ))}
           </div>
