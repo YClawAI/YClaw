@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { AHPost } from '@/lib/agenthub-api';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface CrossLearnPanelProps {
   insights: AHPost[];
@@ -40,7 +40,7 @@ interface ParsedInsight {
   createdAt: string;
 }
 
-// ─── Insight Parser (F6: parse JSON, not freeform text) ──────────────────────
+// ─── Insight Parser (F6: parse JSON, not freeform text) ──────────
 
 function parseInsight(post: AHPost): ParsedInsight | null {
   try {
@@ -62,12 +62,12 @@ function parseInsight(post: AHPost): ParsedInsight | null {
   }
 }
 
-// ─── Insight Feed View ───────────────────────────────────────────────────────
+// ─── Insight Feed View ───────────────────────────────────────────────────────────────
 
 function InsightFeed({ insights }: { insights: ParsedInsight[] }) {
   if (insights.length === 0) {
     return (
-      <div className="text-xs text-terminal-dim text-center py-4">
+      <div className="text-xs text-mc-text-tertiary text-center py-4">
         No cross-channel insights yet. Insights appear when winning experiments propagate between channels.
       </div>
     );
@@ -76,20 +76,20 @@ function InsightFeed({ insights }: { insights: ParsedInsight[] }) {
   return (
     <div className="space-y-2">
       {insights.map((insight) => (
-        <div key={insight.id} className="bg-terminal-bg border border-terminal-border rounded p-3">
+        <div key={insight.id} className="bg-mc-bg border border-mc-border rounded p-3">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[10px] font-mono font-bold text-terminal-orange">{insight.sourceChannel}</span>
+            <span className="text-[10px] font-mono font-bold text-mc-blocked">{insight.sourceChannel}</span>
             {insight.liftPercent > 0 && (
-              <span className="text-[10px] font-mono text-terminal-green">+{insight.liftPercent.toFixed(1)}pp</span>
+              <span className="text-[10px] font-mono text-mc-success">+{insight.liftPercent.toFixed(1)}pp</span>
             )}
-            <span className="text-[10px] text-terminal-dim ml-auto">{formatRelativeTime(insight.createdAt)}</span>
+            <span className="text-[10px] text-mc-text-tertiary ml-auto">{formatRelativeTime(insight.createdAt)}</span>
           </div>
-          <div className="text-xs text-terminal-text">{insight.insight}</div>
+          <div className="text-xs text-mc-text">{insight.insight}</div>
           {insight.winningVariable && (
-            <div className="mt-1.5 text-[10px] text-terminal-dim">
-              Variable: <span className="font-mono text-terminal-text">{insight.winningVariable}</span>
+            <div className="mt-1.5 text-[10px] text-mc-text-tertiary">
+              Variable: <span className="font-mono text-mc-text">{insight.winningVariable}</span>
               {insight.winningValue && (
-                <span className="ml-2 text-terminal-dim/60 truncate">{insight.winningValue.slice(0, 50)}</span>
+                <span className="ml-2 text-mc-text-tertiary/60 truncate">{insight.winningValue.slice(0, 50)}</span>
               )}
             </div>
           )}
@@ -99,7 +99,7 @@ function InsightFeed({ insights }: { insights: ParsedInsight[] }) {
   );
 }
 
-// ─── Propagation Heatmap View ────────────────────────────────────────────────
+// ─── Propagation Heatmap View ───────────────────────────────────────────────────────────
 
 const CHANNELS = ['cold-email', 'twitter', 'landing-page'];
 
@@ -125,11 +125,11 @@ function PropagationHeatmap({ insights }: { insights: ParsedInsight[] }) {
   }, [insights]);
 
   function liftColor(lift: number | null): string {
-    if (lift === null) return 'bg-terminal-muted/10';
-    if (lift >= 5) return 'bg-terminal-green/40';
-    if (lift >= 2) return 'bg-terminal-green/25';
-    if (lift > 0) return 'bg-terminal-green/15';
-    return 'bg-terminal-muted/10';
+    if (lift === null) return 'bg-mc-border/10';
+    if (lift >= 5) return 'bg-mc-success/40';
+    if (lift >= 2) return 'bg-mc-success/25';
+    if (lift > 0) return 'bg-mc-success/15';
+    return 'bg-mc-border/10';
   }
 
   return (
@@ -137,10 +137,10 @@ function PropagationHeatmap({ insights }: { insights: ParsedInsight[] }) {
       <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th className="text-[10px] font-mono text-terminal-dim p-2 text-left">Source Channel</th>
-            <th className="text-[10px] font-mono text-terminal-dim p-2 text-center">Insights</th>
-            <th className="text-[10px] font-mono text-terminal-dim p-2 text-center">Total Lift</th>
-            <th className="text-[10px] font-mono text-terminal-dim p-2 text-center">Avg Lift</th>
+            <th className="text-[10px] font-mono text-mc-text-tertiary p-2 text-left">Source Channel</th>
+            <th className="text-[10px] font-mono text-mc-text-tertiary p-2 text-center">Insights</th>
+            <th className="text-[10px] font-mono text-mc-text-tertiary p-2 text-center">Total Lift</th>
+            <th className="text-[10px] font-mono text-mc-text-tertiary p-2 text-center">Avg Lift</th>
           </tr>
         </thead>
         <tbody>
@@ -150,18 +150,18 @@ function PropagationHeatmap({ insights }: { insights: ParsedInsight[] }) {
 
             return (
               <tr key={source}>
-                <td className="text-[10px] font-mono text-terminal-text p-2 border-t border-terminal-border">{source}</td>
-                <td className="text-[10px] font-mono text-terminal-dim p-2 border-t border-terminal-border text-center">
+                <td className="text-[10px] font-mono text-mc-text p-2 border-t border-mc-border">{source}</td>
+                <td className="text-[10px] font-mono text-mc-text-tertiary p-2 border-t border-mc-border text-center">
                   {data?.count ?? 0}
                 </td>
-                <td className="p-2 border-t border-terminal-border text-center">
+                <td className="p-2 border-t border-mc-border text-center">
                   <span className={`inline-flex items-center justify-center px-2 py-1 rounded ${liftColor(data ? data.totalLift : null)}`}>
-                    <span className={`text-[10px] font-mono ${data ? 'text-terminal-text' : 'text-terminal-dim/30'}`}>
+                    <span className={`text-[10px] font-mono ${data ? 'text-mc-text' : 'text-mc-text-tertiary/30'}`}>
                       {data ? `+${data.totalLift.toFixed(1)}pp` : '-'}
                     </span>
                   </span>
                 </td>
-                <td className="text-[10px] font-mono text-terminal-dim p-2 border-t border-terminal-border text-center">
+                <td className="text-[10px] font-mono text-mc-text-tertiary p-2 border-t border-mc-border text-center">
                   {data ? `+${avgLift.toFixed(1)}pp` : '-'}
                 </td>
               </tr>
@@ -173,7 +173,7 @@ function PropagationHeatmap({ insights }: { insights: ParsedInsight[] }) {
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Main Component ─────────────────────────────────────────────────────────────────
 
 export function CrossLearnPanel({ insights: rawInsights }: CrossLearnPanelProps) {
   const [view, setView] = useState<'feed' | 'heatmap'>('feed');
@@ -186,10 +186,10 @@ export function CrossLearnPanel({ insights: rawInsights }: CrossLearnPanelProps)
 
   if (rawInsights.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
-        <span className="text-2xl text-terminal-dim/40">&#9671;</span>
-        <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim/60">Cross-Channel Learning</div>
-        <p className="text-[10px] text-terminal-dim/40 max-w-xs">
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+        <span className="text-2xl text-mc-text-tertiary/40">&#9671;</span>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">Cross-Channel Learning</div>
+        <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
           No cross-channel insights yet. When experiment wins propagate between channels, the learning graph appears here.
         </p>
       </div>
@@ -204,8 +204,8 @@ export function CrossLearnPanel({ insights: rawInsights }: CrossLearnPanelProps)
           onClick={() => setView('feed')}
           className={`px-3 py-1.5 text-[10px] font-mono rounded transition-colors ${
             view === 'feed'
-              ? 'bg-terminal-muted text-terminal-text'
-              : 'text-terminal-dim hover:text-terminal-text'
+              ? 'bg-mc-border text-mc-text'
+              : 'text-mc-text-tertiary hover:text-mc-text'
           }`}
         >
           Insight Feed
@@ -214,8 +214,8 @@ export function CrossLearnPanel({ insights: rawInsights }: CrossLearnPanelProps)
           onClick={() => setView('heatmap')}
           className={`px-3 py-1.5 text-[10px] font-mono rounded transition-colors ${
             view === 'heatmap'
-              ? 'bg-terminal-muted text-terminal-text'
-              : 'text-terminal-dim hover:text-terminal-text'
+              ? 'bg-mc-border text-mc-text'
+              : 'text-mc-text-tertiary hover:text-mc-text'
           }`}
         >
           Source Summary
@@ -223,7 +223,7 @@ export function CrossLearnPanel({ insights: rawInsights }: CrossLearnPanelProps)
       </div>
 
       {/* Content */}
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
         {view === 'feed' ? (
           <InsightFeed insights={insights} />
         ) : (
@@ -234,7 +234,7 @@ export function CrossLearnPanel({ insights: rawInsights }: CrossLearnPanelProps)
   );
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────────────────────────
 
 function formatRelativeTime(iso: string): string {
   const ts = new Date(iso).getTime();

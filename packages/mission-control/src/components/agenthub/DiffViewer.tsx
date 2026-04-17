@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DiffViewerProps {
   hashA: string;
@@ -23,7 +23,7 @@ interface DiffLine {
   lineNo?: number;
 }
 
-// ─── Parser ──────────────────────────────────────────────────────────────────
+// ─── Parser ──────────────────────────────────────────────────────────────────────
 
 function parseDiff(raw: string): DiffFile[] {
   if (!raw.trim()) return [];
@@ -73,13 +73,13 @@ function parseDiff(raw: string): DiffFile[] {
   return files;
 }
 
-// ─── Line Colors ─────────────────────────────────────────────────────────────
+// ─── Line Colors ──────────────────────────────────────────────────────────────────
 
 const LINE_STYLES: Record<DiffLine['type'], string> = {
-  add: 'bg-terminal-green/10 text-terminal-green',
-  del: 'bg-terminal-red/10 text-terminal-red',
-  context: 'text-terminal-dim',
-  header: 'text-terminal-blue bg-terminal-blue/5',
+  add: 'bg-mc-success/10 text-mc-success',
+  del: 'bg-mc-danger/10 text-mc-danger',
+  context: 'text-mc-text-tertiary',
+  header: 'text-mc-info bg-mc-info/5',
 };
 
 const LINE_PREFIX: Record<DiffLine['type'], string> = {
@@ -89,28 +89,28 @@ const LINE_PREFIX: Record<DiffLine['type'], string> = {
   header: '',
 };
 
-// ─── File Diff Block ─────────────────────────────────────────────────────────
+// ─── File Diff Block ────────────────────────────────────────────────────────────────
 
 function FileDiff({ file }: { file: DiffFile }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="border border-terminal-border rounded overflow-hidden">
+    <div className="border border-mc-border rounded overflow-hidden">
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center gap-2 px-3 py-2 bg-terminal-muted/20 border-b border-terminal-border hover:bg-terminal-muted/30 transition-colors text-left"
+        className="w-full flex items-center gap-2 px-3 py-2 bg-mc-border/20 border-b border-mc-border hover:bg-mc-border/30 transition-colors text-left"
       >
-        <span className="text-[8px] text-terminal-dim">{collapsed ? '>' : 'v'}</span>
-        <span className="text-xs font-mono text-terminal-text truncate flex-1">{file.path}</span>
-        <span className="text-[10px] font-mono text-terminal-green">+{file.additions}</span>
-        <span className="text-[10px] font-mono text-terminal-red">-{file.deletions}</span>
+        <span className="text-[8px] text-mc-text-tertiary">{collapsed ? '>' : 'v'}</span>
+        <span className="text-xs font-mono text-mc-text truncate flex-1">{file.path}</span>
+        <span className="text-[10px] font-mono text-mc-success">+{file.additions}</span>
+        <span className="text-[10px] font-mono text-mc-danger">-{file.deletions}</span>
       </button>
       {!collapsed && (
         <div className="overflow-x-auto">
           <pre className="text-[11px] font-mono leading-5">
             {file.lines.map((line, i) => (
               <div key={i} className={`px-3 ${LINE_STYLES[line.type]}`}>
-                <span className="select-none text-terminal-dim/40 mr-2 inline-block w-3 text-right">
+                <span className="select-none text-mc-text-tertiary/40 mr-2 inline-block w-3 text-right">
                   {LINE_PREFIX[line.type]}
                 </span>
                 {line.content}
@@ -123,7 +123,7 @@ function FileDiff({ file }: { file: DiffFile }) {
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Main Component ─────────────────────────────────────────────────────────────────
 
 export function DiffViewer({ hashA, hashB, diff }: DiffViewerProps) {
   const files = useMemo(() => parseDiff(diff), [diff]);
@@ -133,8 +133,8 @@ export function DiffViewer({ hashA, hashB, diff }: DiffViewerProps) {
 
   if (!diff.trim()) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border border-dashed rounded p-4 text-center">
-        <div className="text-xs text-terminal-dim">No diff available</div>
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-4 text-center">
+        <div className="text-xs text-mc-text-tertiary">No diff available</div>
       </div>
     );
   }
@@ -142,11 +142,11 @@ export function DiffViewer({ hashA, hashB, diff }: DiffViewerProps) {
   return (
     <div className="space-y-3">
       {/* Stats bar */}
-      <div className="flex items-center gap-3 text-[10px] font-mono text-terminal-dim">
+      <div className="flex items-center gap-3 text-[10px] font-mono text-mc-text-tertiary">
         <span>{files.length} file{files.length !== 1 ? 's' : ''} changed</span>
-        <span className="text-terminal-green">+{totalAdditions}</span>
-        <span className="text-terminal-red">-{totalDeletions}</span>
-        <span className="ml-auto text-terminal-dim/60">
+        <span className="text-mc-success">+{totalAdditions}</span>
+        <span className="text-mc-danger">-{totalDeletions}</span>
+        <span className="ml-auto text-mc-text-tertiary/60">
           {hashA.slice(0, 8)}..{hashB.slice(0, 8)}
         </span>
       </div>
