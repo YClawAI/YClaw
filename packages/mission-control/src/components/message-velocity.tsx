@@ -4,12 +4,12 @@
 
 export function MessageVelocity() {
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-      <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+      <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
         Message Velocity
       </div>
       <div className="flex items-center justify-center py-6">
-        <span className="text-xs text-terminal-dim">No velocity data available</span>
+        <span className="text-xs text-mc-text-tertiary">No velocity data available</span>
       </div>
     </div>
   );

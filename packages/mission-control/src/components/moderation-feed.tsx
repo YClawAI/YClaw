@@ -16,12 +16,12 @@ interface ModerationFeedProps {
 }
 
 const ACTION_STYLES: Record<string, { border: string; textClass: string; label: string }> = {
-  reply: { border: 'border-l-2 border-terminal-green', textClass: '', label: 'REPLY' },
-  delete: { border: 'border-l-2 border-terminal-red', textClass: 'line-through text-terminal-red/60', label: 'DELETED' },
-  ban: { border: 'border-l-2 border-terminal-red', textClass: '', label: 'BANNED' },
-  restrict: { border: 'border-l-2 border-terminal-orange', textClass: '', label: 'RESTRICTED' },
-  pin: { border: 'border-l-2 border-terminal-blue', textClass: '', label: 'PINNED' },
-  unknown: { border: 'border-l-2 border-terminal-dim', textClass: '', label: 'UNKNOWN' },
+  reply: { border: 'border-l-2 border-mc-success', textClass: '', label: 'REPLY' },
+  delete: { border: 'border-l-2 border-mc-danger', textClass: 'line-through text-mc-danger/60', label: 'DELETED' },
+  ban: { border: 'border-l-2 border-mc-danger', textClass: '', label: 'BANNED' },
+  restrict: { border: 'border-l-2 border-mc-blocked', textClass: '', label: 'RESTRICTED' },
+  pin: { border: 'border-l-2 border-mc-info', textClass: '', label: 'PINNED' },
+  unknown: { border: 'border-l-2 border-mc-text-tertiary', textClass: '', label: 'UNKNOWN' },
 };
 
 function ActionBadge({ type }: { type: string }) {
@@ -29,12 +29,12 @@ function ActionBadge({ type }: { type: string }) {
   if (!style) return null;
 
   const colorClass =
-    type === 'reply' ? 'text-terminal-green bg-terminal-green/10 border-terminal-green/30' :
-    type === 'delete' ? 'text-terminal-red bg-terminal-red/10 border-terminal-red/30' :
-    type === 'ban' ? 'text-terminal-red bg-terminal-red/10 border-terminal-red/30' :
-    type === 'restrict' ? 'text-terminal-orange bg-terminal-orange/10 border-terminal-orange/30' :
-    type === 'pin' ? 'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30' :
-    type === 'unknown' ? 'text-terminal-dim bg-terminal-dim/10 border-terminal-dim/30' : '';
+    type === 'reply' ? 'text-mc-success bg-mc-success/10 border-mc-success/30' :
+    type === 'delete' ? 'text-mc-danger bg-mc-danger/10 border-mc-danger/30' :
+    type === 'ban' ? 'text-mc-danger bg-mc-danger/10 border-mc-danger/30' :
+    type === 'restrict' ? 'text-mc-blocked bg-mc-blocked/10 border-mc-blocked/30' :
+    type === 'pin' ? 'text-mc-info bg-mc-info/10 border-mc-info/30' :
+    type === 'unknown' ? 'text-mc-text-tertiary bg-mc-text-tertiary/10 border-mc-text-tertiary/30' : '';
 
   return (
     <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${colorClass}`}>
@@ -60,33 +60,33 @@ export function ModerationFeed({ entries }: ModerationFeedProps) {
 
   if (entries.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
         <div className="flex items-center justify-center py-6">
-          <span className="text-xs text-terminal-dim">No moderation activity</span>
+          <span className="text-xs text-mc-text-tertiary">No moderation activity</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded">
+    <div className="bg-mc-surface-hover border border-mc-border rounded">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-terminal-border">
+      <div className="px-4 py-3 border-b border-mc-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">
               Live Feed
             </h3>
-            <span className={`inline-block w-1.5 h-1.5 rounded-full ${paused ? 'bg-terminal-yellow' : 'bg-terminal-green animate-pulse'}`} />
+            <span className={`inline-block w-1.5 h-1.5 rounded-full ${paused ? 'bg-mc-warning' : 'bg-mc-success animate-pulse'}`} />
           </div>
           <button
             onClick={() => setPaused(!paused)}
-            className="px-3 py-1 text-[10px] font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-muted transition-colors"
+            className="px-3 py-1 text-[10px] font-mono border border-mc-border rounded text-mc-text-tertiary hover:text-mc-text hover:bg-mc-border transition-colors"
           >
             {paused ? 'RESUME' : 'PAUSE'}
           </button>
         </div>
-        <span className="text-[10px] text-terminal-dim font-mono mt-1 block">
+        <span className="text-[10px] text-mc-text-tertiary font-mono mt-1 block">
           Actions estimated from task names and output keywords
         </span>
       </div>
@@ -99,24 +99,24 @@ export function ModerationFeed({ entries }: ModerationFeedProps) {
         {entries.map((entry) => {
           const actionStyle = entry.action ? ACTION_STYLES[entry.action] : undefined;
           const bgClass =
-            entry.action === 'ban' ? 'bg-terminal-red/5' :
-            entry.action === 'restrict' ? 'bg-terminal-orange/5' :
-            entry.action === 'pin' ? 'bg-terminal-blue/5' : '';
+            entry.action === 'ban' ? 'bg-mc-danger/5' :
+            entry.action === 'restrict' ? 'bg-mc-blocked/5' :
+            entry.action === 'pin' ? 'bg-mc-info/5' : '';
 
           return (
             <div
               key={entry.id}
-              className={`px-4 py-2 border-b border-terminal-border/50 ${actionStyle?.border ?? ''} ${bgClass}`}
+              className={`px-4 py-2 border-b border-mc-border/50 ${actionStyle?.border ?? ''} ${bgClass}`}
             >
               <div className="flex items-start gap-2">
-                <span className="text-[10px] text-terminal-dim shrink-0 w-16 pt-0.5">
+                <span className="text-[10px] text-mc-text-tertiary shrink-0 w-16 pt-0.5">
                   {formatTime(entry.timestamp)}
                 </span>
                 <div className="flex-1 min-w-0">
                   {entry.userId && (
-                    <span className="text-terminal-yellow/80 mr-1">{entry.userId}:</span>
+                    <span className="text-mc-warning/80 mr-1">{entry.userId}:</span>
                   )}
-                  <span className={`text-terminal-text/80 ${actionStyle?.textClass ?? ''}`}>
+                  <span className={`text-mc-text/80 ${actionStyle?.textClass ?? ''}`}>
                     {entry.content ?? ''}
                   </span>
                   {entry.action && (
@@ -132,8 +132,8 @@ export function ModerationFeed({ entries }: ModerationFeedProps) {
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-2 border-t border-terminal-border">
-        <span className="text-[10px] text-terminal-dim font-mono">
+      <div className="px-4 py-2 border-t border-mc-border">
+        <span className="text-[10px] text-mc-text-tertiary font-mono">
           {entries.length} entries / {entries.filter((e) => e.action).length} actions
         </span>
       </div>
