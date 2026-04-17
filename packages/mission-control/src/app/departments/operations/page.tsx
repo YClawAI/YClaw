@@ -42,7 +42,7 @@ export default async function OperationsPage() {
   return (
     <div>
       <DeptHeader department="operations" />
-      <Suspense fallback={<div className="text-xs text-terminal-dim text-center py-8">Loading operations dashboard...</div>}>
+      <Suspense fallback={<div className="text-xs text-mc-text-tertiary text-center py-8">Loading operations dashboard...</div>}>
         <OperationsClient
           agents={agents}
           live={live}

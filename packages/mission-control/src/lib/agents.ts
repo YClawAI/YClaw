@@ -60,41 +60,15 @@ export const DEPT_META: Record<Department, DeptMeta> = {
   support: { key: 'support', label: 'Support', icon: '🆘', lead: 'Keeper', description: 'Community moderation, escalated support' },
 };
 
-export const DEPT_COLORS: Record<Department, string> = {
-  executive: 'text-terminal-cyan',
-  development: 'text-terminal-blue',
-  marketing: 'text-terminal-orange',
-  operations: 'text-terminal-green',
-  finance: 'text-terminal-purple',
-  support: 'text-terminal-yellow',
-};
-
-export const DEPT_BG_COLORS: Record<Department, string> = {
-  executive: 'bg-terminal-cyan/10 border-terminal-cyan/30',
-  development: 'bg-terminal-blue/10 border-terminal-blue/30',
-  marketing: 'bg-terminal-orange/10 border-terminal-orange/30',
-  operations: 'bg-terminal-green/10 border-terminal-green/30',
-  finance: 'bg-terminal-purple/10 border-terminal-purple/30',
-  support: 'bg-terminal-yellow/10 border-terminal-yellow/30',
-};
-
-export const DEPT_BORDER_COLORS: Record<Department, string> = {
-  executive: 'border-terminal-cyan',
-  development: 'border-terminal-blue',
-  marketing: 'border-terminal-orange',
-  operations: 'border-terminal-green',
-  finance: 'border-terminal-purple',
-  support: 'border-terminal-yellow',
-};
-
-// ─── SpaceX mc-* dept variants (Phase 2+) ──────────────────────────────
-// Consumed by files that have been migrated to the SpaceX palette. The
-// terminal-* variants above remain for un-migrated consumers and are
-// deleted in Phase 6 once every file has flipped. See DESIGN-SYSTEM.md
-// for the department color remap (purple → cyan brand pivot).
+// ─── SpaceX mc-* dept color maps (Phase 5+) ───────────────────────────
+// Canonical dept color maps now point to the SpaceX palette. The legacy
+// DEPT_COLORS / DEPT_BG_COLORS / DEPT_BORDER_COLORS names and the _MC-
+// suffixed names are both exported here as identical references so both
+// migrated and un-migrated consumers resolve to the same mc-* strings.
+// Phase 6 removes the duplicate _MC aliases.
 // ────────────────────────────────────────────────────────────────────
 
-export const DEPT_COLORS_MC: Record<Department, string> = {
+export const DEPT_COLORS: Record<Department, string> = {
   executive: 'text-mc-dept-executive',
   development: 'text-mc-dept-development',
   marketing: 'text-mc-dept-marketing',
@@ -103,7 +77,7 @@ export const DEPT_COLORS_MC: Record<Department, string> = {
   support: 'text-mc-dept-support',
 };
 
-export const DEPT_BG_COLORS_MC: Record<Department, string> = {
+export const DEPT_BG_COLORS: Record<Department, string> = {
   executive: 'bg-mc-dept-executive/10 border-mc-dept-executive/30',
   development: 'bg-mc-dept-development/10 border-mc-dept-development/30',
   marketing: 'bg-mc-dept-marketing/10 border-mc-dept-marketing/30',
@@ -112,7 +86,7 @@ export const DEPT_BG_COLORS_MC: Record<Department, string> = {
   support: 'bg-mc-dept-support/10 border-mc-dept-support/30',
 };
 
-export const DEPT_BORDER_COLORS_MC: Record<Department, string> = {
+export const DEPT_BORDER_COLORS: Record<Department, string> = {
   executive: 'border-mc-dept-executive',
   development: 'border-mc-dept-development',
   marketing: 'border-mc-dept-marketing',
@@ -120,6 +94,13 @@ export const DEPT_BORDER_COLORS_MC: Record<Department, string> = {
   finance: 'border-mc-dept-finance',
   support: 'border-mc-dept-support',
 };
+
+// _MC-suffixed aliases kept during Phase 5 so files migrated in Phase 2–4
+// (that imported DEPT_COLORS_MC directly) keep working without churn.
+// Phase 6 deletes these aliases.
+export const DEPT_COLORS_MC = DEPT_COLORS;
+export const DEPT_BG_COLORS_MC = DEPT_BG_COLORS;
+export const DEPT_BORDER_COLORS_MC = DEPT_BORDER_COLORS;
 
 export function getAgent(name: string): AgentInfo | undefined {
   return AGENTS.find((a) => a.name === name);

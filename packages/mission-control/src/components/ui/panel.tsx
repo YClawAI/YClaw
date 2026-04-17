@@ -4,7 +4,7 @@ import { cn } from '@/lib/cn';
 /**
  * SpaceX Panel — the foundational container. Outlined (1px cyan hairline),
  * not filled. Interactive variants brighten the border on hover/focus. Use
- * instead of raw `bg-terminal-surface border border-terminal-border` once
+ * instead of raw `bg-mc-surface-hover border border-mc-border` once
  * a surface has been migrated to the mc-* system.
  *
  * Variants:

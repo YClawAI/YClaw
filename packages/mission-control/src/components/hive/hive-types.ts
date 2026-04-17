@@ -38,12 +38,12 @@ export interface HiveLink {
  * because canvas 2D and three.js materials need concrete values.
  */
 export const DEPT_HEX: Record<Department, string> = {
-  executive: '#FFD60A',   // mc-dept-executive (was #89dceb terminal-cyan)
-  development: '#5AC8FA', // mc-dept-development (was #89b4fa terminal-blue)
-  marketing: '#FF9F0A',   // mc-dept-marketing (was #fab387 terminal-orange)
-  operations: '#30D158',  // mc-dept-operations (was #a6e3a1 terminal-green)
-  finance: '#BF5AF2',     // mc-dept-finance (was #cba6f7 terminal-purple)
-  support: '#64D2FF',     // mc-dept-support (was #f9e2af terminal-yellow)
+  executive: '#FFD60A',   // mc-dept-executive (was #5AC8FA mc-accent)
+  development: '#5AC8FA', // mc-dept-development (was #64D2FF mc-info)
+  marketing: '#FF9F0A',   // mc-dept-marketing (was #FF9F0A mc-blocked)
+  operations: '#30D158',  // mc-dept-operations (was #30D158 mc-success)
+  finance: '#BF5AF2',     // mc-dept-finance (was #5AC8FA mc-accent)
+  support: '#64D2FF',     // mc-dept-support (was #FFD60A mc-warning)
 };
 
 /**

@@ -41,7 +41,7 @@ export default async function ExecutivePage() {
   return (
     <div>
       <DeptHeader department="executive" />
-      <Suspense fallback={<div className="text-xs text-terminal-dim text-center py-8">Loading executive dashboard...</div>}>
+      <Suspense fallback={<div className="text-xs text-mc-text-tertiary text-center py-8">Loading executive dashboard...</div>}>
         <ExecClient
           agents={agents}
           live={live}

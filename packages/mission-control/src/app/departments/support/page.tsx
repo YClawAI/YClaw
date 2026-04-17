@@ -40,7 +40,7 @@ export default async function SupportPage() {
   return (
     <div>
       <DeptHeader department="support" />
-      <Suspense fallback={<div className="text-xs text-terminal-dim text-center py-8">Loading support dashboard...</div>}>
+      <Suspense fallback={<div className="text-xs text-mc-text-tertiary text-center py-8">Loading support dashboard...</div>}>
         <SupportClient agents={agents} live={live} kpis={kpis} recentRuns={recentRuns} communityTemp={communityTemp} agentSpend={agentSpend} budgets={budgets} budgetMode={budgetConfig.mode} />
       </Suspense>
     </div>
