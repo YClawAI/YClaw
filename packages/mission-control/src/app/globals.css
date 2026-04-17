@@ -55,15 +55,26 @@
   }
 }
 
-/* Respect the OS-level reduced-motion preference across every mc-* animation.
- * Phase 6 audits every legacy animation to the same standard. */
+/* Respect the OS-level reduced-motion preference across every animation
+ * in the app. Covers both the custom mc-* keyframes and every Tailwind
+ * animation class actually referenced in mission-control components.
+ * Phase 6c audited callsites: animate-pulse (status dots, loading
+ * placeholders), animate-spin (spinners), animate-ping (burn-velocity
+ * flash), animate-highlight (audit-timeline new-event fade), animate-in
+ * (toast entrance). The generic `*` transition-duration override
+ * disables every remaining CSS transition at the same time. */
 @media (prefers-reduced-motion: reduce) {
   .mc-animate-pulse,
   .mc-animate-breathe,
   .mc-animate-particle,
   .animate-mc-pulse,
   .animate-mc-breathe,
-  .animate-mc-particle-flow {
+  .animate-mc-particle-flow,
+  .animate-pulse,
+  .animate-spin,
+  .animate-ping,
+  .animate-highlight,
+  .animate-in {
     animation: none !important;
   }
   *,
