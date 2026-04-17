@@ -47,9 +47,9 @@ export function ActivityClient({ initialActivity, initialError }: Props) {
   const { data: activity, error: queryError } = useOperatorActivity(initialActivity);
   const error = queryError ? (queryError instanceof Error ? queryError.message : 'Failed to load') : initialError;
 
-  const operators = activity?.operators ?? [];
-  const actions = activity?.recentActions ?? [];
-  const alerts = activity?.alerts ?? [];
+  const operators = useMemo(() => activity?.operators ?? [], [activity?.operators]);
+  const actions = useMemo(() => activity?.recentActions ?? [], [activity?.recentActions]);
+  const alerts = useMemo(() => activity?.alerts ?? [], [activity?.alerts]);
 
   // Build operator name lookup from the operators list
   const operatorNames = useMemo(() => {
