@@ -140,6 +140,7 @@ divide-y divide-terminal-border
 | Flash on update | Conditional `scale-105` + color change with `transition-all duration-300` |
 | Interactive elements | `transition-colors` |
 | Stopped/paused states | `animate-pulse` on red badges |
+| Audit timeline new-event highlight | `animate-highlight` — defined in `globals.css`; fades from `rgba(90,200,250,0.15)` (`mc-accent` / `#5AC8FA`) to transparent over 2 s (`ease-out`). Applied to newly-arrived audit rows. |
 
 ---
 
