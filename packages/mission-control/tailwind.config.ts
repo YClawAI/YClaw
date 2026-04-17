@@ -9,28 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ─── LEGACY TERMINAL PALETTE ─────────────────────────────────────────
-        // Kept in place during the SpaceX migration so every existing component
-        // continues to render unchanged. New work should use the `mc-*` tokens
-        // below. The terminal-* tokens are removed entirely in Phase 6.
-        terminal: {
-          bg: '#0a0a0f',
-          surface: '#111118',
-          border: '#1e1e2e',
-          muted: '#2a2a3a',
-          text: '#cdd6f4',
-          dim: '#6c7086',
-          green: '#a6e3a1',
-          red: '#f38ba8',
-          yellow: '#f9e2af',
-          blue: '#89b4fa',
-          purple: '#cba6f7',
-          cyan: '#89dceb',
-          orange: '#fab387',
-        },
-        // ─── SPACEX CREW DRAGON PALETTE (Phase 1+) ───────────────────────────
+        // ─── SPACEX CREW DRAGON PALETTE ──────────────────────────────────────
         // Pure black canvas, 1px cyan hairline borders, outlined (not filled)
         // panels, iOS-style semantic colors. See DESIGN-SYSTEM.md for usage.
+        // The legacy terminal-* Catppuccin palette was removed in Phase 6.
         mc: {
           bg: '#000000',
           surface: 'rgba(255,255,255,0.02)',

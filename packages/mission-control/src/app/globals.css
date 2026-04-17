@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── SpaceX Crew Dragon tokens (Phase 1) ──────────────────────────────
+/* ─── SpaceX Crew Dragon tokens ────────────────────────────────────────
  * Exposed as CSS custom properties so vanilla CSS + SVG can consume the
  * same values as the Tailwind `mc-*` utility classes. Component work
  * should prefer the Tailwind classes; these vars exist for: inline SVG
@@ -44,14 +44,14 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0a0a0f;
+    background: var(--mc-bg);
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a2a3a;
+    background: var(--mc-border-hover);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a3a4a;
+    background: var(--mc-border-active);
   }
 }
 
