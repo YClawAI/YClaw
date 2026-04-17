@@ -58,8 +58,8 @@ export default async function ObservabilityPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-sm font-bold text-terminal-text">Observability</h1>
-        <span className="text-[10px] text-terminal-dim font-mono">Auto-refresh: 30s</span>
+        <h1 className="text-sm font-bold text-mc-text">Observability</h1>
+        <span className="text-[10px] text-mc-text-tertiary font-mono">Auto-refresh: 30s</span>
       </div>
       <ObservabilityClient
         initialHealth={health}
