@@ -79,18 +79,18 @@ export function PromptEditor({ filename, label, isProtected }: PromptEditorProps
     return (
       <button
         onClick={handleOpen}
-        className="w-full text-left px-2 py-1.5 rounded hover:bg-terminal-muted/30 transition-colors group flex items-center gap-2"
+        className="w-full text-left px-2 py-1.5 rounded hover:bg-mc-border/30 transition-colors group flex items-center gap-2"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5 text-terminal-dim shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3.5 h-3.5 text-mc-text-tertiary shrink-0">
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
         </svg>
         <div className="flex-1 min-w-0">
-          <div className="text-xs text-terminal-text truncate">{label}</div>
-          <div className="text-[10px] text-terminal-dim/60 flex items-center gap-2">
+          <div className="text-xs text-mc-text truncate">{label}</div>
+          <div className="text-[10px] text-mc-text-tertiary/60 flex items-center gap-2">
             <span className="truncate">{filename}</span>
             {isProtected && (
               <span
-                className="inline-flex items-center gap-0.5 text-terminal-red shrink-0"
+                className="inline-flex items-center gap-0.5 text-mc-danger shrink-0"
                 title="Agents cannot edit this file, but humans can modify it here."
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-2.5 h-2.5">
@@ -107,42 +107,42 @@ export function PromptEditor({ filename, label, isProtected }: PromptEditorProps
 
   return (
     <>
-      <div className="border border-terminal-border rounded overflow-hidden">
+      <div className="border border-mc-border rounded overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2 bg-terminal-muted/20 border-b border-terminal-border">
+        <div className="flex items-center justify-between px-3 py-2 bg-mc-border/20 border-b border-mc-border">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-terminal-text">{label}</span>
+            <span className="text-xs font-bold text-mc-text">{label}</span>
             {isProtected && (
               <span
-                className="text-[9px] px-1 py-0.5 rounded bg-terminal-red/10 text-terminal-red border border-terminal-red/20"
+                className="text-[9px] px-1 py-0.5 rounded bg-mc-danger/10 text-mc-danger border border-mc-danger/20"
                 title="Agents cannot edit this file, but humans can modify it here."
               >
                 PROTECTED
               </span>
             )}
             {isDirty && (
-              <span className="w-1.5 h-1.5 rounded-full bg-terminal-orange" title="Unsaved changes" />
+              <span className="w-1.5 h-1.5 rounded-full bg-mc-blocked" title="Unsaved changes" />
             )}
           </div>
           <div className="flex items-center gap-2">
-            {success && <span className="text-[10px] text-terminal-green">{success}</span>}
-            {error && <span className="text-[10px] text-terminal-red">{error}</span>}
+            {success && <span className="text-[10px] text-mc-success">{success}</span>}
+            {error && <span className="text-[10px] text-mc-danger">{error}</span>}
             <button
               onClick={() => setIsExpanded(true)}
-              className="text-[10px] px-2 py-0.5 rounded border border-terminal-border text-terminal-dim hover:text-terminal-text hover:bg-terminal-muted/40 transition-colors"
+              className="text-[10px] px-2 py-0.5 rounded border border-mc-border text-mc-text-tertiary hover:text-mc-text hover:bg-mc-border/40 transition-colors"
             >
               Expand
             </button>
             <button
               onClick={handleSave}
               disabled={saving || !isDirty}
-              className="text-[10px] px-2 py-0.5 rounded bg-terminal-purple/20 text-terminal-purple border border-terminal-purple/30 hover:bg-terminal-purple/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="text-[10px] px-2 py-0.5 rounded bg-mc-accent/20 text-mc-accent border border-mc-accent/30 hover:bg-mc-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               {saving ? 'Saving...' : 'Save'}
             </button>
             <button
               onClick={() => { setIsOpen(false); setFileData(null); }}
-              className="text-[10px] text-terminal-dim hover:text-terminal-text transition-colors"
+              className="text-[10px] text-mc-text-tertiary hover:text-mc-text transition-colors"
             >
               Close
             </button>
@@ -151,12 +151,12 @@ export function PromptEditor({ filename, label, isProtected }: PromptEditorProps
 
         {/* Editor */}
         {loading ? (
-          <div className="p-4 text-xs text-terminal-dim">Loading...</div>
+          <div className="p-4 text-xs text-mc-text-tertiary">Loading...</div>
         ) : (
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full bg-terminal-bg text-terminal-text text-xs font-mono p-3 resize-y min-h-[200px] max-h-[500px] focus:outline-none"
+            className="w-full bg-mc-bg text-mc-text text-xs font-mono p-3 resize-y min-h-[200px] max-h-[500px] focus:outline-none"
             style={{ tabSize: 2 }}
             spellCheck={false}
           />
@@ -171,16 +171,16 @@ export function PromptEditor({ filename, label, isProtected }: PromptEditorProps
               className="fixed inset-0 z-50 bg-black/60"
               onClick={() => setIsExpanded(false)}
             />
-            <div className="fixed inset-4 sm:inset-10 z-50 flex flex-col bg-terminal-surface border border-terminal-border shadow-2xl rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-terminal-border bg-terminal-muted/40">
+            <div className="fixed inset-4 sm:inset-10 z-50 flex flex-col bg-mc-surface-hover border border-mc-border shadow-2xl rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-mc-border bg-mc-border/40">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-terminal-text">
+                    <span className="text-xs font-bold text-mc-text">
                       {label}
                     </span>
                     {isProtected && (
                       <span
-                        className="text-[9px] px-1 py-0.5 rounded bg-terminal-red/10 text-terminal-red border border-terminal-red/20"
+                        className="text-[9px] px-1 py-0.5 rounded bg-mc-danger/10 text-mc-danger border border-mc-danger/20"
                         title="Agents cannot edit this file, but humans can modify it here."
                       >
                         PROTECTED
@@ -188,32 +188,32 @@ export function PromptEditor({ filename, label, isProtected }: PromptEditorProps
                     )}
                     {isDirty && (
                       <span
-                        className="w-1.5 h-1.5 rounded-full bg-terminal-orange"
+                        className="w-1.5 h-1.5 rounded-full bg-mc-blocked"
                         title="Unsaved changes"
                       />
                     )}
                   </div>
-                  <div className="text-[10px] text-terminal-dim break-all">
+                  <div className="text-[10px] text-mc-text-tertiary break-all">
                     {filename}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {success && (
-                    <span className="text-[10px] text-terminal-green">{success}</span>
+                    <span className="text-[10px] text-mc-success">{success}</span>
                   )}
                   {error && (
-                    <span className="text-[10px] text-terminal-red">{error}</span>
+                    <span className="text-[10px] text-mc-danger">{error}</span>
                   )}
                   <button
                     onClick={handleSave}
                     disabled={saving || !isDirty}
-                    className="text-[10px] px-2 py-0.5 rounded bg-terminal-purple/20 text-terminal-purple border border-terminal-purple/30 hover:bg-terminal-purple/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="text-[10px] px-2 py-0.5 rounded bg-mc-accent/20 text-mc-accent border border-mc-accent/30 hover:bg-mc-accent/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     {saving ? 'Saving...' : 'Save'}
                   </button>
                   <button
                     onClick={() => setIsExpanded(false)}
-                    className="text-[12px] text-terminal-dim hover:text-terminal-text px-2 py-0.5 transition-colors"
+                    className="text-[12px] text-mc-text-tertiary hover:text-mc-text px-2 py-0.5 transition-colors"
                   >
                     ×
                   </button>
@@ -221,14 +221,14 @@ export function PromptEditor({ filename, label, isProtected }: PromptEditorProps
               </div>
               <div className="flex-1">
                 {loading ? (
-                  <div className="flex items-center justify-center h-full text-xs text-terminal-dim">
+                  <div className="flex items-center justify-center h-full text-xs text-mc-text-tertiary">
                     Loading...
                   </div>
                 ) : (
                   <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    className="w-full h-full bg-terminal-bg text-terminal-text text-xs font-mono p-4 resize-none focus:outline-none"
+                    className="w-full h-full bg-mc-bg text-mc-text text-xs font-mono p-4 resize-none focus:outline-none"
                     style={{ tabSize: 2 }}
                     spellCheck={false}
                   />

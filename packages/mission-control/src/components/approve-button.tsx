@@ -24,14 +24,14 @@ export function ApproveButton({ approvalId }: ApproveButtonProps) {
       <button
         onClick={() => handle('approve')}
         disabled={isPending}
-        className="px-3 py-1 text-xs font-mono rounded border border-terminal-green/40 text-terminal-green hover:bg-terminal-green/10 disabled:opacity-40 transition-colors"
+        className="px-3 py-1 text-xs font-mono rounded border border-mc-success/40 text-mc-success hover:bg-mc-success/10 disabled:opacity-40 transition-colors"
       >
         Approve
       </button>
       <button
         onClick={() => handle('reject')}
         disabled={isPending}
-        className="px-3 py-1 text-xs font-mono rounded border border-terminal-red/40 text-terminal-red hover:bg-terminal-red/10 disabled:opacity-40 transition-colors"
+        className="px-3 py-1 text-xs font-mono rounded border border-mc-danger/40 text-mc-danger hover:bg-mc-danger/10 disabled:opacity-40 transition-colors"
       >
         Reject
       </button>

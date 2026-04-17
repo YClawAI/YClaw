@@ -47,10 +47,10 @@ function formatCents(cents: number): string {
 
 function StatusBadge({ status }: { status: string }) {
   const color =
-    status === 'success' ? 'text-terminal-green bg-terminal-green/10 border-terminal-green/30' :
-    status === 'error' ? 'text-terminal-red bg-terminal-red/10 border-terminal-red/30' :
-    status === 'running' ? 'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30' :
-    'text-terminal-dim bg-terminal-muted border-terminal-border';
+    status === 'success' ? 'text-mc-success bg-mc-success/10 border-mc-success/30' :
+    status === 'error' ? 'text-mc-danger bg-mc-danger/10 border-mc-danger/30' :
+    status === 'running' ? 'text-mc-info bg-mc-info/10 border-mc-info/30' :
+    'text-mc-text-tertiary bg-mc-border border-mc-border';
 
   return (
     <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${color}`}>
@@ -60,7 +60,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function CostSparkline({ data }: { data: { date: string; cents: number }[] }) {
-  if (data.length < 2) return <span className="text-[10px] text-terminal-dim">No cost data</span>;
+  if (data.length < 2) return <span className="text-[10px] text-mc-text-tertiary">No cost data</span>;
   const max = Math.max(...data.map(d => d.cents));
   const min = Math.min(...data.map(d => d.cents));
   const range = max - min || 1;
@@ -76,7 +76,7 @@ function CostSparkline({ data }: { data: { date: string; cents: number }[] }) {
 
   return (
     <div>
-      <svg className="text-terminal-purple" width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+      <svg className="text-mc-accent" width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
         <polyline
           points={points}
           fill="none"
@@ -86,7 +86,7 @@ function CostSparkline({ data }: { data: { date: string; cents: number }[] }) {
           strokeLinejoin="round"
         />
       </svg>
-      <div className="flex justify-between text-[10px] text-terminal-dim font-mono mt-0.5">
+      <div className="flex justify-between text-[10px] text-mc-text-tertiary font-mono mt-0.5">
         <span>{data[0]?.date.slice(5)}</span>
         <span>{data[data.length - 1]?.date.slice(5)}</span>
       </div>
@@ -157,21 +157,21 @@ export function AgentDetailDrawer({ agentId, open, onClose, fleetOnline = false,
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-terminal-surface border-l border-terminal-border shadow-2xl overflow-y-auto max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:max-w-full max-sm:max-h-[80vh] max-sm:rounded-t-xl max-sm:border-t max-sm:border-l-0">
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-mc-surface-hover border-l border-mc-border shadow-2xl overflow-y-auto max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:max-w-full max-sm:max-h-[80vh] max-sm:rounded-t-xl max-sm:border-t max-sm:border-l-0">
         {/* Header */}
-        <div className="sticky top-0 bg-terminal-surface px-6 py-4 border-b border-terminal-border flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-mc-surface-hover px-6 py-4 border-b border-mc-border flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
             <span className="text-lg">{agent.emoji}</span>
-            <h2 className="text-sm font-bold text-terminal-text">{agent.label}</h2>
+            <h2 className="text-sm font-bold text-mc-text">{agent.label}</h2>
             {agent.model && (
-              <span className="text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded">
+              <span className="text-[10px] font-mono text-mc-text-tertiary bg-mc-border px-1.5 py-0.5 rounded">
                 {agent.model}
               </span>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-terminal-dim hover:text-terminal-text transition-colors text-lg"
+            className="text-mc-text-tertiary hover:text-mc-text transition-colors text-lg"
           >
             &times;
           </button>
@@ -180,14 +180,14 @@ export function AgentDetailDrawer({ agentId, open, onClose, fleetOnline = false,
         <div className="p-6 space-y-6">
           {/* Agent Info */}
           <div>
-            <div className="text-xs text-terminal-dim mb-1">{dept.icon} {dept.label} Department</div>
-            <div className="text-xs text-terminal-text">{agent.description}</div>
+            <div className="text-xs text-mc-text-tertiary mb-1">{dept.icon} {dept.label} Department</div>
+            <div className="text-xs text-mc-text">{agent.description}</div>
             <div className="mt-2 flex items-center gap-2">
-              <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded border border-terminal-border text-terminal-dim">
+              <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded border border-mc-border text-mc-text-tertiary">
                 {agent.system}
               </span>
               {agent.role === 'lead' && (
-                <span className="text-[10px] font-mono text-terminal-cyan bg-terminal-cyan/10 border border-terminal-cyan/30 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] font-mono text-mc-accent bg-mc-accent/10 border border-mc-accent/30 px-1.5 py-0.5 rounded">
                   LEAD
                 </span>
               )}
@@ -196,18 +196,18 @@ export function AgentDetailDrawer({ agentId, open, onClose, fleetOnline = false,
 
           {/* Trigger Section */}
           <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim mb-2">Trigger</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary mb-2">Trigger</h3>
             {(() => {
               const tasks = agentId ? (AGENT_TASKS[agentId] ?? []) : [];
               if (tasks.length === 0) {
-                return <div className="text-xs text-terminal-dim">No triggerable tasks for this agent</div>;
+                return <div className="text-xs text-mc-text-tertiary">No triggerable tasks for this agent</div>;
               }
               return (
-                <div className="bg-terminal-bg rounded p-3 border border-terminal-border space-y-2">
+                <div className="bg-mc-bg rounded p-3 border border-mc-border space-y-2">
                   <select
                     value={selectedTask}
                     onChange={(e) => { setSelectedTask(e.target.value); setTriggerResult(null); }}
-                    className="w-full bg-terminal-surface border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue"
+                    className="w-full bg-mc-surface-hover border border-mc-border rounded px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
                   >
                     <option value="">Select a task...</option>
                     {tasks.map((t) => (
@@ -233,14 +233,14 @@ export function AgentDetailDrawer({ agentId, open, onClose, fleetOnline = false,
                       }}
                       className={`px-3 py-1.5 text-xs font-mono rounded border transition-colors ${
                         fleetOnline && selectedTask
-                          ? 'border-terminal-blue/40 text-terminal-blue hover:bg-terminal-blue/10'
-                          : 'border-terminal-border text-terminal-dim/50 cursor-not-allowed'
+                          ? 'border-mc-info/40 text-mc-info hover:bg-mc-info/10'
+                          : 'border-mc-border text-mc-text-tertiary/50 cursor-not-allowed'
                       }`}
                     >
                       {isTriggerPending ? 'Triggering...' : 'Trigger'}
                     </button>
                     {tooltipVisible && !fleetOnline && (
-                      <div className="absolute bottom-full left-0 mb-1 px-2 py-1 text-[9px] font-mono bg-terminal-bg border border-terminal-border rounded text-terminal-dim whitespace-nowrap z-10">
+                      <div className="absolute bottom-full left-0 mb-1 px-2 py-1 text-[9px] font-mono bg-mc-bg border border-mc-border rounded text-mc-text-tertiary whitespace-nowrap z-10">
                         Unavailable
                       </div>
                     )}
@@ -248,8 +248,8 @@ export function AgentDetailDrawer({ agentId, open, onClose, fleetOnline = false,
                   {triggerResult && (
                     <div className={`text-xs font-mono px-2 py-1 rounded ${
                       triggerResult.ok
-                        ? 'text-terminal-green bg-terminal-green/10 border border-terminal-green/30'
-                        : 'text-terminal-red bg-terminal-red/10 border border-terminal-red/30'
+                        ? 'text-mc-success bg-mc-success/10 border border-mc-success/30'
+                        : 'text-mc-danger bg-mc-danger/10 border border-mc-danger/30'
                     }`}>
                       {triggerResult.ok
                         ? `Triggered. ID: ${triggerResult.executionId ?? 'n/a'}`
@@ -263,18 +263,18 @@ export function AgentDetailDrawer({ agentId, open, onClose, fleetOnline = false,
 
           {/* Schedules Section */}
           <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim mb-2">Schedules</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary mb-2">Schedules</h3>
             {schedules.length === 0 ? (
-              <div className="text-xs text-terminal-dim">No schedule data</div>
+              <div className="text-xs text-mc-text-tertiary">No schedule data</div>
             ) : (
               <div className="space-y-2">
                 {schedules.map((s) => (
-                  <div key={s.taskId} className="bg-terminal-bg rounded p-3 border border-terminal-border">
+                  <div key={s.taskId} className="bg-mc-bg rounded p-3 border border-mc-border">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-mono text-terminal-text">{s.taskId}</span>
-                      <span className="text-[10px] font-mono text-terminal-dim">{s.schedule}</span>
+                      <span className="text-xs font-mono text-mc-text">{s.taskId}</span>
+                      <span className="text-[10px] font-mono text-mc-text-tertiary">{s.schedule}</span>
                     </div>
-                    <div className="text-[10px] text-terminal-dim">
+                    <div className="text-[10px] text-mc-text-tertiary">
                       Next fire: {s.nextFireAt ? new Date(s.nextFireAt).toLocaleString() : '—'}
                     </div>
                   </div>
@@ -284,55 +284,55 @@ export function AgentDetailDrawer({ agentId, open, onClose, fleetOnline = false,
           </div>
 
           {loading ? (
-            <div className="text-xs text-terminal-dim animate-pulse">Loading agent data...</div>
+            <div className="text-xs text-mc-text-tertiary animate-pulse">Loading agent data...</div>
           ) : data ? (
             <>
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-terminal-bg rounded p-3 border border-terminal-border">
-                  <div className="text-lg font-bold font-mono text-terminal-text">{data.kpis.runCount24h}</div>
-                  <div className="text-[10px] text-terminal-dim">Runs (24h)</div>
+                <div className="bg-mc-bg rounded p-3 border border-mc-border">
+                  <div className="text-lg font-bold font-mono text-mc-text">{data.kpis.runCount24h}</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Runs (24h)</div>
                 </div>
-                <div className="bg-terminal-bg rounded p-3 border border-terminal-border">
-                  <div className="text-lg font-bold font-mono text-terminal-text">{data.kpis.runCount7d}</div>
-                  <div className="text-[10px] text-terminal-dim">Runs (7d)</div>
+                <div className="bg-mc-bg rounded p-3 border border-mc-border">
+                  <div className="text-lg font-bold font-mono text-mc-text">{data.kpis.runCount7d}</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Runs (7d)</div>
                 </div>
-                <div className="bg-terminal-bg rounded p-3 border border-terminal-border">
-                  <div className="text-lg font-bold font-mono text-terminal-text">{data.kpis.errorCount24h}</div>
-                  <div className="text-[10px] text-terminal-dim">Errors (24h)</div>
+                <div className="bg-mc-bg rounded p-3 border border-mc-border">
+                  <div className="text-lg font-bold font-mono text-mc-text">{data.kpis.errorCount24h}</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Errors (24h)</div>
                 </div>
-                <div className="bg-terminal-bg rounded p-3 border border-terminal-border">
-                  <div className="text-lg font-bold font-mono text-terminal-text">${data.kpis.spendMTD.toFixed(2)}</div>
-                  <div className="text-[10px] text-terminal-dim">Spend (MTD)</div>
+                <div className="bg-mc-bg rounded p-3 border border-mc-border">
+                  <div className="text-lg font-bold font-mono text-mc-text">${data.kpis.spendMTD.toFixed(2)}</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Spend (MTD)</div>
                 </div>
               </div>
 
               {/* Cost Sparkline */}
               <div>
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim mb-2">7-Day Spend</h3>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary mb-2">7-Day Spend</h3>
                 <CostSparkline data={data.costSparkline} />
               </div>
 
               {/* Recent Executions */}
               <div>
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim mb-2">Recent Executions</h3>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary mb-2">Recent Executions</h3>
                 {data.recentRuns.length === 0 ? (
-                  <div className="text-xs text-terminal-dim">No recent executions</div>
+                  <div className="text-xs text-mc-text-tertiary">No recent executions</div>
                 ) : (
                   <div className="space-y-2">
                     {data.recentRuns.map((run, i) => (
-                      <div key={run.executionId ?? i} className="bg-terminal-bg rounded p-3 border border-terminal-border">
+                      <div key={run.executionId ?? i} className="bg-mc-bg rounded p-3 border border-mc-border">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
                             <StatusBadge status={run.status} />
                             {run.taskId && (
-                              <span className="text-[10px] font-mono text-terminal-dim">{run.taskId}</span>
+                              <span className="text-[10px] font-mono text-mc-text-tertiary">{run.taskId}</span>
                             )}
                           </div>
-                          <span className="text-[10px] text-terminal-dim">{formatRelativeTime(run.createdAt)}</span>
+                          <span className="text-[10px] text-mc-text-tertiary">{formatRelativeTime(run.createdAt)}</span>
                         </div>
                         {run.cost !== undefined && (
-                          <div className="text-[10px] text-terminal-dim font-mono">{formatCents(Math.round(run.cost * 100))}</div>
+                          <div className="text-[10px] text-mc-text-tertiary font-mono">{formatCents(Math.round(run.cost * 100))}</div>
                         )}
                       </div>
                     ))}
@@ -341,7 +341,7 @@ export function AgentDetailDrawer({ agentId, open, onClose, fleetOnline = false,
               </div>
             </>
           ) : (
-            <div className="text-xs text-terminal-dim">No data available</div>
+            <div className="text-xs text-mc-text-tertiary">No data available</div>
           )}
 
           {/* Extension content (AgentHub tabs, etc.) */}
