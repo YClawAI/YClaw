@@ -15,11 +15,11 @@ function StatusBadge({ running }: { running: boolean }) {
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono border ${
       running
-        ? 'border-terminal-green/30 text-terminal-green bg-terminal-green/5'
-        : 'border-terminal-yellow/30 text-terminal-yellow bg-terminal-yellow/5'
+        ? 'border-mc-success/30 text-mc-success bg-mc-success/5'
+        : 'border-mc-warning/30 text-mc-warning bg-mc-warning/5'
     }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${running ? 'bg-terminal-green' : 'bg-terminal-yellow'}`} />
+      <span className={`w-1.5 h-1.5 rounded-full ${running ? 'bg-mc-success' : 'bg-mc-warning'}`} />
       {running ? 'RUNNING' : 'PAUSED'}
     </span>
   );
@@ -49,8 +49,8 @@ export function GrowthControlPanel({ health, status }: GrowthControlPanelProps) 
     <div className="space-y-4">
       <div className={`border rounded p-3 text-xs ${
         health.ok
-          ? 'bg-terminal-green/5 border-terminal-green/20 text-terminal-dim'
-          : 'bg-terminal-red/5 border-terminal-red/20 text-terminal-red'
+          ? 'bg-mc-success/5 border-mc-success/20 text-mc-text-tertiary'
+          : 'bg-mc-danger/5 border-mc-danger/20 text-mc-danger'
       }`}>
         {health.ok
           ? 'AgentHub reachable. Growth controls are publishing directly into the core event bus.'
@@ -58,7 +58,7 @@ export function GrowthControlPanel({ health, status }: GrowthControlPanelProps) 
       </div>
 
       {!status.enabled ? (
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4 text-xs text-terminal-dim">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4 text-xs text-mc-text-tertiary">
           Growth engine is not enabled.
         </div>
       ) : (
@@ -67,18 +67,18 @@ export function GrowthControlPanel({ health, status }: GrowthControlPanelProps) 
             <button
               onClick={() => runAction('pause-all', () => pauseGrowth())}
               disabled={busyKey !== null}
-              className="px-3 py-1.5 text-xs font-mono rounded border border-terminal-yellow/30 text-terminal-yellow hover:bg-terminal-yellow/10 disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-mono rounded border border-mc-warning/30 text-mc-warning hover:bg-mc-warning/10 disabled:opacity-50"
             >
               {busyKey === 'pause-all' ? 'Pausing…' : 'Pause All'}
             </button>
             <button
               onClick={() => runAction('resume-all', () => resumeGrowth())}
               disabled={busyKey !== null}
-              className="px-3 py-1.5 text-xs font-mono rounded border border-terminal-green/30 text-terminal-green hover:bg-terminal-green/10 disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-mono rounded border border-mc-success/30 text-mc-success hover:bg-mc-success/10 disabled:opacity-50"
             >
               {busyKey === 'resume-all' ? 'Resuming…' : 'Resume All'}
             </button>
-            <span className="text-[10px] text-terminal-dim font-mono">
+            <span className="text-[10px] text-mc-text-tertiary font-mono">
               {status.channels.length} channels, {status.pendingApprovals.length} pending approvals
             </span>
           </div>
@@ -87,11 +87,11 @@ export function GrowthControlPanel({ health, status }: GrowthControlPanelProps) 
             {status.channels.map((channel) => {
               const actionKey = `${channel.channelName}:${channel.running ? 'pause' : 'resume'}`;
               return (
-                <div key={channel.channelName} className="bg-terminal-surface border border-terminal-border rounded p-4 space-y-3">
+                <div key={channel.channelName} className="bg-mc-surface-hover border border-mc-border rounded p-4 space-y-3">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-xs font-bold font-mono text-terminal-text">{channel.channelName}</div>
-                      <div className="text-[10px] text-terminal-dim">
+                      <div className="text-xs font-bold font-mono text-mc-text">{channel.channelName}</div>
+                      <div className="text-[10px] text-mc-text-tertiary">
                         Champion {channel.championVersion}
                       </div>
                     </div>
@@ -99,23 +99,23 @@ export function GrowthControlPanel({ health, status }: GrowthControlPanelProps) 
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
-                    <div className="border border-terminal-border rounded p-2">
-                      <div className="text-terminal-dim">Experiments</div>
-                      <div className="text-terminal-text text-sm">{channel.experimentsRun}</div>
+                    <div className="border border-mc-border rounded p-2">
+                      <div className="text-mc-text-tertiary">Experiments</div>
+                      <div className="text-mc-text text-sm">{channel.experimentsRun}</div>
                     </div>
-                    <div className="border border-terminal-border rounded p-2">
-                      <div className="text-terminal-dim">Approvals Left</div>
-                      <div className="text-terminal-text text-sm">{channel.humanApprovalRemaining}</div>
+                    <div className="border border-mc-border rounded p-2">
+                      <div className="text-mc-text-tertiary">Approvals Left</div>
+                      <div className="text-mc-text text-sm">{channel.humanApprovalRemaining}</div>
                     </div>
-                    <div className="border border-terminal-border rounded p-2">
-                      <div className="text-terminal-dim">Champion Score</div>
-                      <div className="text-terminal-text text-sm">
+                    <div className="border border-mc-border rounded p-2">
+                      <div className="text-mc-text-tertiary">Champion Score</div>
+                      <div className="text-mc-text text-sm">
                         {channel.championScore >= 0 ? `${(channel.championScore * 100).toFixed(1)}%` : '--'}
                       </div>
                     </div>
-                    <div className="border border-terminal-border rounded p-2">
-                      <div className="text-terminal-dim">Variable Index</div>
-                      <div className="text-terminal-text text-sm">{channel.variableIndex}</div>
+                    <div className="border border-mc-border rounded p-2">
+                      <div className="text-mc-text-tertiary">Variable Index</div>
+                      <div className="text-mc-text text-sm">{channel.variableIndex}</div>
                     </div>
                   </div>
 
@@ -127,8 +127,8 @@ export function GrowthControlPanel({ health, status }: GrowthControlPanelProps) 
                     disabled={busyKey !== null}
                     className={`w-full px-3 py-1.5 text-xs font-mono rounded border disabled:opacity-50 ${
                       channel.running
-                        ? 'border-terminal-yellow/30 text-terminal-yellow hover:bg-terminal-yellow/10'
-                        : 'border-terminal-green/30 text-terminal-green hover:bg-terminal-green/10'
+                        ? 'border-mc-warning/30 text-mc-warning hover:bg-mc-warning/10'
+                        : 'border-mc-success/30 text-mc-success hover:bg-mc-success/10'
                     }`}
                   >
                     {busyKey === actionKey
@@ -142,25 +142,25 @@ export function GrowthControlPanel({ health, status }: GrowthControlPanelProps) 
             })}
           </div>
 
-          <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+          <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Pending Approvals</h3>
-              <span className="text-[10px] font-mono text-terminal-dim">{status.pendingApprovals.length}</span>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">Pending Approvals</h3>
+              <span className="text-[10px] font-mono text-mc-text-tertiary">{status.pendingApprovals.length}</span>
             </div>
             {status.pendingApprovals.length === 0 ? (
-              <div className="text-xs text-terminal-dim">No growth approvals are currently blocked.</div>
+              <div className="text-xs text-mc-text-tertiary">No growth approvals are currently blocked.</div>
             ) : (
               <div className="space-y-2">
                 {status.pendingApprovals.map((approvalKey) => (
-                  <div key={approvalKey} className="flex items-center gap-3 border border-terminal-border rounded p-3">
+                  <div key={approvalKey} className="flex items-center gap-3 border border-mc-border rounded p-3">
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-mono text-terminal-text truncate">{approvalKey}</div>
-                      <div className="text-[10px] text-terminal-dim">Publishes `strategist:growth_approved` for this experiment.</div>
+                      <div className="text-xs font-mono text-mc-text truncate">{approvalKey}</div>
+                      <div className="text-[10px] text-mc-text-tertiary">Publishes `strategist:growth_approved` for this experiment.</div>
                     </div>
                     <button
                       onClick={() => runAction(`approve:${approvalKey}`, () => approveGrowth(approvalKey))}
                       disabled={busyKey !== null}
-                      className="px-3 py-1.5 text-xs font-mono rounded border border-terminal-green/30 text-terminal-green hover:bg-terminal-green/10 disabled:opacity-50"
+                      className="px-3 py-1.5 text-xs font-mono rounded border border-mc-success/30 text-mc-success hover:bg-mc-success/10 disabled:opacity-50"
                     >
                       {busyKey === `approve:${approvalKey}` ? 'Approving…' : 'Approve'}
                     </button>
@@ -171,7 +171,7 @@ export function GrowthControlPanel({ health, status }: GrowthControlPanelProps) 
           </div>
 
           {error && (
-            <div className="bg-terminal-red/5 border border-terminal-red/20 rounded p-3 text-xs text-terminal-red">
+            <div className="bg-mc-danger/5 border border-mc-danger/20 rounded p-3 text-xs text-mc-danger">
               {error}
             </div>
           )}

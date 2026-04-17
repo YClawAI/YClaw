@@ -17,7 +17,7 @@ import type { AHCommit } from '@/lib/agenthub-api';
 import { getAgentHubDiff } from '@/lib/actions/agenthub-actions';
 import { DiffViewer } from './DiffViewer';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ExplorationDAGProps {
   commits: AHCommit[];
@@ -37,44 +37,48 @@ type CommitNodeData = {
   isSelected: boolean;
 };
 
-// ─── Agent Colors ────────────────────────────────────────────────────────────
+// ─── Agent Colors ─────────────────────────────────────────────────────────────────
 
 const AGENT_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   'worker-1': { bg: 'bg-blue-500/20', border: 'border-blue-500/60', text: 'text-blue-400' },
   'worker-2': { bg: 'bg-emerald-500/20', border: 'border-emerald-500/60', text: 'text-emerald-400' },
   'worker-3': { bg: 'bg-purple-500/20', border: 'border-purple-500/60', text: 'text-purple-400' },
-  builder: { bg: 'bg-terminal-blue/20', border: 'border-terminal-blue/60', text: 'text-terminal-blue' },
-  architect: { bg: 'bg-terminal-cyan/20', border: 'border-terminal-cyan/60', text: 'text-terminal-cyan' },
-  designer: { bg: 'bg-terminal-orange/20', border: 'border-terminal-orange/60', text: 'text-terminal-orange' },
-  deployer: { bg: 'bg-terminal-green/20', border: 'border-terminal-green/60', text: 'text-terminal-green' },
+  builder: { bg: 'bg-mc-info/20', border: 'border-mc-info/60', text: 'text-mc-info' },
+  architect: { bg: 'bg-mc-accent/20', border: 'border-mc-accent/60', text: 'text-mc-accent' },
+  designer: { bg: 'bg-mc-blocked/20', border: 'border-mc-blocked/60', text: 'text-mc-blocked' },
+  deployer: { bg: 'bg-mc-success/20', border: 'border-mc-success/60', text: 'text-mc-success' },
 };
 
-const DEFAULT_COLOR = { bg: 'bg-terminal-muted/30', border: 'border-terminal-border', text: 'text-terminal-dim' };
+const DEFAULT_COLOR = { bg: 'bg-mc-border/30', border: 'border-mc-border', text: 'text-mc-text-tertiary' };
 
-// ─── Custom Node ─────────────────────────────────────────────────────────────
+// ─── Custom Node ─────────────────────────────────────────────────────────────────
 
 function CommitNode({ data }: NodeProps<Node<CommitNodeData>>) {
   const color = AGENT_COLORS[data.agent] ?? DEFAULT_COLOR;
   const winnerRing = data.isWinner ? 'ring-2 ring-yellow-400/60' : '';
-  const selectedRing = data.isSelected ? 'ring-2 ring-terminal-purple' : '';
+  // Pre-flip used terminal-purple for the "selected" ring + terminal-cyan for
+  // the "architect" agent-role color; mechanical flip collapsed both to
+  // mc-accent. Route the selected-ring purple -> mc-dept-finance so selection
+  // state stays visually distinct from the architect agent tint.
+  const selectedRing = data.isSelected ? 'ring-2 ring-mc-dept-finance' : '';
   const leafPulse = data.isLeaf && !data.isWinner ? 'animate-pulse' : '';
 
   return (
     <div
       className={`px-3 py-2 rounded border ${color.bg} ${color.border} ${winnerRing} ${selectedRing} ${leafPulse} cursor-pointer min-w-[140px] max-w-[200px]`}
     >
-      <Handle type="target" position={Position.Left} className="!bg-terminal-dim !w-1.5 !h-1.5" />
+      <Handle type="target" position={Position.Left} className="!bg-mc-text-tertiary !w-1.5 !h-1.5" />
       <div className="flex items-center gap-1.5 mb-1">
         {data.isWinner && <span className="text-yellow-400 text-[10px]">*</span>}
         <span className={`text-[10px] font-mono font-bold ${color.text}`}>{data.agent}</span>
       </div>
-      <div className="text-[10px] font-mono text-terminal-dim truncate" title={data.hash}>
+      <div className="text-[10px] font-mono text-mc-text-tertiary truncate" title={data.hash}>
         {data.hash.slice(0, 8)}
       </div>
-      <div className="text-[10px] text-terminal-text truncate mt-0.5" title={data.message}>
+      <div className="text-[10px] text-mc-text truncate mt-0.5" title={data.message}>
         {data.message.split('\n')[0]?.slice(0, 40)}
       </div>
-      <Handle type="source" position={Position.Right} className="!bg-terminal-dim !w-1.5 !h-1.5" />
+      <Handle type="source" position={Position.Right} className="!bg-mc-text-tertiary !w-1.5 !h-1.5" />
     </div>
   );
 }
@@ -83,7 +87,7 @@ const nodeTypes: NodeTypes = {
   commit: CommitNode,
 };
 
-// ─── Layout Engine ───────────────────────────────────────────────────────────
+// ─── Layout Engine ─────────────────────────────────────────────────────────────────
 
 function computeLayout(commits: AHCommit[]): { nodes: Node<CommitNodeData>[]; edges: Edge[] } {
   if (commits.length === 0) return { nodes: [], edges: [] };
@@ -177,7 +181,7 @@ function computeLayout(commits: AHCommit[]): { nodes: Node<CommitNodeData>[]; ed
           id: `${commit.parent_hash}-${hash}`,
           source: commit.parent_hash,
           target: hash,
-          style: { stroke: '#6c7086', strokeWidth: 1.5 },
+          style: { stroke: 'rgba(255,255,255,0.30)', strokeWidth: 1.5 },
           animated: isWinner,
         });
       }
@@ -187,7 +191,7 @@ function computeLayout(commits: AHCommit[]): { nodes: Node<CommitNodeData>[]; ed
   return { nodes, edges };
 }
 
-// ─── Commit Detail Panel ─────────────────────────────────────────────────────
+// ─── Commit Detail Panel ──────────────────────────────────────────────────────────
 
 function CommitDetailPanel({
   commit,
@@ -204,25 +208,25 @@ function CommitDetailPanel({
   const relTime = formatRelativeTime(commit.created_at);
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4 space-y-3">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className={`text-xs font-mono font-bold ${color.text}`}>{commit.agent_id}</span>
-          <span className="text-[10px] font-mono text-terminal-dim">{commit.hash.slice(0, 12)}</span>
+          <span className="text-[10px] font-mono text-mc-text-tertiary">{commit.hash.slice(0, 12)}</span>
         </div>
-        <button onClick={onClose} className="text-terminal-dim hover:text-terminal-text text-sm">&times;</button>
+        <button onClick={onClose} className="text-mc-text-tertiary hover:text-mc-text text-sm">&times;</button>
       </div>
-      <div className="text-xs text-terminal-text">{commit.message}</div>
-      <div className="text-[10px] text-terminal-dim">{relTime}</div>
+      <div className="text-xs text-mc-text">{commit.message}</div>
+      <div className="text-[10px] text-mc-text-tertiary">{relTime}</div>
       {commit.parent_hash && (
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-terminal-dim">
+          <span className="text-[10px] text-mc-text-tertiary">
             Parent: <span className="font-mono">{commit.parent_hash.slice(0, 12)}</span>
           </span>
           <button
             onClick={() => onViewDiff(commit.parent_hash)}
             disabled={diffLoading}
-            className="text-[10px] font-mono text-terminal-blue hover:text-terminal-blue/80 transition-colors disabled:opacity-50"
+            className="text-[10px] font-mono text-mc-info hover:text-mc-info/80 transition-colors disabled:opacity-50"
           >
             {diffLoading ? 'Loading diff...' : 'View diff from parent'}
           </button>
@@ -242,7 +246,7 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(diff / 86400000)}d ago`;
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Main Component ─────────────────────────────────────────────────────────────────
 
 export function ExplorationDAG({ commits, leaves, selectedHash, onSelectCommit }: ExplorationDAGProps) {
   const [detailCommit, setDetailCommit] = useState<AHCommit | null>(null);
@@ -285,10 +289,10 @@ export function ExplorationDAG({ commits, leaves, selectedHash, onSelectCommit }
 
   if (commits.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
-        <span className="text-2xl text-terminal-dim/40">&#9671;</span>
-        <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim/60">Exploration DAG</div>
-        <p className="text-[10px] text-terminal-dim/40 max-w-xs">
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+        <span className="text-2xl text-mc-text-tertiary/40">&#9671;</span>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">Exploration DAG</div>
+        <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
           No AgentHub commit data available. The DAG will populate when Builder workers push exploration branches.
         </p>
       </div>
@@ -297,7 +301,7 @@ export function ExplorationDAG({ commits, leaves, selectedHash, onSelectCommit }
 
   return (
     <div className="space-y-3">
-      <div className="bg-terminal-surface border border-terminal-border rounded" style={{ height: 400 }}>
+      <div className="bg-mc-surface-hover border border-mc-border rounded" style={{ height: 400 }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -311,10 +315,10 @@ export function ExplorationDAG({ commits, leaves, selectedHash, onSelectCommit }
           defaultEdgeOptions={{ type: 'smoothstep' }}
           style={{ background: '#0a0a0f' }}
         >
-          <Background color="#1e1e2e" gap={20} />
+          <Background color="rgba(90,200,250,0.12)" gap={20} />
           <Controls
             showInteractive={false}
-            className="!bg-terminal-surface !border-terminal-border !shadow-none [&>button]:!bg-terminal-surface [&>button]:!border-terminal-border [&>button]:!text-terminal-dim [&>button:hover]:!bg-terminal-muted"
+            className="!bg-mc-surface-hover !border-mc-border !shadow-none [&>button]:!bg-mc-surface-hover [&>button]:!border-mc-border [&>button]:!text-mc-text-tertiary [&>button:hover]:!bg-mc-border"
           />
         </ReactFlow>
       </div>
@@ -335,7 +339,7 @@ export function ExplorationDAG({ commits, leaves, selectedHash, onSelectCommit }
       )}
 
       {/* Legend */}
-      <div className="flex items-center gap-4 text-[10px] text-terminal-dim">
+      <div className="flex items-center gap-4 text-[10px] text-mc-text-tertiary">
         <span>Agents:</span>
         {Object.entries(AGENT_COLORS).slice(0, 5).map(([agent, color]) => (
           <span key={agent} className="flex items-center gap-1">

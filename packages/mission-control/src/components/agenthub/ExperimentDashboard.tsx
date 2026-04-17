@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 import type { AHPost } from '@/lib/agenthub-api';
 import type { GrowthRuntimeStatus } from '@/lib/runtime-controls';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ChannelLane {
   name: string;
@@ -41,7 +41,7 @@ interface ExperimentDashboardProps {
   growthStatus?: GrowthRuntimeStatus;
 }
 
-// ─── Parse experiment-results posts ──────────────────────────────────────────
+// ─── Parse experiment-results posts ──────────────────────────────
 // Format from scorer.ts:
 //   +++ cold-email/v1.2.5
 //   Variable: subject_tone
@@ -94,7 +94,7 @@ function parseResultPost(post: AHPost): ParsedResult | null {
   return { channel, version, variable, description, score, lift, isWinner, deployId, scoredAt };
 }
 
-// ─── Derive channel lanes from parsed results ───────────────────────────────
+// ─── Derive channel lanes from parsed results ─────────────────────
 
 function deriveChannelLanes(
   results: ParsedResult[],
@@ -162,41 +162,41 @@ function deriveChannelLanes(
   return lanes;
 }
 
-// ─── Status Colors ───────────────────────────────────────────────────────────
+// ─── Status Colors ────────────────────────────────────────────────────────────────
 
 const STATUS_STYLES: Record<ChannelLane['status'], { dot: string; text: string; label: string }> = {
-  running: { dot: 'bg-terminal-green animate-pulse', text: 'text-terminal-green', label: 'RUNNING' },
-  scoring: { dot: 'bg-terminal-yellow', text: 'text-terminal-yellow', label: 'SCORING' },
-  paused: { dot: 'bg-terminal-orange', text: 'text-terminal-orange', label: 'PAUSED' },
-  idle: { dot: 'bg-terminal-dim', text: 'text-terminal-dim', label: 'IDLE' },
+  running: { dot: 'bg-mc-success animate-pulse', text: 'text-mc-success', label: 'RUNNING' },
+  scoring: { dot: 'bg-mc-warning', text: 'text-mc-warning', label: 'SCORING' },
+  paused: { dot: 'bg-mc-blocked', text: 'text-mc-blocked', label: 'PAUSED' },
+  idle: { dot: 'bg-mc-text-tertiary', text: 'text-mc-text-tertiary', label: 'IDLE' },
 };
 
-// ─── Channel Lane Card ───────────────────────────────────────────────────────
+// ─── Channel Lane Card ────────────────────────────────────────────────────────────
 
 function ChannelLaneCard({ lane, expanded, onToggle }: { lane: ChannelLane; expanded: boolean; onToggle: () => void }) {
   const style = STATUS_STYLES[lane.status];
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded overflow-hidden">
+    <div className="bg-mc-surface-hover border border-mc-border rounded overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-terminal-muted/10 transition-colors text-left"
+        className="w-full px-4 py-3 flex items-center gap-3 hover:bg-mc-border/10 transition-colors text-left"
       >
         <span className={`w-2 h-2 rounded-full shrink-0 ${style.dot}`} />
-        <span className="text-xs font-mono font-bold text-terminal-text flex-1">{lane.name}</span>
+        <span className="text-xs font-mono font-bold text-mc-text flex-1">{lane.name}</span>
         <span className={`text-[10px] font-mono font-bold ${style.text}`}>{style.label}</span>
-        <span className="text-[10px] font-mono text-terminal-dim ml-2">
+        <span className="text-[10px] font-mono text-mc-text-tertiary ml-2">
           Champion: {lane.currentChampion.version}
         </span>
-        <span className="text-[8px] text-terminal-dim">{expanded ? 'v' : '>'}</span>
+        <span className="text-[8px] text-mc-text-tertiary">{expanded ? 'v' : '>'}</span>
       </button>
 
       {/* Stats strip */}
       <div className="px-4 pb-3">
-        <div className="flex items-center gap-4 text-[10px] font-mono text-terminal-dim">
-          <span>Score: <span className="text-terminal-text">{lane.currentChampion.score.toFixed(1)}%</span></span>
-          <span>Win rate: <span className="text-terminal-text">{lane.stats.winRate > 0 ? `${lane.stats.winRate.toFixed(0)}%` : '--'}</span>
-            {lane.stats.wins > 0 && <span className="text-terminal-dim/60"> ({lane.stats.wins}/{lane.stats.totalExperiments})</span>}
+        <div className="flex items-center gap-4 text-[10px] font-mono text-mc-text-tertiary">
+          <span>Score: <span className="text-mc-text">{lane.currentChampion.score.toFixed(1)}%</span></span>
+          <span>Win rate: <span className="text-mc-text">{lane.stats.winRate > 0 ? `${lane.stats.winRate.toFixed(0)}%` : '--'}</span>
+            {lane.stats.wins > 0 && <span className="text-mc-text-tertiary/60"> ({lane.stats.wins}/{lane.stats.totalExperiments})</span>}
           </span>
           <span className="ml-auto">{lane.stats.daysRunning}d running</span>
         </div>
@@ -204,8 +204,8 @@ function ChannelLaneCard({ lane, expanded, onToggle }: { lane: ChannelLane; expa
 
       {/* Expanded detail */}
       {expanded && (
-        <div className="px-4 pb-4 border-t border-terminal-border pt-3">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim mb-1.5">Stats</div>
+        <div className="px-4 pb-4 border-t border-mc-border pt-3">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary mb-1.5">Stats</div>
           <div className="grid grid-cols-4 gap-2">
             <Stat label="Total" value={String(lane.stats.totalExperiments)} />
             <Stat label="Wins" value={String(lane.stats.wins)} />
@@ -220,14 +220,14 @@ function ChannelLaneCard({ lane, expanded, onToggle }: { lane: ChannelLane; expa
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-terminal-bg border border-terminal-border rounded p-2 text-center">
-      <div className="text-sm font-bold font-mono text-terminal-text">{value}</div>
-      <div className="text-[10px] text-terminal-dim">{label}</div>
+    <div className="bg-mc-bg border border-mc-border rounded p-2 text-center">
+      <div className="text-sm font-bold font-mono text-mc-text">{value}</div>
+      <div className="text-[10px] text-mc-text-tertiary">{label}</div>
     </div>
   );
 }
 
-// ─── Aggregate Stats Bar ─────────────────────────────────────────────────────
+// ─── Aggregate Stats Bar ──────────────────────────────────────────────────────────
 
 function AggregateStats({ channels }: { channels: ChannelLane[] }) {
   const totals = useMemo(() => {
@@ -267,14 +267,14 @@ function AggregateStats({ channels }: { channels: ChannelLane[] }) {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-3 text-center hover:border-terminal-muted transition-colors">
-      <div className="text-xl font-bold font-mono text-terminal-text">{value}</div>
-      <div className="text-[10px] text-terminal-dim mt-0.5">{label}</div>
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-3 text-center hover:border-mc-border transition-colors">
+      <div className="text-xl font-bold font-mono text-mc-text">{value}</div>
+      <div className="text-[10px] text-mc-text-tertiary mt-0.5">{label}</div>
     </div>
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Main Component ─────────────────────────────────────────────────────────────────
 
 export function ExperimentDashboard({ resultPosts, growthStatus }: ExperimentDashboardProps) {
   const [expandedLane, setExpandedLane] = useState<string | null>(null);
@@ -293,10 +293,10 @@ export function ExperimentDashboard({ resultPosts, growthStatus }: ExperimentDas
 
   if (channels.length === 0 && resultPosts.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
-        <span className="text-2xl text-terminal-dim/40">&#9671;</span>
-        <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim/60">Experiment Dashboard</div>
-        <p className="text-[10px] text-terminal-dim/40 max-w-xs">
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+        <span className="text-2xl text-mc-text-tertiary/40">&#9671;</span>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">Experiment Dashboard</div>
+        <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
           No experiment data available. Marketing experiment channels will appear here once the growth engine is active.
         </p>
       </div>
@@ -310,7 +310,7 @@ export function ExperimentDashboard({ resultPosts, growthStatus }: ExperimentDas
 
       {/* Channel Lanes */}
       <div>
-        <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">Channel Lanes</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">Channel Lanes</h3>
         <div className="space-y-2">
           {channels.map((lane) => (
             <ChannelLaneCard
@@ -326,13 +326,13 @@ export function ExperimentDashboard({ resultPosts, growthStatus }: ExperimentDas
       {/* Raw result feed */}
       {resultPosts.length > 0 && (
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">Recent Results</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">Recent Results</h3>
           <div className="space-y-1">
             {resultPosts.slice(0, 10).map((post) => (
-              <div key={post.id} className="flex items-center gap-3 px-3 py-2 bg-terminal-surface border border-terminal-border rounded text-[10px]">
-                <span className="font-mono text-terminal-dim w-16 shrink-0">{post.agent_id}</span>
-                <span className="text-terminal-text flex-1 truncate font-mono">{post.content.split('\n')[0]?.slice(0, 80)}</span>
-                <span className="text-terminal-dim shrink-0">{formatRelativeTime(post.created_at)}</span>
+              <div key={post.id} className="flex items-center gap-3 px-3 py-2 bg-mc-surface-hover border border-mc-border rounded text-[10px]">
+                <span className="font-mono text-mc-text-tertiary w-16 shrink-0">{post.agent_id}</span>
+                <span className="text-mc-text flex-1 truncate font-mono">{post.content.split('\n')[0]?.slice(0, 80)}</span>
+                <span className="text-mc-text-tertiary shrink-0">{formatRelativeTime(post.created_at)}</span>
               </div>
             ))}
           </div>
@@ -342,7 +342,7 @@ export function ExperimentDashboard({ resultPosts, growthStatus }: ExperimentDas
   );
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────────────────────────
 
 function formatRelativeTime(iso: string): string {
   const ts = new Date(iso).getTime();
