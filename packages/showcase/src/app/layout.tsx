@@ -11,7 +11,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="px-3 py-1.5 text-sm text-terminal-dim hover:text-terminal-text transition-colors rounded hover:bg-terminal-surface"
+      className="px-3 py-1.5 text-sm text-mc-text-tertiary hover:text-mc-text transition-colors rounded hover:bg-mc-surface-hover"
     >
       {children}
     </Link>
@@ -22,14 +22,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen flex flex-col">
-        <header className="border-b border-terminal-border bg-terminal-surface/50 backdrop-blur-sm sticky top-0 z-50">
+        <header className="border-b border-mc-border bg-mc-surface-hover/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2">
-                <span className="text-lg font-bold text-terminal-text tracking-tight">YCLAW</span>
-                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-terminal-red/10 border border-terminal-red/20">
-                  <span className="w-2 h-2 rounded-full bg-terminal-red animate-live" />
-                  <span className="text-xs font-medium text-terminal-red uppercase tracking-wider">Live</span>
+                <span className="text-lg font-bold text-mc-text tracking-tight">YCLAW</span>
+                <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-mc-danger/10 border border-mc-danger/20">
+                  <span className="w-2 h-2 rounded-full bg-mc-danger animate-live" />
+                  <span className="text-xs font-medium text-mc-danger uppercase tracking-wider">Live</span>
                 </span>
               </Link>
               <nav className="hidden sm:flex items-center gap-1 ml-4">
@@ -46,9 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
 
-        <footer className="border-t border-terminal-border py-6 text-center text-sm text-terminal-dim">
+        <footer className="border-t border-mc-border py-6 text-center text-sm text-mc-text-tertiary">
           Powered by{' '}
-          <a href="https://yclaw.ai" className="text-terminal-blue hover:underline" target="_blank" rel="noopener noreferrer">
+          <a href="https://yclaw.ai" className="text-mc-info hover:underline" target="_blank" rel="noopener noreferrer">
             YCLAW
           </a>
           {' '}&middot; Autonomous AI Agent System

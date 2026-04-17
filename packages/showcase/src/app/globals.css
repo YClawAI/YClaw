@@ -2,10 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-terminal-bg text-terminal-text font-mono antialiased;
+/* ─── SpaceX Crew Dragon tokens (mirror of mission-control/globals.css) ────
+ * Exposed as CSS custom properties so vanilla CSS / inline SVG can consume
+ * the same values as the Tailwind `mc-*` utility classes. Component work
+ * should prefer the Tailwind classes; these vars exist for any runtime
+ * computed-color use (SVG fills, third-party components without classnames).
+ * ──────────────────────────────────────────────────────────────────────── */
+:root {
+  --mc-bg: #000000;
+  --mc-surface: rgba(255, 255, 255, 0.02);
+  --mc-surface-hover: rgba(255, 255, 255, 0.04);
+  --mc-border: rgba(90, 200, 250, 0.12);
+  --mc-border-hover: rgba(90, 200, 250, 0.22);
+  --mc-border-active: rgba(90, 200, 250, 0.40);
+  --mc-accent: #5AC8FA;
+  --mc-accent-dim: rgba(90, 200, 250, 0.15);
+  --mc-text: rgba(255, 255, 255, 0.87);
+  --mc-text-secondary: rgba(255, 255, 255, 0.50);
+  --mc-text-tertiary: rgba(255, 255, 255, 0.30);
+  --mc-text-label: rgba(255, 255, 255, 0.35);
+  --mc-success: #30D158;
+  --mc-danger: #FF453A;
+  --mc-warning: #FFD60A;
+  --mc-info: #64D2FF;
+  --mc-blocked: #FF9F0A;
+  --mc-dept-executive: #FFD60A;
+  --mc-dept-development: #5AC8FA;
+  --mc-dept-marketing: #FF9F0A;
+  --mc-dept-operations: #30D158;
+  --mc-dept-finance: #BF5AF2;
+  --mc-dept-support: #64D2FF;
 }
 
+body {
+  @apply bg-mc-bg text-mc-text font-sans antialiased;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--mc-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--mc-border-hover);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--mc-border-active);
+  }
+}
+
+/* Custom showcase keyframes (not part of the mc-* animation set). */
 @keyframes pulse-live {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
@@ -22,4 +75,23 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
+}
+
+/* Respect the OS-level reduced-motion preference across every animation
+ * in the showcase. Mirrors mission-control's guard so the two surfaces
+ * honor the same accessibility contract. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-live,
+  .animate-fade-in,
+  .animate-pulse,
+  .animate-mc-pulse,
+  .animate-mc-breathe,
+  .animate-mc-particle-flow {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
 }
