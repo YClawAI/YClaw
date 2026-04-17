@@ -310,7 +310,7 @@ function MarketingClientInner({ agents, live, kpis, recentRuns, publishedContent
       <div className="flex justify-end mb-4">
         <button
           onClick={() => setSettingsOpen(true)}
-          className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors"
+          className="px-3 py-1.5 rounded-chip border border-mc-border font-sans text-xs text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
         >
           Settings
         </button>
@@ -348,7 +348,7 @@ function MarketingClientInner({ agents, live, kpis, recentRuns, publishedContent
               {/* Batch Countdown */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Batch Countdown</span>
+                  <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Batch Countdown</span>
                 </div>
                 <BatchCountdown label={batchCountdown.label} muted={batchCountdown.muted} />
               </div>
@@ -356,7 +356,7 @@ function MarketingClientInner({ agents, live, kpis, recentRuns, publishedContent
               {/* Agent Cards */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xs font-bold uppercase tracking-widest text-terminal-dim">AGENTS</span>
+                  <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Agents</span>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {agents.map((agent) => {
@@ -388,7 +388,7 @@ function MarketingClientInner({ agents, live, kpis, recentRuns, publishedContent
                 growthStatus={growthStatus}
               />
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">Cross-Channel Learning</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">Cross-Channel Learning</h3>
                 <CrossLearnPanel insights={ahCrossLearnPosts ?? []} />
               </div>
             </div>
@@ -398,13 +398,13 @@ function MarketingClientInner({ agents, live, kpis, recentRuns, publishedContent
           content: (
             <div className="space-y-8">
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Content Calendar</span>
+                <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Content Calendar</span>
                 <div className="mt-2">
                   <ContentCalendar slots={calendarSlots} scheduleSource={hasLiveSchedules ? 'live' : 'static'} />
                 </div>
               </div>
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Post Performance</span>
+                <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Post Performance</span>
                 <div className="mt-2">
                   <PostPerformanceTable posts={postPerformanceData} />
                 </div>
@@ -415,7 +415,7 @@ function MarketingClientInner({ agents, live, kpis, recentRuns, publishedContent
           /* ─── Studio Tab ───────────────────────────────────────────── */
           studio: (
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Forge Gallery</span>
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Forge Gallery</span>
               <div className="mt-2">
                 <ForgeGallery assets={forgeAssetData} requests={[]} />
               </div>
@@ -425,7 +425,7 @@ function MarketingClientInner({ agents, live, kpis, recentRuns, publishedContent
           /* ─── Intel Tab ────────────────────────────────────────────── */
           intel: (
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Scout Intel</span>
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Scout Intel</span>
               <div className="mt-2">
                 <ScoutIntel
                   highlights={intelHighlightData}
@@ -475,7 +475,7 @@ function MarketingClientInner({ agents, live, kpis, recentRuns, publishedContent
 
 export function MarketingClient(props: MarketingClientProps) {
   return (
-    <Suspense fallback={<div className="text-xs text-terminal-dim text-center py-8">Loading marketing dashboard...</div>}>
+    <Suspense fallback={<div className="font-sans text-xs text-mc-text-tertiary text-center py-8">Loading marketing dashboard…</div>}>
       <MarketingClientInner {...props} />
     </Suspense>
   );

@@ -168,7 +168,7 @@ export function OperationsClient({
         <div />
         <button
           onClick={() => openSettings()}
-          className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors"
+          className="px-3 py-1.5 rounded-chip border border-mc-border font-sans text-xs text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
         >
           Settings
         </button>
@@ -221,90 +221,90 @@ export function OperationsClient({
 
               {/* Watchdog Timers */}
               <div className="space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Watchdog Timers</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Watchdog Timers</h3>
                 <WatchdogTimers timers={watchdogTimers} />
               </div>
 
               {/* Alert Board */}
               <div className="space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Alert Board</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Alert Board</h3>
                 <AlertBoard alerts={alerts} />
               </div>
 
               {/* Cache Stats + Memory Status */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Cache Stats Panel */}
-                <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+                <div className="border border-mc-border rounded-panel bg-transparent p-4 transition-colors duration-mc ease-mc-out hover:border-mc-border-hover">
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">
                     Cache Stats
                   </h3>
                   {cacheStats ? (
-                    <div className="space-y-2 font-mono text-xs">
+                    <div className="space-y-2 font-mono text-xs tabular-nums">
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Hit Rate</span>
-                        <span className="text-terminal-text">{(cacheStats.averageCacheHitRate * 100).toFixed(1)}%</span>
+                        <span className="font-sans text-mc-text-tertiary">Hit Rate</span>
+                        <span className="text-mc-text">{(cacheStats.averageCacheHitRate * 100).toFixed(1)}%</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Executions</span>
-                        <span className="text-terminal-text">{formatCount(cacheStats.executions)}</span>
+                        <span className="font-sans text-mc-text-tertiary">Executions</span>
+                        <span className="text-mc-text">{formatCount(cacheStats.executions)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Cached Runs</span>
-                        <span className="text-terminal-text">{formatCount(cacheStats.cachedExecutions)}</span>
+                        <span className="font-sans text-mc-text-tertiary">Cached Runs</span>
+                        <span className="text-mc-text">{formatCount(cacheStats.cachedExecutions)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Adoption</span>
-                        <span className="text-terminal-text">{cacheStats.cacheAdoptionRate.toFixed(0)}%</span>
+                        <span className="font-sans text-mc-text-tertiary">Adoption</span>
+                        <span className="text-mc-text">{cacheStats.cacheAdoptionRate.toFixed(0)}%</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Read Tokens</span>
-                        <span className="text-terminal-text">{formatCount(cacheStats.cacheReadTokens)}</span>
+                        <span className="font-sans text-mc-text-tertiary">Read Tokens</span>
+                        <span className="text-mc-text">{formatCount(cacheStats.cacheReadTokens)}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Savings</span>
-                        <span className="text-terminal-text">${cacheStats.savingsUsd.toFixed(4)}</span>
+                        <span className="font-sans text-mc-text-tertiary">Savings</span>
+                        <span className="text-mc-text">${cacheStats.savingsUsd.toFixed(4)}</span>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-xs text-terminal-dim text-center py-4">
+                    <div className="font-sans text-xs text-mc-text-tertiary text-center py-4">
                       No data available
                     </div>
                   )}
                 </div>
 
                 {/* Memory Status Panel */}
-                <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+                <div className="border border-mc-border rounded-panel bg-transparent p-4 transition-colors duration-mc ease-mc-out hover:border-mc-border-hover">
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">
                     Memory Status
                   </h3>
                   {memoryStatus ? (
-                    <div className="space-y-2 font-mono text-xs">
+                    <div className="space-y-2 font-mono text-xs tabular-nums">
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Tables</span>
-                        <span className="text-terminal-text">{memoryStatus.tableCount.toLocaleString()}</span>
+                        <span className="font-sans text-mc-text-tertiary">Tables</span>
+                        <span className="text-mc-text">{memoryStatus.tableCount.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Categories</span>
-                        <span className="text-terminal-text">{memoryStatus.categoryCount.toLocaleString()}</span>
+                        <span className="font-sans text-mc-text-tertiary">Categories</span>
+                        <span className="text-mc-text">{memoryStatus.categoryCount.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Items</span>
-                        <span className="text-terminal-text">{memoryStatus.itemCount.toLocaleString()}</span>
+                        <span className="font-sans text-mc-text-tertiary">Items</span>
+                        <span className="text-mc-text">{memoryStatus.itemCount.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-terminal-dim">Connection</span>
-                        <span className={memoryStatus.connected ? 'text-terminal-green' : 'text-terminal-red'}>
+                        <span className="font-sans text-mc-text-tertiary">Connection</span>
+                        <span className={memoryStatus.connected ? 'text-mc-success' : 'text-mc-danger'}>
                           {memoryStatus.connected ? 'Connected' : 'Disconnected'}
                         </span>
                       </div>
                       {memoryStatus.error && (
-                        <div className="pt-2 border-t border-terminal-border text-terminal-red">
+                        <div className="pt-2 border-t border-mc-border text-mc-danger">
                           {memoryStatus.error}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="text-xs text-terminal-dim text-center py-4">
+                    <div className="font-sans text-xs text-mc-text-tertiary text-center py-4">
                       No data available
                     </div>
                   )}
@@ -314,13 +314,13 @@ export function OperationsClient({
           ),
           health: (
             <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Health Matrix</h3>
+              <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Health Matrix</h3>
               <HealthMatrix services={healthServices ?? []} />
             </div>
           ),
           audits: (
             <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Audit Findings</h3>
+              <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Audit Findings</h3>
               <AuditFindings
                 latestAudit={sentinelAudits?.latest ?? undefined}
                 auditHistory={sentinelAudits?.history}
