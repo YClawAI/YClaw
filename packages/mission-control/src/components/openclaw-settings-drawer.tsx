@@ -544,8 +544,14 @@ export function OpenClawSettingsDrawer({
           {expandedSections['channels'] && (
             <div className="mt-3 space-y-2">
               {channels.length === 0 ? (
-                <div className="font-sans text-xs text-mc-text-tertiary p-3 bg-mc-surface border border-mc-border rounded-panel">
-                  No channels configured
+                <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded-panel p-6 flex flex-col items-center justify-center gap-2 text-center">
+                  <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+                  <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+                    No channels
+                  </div>
+                  <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+                    Connect Slack, Discord, or email to route OpenClaw notifications here.
+                  </p>
                 </div>
               ) : (
                 channels.map((ch) => (
