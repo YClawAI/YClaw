@@ -18,18 +18,22 @@ export interface CommitEntry {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function ciStatusDot(status?: string): string {
-  if (status === 'passing') return 'bg-terminal-green';
-  if (status === 'failing') return 'bg-terminal-red';
-  if (status === 'running') return 'bg-terminal-blue animate-pulse';
-  return 'bg-terminal-dim';
+  if (status === 'passing') return 'bg-mc-success';
+  if (status === 'failing') return 'bg-mc-danger';
+  if (status === 'running') return 'bg-mc-info animate-pulse';
+  return 'bg-mc-text-tertiary';
 }
 
 function authorHighlight(author?: string): string {
-  if (author === 'builder') return 'text-terminal-blue';
-  if (author === 'architect') return 'text-terminal-cyan';
-  if (author === 'designer') return 'text-terminal-purple';
-  if (author === 'deployer') return 'text-terminal-orange';
-  return 'text-terminal-dim';
+  // Keep the four dev-agent authors visually distinct — the mechanical flip
+  // collapsed architect (was purple) and designer (was cyan) into mc-accent.
+  // Route architect to mc-dept-finance (only iOS-palette purple) to preserve
+  // the original four-way distinction.
+  if (author === 'builder') return 'text-mc-info';
+  if (author === 'architect') return 'text-mc-dept-finance';
+  if (author === 'designer') return 'text-mc-accent';
+  if (author === 'deployer') return 'text-mc-blocked';
+  return 'text-mc-text-tertiary';
 }
 
 function formatTimestamp(ts: string): string {
@@ -59,58 +63,58 @@ export function CommitsTimeline({ commits, pageSize = 10 }: CommitsTimelineProps
 
   if (commits.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4 flex items-center justify-center py-8">
-        <span className="text-xs text-terminal-dim">No recent commits</span>
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-4 flex items-center justify-center py-8">
+        <span className="text-xs text-mc-text-tertiary">No recent commits</span>
       </div>
     );
   }
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded">
-      <div className="px-4 py-3 border-b border-terminal-border flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Recent Commits</h3>
-        <span className="text-[10px] font-mono text-terminal-dim">{commits.length} total</span>
+    <div className="bg-mc-surface-hover border border-mc-border rounded">
+      <div className="px-4 py-3 border-b border-mc-border flex items-center justify-between">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">Recent Commits</h3>
+        <span className="text-[10px] font-mono text-mc-text-tertiary">{commits.length} total</span>
       </div>
 
       <div className="relative">
         {/* Vertical timeline line */}
-        <div className="absolute left-[23px] top-0 bottom-0 w-px bg-terminal-border" />
+        <div className="absolute left-[23px] top-0 bottom-0 w-px bg-mc-border" />
 
-        <div className="divide-y divide-terminal-border/30">
+        <div className="divide-y divide-mc-border/30">
           {visible.map(commit => (
             <div key={commit.sha} className="px-4 py-3 flex items-start gap-3 relative">
               {/* Timeline dot */}
               <div className="relative z-10 mt-1">
-                <div className={`w-2.5 h-2.5 rounded-full border-2 border-terminal-surface ${authorHighlight(commit.author).replace('text-', 'bg-')}`} />
+                <div className={`w-2.5 h-2.5 rounded-full border-2 border-mc-surface-hover ${authorHighlight(commit.author).replace('text-', 'bg-')}`} />
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-mono text-terminal-dim">{commit.sha.slice(0, 7)}</span>
+                  <span className="text-[10px] font-mono text-mc-text-tertiary">{commit.sha.slice(0, 7)}</span>
                   {commit.ciStatus ? (
                     <span className={`w-1.5 h-1.5 rounded-full ${ciStatusDot(commit.ciStatus)}`} title={`CI: ${commit.ciStatus}`} />
                   ) : (
-                    <span className="text-[9px] font-mono text-terminal-dim/50">CI: N/A</span>
+                    <span className="text-[9px] font-mono text-mc-text-tertiary/50">CI: N/A</span>
                   )}
                   {commit.repo && (
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-terminal-muted/50 text-terminal-dim">
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-mc-border/50 text-mc-text-tertiary">
                       {commit.repo}
                     </span>
                   )}
                   {commit.branch && commit.branch !== 'master' && commit.branch !== 'main' && (
-                    <span className="text-[10px] font-mono text-terminal-blue/60 truncate max-w-[140px]" title={commit.branch}>
+                    <span className="text-[10px] font-mono text-mc-info/60 truncate max-w-[140px]" title={commit.branch}>
                       {commit.branch}
                     </span>
                   )}
                   {commit.prNumber && (
-                    <span className="text-[10px] font-mono text-terminal-blue">
+                    <span className="text-[10px] font-mono text-mc-info">
                       #{commit.prNumber}
                     </span>
                   )}
                 </div>
 
-                <div className="text-xs text-terminal-text mt-1 truncate" title={commit.message}>
+                <div className="text-xs text-mc-text mt-1 truncate" title={commit.message}>
                   {commit.message}
                 </div>
 
@@ -120,7 +124,7 @@ export function CommitsTimeline({ commits, pageSize = 10 }: CommitsTimelineProps
                       {commit.author}
                     </span>
                   )}
-                  <span className="text-[10px] text-terminal-dim">{formatTimestamp(commit.createdAt)}</span>
+                  <span className="text-[10px] text-mc-text-tertiary">{formatTimestamp(commit.createdAt)}</span>
                 </div>
               </div>
             </div>
@@ -130,10 +134,10 @@ export function CommitsTimeline({ commits, pageSize = 10 }: CommitsTimelineProps
 
       {/* Load more */}
       {hasMore && (
-        <div className="px-4 py-3 border-t border-terminal-border text-center">
+        <div className="px-4 py-3 border-t border-mc-border text-center">
           <button
             onClick={() => setVisibleCount(c => c + pageSize)}
-            className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors"
+            className="px-3 py-1.5 text-xs font-mono border border-mc-border rounded text-mc-text-tertiary hover:text-mc-text hover:bg-mc-surface-hover transition-colors"
           >
             Load more ({commits.length - visibleCount} remaining)
           </button>
