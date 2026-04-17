@@ -13,14 +13,14 @@ const MODEL_OPTIONS = [
 ];
 
 const MODE_COLORS: Record<FleetMode, string> = {
-  active: 'text-terminal-green border-terminal-green/30 bg-terminal-green/10',
-  paused: 'text-terminal-orange border-terminal-orange/30 bg-terminal-orange/10',
+  active: 'text-mc-success border-mc-success/30 bg-mc-success/10',
+  paused: 'text-mc-blocked border-mc-blocked/30 bg-mc-blocked/10',
 };
 
 const DEPLOY_COLORS: Record<DeployMode, string> = {
-  auto: 'text-terminal-cyan border-terminal-cyan/30 bg-terminal-cyan/10',
-  review: 'text-terminal-orange border-terminal-orange/30 bg-terminal-orange/10',
-  lockdown: 'text-terminal-red border-terminal-red/30 bg-terminal-red/10',
+  auto: 'text-mc-accent border-mc-accent/30 bg-mc-accent/10',
+  review: 'text-mc-blocked border-mc-blocked/30 bg-mc-blocked/10',
+  lockdown: 'text-mc-danger border-mc-danger/30 bg-mc-danger/10',
 };
 
 export function FleetControlsInteractive() {
@@ -78,23 +78,23 @@ export function FleetControlsInteractive() {
   }, [updateFleet]);
 
   if (loading) {
-    return <div className="text-xs text-terminal-dim py-2">Loading fleet status...</div>;
+    return <div className="text-xs text-mc-text-tertiary py-2">Loading fleet status...</div>;
   }
 
   if (!fleet) {
     if (fetchError) {
       return (
-        <div className="text-xs text-terminal-dim py-2">Fleet unavailable</div>
+        <div className="text-xs text-mc-text-tertiary py-2">Fleet unavailable</div>
       );
     }
-    return <div className="text-xs text-terminal-dim py-2">Fleet unavailable</div>;
+    return <div className="text-xs text-mc-text-tertiary py-2">Fleet unavailable</div>;
   }
 
   return (
     <div className="space-y-3">
       {/* Fleet Mode */}
       <div className="px-2">
-        <div className="text-[10px] text-terminal-dim mb-1.5">Fleet Mode</div>
+        <div className="text-[10px] text-mc-text-tertiary mb-1.5">Fleet Mode</div>
         <div className="flex gap-1">
           {MODE_OPTIONS.map((mode) => (
             <button
@@ -104,7 +104,7 @@ export function FleetControlsInteractive() {
               className={`flex-1 text-[10px] font-mono py-1 rounded border transition-colors ${
                 fleet.mode === mode
                   ? MODE_COLORS[mode]
-                  : 'text-terminal-dim border-terminal-border hover:border-terminal-muted'
+                  : 'text-mc-text-tertiary border-mc-border hover:border-mc-border'
               }`}
             >
               {mode.toUpperCase()}
@@ -115,12 +115,12 @@ export function FleetControlsInteractive() {
 
       {/* Default Model */}
       <div className="flex items-center justify-between px-2 py-1.5">
-        <span className="text-xs text-terminal-dim">Default Model</span>
+        <span className="text-xs text-mc-text-tertiary">Default Model</span>
         <select
           value={fleet.defaultModel}
           onChange={(e) => updateFleet({ defaultModel: e.target.value })}
           disabled={saving}
-          className="text-xs font-mono text-terminal-purple bg-terminal-bg border border-terminal-border rounded px-1.5 py-0.5 focus:outline-none focus:border-terminal-purple"
+          className="text-xs font-mono text-mc-accent bg-mc-bg border border-mc-border rounded px-1.5 py-0.5 focus:outline-none focus:border-mc-accent"
         >
           {MODEL_OPTIONS.map((m) => (
             <option key={m} value={m}>{m}</option>
@@ -130,12 +130,12 @@ export function FleetControlsInteractive() {
 
       {/* Fallback Model */}
       <div className="flex items-center justify-between px-2 py-1.5">
-        <span className="text-xs text-terminal-dim">Fallback Model</span>
+        <span className="text-xs text-mc-text-tertiary">Fallback Model</span>
         <select
           value={fleet.fallbackModel}
           onChange={(e) => updateFleet({ fallbackModel: e.target.value })}
           disabled={saving}
-          className="text-xs font-mono text-terminal-dim bg-terminal-bg border border-terminal-border rounded px-1.5 py-0.5 focus:outline-none focus:border-terminal-purple"
+          className="text-xs font-mono text-mc-text-tertiary bg-mc-bg border border-mc-border rounded px-1.5 py-0.5 focus:outline-none focus:border-mc-accent"
         >
           {MODEL_OPTIONS.map((m) => (
             <option key={m} value={m}>{m}</option>
@@ -145,7 +145,7 @@ export function FleetControlsInteractive() {
 
       {/* Deploy Mode */}
       <div className="px-2">
-        <div className="text-[10px] text-terminal-dim mb-1.5">Deploy Mode</div>
+        <div className="text-[10px] text-mc-text-tertiary mb-1.5">Deploy Mode</div>
         <div className="flex gap-1">
           {DEPLOY_OPTIONS.map((mode) => (
             <button
@@ -155,7 +155,7 @@ export function FleetControlsInteractive() {
               className={`flex-1 text-[10px] font-mono py-1 rounded border transition-colors ${
                 fleet.deployMode === mode
                   ? DEPLOY_COLORS[mode]
-                  : 'text-terminal-dim border-terminal-border hover:border-terminal-muted'
+                  : 'text-mc-text-tertiary border-mc-border hover:border-mc-border'
               }`}
             >
               {mode.toUpperCase()}
@@ -166,30 +166,30 @@ export function FleetControlsInteractive() {
 
       {/* Agents / Departments (static info) */}
       <div className="flex items-center justify-between px-2 py-1.5">
-        <span className="text-xs text-terminal-dim">Agents</span>
-        <span className="text-xs font-mono text-terminal-text">{AGENTS.length} registered</span>
+        <span className="text-xs text-mc-text-tertiary">Agents</span>
+        <span className="text-xs font-mono text-mc-text">{AGENTS.length} registered</span>
       </div>
       <div className="flex items-center justify-between px-2 py-1.5">
-        <span className="text-xs text-terminal-dim">Departments</span>
-        <span className="text-xs font-mono text-terminal-text">{DEPARTMENTS.length} active</span>
+        <span className="text-xs text-mc-text-tertiary">Departments</span>
+        <span className="text-xs font-mono text-mc-text">{DEPARTMENTS.length} active</span>
       </div>
 
       {/* Feature Flags */}
-      <div className="pt-3 border-t border-terminal-border">
-        <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim/60 mb-2">
+      <div className="pt-3 border-t border-mc-border">
+        <h4 className="text-[10px] font-bold uppercase tracking-wider text-mc-text-tertiary/60 mb-2">
           Feature Flags
         </h4>
         <div className="space-y-1.5">
           {Object.entries(fleet.flags).map(([flag, enabled]) => (
             <div key={flag} className="flex items-center justify-between px-2 py-1">
-              <span className="text-[10px] font-mono text-terminal-dim">{flag}</span>
+              <span className="text-[10px] font-mono text-mc-text-tertiary">{flag}</span>
               <button
                 onClick={() => toggleFlag(flag)}
                 disabled={saving}
                 className={`text-[10px] font-mono px-1.5 py-0.5 rounded border transition-colors cursor-pointer ${
                   enabled
-                    ? 'bg-terminal-green/10 text-terminal-green border-terminal-green/30 hover:bg-terminal-green/20'
-                    : 'bg-terminal-muted/30 text-terminal-dim border-terminal-border hover:bg-terminal-muted/50'
+                    ? 'bg-mc-success/10 text-mc-success border-mc-success/30 hover:bg-mc-success/20'
+                    : 'bg-mc-border/30 text-mc-text-tertiary border-mc-border hover:bg-mc-border/50'
                 }`}
               >
                 {enabled ? 'ON' : 'OFF'}

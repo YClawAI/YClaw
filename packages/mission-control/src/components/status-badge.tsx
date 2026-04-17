@@ -4,17 +4,17 @@ interface StatusBadgeProps {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  active: 'bg-terminal-green/10 text-terminal-green border-terminal-green/30',
-  running: 'bg-terminal-green/10 text-terminal-green border-terminal-green/30',
-  completed: 'bg-terminal-blue/10 text-terminal-blue border-terminal-blue/30',
-  merged: 'bg-terminal-blue/10 text-terminal-blue border-terminal-blue/30',
-  failed: 'bg-terminal-red/10 text-terminal-red border-terminal-red/30',
-  error: 'bg-terminal-red/10 text-terminal-red border-terminal-red/30',
-  pending: 'bg-terminal-yellow/10 text-terminal-yellow border-terminal-yellow/30',
-  queued: 'bg-terminal-yellow/10 text-terminal-yellow border-terminal-yellow/30',
-  review: 'bg-terminal-purple/10 text-terminal-purple border-terminal-purple/30',
-  blocked: 'bg-terminal-orange/10 text-terminal-orange border-terminal-orange/30',
-  idle: 'bg-terminal-muted/50 text-terminal-dim border-terminal-border',
+  active: 'bg-mc-success/10 text-mc-success border-mc-success/30',
+  running: 'bg-mc-success/10 text-mc-success border-mc-success/30',
+  completed: 'bg-mc-info/10 text-mc-info border-mc-info/30',
+  merged: 'bg-mc-info/10 text-mc-info border-mc-info/30',
+  failed: 'bg-mc-danger/10 text-mc-danger border-mc-danger/30',
+  error: 'bg-mc-danger/10 text-mc-danger border-mc-danger/30',
+  pending: 'bg-mc-warning/10 text-mc-warning border-mc-warning/30',
+  queued: 'bg-mc-warning/10 text-mc-warning border-mc-warning/30',
+  review: 'bg-mc-accent/10 text-mc-accent border-mc-accent/30',
+  blocked: 'bg-mc-blocked/10 text-mc-blocked border-mc-blocked/30',
+  idle: 'bg-mc-border/50 text-mc-text-tertiary border-mc-border',
 };
 
 export function StatusBadge({ status, className = '' }: StatusBadgeProps) {

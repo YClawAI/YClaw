@@ -1,11 +1,11 @@
 type Status = 'active' | 'idle' | 'error' | 'blocked' | 'processing';
 
 const STATUS_CLASSES: Record<Status, string> = {
-  active: 'bg-terminal-green shadow-[0_0_6px_#a6e3a1]',
-  idle: 'bg-terminal-dim',
-  error: 'bg-terminal-red shadow-[0_0_6px_#f38ba8]',
-  blocked: 'bg-terminal-yellow shadow-[0_0_6px_#f9e2af]',
-  processing: 'bg-terminal-blue shadow-[0_0_6px_#89b4fa] animate-pulse',
+  active: 'bg-mc-success shadow-[0_0_6px_#30D158]',
+  idle: 'bg-mc-text-tertiary',
+  error: 'bg-mc-danger shadow-[0_0_6px_#FF453A]',
+  blocked: 'bg-mc-warning shadow-[0_0_6px_#FFD60A]',
+  processing: 'bg-mc-info shadow-[0_0_6px_#64D2FF] animate-pulse',
 };
 
 export function StatusDot({ status, size = 'sm' }: { status: Status; size?: 'sm' | 'md' }) {
