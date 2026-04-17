@@ -4,7 +4,7 @@ import { useEffect, useCallback, useState, useRef } from 'react';
 import { useConnectionEvents } from '@/hooks/use-connection-events';
 import type { StepEvent, SessionEvent } from '@/hooks/use-connection-events';
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ProgressStep {
   id: string;
@@ -14,7 +14,7 @@ interface ProgressStep {
   detail?: string;
 }
 
-// ── Icons (shared with connect-flow) ────────────────────────────────────────
+// ── Icons (shared with connect-flow) ─────────────────────────────────────
 
 function CheckIcon({ className }: { className?: string }) {
   return (
@@ -49,16 +49,16 @@ function LinkIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Actor Label ──────────────────────────────────────────────────────────────
+// ── Actor Label ────────────────────────────────────────────────────────────
 
 const ACTOR_LABELS: Record<string, { label: string; color: string }> = {
-  human: { label: 'You', color: 'text-terminal-cyan' },
-  openclaw: { label: 'OpenClaw', color: 'text-terminal-purple' },
-  system: { label: 'System', color: 'text-terminal-dim' },
-  fleet: { label: 'Fleet', color: 'text-terminal-orange' },
+  human: { label: 'You', color: 'text-mc-accent' },
+  openclaw: { label: 'OpenClaw', color: 'text-mc-dept-finance' },
+  system: { label: 'System', color: 'text-mc-text-tertiary' },
+  fleet: { label: 'Fleet', color: 'text-mc-blocked' },
 };
 
-// ── PR link extractor ───────────────────────────────────────────────────────
+// ── PR link extractor ──────────────────────────────────────────────────
 
 function extractPrUrl(detail?: string): string | null {
   if (!detail) return null;
@@ -69,7 +69,7 @@ function extractPrUrl(detail?: string): string | null {
   return urlMatch ? urlMatch[0] : null;
 }
 
-// ── Connection Progress ─────────────────────────────────────────────────────
+// ── Connection Progress ─────────────────────────────────────────────────
 
 export function ConnectionProgress({
   sessionId,
@@ -172,15 +172,15 @@ export function ConnectionProgress({
             <div key={step.id} className="flex items-start gap-2.5">
               <div className="w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">
                 {step.status === 'complete' ? (
-                  <CheckIcon className="w-4 h-4 text-terminal-green" />
+                  <CheckIcon className="w-4 h-4 text-mc-success" />
                 ) : step.status === 'active' ? (
-                  <SpinnerIcon className="w-4 h-4 text-terminal-cyan" />
+                  <SpinnerIcon className="w-4 h-4 text-mc-accent" />
                 ) : step.status === 'failed' ? (
-                  <XIcon className="w-4 h-4 text-terminal-red" />
+                  <XIcon className="w-4 h-4 text-mc-danger" />
                 ) : step.status === 'skipped' ? (
-                  <span className="w-2 h-2 rounded-full bg-terminal-dim/20" />
+                  <span className="w-2 h-2 rounded-full bg-mc-text-tertiary/20" />
                 ) : (
-                  <span className="w-2 h-2 rounded-full bg-terminal-dim/30" />
+                  <span className="w-2 h-2 rounded-full bg-mc-text-tertiary/30" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -188,12 +188,12 @@ export function ConnectionProgress({
                   <span
                     className={`text-xs block ${
                       step.status === 'complete'
-                        ? 'text-terminal-green'
+                        ? 'text-mc-success'
                         : step.status === 'active'
-                          ? 'text-terminal-text'
+                          ? 'text-mc-text'
                           : step.status === 'failed'
-                            ? 'text-terminal-red'
-                            : 'text-terminal-dim'
+                            ? 'text-mc-danger'
+                            : 'text-mc-text-tertiary'
                     }`}
                   >
                     {step.label}
@@ -206,7 +206,7 @@ export function ConnectionProgress({
                 </div>
                 {step.detail && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] text-terminal-dim block truncate">
+                    <span className="text-[10px] text-mc-text-tertiary block truncate">
                       {step.detail}
                     </span>
                     {prUrl && (
@@ -214,7 +214,7 @@ export function ConnectionProgress({
                         href={prUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-terminal-blue hover:text-terminal-text transition-colors shrink-0"
+                        className="text-mc-info hover:text-mc-text transition-colors shrink-0"
                         title="View PR"
                       >
                         <LinkIcon className="w-3 h-3" />
@@ -229,12 +229,12 @@ export function ConnectionProgress({
       </div>
 
       {/* Progress bar */}
-      <div className="h-1 bg-terminal-border rounded-full overflow-hidden">
+      <div className="h-1 bg-mc-border rounded-full overflow-hidden">
         <div
           className={`h-full transition-all duration-500 rounded-full ${
-            sessionStatus === 'failed' ? 'bg-terminal-red' :
-            sessionStatus === 'connected' ? 'bg-terminal-green' :
-            'bg-terminal-cyan'
+            sessionStatus === 'failed' ? 'bg-mc-danger' :
+            sessionStatus === 'connected' ? 'bg-mc-success' :
+            'bg-mc-accent'
           }`}
           style={{ width: `${totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0}%` }}
         />
@@ -242,9 +242,9 @@ export function ConnectionProgress({
 
       {/* Status message */}
       {sessionStatus === 'wiring' && activeStep && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded bg-terminal-orange/10 border border-terminal-orange/30">
-          <SpinnerIcon className="w-3 h-3 text-terminal-orange" />
-          <span className="text-[10px] text-terminal-orange font-mono">
+        <div className="flex items-center gap-2 px-3 py-2 rounded bg-mc-blocked/10 border border-mc-blocked/30">
+          <SpinnerIcon className="w-3 h-3 text-mc-blocked" />
+          <span className="text-[10px] text-mc-blocked font-mono">
             {activeStep.actor === 'fleet'
               ? `Builder is working on: ${activeStep.label}`
               : `Processing: ${activeStep.label}`}
@@ -253,42 +253,42 @@ export function ConnectionProgress({
       )}
 
       {sessionStatus === 'wiring' && estimateMinutes > 0 && (
-        <p className="text-[10px] text-terminal-dim font-mono">
+        <p className="text-[10px] text-mc-text-tertiary font-mono">
           Estimated time: {estimateMinutes}-{estimateMinutes * 2} minutes
         </p>
       )}
 
       {sessionStatus === 'connected' && !error && (
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded bg-terminal-green/10 border border-terminal-green/30">
-          <CheckIcon className="w-4 h-4 text-terminal-green shrink-0" />
-          <span className="text-xs text-terminal-green font-mono">
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded bg-mc-success/10 border border-mc-success/30">
+          <CheckIcon className="w-4 h-4 text-mc-success shrink-0" />
+          <span className="text-xs text-mc-success font-mono">
             {integrationName} connected!
           </span>
         </div>
       )}
 
       {sessionStatus === 'connected' && error && (
-        <div className="px-3 py-2.5 rounded bg-terminal-orange/10 border border-terminal-orange/30 space-y-1">
+        <div className="px-3 py-2.5 rounded bg-mc-blocked/10 border border-mc-blocked/30 space-y-1">
           <div className="flex items-center gap-2">
-            <CheckIcon className="w-4 h-4 text-terminal-orange shrink-0" />
-            <span className="text-xs text-terminal-orange font-mono">
+            <CheckIcon className="w-4 h-4 text-mc-blocked shrink-0" />
+            <span className="text-xs text-mc-blocked font-mono">
               {integrationName} connected (degraded)
             </span>
           </div>
-          <span className="text-[10px] text-terminal-dim font-mono block">{error}</span>
+          <span className="text-[10px] text-mc-text-tertiary font-mono block">{error}</span>
         </div>
       )}
 
       {sessionStatus === 'failed' && error && (
-        <div className="px-3 py-2.5 rounded bg-terminal-red/10 border border-terminal-red/30">
-          <span className="text-[10px] text-terminal-red font-mono block">{error}</span>
+        <div className="px-3 py-2.5 rounded bg-mc-danger/10 border border-mc-danger/30">
+          <span className="text-[10px] text-mc-danger font-mono block">{error}</span>
         </div>
       )}
 
       {/* SSE connection indicator */}
       <div className="flex items-center gap-1.5">
-        <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-terminal-green' : 'bg-terminal-dim/40'}`} />
-        <span className="text-[9px] text-terminal-dim font-mono">
+        <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-mc-success' : 'bg-mc-text-tertiary/40'}`} />
+        <span className="text-[9px] text-mc-text-tertiary font-mono">
           {connected ? 'Live updates' : 'Polling'}
         </span>
       </div>

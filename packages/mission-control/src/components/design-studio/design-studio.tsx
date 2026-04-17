@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { DesignStudioProject, DesignStudioApiResponse } from './design-studio-types';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTimeAgo(iso?: string): string {
   if (!iso) return '--';
@@ -18,23 +18,23 @@ function projectId(name: string): string {
   return name.split('/').pop() ?? name;
 }
 
-// ─── Project Card ─────────────────────────────────────────────────────────────
+// ─── Project Card ──────────────────────────────────────────────────────────────
 
 function ProjectCard({ project }: { project: DesignStudioProject }) {
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-3 hover:border-terminal-muted transition-colors">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-3 hover:border-mc-border transition-colors">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="text-xs text-terminal-text font-mono truncate flex-1" title={project.title}>
+        <div className="text-xs text-mc-text font-mono truncate flex-1" title={project.title}>
           {project.title}
         </div>
-        <span className="inline-block px-1.5 py-0.5 text-[10px] font-mono border rounded whitespace-nowrap bg-terminal-blue/10 border-terminal-blue/30 text-terminal-blue">
+        <span className="inline-block px-1.5 py-0.5 text-[10px] font-mono border rounded whitespace-nowrap bg-mc-info/10 border-mc-info/30 text-mc-info">
           STITCH
         </span>
       </div>
-      <div className="text-[10px] text-terminal-dim font-mono truncate" title={project.name}>
+      <div className="text-[10px] text-mc-text-tertiary font-mono truncate" title={project.name}>
         {projectId(project.name)}
       </div>
-      <div className="flex items-center justify-between mt-2 text-[10px] text-terminal-dim font-mono">
+      <div className="flex items-center justify-between mt-2 text-[10px] text-mc-text-tertiary font-mono">
         {project.screenCount !== undefined && (
           <span>{project.screenCount} screen{project.screenCount !== 1 ? 's' : ''}</span>
         )}
@@ -49,23 +49,23 @@ function ProjectCard({ project }: { project: DesignStudioProject }) {
 function GenerateModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-terminal-bg border border-terminal-border rounded-lg p-6 max-w-md w-full mx-4">
+      <div className="bg-mc-bg border border-mc-border rounded-lg p-6 max-w-md w-full mx-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold font-mono text-terminal-text">Generate Design</h3>
+          <h3 className="text-sm font-bold font-mono text-mc-text">Generate Design</h3>
           <button
             onClick={onClose}
-            className="text-terminal-dim hover:text-terminal-text text-xs font-mono"
+            className="text-mc-text-tertiary hover:text-mc-text text-xs font-mono"
           >
             ✕
           </button>
         </div>
-        <p className="text-xs text-terminal-dim font-mono mb-4">
+        <p className="text-xs text-mc-text-tertiary font-mono mb-4">
           Design generation is triggered by the Strategist agent via the{' '}
-          <span className="text-terminal-yellow">strategist:design_generate</span> event.
+          <span className="text-mc-warning">strategist:design_generate</span> event.
           The Designer agent will use Google Stitch to create UI screens based on the issue description and brand guidelines.
         </p>
-        <div className="bg-terminal-surface border border-terminal-border rounded p-3 text-[10px] text-terminal-dim font-mono">
-          <div className="text-terminal-text mb-1">Event payload:</div>
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-3 text-[10px] text-mc-text-tertiary font-mono">
+          <div className="text-mc-text mb-1">Event payload:</div>
           <div>{'{'}</div>
           <div className="pl-4">&quot;issue_number&quot;: &lt;number&gt;,</div>
           <div className="pl-4">&quot;description&quot;: &lt;string&gt;,</div>
@@ -75,7 +75,7 @@ function GenerateModal({ onClose }: { onClose: () => void }) {
         </div>
         <button
           onClick={onClose}
-          className="mt-4 w-full px-3 py-2 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors"
+          className="mt-4 w-full px-3 py-2 text-xs font-mono border border-mc-border rounded text-mc-text-tertiary hover:text-mc-text hover:bg-mc-surface-hover transition-colors"
         >
           Close
         </button>
@@ -84,7 +84,7 @@ function GenerateModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Main Component ────────────────────────────────────────────────────────────
 
 export function DesignStudio() {
   const [projects, setProjects] = useState<DesignStudioProject[]>([]);
@@ -111,37 +111,37 @@ export function DesignStudio() {
   }, []);
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">
             Design Studio
           </h3>
-          <span className="inline-block px-1.5 py-0.5 text-[10px] font-mono border rounded bg-terminal-blue/10 border-terminal-blue/30 text-terminal-blue">
+          <span className="inline-block px-1.5 py-0.5 text-[10px] font-mono border rounded bg-mc-info/10 border-mc-info/30 text-mc-info">
             Google Stitch
           </span>
         </div>
         <button
           onClick={() => setModalOpen(true)}
-          className="px-2.5 py-1 text-[10px] font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-muted/30 transition-colors"
+          className="px-2.5 py-1 text-[10px] font-mono border border-mc-border rounded text-mc-text-tertiary hover:text-mc-text hover:bg-mc-border/30 transition-colors"
         >
           Generate Design
         </button>
       </div>
 
       {warning && (
-        <div className="mb-3 px-3 py-2 rounded border border-terminal-yellow/30 bg-terminal-yellow/5 text-[10px] font-mono text-terminal-yellow">
+        <div className="mb-3 px-3 py-2 rounded border border-mc-warning/30 bg-mc-warning/5 text-[10px] font-mono text-mc-warning">
           {warning}
         </div>
       )}
 
       {loading ? (
         <div className="flex items-center justify-center py-6">
-          <span className="text-xs text-terminal-dim font-mono animate-pulse">Loading projects…</span>
+          <span className="text-xs text-mc-text-tertiary font-mono animate-pulse">Loading projects…</span>
         </div>
       ) : projects.length === 0 ? (
         <div className="flex items-center justify-center py-6">
-          <span className="text-xs text-terminal-dim font-mono">No Stitch projects found</span>
+          <span className="text-xs text-mc-text-tertiary font-mono">No Stitch projects found</span>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
