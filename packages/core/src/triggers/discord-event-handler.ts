@@ -14,11 +14,22 @@ const DISCORD_HANDLER_REGISTERED = '__yclawDiscordEventHandlerRegistered';
 // @mentions that trigger agent task executions.
 
 /** Max events published per user per rolling window. */
-const INBOUND_MAX_PER_USER = Number(process.env.DISCORD_INBOUND_RATE_LIMIT ?? 5);
+const INBOUND_MAX_PER_USER = Number(process.env.DISCORD_INBOUND_RATE_LIMIT ?? 30);
 /** Rolling window in milliseconds (default 1 hour). */
 const INBOUND_WINDOW_MS = Number(process.env.DISCORD_INBOUND_WINDOW_MS ?? 3_600_000);
 /** Max events published globally per rolling window. */
-const INBOUND_GLOBAL_MAX = Number(process.env.DISCORD_INBOUND_GLOBAL_LIMIT ?? 30);
+const INBOUND_GLOBAL_MAX = Number(process.env.DISCORD_INBOUND_GLOBAL_LIMIT ?? 120);
+/**
+ * Comma-separated Discord user IDs that bypass inbound rate limits entirely.
+ * Typically org admins / operators who need unrestricted access during testing
+ * or active management sessions.
+ */
+const INBOUND_RATE_LIMIT_BYPASS_IDS = new Set(
+  (process.env.DISCORD_RATE_LIMIT_BYPASS_IDS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+);
 
 interface RateBucket {
   timestamps: number[];
@@ -30,6 +41,11 @@ class InboundRateLimiter {
 
   /** Returns true if the event should be allowed through. */
   allow(userId: string): boolean {
+    // Admin/operator bypass — never rate-limit whitelisted user IDs.
+    if (INBOUND_RATE_LIMIT_BYPASS_IDS.has(userId)) {
+      return true;
+    }
+
     const now = Date.now();
     const cutoff = now - INBOUND_WINDOW_MS;
 
