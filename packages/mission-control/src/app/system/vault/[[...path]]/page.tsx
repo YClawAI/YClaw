@@ -122,7 +122,15 @@ export default function VaultPage({ params }: VaultPageProps) {
                 </a>
               ))}
               {dirEntries.length === 0 && (
-                <p className="text-mc-text-tertiary text-sm">Empty directory.</p>
+                <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+                  <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+                  <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+                    Empty directory
+                  </div>
+                  <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+                    No files or subdirectories at this path.
+                  </p>
+                </div>
               )}
             </div>
           </div>

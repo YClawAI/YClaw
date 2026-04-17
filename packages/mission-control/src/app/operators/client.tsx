@@ -230,8 +230,14 @@ export function OperatorsClient({
       )}
 
       {!loadError && operators.length === 0 && (
-        <div className="text-center py-16 text-mc-text-tertiary text-sm font-mono">
-          No operators found. Invite one to get started.
+        <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+          <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+          <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+            No operators
+          </div>
+          <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+            Your roster is empty. Invite an operator to get started.
+          </p>
         </div>
       )}
 

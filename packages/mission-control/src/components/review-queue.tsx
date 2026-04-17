@@ -85,10 +85,14 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
 
   if (localItems.length === 0) {
     return (
-      <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
-        <div className="text-xs text-mc-text-tertiary text-center py-8">
-          No items in review
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+        <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+          Review queue empty
         </div>
+        <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+          No items awaiting approval. Flagged agent output appears here for operator review.
+        </p>
       </div>
     );
   }
