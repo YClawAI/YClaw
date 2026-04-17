@@ -127,48 +127,48 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
       {/* ── Success: Invite Token ── */}
       {result && (
         <div>
-          <div className="border border-terminal-yellow/40 rounded-lg bg-terminal-yellow/5 p-4">
-            <div className="text-xs font-mono font-bold text-terminal-yellow mb-3">
+          <div className="border border-mc-warning/40 rounded-lg bg-mc-warning/5 p-4">
+            <div className="text-xs font-mono font-bold text-mc-warning mb-3">
               Invite Created
             </div>
             <div className="mb-3">
-              <span className="text-[10px] text-terminal-dim font-mono block mb-1">Token</span>
+              <span className="text-[10px] text-mc-text-tertiary font-mono block mb-1">Token</span>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs font-mono text-terminal-text bg-terminal-muted px-2 py-1.5 rounded border border-terminal-border break-all">
+                <code className="flex-1 text-xs font-mono text-mc-text bg-mc-border px-2 py-1.5 rounded border border-mc-border break-all">
                   {result.inviteToken}
                 </code>
                 <button
                   onClick={() => copyToClipboard(result.inviteToken)}
-                  className="shrink-0 px-2 py-1.5 text-[10px] font-mono rounded border border-terminal-border text-terminal-dim hover:text-terminal-text hover:bg-terminal-muted transition-colors"
+                  className="shrink-0 px-2 py-1.5 text-[10px] font-mono rounded border border-mc-border text-mc-text-tertiary hover:text-mc-text hover:bg-mc-border transition-colors"
                 >
                   {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
             </div>
 
-            <div className="text-[10px] text-terminal-yellow/80 font-mono mb-4">
+            <div className="text-[10px] text-mc-warning/80 font-mono mb-4">
               This token will only be shown once. Share it securely with the new operator.
             </div>
 
-            <div className="border-t border-terminal-yellow/20 pt-3">
-              <div className="text-[10px] text-terminal-dim font-mono mb-2">
+            <div className="border-t border-mc-warning/20 pt-3">
+              <div className="text-[10px] text-mc-text-tertiary font-mono mb-2">
                 Next steps for the operator:
               </div>
-              <ol className="text-[10px] text-terminal-text font-mono space-y-1 list-decimal list-inside">
+              <ol className="text-[10px] text-mc-text font-mono space-y-1 list-decimal list-inside">
                 <li>Join the Tailscale network</li>
                 <li>Configure their OpenClaw with the invite token</li>
                 <li>POST /v1/operators/accept-invite with the token</li>
               </ol>
             </div>
 
-            <div className="mt-3 text-[10px] text-terminal-dim font-mono">
+            <div className="mt-3 text-[10px] text-mc-text-tertiary font-mono">
               Expires: {new Date(result.expiresAt).toLocaleString()}
             </div>
           </div>
 
           <button
             onClick={handleClose}
-            className="w-full mt-4 px-3 py-2 text-xs font-mono rounded border border-terminal-border text-terminal-text hover:bg-terminal-muted transition-colors"
+            className="w-full mt-4 px-3 py-2 text-xs font-mono rounded border border-mc-border text-mc-text hover:bg-mc-border transition-colors"
           >
             Done
           </button>
@@ -179,14 +179,14 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
       {!result && (
         <div className="space-y-4">
           {error && (
-            <div className="px-3 py-2 rounded border border-terminal-red/30 bg-terminal-red/5 text-xs text-terminal-red font-mono">
+            <div className="px-3 py-2 rounded border border-mc-danger/30 bg-mc-danger/5 text-xs text-mc-danger font-mono">
               {error}
             </div>
           )}
 
           {/* Email */}
           <div>
-            <label className="text-[10px] text-terminal-dim font-mono uppercase tracking-wider block mb-1">
+            <label className="text-[10px] text-mc-text-tertiary font-mono uppercase tracking-wider block mb-1">
               Email *
             </label>
             <input
@@ -194,13 +194,13 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="operator@company.com"
-              className="w-full px-3 py-1.5 text-xs font-mono rounded border border-terminal-border bg-terminal-bg text-terminal-text placeholder:text-terminal-dim/50 focus:outline-none focus:border-terminal-purple/50"
+              className="w-full px-3 py-1.5 text-xs font-mono rounded border border-mc-border bg-mc-bg text-mc-text placeholder:text-mc-text-tertiary/50 focus:outline-none focus:border-mc-accent/50"
             />
           </div>
 
           {/* Display Name */}
           <div>
-            <label className="text-[10px] text-terminal-dim font-mono uppercase tracking-wider block mb-1">
+            <label className="text-[10px] text-mc-text-tertiary font-mono uppercase tracking-wider block mb-1">
               Display Name *
             </label>
             <input
@@ -208,13 +208,13 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Jane Chen"
-              className="w-full px-3 py-1.5 text-xs font-mono rounded border border-terminal-border bg-terminal-bg text-terminal-text placeholder:text-terminal-dim/50 focus:outline-none focus:border-terminal-purple/50"
+              className="w-full px-3 py-1.5 text-xs font-mono rounded border border-mc-border bg-mc-bg text-mc-text placeholder:text-mc-text-tertiary/50 focus:outline-none focus:border-mc-accent/50"
             />
           </div>
 
           {/* Role */}
           <div>
-            <label className="text-[10px] text-terminal-dim font-mono uppercase tracking-wider block mb-1">
+            <label className="text-[10px] text-mc-text-tertiary font-mono uppercase tracking-wider block mb-1">
               Role *
             </label>
             <input
@@ -222,19 +222,19 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
               value={role}
               onChange={(e) => setRole(e.target.value)}
               placeholder="CMO, CTO, Contractor..."
-              className="w-full px-3 py-1.5 text-xs font-mono rounded border border-terminal-border bg-terminal-bg text-terminal-text placeholder:text-terminal-dim/50 focus:outline-none focus:border-terminal-purple/50"
+              className="w-full px-3 py-1.5 text-xs font-mono rounded border border-mc-border bg-mc-bg text-mc-text placeholder:text-mc-text-tertiary/50 focus:outline-none focus:border-mc-accent/50"
             />
           </div>
 
           {/* Tier */}
           <div>
-            <label className="text-[10px] text-terminal-dim font-mono uppercase tracking-wider block mb-1">
+            <label className="text-[10px] text-mc-text-tertiary font-mono uppercase tracking-wider block mb-1">
               Tier
             </label>
             <select
               value={tier}
               onChange={(e) => setTier(e.target.value as Exclude<OperatorTier, 'root'>)}
-              className="w-full px-3 py-1.5 text-xs font-mono rounded border border-terminal-border bg-terminal-bg text-terminal-text focus:outline-none focus:border-terminal-purple/50"
+              className="w-full px-3 py-1.5 text-xs font-mono rounded border border-mc-border bg-mc-bg text-mc-text focus:outline-none focus:border-mc-accent/50"
             >
               {TIER_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -246,7 +246,7 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
 
           {/* Departments */}
           <div>
-            <label className="text-[10px] text-terminal-dim font-mono uppercase tracking-wider block mb-2">
+            <label className="text-[10px] text-mc-text-tertiary font-mono uppercase tracking-wider block mb-2">
               Departments *
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -261,14 +261,14 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
                     onClick={() => toggleDept(dept)}
                     className={`flex items-center gap-2 px-3 py-2 rounded border text-xs font-mono transition-colors ${
                       isSelected
-                        ? 'border-terminal-purple/50 bg-terminal-purple/10 text-terminal-text'
-                        : 'border-terminal-border bg-terminal-bg text-terminal-dim hover:text-terminal-text hover:border-terminal-border'
+                        ? 'border-mc-accent/50 bg-mc-accent/10 text-mc-text'
+                        : 'border-mc-border bg-mc-bg text-mc-text-tertiary hover:text-mc-text hover:border-mc-border'
                     }`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-terminal-purple' : 'bg-terminal-dim/40'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-mc-accent' : 'bg-mc-text-tertiary/40'}`} />
                     <span className={isSelected ? colorClass : ''}>{meta.label}</span>
                     {isSelected && (
-                      <svg className="w-3 h-3 ml-auto text-terminal-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <svg className="w-3 h-3 ml-auto text-mc-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                         <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     )}
@@ -283,7 +283,7 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-2 text-[10px] text-terminal-dim font-mono hover:text-terminal-text transition-colors"
+              className="flex items-center gap-2 text-[10px] text-mc-text-tertiary font-mono hover:text-mc-text transition-colors"
             >
               <span className="w-3 h-3 inline-flex items-center">
                 {showAdvanced
@@ -293,9 +293,9 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
               <span className="uppercase tracking-wider">Rate Limits</span>
             </button>
             {showAdvanced && (
-              <div className="mt-3 space-y-3 pl-4 border-l border-terminal-border">
+              <div className="mt-3 space-y-3 pl-4 border-l border-mc-border">
                 <div>
-                  <label className="text-[10px] text-terminal-dim font-mono block mb-1">
+                  <label className="text-[10px] text-mc-text-tertiary font-mono block mb-1">
                     Requests per minute
                   </label>
                   <input
@@ -303,11 +303,11 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
                     value={rpm}
                     onChange={(e) => setRpm(parseInt(e.target.value, 10) || 0)}
                     min={1}
-                    className="w-full px-3 py-1.5 text-xs font-mono rounded border border-terminal-border bg-terminal-bg text-terminal-text focus:outline-none focus:border-terminal-purple/50"
+                    className="w-full px-3 py-1.5 text-xs font-mono rounded border border-mc-border bg-mc-bg text-mc-text focus:outline-none focus:border-mc-accent/50"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-terminal-dim font-mono block mb-1">
+                  <label className="text-[10px] text-mc-text-tertiary font-mono block mb-1">
                     Max concurrent tasks
                   </label>
                   <input
@@ -315,11 +315,11 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
                     value={concurrent}
                     onChange={(e) => setConcurrent(parseInt(e.target.value, 10) || 0)}
                     min={1}
-                    className="w-full px-3 py-1.5 text-xs font-mono rounded border border-terminal-border bg-terminal-bg text-terminal-text focus:outline-none focus:border-terminal-purple/50"
+                    className="w-full px-3 py-1.5 text-xs font-mono rounded border border-mc-border bg-mc-bg text-mc-text focus:outline-none focus:border-mc-accent/50"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-terminal-dim font-mono block mb-1">
+                  <label className="text-[10px] text-mc-text-tertiary font-mono block mb-1">
                     Daily task quota
                   </label>
                   <input
@@ -327,7 +327,7 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
                     value={dailyQuota}
                     onChange={(e) => setDailyQuota(parseInt(e.target.value, 10) || 0)}
                     min={1}
-                    className="w-full px-3 py-1.5 text-xs font-mono rounded border border-terminal-border bg-terminal-bg text-terminal-text focus:outline-none focus:border-terminal-purple/50"
+                    className="w-full px-3 py-1.5 text-xs font-mono rounded border border-mc-border bg-mc-bg text-mc-text focus:outline-none focus:border-mc-accent/50"
                   />
                 </div>
               </div>
@@ -338,7 +338,7 @@ export function InviteOperatorDrawer({ open, onClose, onSuccess }: Props) {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full px-3 py-2.5 text-xs font-mono font-bold rounded border border-terminal-purple/50 bg-terminal-purple/10 text-terminal-purple hover:bg-terminal-purple/20 transition-colors disabled:opacity-50"
+            className="w-full px-3 py-2.5 text-xs font-mono font-bold rounded border border-mc-accent/50 bg-mc-accent/10 text-mc-accent hover:bg-mc-accent/20 transition-colors disabled:opacity-50"
           >
             {loading ? 'Creating Invite...' : 'Send Invite'}
           </button>
