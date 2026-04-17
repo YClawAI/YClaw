@@ -33,29 +33,29 @@ function formatTimeAgo(iso?: string): string {
 
 function assetStatusBadge(status: string): string {
   switch (status) {
-    case 'rendering': return 'bg-terminal-yellow/10 border-terminal-yellow/30 text-terminal-yellow';
-    case 'ready': return 'bg-terminal-green/10 border-terminal-green/30 text-terminal-green';
-    case 'failed': return 'bg-terminal-red/10 border-terminal-red/30 text-terminal-red';
-    case 'published': return 'bg-terminal-blue/10 border-terminal-blue/30 text-terminal-blue';
-    default: return 'bg-terminal-muted border-terminal-border text-terminal-dim';
+    case 'rendering': return 'bg-mc-warning/10 border-mc-warning/30 text-mc-warning';
+    case 'ready': return 'bg-mc-success/10 border-mc-success/30 text-mc-success';
+    case 'failed': return 'bg-mc-danger/10 border-mc-danger/30 text-mc-danger';
+    case 'published': return 'bg-mc-info/10 border-mc-info/30 text-mc-info';
+    default: return 'bg-mc-border border-mc-border text-mc-text-tertiary';
   }
 }
 
 function priorityColor(priority?: string): string {
   switch (priority) {
-    case 'high': return 'text-terminal-red';
-    case 'medium': return 'text-terminal-yellow';
-    case 'low': return 'text-terminal-dim';
-    default: return 'text-terminal-dim';
+    case 'high': return 'text-mc-danger';
+    case 'medium': return 'text-mc-warning';
+    case 'low': return 'text-mc-text-tertiary';
+    default: return 'text-mc-text-tertiary';
   }
 }
 
 function AssetCard({ asset }: { asset: ForgeAsset }) {
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded overflow-hidden">
+    <div className="bg-mc-surface-hover border border-mc-border rounded overflow-hidden">
       <div className="p-3">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="text-xs text-terminal-text font-mono truncate flex-1" title={asset.name}>
+          <div className="text-xs text-mc-text font-mono truncate flex-1" title={asset.name}>
             {asset.name}
           </div>
           <span className={`inline-block px-1.5 py-0.5 text-[10px] font-mono font-bold border rounded whitespace-nowrap ${assetStatusBadge(asset.status)}`}>
@@ -63,12 +63,12 @@ function AssetCard({ asset }: { asset: ForgeAsset }) {
           </span>
         </div>
 
-        <div className="flex items-center justify-between text-[10px] text-terminal-dim font-mono">
+        <div className="flex items-center justify-between text-[10px] text-mc-text-tertiary font-mono">
           {asset.model && <span>{asset.model}</span>}
           {asset.dimensions && <span>{asset.dimensions}</span>}
         </div>
         {asset.requestedBy && (
-          <div className="text-[10px] text-terminal-dim font-mono mt-1">
+          <div className="text-[10px] text-mc-text-tertiary font-mono mt-1">
             {asset.requestedBy}
           </div>
         )}
@@ -89,7 +89,7 @@ export function ForgeGallery({ assets, requests }: ForgeGalleryProps) {
   if (assets.length === 0 && requests.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
-        <span className="text-xs text-terminal-dim">No assets generated</span>
+        <span className="text-xs text-mc-text-tertiary">No assets generated</span>
       </div>
     );
   }
@@ -98,12 +98,12 @@ export function ForgeGallery({ assets, requests }: ForgeGalleryProps) {
     <div className="space-y-8">
       {/* Asset Gallery */}
       <div>
-        <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
           RECENT OUTPUTS
         </div>
         {assets.length === 0 ? (
           <div className="flex items-center justify-center py-4">
-            <span className="text-xs text-terminal-dim">No assets generated</span>
+            <span className="text-xs text-mc-text-tertiary">No assets generated</span>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -116,13 +116,13 @@ export function ForgeGallery({ assets, requests }: ForgeGalleryProps) {
 
       {/* Pending Requests Queue */}
       <div>
-        <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
           PENDING REQUESTS
-          <span className="ml-2 text-terminal-orange">{requests.length}</span>
+          <span className="ml-2 text-mc-blocked">{requests.length}</span>
         </div>
-        <div className="bg-terminal-surface border border-terminal-border rounded divide-y divide-terminal-border">
+        <div className="bg-mc-surface-hover border border-mc-border rounded divide-y divide-mc-border">
           {requests.length === 0 ? (
-            <div className="p-4 text-xs text-terminal-dim text-center font-mono">
+            <div className="p-4 text-xs text-mc-text-tertiary text-center font-mono">
               No pending asset requests.
             </div>
           ) : (
@@ -130,8 +130,8 @@ export function ForgeGallery({ assets, requests }: ForgeGalleryProps) {
               <div key={req.id} className="px-4 py-3 flex items-start gap-3">
                 <PriorityBadge priority={req.priority} />
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-terminal-text font-mono">{req.description}</div>
-                  <div className="text-[10px] text-terminal-dim font-mono mt-0.5">
+                  <div className="text-xs text-mc-text font-mono">{req.description}</div>
+                  <div className="text-[10px] text-mc-text-tertiary font-mono mt-0.5">
                     {req.requestedBy ? `from ${req.requestedBy}` : ''}{req.requestedBy && req.createdAt ? ' \u00b7 ' : ''}{req.createdAt ? formatTimeAgo(req.createdAt) : ''}
                   </div>
                 </div>

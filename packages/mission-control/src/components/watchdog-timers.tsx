@@ -14,8 +14,8 @@ interface WatchdogTimersProps {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  success: 'text-terminal-green',
-  error: 'text-terminal-red',
+  success: 'text-mc-success',
+  error: 'text-mc-danger',
 };
 
 function formatRelativeTime(iso: string): string {
@@ -35,16 +35,16 @@ function formatRelativeTime(iso: string): string {
 export function WatchdogTimers({ timers }: WatchdogTimersProps) {
   if (timers.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-        <div className="text-xs text-terminal-dim text-center">No watchdog timers configured</div>
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+        <div className="text-xs text-mc-text-tertiary text-center">No watchdog timers configured</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">
           Watchdog Timers
         </h3>
       </div>
@@ -53,36 +53,36 @@ export function WatchdogTimers({ timers }: WatchdogTimersProps) {
         {timers.map((timer) => (
           <div key={timer.name} className="flex items-center gap-3 font-mono">
             {/* Label */}
-            <div className="w-36 sm:w-44 text-xs text-terminal-text truncate flex-shrink-0">
+            <div className="w-36 sm:w-44 text-xs text-mc-text truncate flex-shrink-0">
               {timer.name}:
             </div>
 
             {/* Schedule */}
-            <div className="text-[10px] text-terminal-dim flex-shrink-0">
+            <div className="text-[10px] text-mc-text-tertiary flex-shrink-0">
               {timer.type === 'event' ? '(event-driven)' : timer.schedule}
             </div>
 
             {/* Next run */}
-            <div className="text-[10px] text-terminal-dim flex-shrink-0">
+            <div className="text-[10px] text-mc-text-tertiary flex-shrink-0">
               {timer.nextRun ? (
                 <span>next: {formatRelativeTime(timer.nextRun)}</span>
               ) : (
-                <span className="text-terminal-dim/60">—</span>
+                <span className="text-mc-text-tertiary/60">—</span>
               )}
             </div>
 
             {/* Last run */}
-            <div className="text-[10px] text-terminal-dim ml-auto flex-shrink-0">
+            <div className="text-[10px] text-mc-text-tertiary ml-auto flex-shrink-0">
               {timer.lastRun ? (
                 <span>
                   last:{' '}
-                  <span className={STATUS_COLOR[timer.lastStatus ?? ''] ?? 'text-terminal-dim'}>
+                  <span className={STATUS_COLOR[timer.lastStatus ?? ''] ?? 'text-mc-text-tertiary'}>
                     {timer.lastStatus ?? 'unknown'}
                   </span>{' '}
                   {formatRelativeTime(timer.lastRun)}
                 </span>
               ) : (
-                <span className="text-terminal-dim">awaiting first run</span>
+                <span className="text-mc-text-tertiary">awaiting first run</span>
               )}
             </div>
           </div>

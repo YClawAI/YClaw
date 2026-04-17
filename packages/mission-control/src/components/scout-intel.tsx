@@ -36,25 +36,25 @@ const STAGE_LABELS: Record<ProspectStage, string> = {
 };
 
 const STAGE_COLORS: Record<ProspectStage, string> = {
-  new: 'border-terminal-dim/30',
-  contacted: 'border-terminal-blue/30',
-  follow_up: 'border-terminal-yellow/30',
-  responded: 'border-terminal-green/30',
+  new: 'border-mc-text-tertiary/30',
+  contacted: 'border-mc-info/30',
+  follow_up: 'border-mc-warning/30',
+  responded: 'border-mc-success/30',
 };
 
 const STAGE_HEADER_COLORS: Record<ProspectStage, string> = {
-  new: 'text-terminal-dim',
-  contacted: 'text-terminal-blue',
-  follow_up: 'text-terminal-yellow',
-  responded: 'text-terminal-green',
+  new: 'text-mc-text-tertiary',
+  contacted: 'text-mc-info',
+  follow_up: 'text-mc-warning',
+  responded: 'text-mc-success',
 };
 
 function sentimentColor(sentiment?: string): string {
   switch (sentiment) {
-    case 'positive': return 'text-terminal-green';
-    case 'negative': return 'text-terminal-red';
-    case 'neutral': return 'text-terminal-dim';
-    default: return 'text-terminal-dim';
+    case 'positive': return 'text-mc-success';
+    case 'negative': return 'text-mc-danger';
+    case 'neutral': return 'text-mc-text-tertiary';
+    default: return 'text-mc-text-tertiary';
   }
 }
 
@@ -69,12 +69,12 @@ function SentimentTag({ sentiment }: { sentiment?: string }) {
 
 function IntelCard({ item }: { item: IntelHighlight }) {
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-3">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-3">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <span className="text-xs font-mono font-bold text-terminal-orange">{item.topic}</span>
+        <span className="text-xs font-mono font-bold text-mc-blocked">{item.topic}</span>
         <SentimentTag sentiment={item.sentiment} />
       </div>
-      <p className="text-xs text-terminal-text/80 font-mono leading-relaxed">
+      <p className="text-xs text-mc-text/80 font-mono leading-relaxed">
         {item.summary}
       </p>
     </div>
@@ -90,7 +90,7 @@ function ProspectPipeline({ prospects }: { prospects: Prospect[] }) {
 
   return (
     <div>
-      <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+      <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
         PROSPECT PIPELINE
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -98,20 +98,20 @@ function ProspectPipeline({ prospects }: { prospects: Prospect[] }) {
           const items = byStage.get(stage) ?? [];
           return (
             <div key={stage} className={`border rounded ${STAGE_COLORS[stage]}`}>
-              <div className="px-3 py-2 border-b border-terminal-border/50">
+              <div className="px-3 py-2 border-b border-mc-border/50">
                 <span className={`text-[10px] font-bold uppercase tracking-widest font-mono ${STAGE_HEADER_COLORS[stage]}`}>
                   {STAGE_LABELS[stage]}
                 </span>
-                <span className="text-[10px] text-terminal-dim font-mono ml-2">{items.length}</span>
+                <span className="text-[10px] text-mc-text-tertiary font-mono ml-2">{items.length}</span>
               </div>
               <div className="p-2 space-y-1 min-h-[80px]">
                 {items.length === 0 ? (
-                  <div className="text-[10px] text-terminal-dim/40 font-mono text-center py-3">--</div>
+                  <div className="text-[10px] text-mc-text-tertiary/40 font-mono text-center py-3">--</div>
                 ) : (
                   items.map((p) => (
-                    <div key={p.id} className="bg-terminal-bg/50 rounded px-2 py-1.5">
-                      <div className="text-xs text-terminal-text font-mono truncate">{p.name}</div>
-                      {p.handle && <div className="text-[10px] text-terminal-dim font-mono">{p.handle}</div>}
+                    <div key={p.id} className="bg-mc-bg/50 rounded px-2 py-1.5">
+                      <div className="text-xs text-mc-text font-mono truncate">{p.name}</div>
+                      {p.handle && <div className="text-[10px] text-mc-text-tertiary font-mono">{p.handle}</div>}
                     </div>
                   ))
                 )}
@@ -126,36 +126,36 @@ function ProspectPipeline({ prospects }: { prospects: Prospect[] }) {
 
 function statusColor(status?: string): string {
   switch (status) {
-    case 'sent': return 'text-terminal-blue';
-    case 'opened': return 'text-terminal-cyan';
-    case 'replied': return 'text-terminal-green';
-    case 'bounced': return 'text-terminal-red';
-    default: return 'text-terminal-dim';
+    case 'sent': return 'text-mc-info';
+    case 'opened': return 'text-mc-accent';
+    case 'replied': return 'text-mc-success';
+    case 'bounced': return 'text-mc-danger';
+    default: return 'text-mc-text-tertiary';
   }
 }
 
 function OutreachTable({ entries }: { entries: OutreachEntry[] }) {
   return (
     <div>
-      <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+      <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
         OUTREACH STATUS
       </div>
-      <div className="bg-terminal-surface border border-terminal-border rounded overflow-x-auto">
+      <div className="bg-mc-surface-hover border border-mc-border rounded overflow-x-auto">
         <table className="w-full min-w-[480px]">
           <thead>
-            <tr className="border-b border-terminal-border">
-              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-terminal-dim text-left">
+            <tr className="border-b border-mc-border">
+              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary text-left">
                 RECIPIENT
               </th>
-              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-terminal-dim text-left">
+              <th className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary text-left">
                 STATUS
               </th>
             </tr>
           </thead>
           <tbody>
             {entries.map((entry) => (
-              <tr key={entry.id} className="border-b border-terminal-border/50 hover:bg-terminal-muted/20 transition-colors">
-                <td className="px-3 py-2 text-xs text-terminal-text font-mono">
+              <tr key={entry.id} className="border-b border-mc-border/50 hover:bg-mc-border/20 transition-colors">
+                <td className="px-3 py-2 text-xs text-mc-text font-mono">
                   {entry.recipient}
                 </td>
                 <td className={`px-3 py-2 text-[10px] font-mono font-bold uppercase ${statusColor(entry.status)}`}>
@@ -174,7 +174,7 @@ export function ScoutIntel({ highlights, prospects, outreach }: ScoutIntelProps)
   if (highlights.length === 0 && prospects.length === 0 && outreach.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
-        <span className="text-xs text-terminal-dim">No intel data</span>
+        <span className="text-xs text-mc-text-tertiary">No intel data</span>
       </div>
     );
   }
@@ -184,7 +184,7 @@ export function ScoutIntel({ highlights, prospects, outreach }: ScoutIntelProps)
       {/* Daily Intel Highlights */}
       {highlights.length > 0 && (
         <div>
-          <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+          <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             DAILY INTEL HIGHLIGHTS
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -200,10 +200,10 @@ export function ScoutIntel({ highlights, prospects, outreach }: ScoutIntelProps)
         <ProspectPipeline prospects={prospects} />
       ) : (
         <div>
-          <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+          <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             PROSPECT PIPELINE
           </div>
-          <div className="bg-terminal-surface border border-terminal-border rounded p-4 text-xs text-terminal-dim text-center font-mono">
+          <div className="bg-mc-surface-hover border border-mc-border rounded p-4 text-xs text-mc-text-tertiary text-center font-mono">
             Prospect tracking will be available when Scout writes to a dedicated collection.
           </div>
         </div>
@@ -214,10 +214,10 @@ export function ScoutIntel({ highlights, prospects, outreach }: ScoutIntelProps)
         <OutreachTable entries={outreach} />
       ) : (
         <div>
-          <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+          <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             OUTREACH STATUS
           </div>
-          <div className="bg-terminal-surface border border-terminal-border rounded p-4 text-xs text-terminal-dim text-center font-mono">
+          <div className="bg-mc-surface-hover border border-mc-border rounded p-4 text-xs text-mc-text-tertiary text-center font-mono">
             No outreach data.
           </div>
         </div>

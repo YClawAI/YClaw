@@ -23,20 +23,20 @@ const DEFAULT_WEEKEND_TIMES = ['15:00'];
 
 function statusBgClass(status?: string): string {
   switch (status) {
-    case 'published': return 'border-terminal-cyan/30 bg-terminal-cyan/5';
-    case 'approved': return 'border-terminal-green/30 bg-terminal-green/5';
-    case 'in_review': return 'border-terminal-blue/30 bg-terminal-blue/5';
-    case 'asset_pending': return 'border-terminal-yellow/30 bg-terminal-yellow/5';
-    case 'drafted': return 'border-terminal-border bg-terminal-bg';
-    default: return 'border-terminal-border bg-terminal-bg';
+    case 'published': return 'border-mc-accent/30 bg-mc-accent/5';
+    case 'approved': return 'border-mc-success/30 bg-mc-success/5';
+    case 'in_review': return 'border-mc-info/30 bg-mc-info/5';
+    case 'asset_pending': return 'border-mc-warning/30 bg-mc-warning/5';
+    case 'drafted': return 'border-mc-border bg-mc-bg';
+    default: return 'border-mc-border bg-mc-bg';
   }
 }
 
 function SlotCell({ slot, onSelect }: { slot: CalendarSlot | undefined; onSelect: (s: CalendarSlot) => void }) {
   if (!slot) {
     return (
-      <div className="border border-terminal-border/30 rounded p-2 min-h-[72px] bg-terminal-bg/30">
-        <span className="text-[10px] text-terminal-dim/40 font-mono">--</span>
+      <div className="border border-mc-border/30 rounded p-2 min-h-[72px] bg-mc-bg/30">
+        <span className="text-[10px] text-mc-text-tertiary/40 font-mono">--</span>
       </div>
     );
   }
@@ -44,14 +44,14 @@ function SlotCell({ slot, onSelect }: { slot: CalendarSlot | undefined; onSelect
   return (
     <button
       onClick={() => onSelect(slot)}
-      className={`w-full text-left border rounded p-2 min-h-[72px] transition-colors hover:border-terminal-orange/50 cursor-pointer ${statusBgClass(slot.status)}`}
+      className={`w-full text-left border rounded p-2 min-h-[72px] transition-colors hover:border-mc-blocked/50 cursor-pointer ${statusBgClass(slot.status)}`}
     >
-      <div className="text-[10px] text-terminal-dim font-mono mb-1">{slot.time} UTC</div>
-      <div className="text-xs text-terminal-text font-mono truncate mb-1" title={slot.topic}>
+      <div className="text-[10px] text-mc-text-tertiary font-mono mb-1">{slot.time} UTC</div>
+      <div className="text-xs text-mc-text font-mono truncate mb-1" title={slot.topic}>
         {slot.topic}
       </div>
       {slot.status && (
-        <div className="text-[10px] font-mono text-terminal-dim">
+        <div className="text-[10px] font-mono text-mc-text-tertiary">
           {slot.status}
         </div>
       )}
@@ -61,17 +61,17 @@ function SlotCell({ slot, onSelect }: { slot: CalendarSlot | undefined; onSelect
 
 function SlotDetailPanel({ slot, onClose }: { slot: CalendarSlot; onClose: () => void }) {
   return (
-    <div className="bg-terminal-surface border border-terminal-orange/30 rounded p-4 mt-4">
+    <div className="bg-mc-surface-hover border border-mc-blocked/30 rounded p-4 mt-4">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+          <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">
             CONTENT PREVIEW
           </div>
-          <div className="text-sm font-mono text-terminal-orange mt-1">{slot.topic}</div>
+          <div className="text-sm font-mono text-mc-blocked mt-1">{slot.topic}</div>
         </div>
         <button
           onClick={onClose}
-          className="text-terminal-dim hover:text-terminal-text transition-colors text-sm font-mono"
+          className="text-mc-text-tertiary hover:text-mc-text transition-colors text-sm font-mono"
         >
           [x]
         </button>
@@ -79,16 +79,16 @@ function SlotDetailPanel({ slot, onClose }: { slot: CalendarSlot; onClose: () =>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
         <div>
-          <div className="text-[10px] text-terminal-dim">DAY</div>
-          <div className="text-xs text-terminal-text font-mono">{DAY_LABELS[slot.day]}</div>
+          <div className="text-[10px] text-mc-text-tertiary">DAY</div>
+          <div className="text-xs text-mc-text font-mono">{DAY_LABELS[slot.day]}</div>
         </div>
         <div>
-          <div className="text-[10px] text-terminal-dim">TIME</div>
-          <div className="text-xs text-terminal-text font-mono">{slot.time} UTC</div>
+          <div className="text-[10px] text-mc-text-tertiary">TIME</div>
+          <div className="text-xs text-mc-text font-mono">{slot.time} UTC</div>
         </div>
         <div>
-          <div className="text-[10px] text-terminal-dim">STATUS</div>
-          <div className="text-xs font-mono text-terminal-dim">
+          <div className="text-[10px] text-mc-text-tertiary">STATUS</div>
+          <div className="text-xs font-mono text-mc-text-tertiary">
             {slot.status ?? '--'}
           </div>
         </div>
@@ -103,7 +103,7 @@ export function ContentCalendar({ slots, scheduleSource = 'static' }: ContentCal
   if (slots.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
-        <span className="text-xs text-terminal-dim">Turn on fleet to see schedule</span>
+        <span className="text-xs text-mc-text-tertiary">Turn on fleet to see schedule</span>
       </div>
     );
   }
@@ -130,7 +130,7 @@ export function ContentCalendar({ slots, scheduleSource = 'static' }: ContentCal
 
   return (
     <div>
-      <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+      <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
         CONTENT CALENDAR
       </div>
 
@@ -139,9 +139,9 @@ export function ContentCalendar({ slots, scheduleSource = 'static' }: ContentCal
         <div className="min-w-[700px]">
           {/* Header row */}
           <div className="grid grid-cols-[60px_repeat(7,1fr)] gap-1 mb-1">
-            <div className="text-[10px] text-terminal-dim font-mono" />
+            <div className="text-[10px] text-mc-text-tertiary font-mono" />
             {DAYS.map((d) => (
-              <div key={d} className="text-[10px] text-terminal-dim font-mono text-center font-bold">
+              <div key={d} className="text-[10px] text-mc-text-tertiary font-mono text-center font-bold">
                 {DAY_LABELS[d]}
               </div>
             ))}
@@ -151,7 +151,7 @@ export function ContentCalendar({ slots, scheduleSource = 'static' }: ContentCal
           {allTimes.map((time) => (
             <div key={time} className="grid grid-cols-[60px_repeat(7,1fr)] gap-1 mb-1">
               <div className="flex items-start pt-2">
-                <span className="text-[10px] text-terminal-dim font-mono">{time}</span>
+                <span className="text-[10px] text-mc-text-tertiary font-mono">{time}</span>
               </div>
               {DAYS.map((day) => {
                 const key = `${day}:${time}`;
@@ -175,11 +175,11 @@ export function ContentCalendar({ slots, scheduleSource = 'static' }: ContentCal
       </div>
 
       {/* Cron schedule reference */}
-      <div className="mt-3 flex flex-wrap gap-4 text-[10px] text-terminal-dim font-mono">
+      <div className="mt-3 flex flex-wrap gap-4 text-[10px] text-mc-text-tertiary font-mono">
         <span>Weekday: 14:00, 16:30, 22:00 UTC</span>
         <span>Weekend: 15:00 UTC</span>
         {scheduleSource === 'static' && (
-          <span className="text-terminal-yellow">Static schedule</span>
+          <span className="text-mc-warning">Static schedule</span>
         )}
       </div>
 
