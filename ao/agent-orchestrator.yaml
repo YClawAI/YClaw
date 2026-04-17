@@ -39,6 +39,22 @@ projects:
     postCreate:
       - npm install
 
+  yclaw-site:
+    name: YClaw Site
+    repo: YClawAI/yclaw-site
+    path: /data/worktrees/YClawAI__yclaw-site
+    defaultBranch: main
+    sessionPrefix: yclaw-site
+
+    agentConfig:
+      permissions: permissionless
+      model: claude-opus-4-7
+
+    scm:
+      plugin: github
+    tracker:
+      plugin: github
+
 
 # Notification channels — webhook for callbacks to yclaw
 notifiers:
