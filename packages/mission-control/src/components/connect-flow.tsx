@@ -5,7 +5,7 @@ import { useConnectionSession } from '@/hooks/use-connection-session';
 import { ConnectionProgress } from '@/components/connection-progress';
 import type { IntegrationDef } from '@/lib/integration-registry';
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────
 
 interface StepState {
   id: string;
@@ -19,7 +19,7 @@ type FlowStage = 'input' | 'saving' | 'verifying' | 'connected' | 'failed'
   | 'tier2_init' | 'tier2_polling' | 'tier2_fallback'
   | 'tier3_init' | 'tier3_wiring' | 'tier3_fallback';
 
-// ── Icons ────────────────────────────────────────────────────────────────────
+// ── Icons ──────────────────────────────────────────────────────────────────
 
 function CheckIcon({ className }: { className?: string }) {
   return (
@@ -63,16 +63,19 @@ function EyeSlashIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Actor Label ──────────────────────────────────────────────────────────────
+// ── Actor Label ────────────────────────────────────────────────────────────
 
 const ACTOR_LABELS: Record<string, { label: string; color: string }> = {
-  human: { label: 'You', color: 'text-terminal-cyan' },
-  openclaw: { label: 'OpenClaw', color: 'text-terminal-purple' },
-  system: { label: 'System', color: 'text-terminal-dim' },
-  fleet: { label: 'Fleet', color: 'text-terminal-orange' },
+  human: { label: 'You', color: 'text-mc-accent' },
+  // Pre-flip used purple for openclaw + cyan for human; mechanical flip collapsed
+  // both to mc-accent. Route openclaw → mc-dept-finance (only iOS-palette purple)
+  // to preserve the "OpenClaw actor" branding vs. human/system.
+  openclaw: { label: 'OpenClaw', color: 'text-mc-dept-finance' },
+  system: { label: 'System', color: 'text-mc-text-tertiary' },
+  fleet: { label: 'Fleet', color: 'text-mc-blocked' },
 };
 
-// ── Step Indicator ───────────────────────────────────────────────────────────
+// ── Step Indicator ─────────────────────────────────────────────────────────
 
 function StepIndicator({ steps, showActors }: { steps: StepState[]; showActors?: boolean }) {
   return (
@@ -81,15 +84,15 @@ function StepIndicator({ steps, showActors }: { steps: StepState[]; showActors?:
         <div key={step.id} className="flex items-center gap-2.5">
           <div className="w-5 h-5 flex items-center justify-center shrink-0">
             {step.status === 'complete' ? (
-              <CheckIcon className="w-4 h-4 text-terminal-green" />
+              <CheckIcon className="w-4 h-4 text-mc-success" />
             ) : step.status === 'active' ? (
-              <SpinnerIcon className="w-4 h-4 text-terminal-cyan" />
+              <SpinnerIcon className="w-4 h-4 text-mc-accent" />
             ) : step.status === 'failed' ? (
-              <XIcon className="w-4 h-4 text-terminal-red" />
+              <XIcon className="w-4 h-4 text-mc-danger" />
             ) : step.status === 'skipped' ? (
-              <span className="w-2 h-2 rounded-full bg-terminal-dim/20" />
+              <span className="w-2 h-2 rounded-full bg-mc-text-tertiary/20" />
             ) : (
-              <span className="w-2 h-2 rounded-full bg-terminal-dim/30" />
+              <span className="w-2 h-2 rounded-full bg-mc-text-tertiary/30" />
             )}
           </div>
           <div className="min-w-0 flex-1">
@@ -97,12 +100,12 @@ function StepIndicator({ steps, showActors }: { steps: StepState[]; showActors?:
               <span
                 className={`text-xs block ${
                   step.status === 'complete'
-                    ? 'text-terminal-green'
+                    ? 'text-mc-success'
                     : step.status === 'active'
-                      ? 'text-terminal-text'
+                      ? 'text-mc-text'
                       : step.status === 'failed'
-                        ? 'text-terminal-red'
-                        : 'text-terminal-dim'
+                        ? 'text-mc-danger'
+                        : 'text-mc-text-tertiary'
                 }`}
               >
                 {step.label}
@@ -114,7 +117,7 @@ function StepIndicator({ steps, showActors }: { steps: StepState[]; showActors?:
               )}
             </div>
             {step.detail && (
-              <span className="text-[10px] text-terminal-dim block truncate">{step.detail}</span>
+              <span className="text-[10px] text-mc-text-tertiary block truncate">{step.detail}</span>
             )}
           </div>
         </div>
@@ -123,7 +126,7 @@ function StepIndicator({ steps, showActors }: { steps: StepState[]; showActors?:
   );
 }
 
-// ── Tier 1 Connect Flow (paste-key-and-verify) ─────────────────────────────
+// ── Tier 1 Connect Flow (paste-key-and-verify) ────────────────────────────
 
 function Tier1Flow({
   integration,
@@ -217,13 +220,13 @@ function Tier1Flow({
 
   return (
     <>
-      <div className="text-[10px] text-terminal-dim uppercase tracking-widest">
+      <div className="text-[10px] text-mc-text-tertiary uppercase tracking-widest">
         Step 1 of 3: Enter Credentials
       </div>
       <div className="space-y-4">
         {integration.credentialFields.map((field) => (
           <div key={field.key}>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1.5">
+            <label className="text-[10px] text-mc-text-tertiary uppercase tracking-widest block mb-1.5">
               {field.label}
             </label>
             <div className="flex items-center gap-1">
@@ -236,7 +239,7 @@ function Tier1Flow({
                 placeholder={field.placeholder}
                 autoFocus={integration.credentialFields[0] === field}
                 autoComplete="off"
-                className="flex-1 bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue placeholder:text-terminal-dim/30"
+                className="flex-1 bg-mc-bg border border-mc-border rounded px-3 py-2 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30"
               />
               <button
                 type="button"
@@ -246,7 +249,7 @@ function Tier1Flow({
                     [field.key]: !prev[field.key],
                   }))
                 }
-                className="p-2 text-terminal-dim hover:text-terminal-text transition-colors"
+                className="p-2 text-mc-text-tertiary hover:text-mc-text transition-colors"
                 aria-label={visibility[field.key] ? 'Hide' : 'Show'}
               >
                 {visibility[field.key] ? <EyeSlashIcon /> : <EyeIcon />}
@@ -257,7 +260,7 @@ function Tier1Flow({
                 href={field.helpUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] text-terminal-blue hover:text-terminal-text transition-colors mt-1 inline-block"
+                className="text-[10px] text-mc-info hover:text-mc-text transition-colors mt-1 inline-block"
               >
                 Need a key? Get one here
               </a>
@@ -271,8 +274,8 @@ function Tier1Flow({
           disabled={!allFieldsFilled || submitting}
           className={`px-4 py-1.5 text-xs font-mono rounded border transition-colors ${
             allFieldsFilled && !submitting
-              ? 'border-terminal-blue/40 text-terminal-blue hover:bg-terminal-blue/10'
-              : 'border-terminal-border text-terminal-dim cursor-not-allowed'
+              ? 'border-mc-info/40 text-mc-info hover:bg-mc-info/10'
+              : 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
           }`}
         >
           {submitting ? 'Connecting...' : 'Connect'}
@@ -282,7 +285,7 @@ function Tier1Flow({
   );
 }
 
-// ── Tier 2 Connect Flow (OpenClaw guided + fallback) ────────────────────────
+// ── Tier 2 Connect Flow (OpenClaw guided + fallback) ──────────────────────
 
 function Tier2Flow({
   integration,
@@ -440,12 +443,12 @@ function Tier2Flow({
     return (
       <>
         {integration.description && (
-          <p className="text-xs text-terminal-dim leading-relaxed">
+          <p className="text-xs text-mc-text-tertiary leading-relaxed">
             {integration.description}
           </p>
         )}
         {recipeSteps.length === 0 && (
-          <div className="text-[10px] text-terminal-dim uppercase tracking-widest">
+          <div className="text-[10px] text-mc-text-tertiary uppercase tracking-widest">
             This integration requires guided setup
           </div>
         )}
@@ -455,8 +458,8 @@ function Tier2Flow({
             disabled={starting}
             className={`px-4 py-1.5 text-xs font-mono rounded border transition-colors ${
               !starting
-                ? 'border-terminal-purple/40 text-terminal-purple hover:bg-terminal-purple/10'
-                : 'border-terminal-border text-terminal-dim cursor-not-allowed'
+                ? 'border-mc-dept-finance/40 text-mc-dept-finance hover:bg-mc-dept-finance/10'
+                : 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
             }`}
           >
             {starting ? 'Starting...' : 'Start with OpenClaw'}
@@ -471,9 +474,9 @@ function Tier2Flow({
     return (
       <>
         <StepIndicator steps={recipeSteps} showActors />
-        <div className="flex items-center gap-2 px-3 py-2 rounded bg-terminal-purple/10 border border-terminal-purple/30">
-          <SpinnerIcon className="w-3 h-3 text-terminal-purple" />
-          <span className="text-[10px] text-terminal-purple font-mono">
+        <div className="flex items-center gap-2 px-3 py-2 rounded bg-mc-dept-finance/10 border border-mc-dept-finance/30">
+          <SpinnerIcon className="w-3 h-3 text-mc-dept-finance" />
+          <span className="text-[10px] text-mc-dept-finance font-mono">
             OpenClaw is guiding this connection...
           </span>
         </div>
@@ -485,15 +488,15 @@ function Tier2Flow({
   if (fallbackMode) {
     return (
       <>
-        <div className="flex items-center gap-2 px-3 py-2 rounded bg-terminal-orange/10 border border-terminal-orange/30 mb-2">
-          <span className="text-[10px] text-terminal-orange font-mono">
+        <div className="flex items-center gap-2 px-3 py-2 rounded bg-mc-blocked/10 border border-mc-blocked/30 mb-2">
+          <span className="text-[10px] text-mc-blocked font-mono">
             OpenClaw unavailable — enter credentials manually
           </span>
         </div>
         <div className="space-y-4">
           {integration.credentialFields.map((field) => (
             <div key={field.key}>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1.5">
+              <label className="text-[10px] text-mc-text-tertiary uppercase tracking-widest block mb-1.5">
                 {field.label}
               </label>
               <div className="flex items-center gap-1">
@@ -506,7 +509,7 @@ function Tier2Flow({
                   placeholder={field.placeholder}
                   autoFocus={integration.credentialFields[0] === field}
                   autoComplete="off"
-                  className="flex-1 bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue placeholder:text-terminal-dim/30"
+                  className="flex-1 bg-mc-bg border border-mc-border rounded px-3 py-2 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30"
                 />
                 <button
                   type="button"
@@ -516,7 +519,7 @@ function Tier2Flow({
                       [field.key]: !prev[field.key],
                     }))
                   }
-                  className="p-2 text-terminal-dim hover:text-terminal-text transition-colors"
+                  className="p-2 text-mc-text-tertiary hover:text-mc-text transition-colors"
                   aria-label={visibility[field.key] ? 'Hide' : 'Show'}
                 >
                   {visibility[field.key] ? <EyeSlashIcon /> : <EyeIcon />}
@@ -527,7 +530,7 @@ function Tier2Flow({
                   href={field.helpUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[10px] text-terminal-blue hover:text-terminal-text transition-colors mt-1 inline-block"
+                  className="text-[10px] text-mc-info hover:text-mc-text transition-colors mt-1 inline-block"
                 >
                   Need a key? Get one here
                 </a>
@@ -541,8 +544,8 @@ function Tier2Flow({
             disabled={!allFieldsFilled || submitting}
             className={`px-4 py-1.5 text-xs font-mono rounded border transition-colors ${
               allFieldsFilled && !submitting
-                ? 'border-terminal-blue/40 text-terminal-blue hover:bg-terminal-blue/10'
-                : 'border-terminal-border text-terminal-dim cursor-not-allowed'
+                ? 'border-mc-info/40 text-mc-info hover:bg-mc-info/10'
+                : 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
             }`}
           >
             {submitting ? 'Connecting...' : 'Connect'}
@@ -555,7 +558,7 @@ function Tier2Flow({
   return null;
 }
 
-// ── Tier 3 Connect Flow (full self-wiring — Strategist + Builder) ────────────
+// ── Tier 3 Connect Flow (full self-wiring — Strategist + Builder) ────────
 
 function Tier3Flow({
   integration,
@@ -784,19 +787,19 @@ function Tier3Flow({
     return (
       <>
         {integration.description && (
-          <p className="text-xs text-terminal-dim leading-relaxed">
+          <p className="text-xs text-mc-text-tertiary leading-relaxed">
             {integration.description}
           </p>
         )}
-        <div className="flex items-center gap-2 px-3 py-2 rounded bg-terminal-orange/10 border border-terminal-orange/30 mb-1">
-          <span className="text-[10px] text-terminal-orange font-mono">
+        <div className="flex items-center gap-2 px-3 py-2 rounded bg-mc-blocked/10 border border-mc-blocked/30 mb-1">
+          <span className="text-[10px] text-mc-blocked font-mono">
             Tier 3 — requires code changes via Builder agents
           </span>
         </div>
         {isCustom && (
           <div className="space-y-3">
             <div>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1.5">
+              <label className="text-[10px] text-mc-text-tertiary uppercase tracking-widest block mb-1.5">
                 Provider Name
               </label>
               <input
@@ -806,11 +809,11 @@ function Tier3Flow({
                 placeholder="e.g., Acme CRM"
                 autoFocus
                 autoComplete="off"
-                className="w-full bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue placeholder:text-terminal-dim/30"
+                className="w-full bg-mc-bg border border-mc-border rounded px-3 py-2 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30"
               />
             </div>
             <div>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1.5">
+              <label className="text-[10px] text-mc-text-tertiary uppercase tracking-widest block mb-1.5">
                 Base API URL
               </label>
               <input
@@ -819,17 +822,17 @@ function Tier3Flow({
                 onChange={(e) => setMetadataFields((prev) => ({ ...prev, base_url: e.target.value }))}
                 placeholder="https://api.example.com/v1"
                 autoComplete="off"
-                className="w-full bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue placeholder:text-terminal-dim/30"
+                className="w-full bg-mc-bg border border-mc-border rounded px-3 py-2 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30"
               />
             </div>
             <div>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1.5">
+              <label className="text-[10px] text-mc-text-tertiary uppercase tracking-widest block mb-1.5">
                 Auth Type
               </label>
               <select
                 value={metadataFields.auth_type ?? 'bearer'}
                 onChange={(e) => setMetadataFields((prev) => ({ ...prev, auth_type: e.target.value }))}
-                className="w-full bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue"
+                className="w-full bg-mc-bg border border-mc-border rounded px-3 py-2 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
               >
                 <option value="bearer">Bearer Token</option>
                 <option value="x-api-key">X-API-Key Header</option>
@@ -838,7 +841,7 @@ function Tier3Flow({
               </select>
             </div>
             <div>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1.5">
+              <label className="text-[10px] text-mc-text-tertiary uppercase tracking-widest block mb-1.5">
                 API Docs / OpenAPI Spec URL (optional)
               </label>
               <input
@@ -847,7 +850,7 @@ function Tier3Flow({
                 onChange={(e) => setMetadataFields((prev) => ({ ...prev, docs_url: e.target.value }))}
                 placeholder="https://docs.example.com/api"
                 autoComplete="off"
-                className="w-full bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue placeholder:text-terminal-dim/30"
+                className="w-full bg-mc-bg border border-mc-border rounded px-3 py-2 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30"
               />
             </div>
           </div>
@@ -896,8 +899,8 @@ function Tier3Flow({
               disabled={!metadataFields.provider_name?.trim() || !metadataFields.base_url?.trim()}
               className={`px-3 py-1.5 text-xs font-mono rounded border transition-colors ${
                 metadataFields.provider_name?.trim() && metadataFields.base_url?.trim()
-                  ? 'border-terminal-blue/40 text-terminal-blue hover:bg-terminal-blue/10'
-                  : 'border-terminal-border text-terminal-dim cursor-not-allowed'
+                  ? 'border-mc-info/40 text-mc-info hover:bg-mc-info/10'
+                  : 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
               }`}
             >
               Quick Connect (API Key)
@@ -907,8 +910,8 @@ function Tier3Flow({
               disabled={starting || !canStart}
               className={`px-3 py-1.5 text-xs font-mono rounded border transition-colors ${
                 !starting && canStart
-                  ? 'border-terminal-purple/40 text-terminal-purple hover:bg-terminal-purple/10'
-                  : 'border-terminal-border text-terminal-dim cursor-not-allowed'
+                  ? 'border-mc-dept-finance/40 text-mc-dept-finance hover:bg-mc-dept-finance/10'
+                  : 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
               }`}
             >
               {starting ? 'Starting...' : 'Full Wiring (OpenClaw)'}
@@ -922,8 +925,8 @@ function Tier3Flow({
               disabled={starting}
               className={`px-4 py-1.5 text-xs font-mono rounded border transition-colors ${
                 !starting
-                  ? 'border-terminal-purple/40 text-terminal-purple hover:bg-terminal-purple/10'
-                  : 'border-terminal-border text-terminal-dim cursor-not-allowed'
+                  ? 'border-mc-dept-finance/40 text-mc-dept-finance hover:bg-mc-dept-finance/10'
+                  : 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
               }`}
             >
               {starting ? 'Starting...' : 'Start with OpenClaw'}
@@ -955,9 +958,9 @@ function Tier3Flow({
     return (
       <>
         <StepIndicator steps={recipeSteps} showActors />
-        <div className="flex items-center gap-2 px-3 py-2 rounded bg-terminal-purple/10 border border-terminal-purple/30">
-          <SpinnerIcon className="w-3 h-3 text-terminal-purple" />
-          <span className="text-[10px] text-terminal-purple font-mono">
+        <div className="flex items-center gap-2 px-3 py-2 rounded bg-mc-dept-finance/10 border border-mc-dept-finance/30">
+          <SpinnerIcon className="w-3 h-3 text-mc-dept-finance" />
+          <span className="text-[10px] text-mc-dept-finance font-mono">
             OpenClaw is guiding credential setup...
           </span>
         </div>
@@ -969,15 +972,15 @@ function Tier3Flow({
   if (fallbackMode) {
     return (
       <>
-        <div className="flex items-center gap-2 px-3 py-2 rounded bg-terminal-orange/10 border border-terminal-orange/30 mb-2">
-          <span className="text-[10px] text-terminal-orange font-mono">
+        <div className="flex items-center gap-2 px-3 py-2 rounded bg-mc-blocked/10 border border-mc-blocked/30 mb-2">
+          <span className="text-[10px] text-mc-blocked font-mono">
             OpenClaw unavailable — enter credentials manually
           </span>
         </div>
         <div className="space-y-4">
           {integration.credentialFields.map((field) => (
             <div key={field.key}>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1.5">
+              <label className="text-[10px] text-mc-text-tertiary uppercase tracking-widest block mb-1.5">
                 {field.label}
               </label>
               <div className="flex items-center gap-1">
@@ -990,7 +993,7 @@ function Tier3Flow({
                   placeholder={field.placeholder}
                   autoFocus={integration.credentialFields[0] === field}
                   autoComplete="off"
-                  className="flex-1 bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue placeholder:text-terminal-dim/30"
+                  className="flex-1 bg-mc-bg border border-mc-border rounded px-3 py-2 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30"
                 />
                 <button
                   type="button"
@@ -1000,7 +1003,7 @@ function Tier3Flow({
                       [field.key]: !prev[field.key],
                     }))
                   }
-                  className="p-2 text-terminal-dim hover:text-terminal-text transition-colors"
+                  className="p-2 text-mc-text-tertiary hover:text-mc-text transition-colors"
                   aria-label={visibility[field.key] ? 'Hide' : 'Show'}
                 >
                   {visibility[field.key] ? <EyeSlashIcon /> : <EyeIcon />}
@@ -1011,7 +1014,7 @@ function Tier3Flow({
                   href={field.helpUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[10px] text-terminal-blue hover:text-terminal-text transition-colors mt-1 inline-block"
+                  className="text-[10px] text-mc-info hover:text-mc-text transition-colors mt-1 inline-block"
                 >
                   Need a key? Get one here
                 </a>
@@ -1025,8 +1028,8 @@ function Tier3Flow({
             disabled={!allFieldsFilled || submitting}
             className={`px-4 py-1.5 text-xs font-mono rounded border transition-colors ${
               allFieldsFilled && !submitting
-                ? 'border-terminal-blue/40 text-terminal-blue hover:bg-terminal-blue/10'
-                : 'border-terminal-border text-terminal-dim cursor-not-allowed'
+                ? 'border-mc-info/40 text-mc-info hover:bg-mc-info/10'
+                : 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
             }`}
           >
             {submitting ? 'Connecting...' : 'Connect'}
@@ -1039,7 +1042,7 @@ function Tier3Flow({
   return null;
 }
 
-// ── Connect Flow Modal ───────────────────────────────────────────────────────
+// ── Connect Flow Modal ─────────────────────────────────────────────────────
 
 export function ConnectFlow({
   integration,
@@ -1128,16 +1131,16 @@ export function ConnectFlow({
       onClick={handleBackdropClick}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
     >
-      <div className="bg-terminal-surface border border-terminal-border rounded-lg shadow-2xl w-full max-w-md mx-4">
+      <div className="bg-mc-surface-hover border border-mc-border rounded-lg shadow-2xl w-full max-w-md mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-terminal-border">
-          <h2 className="text-sm font-bold text-terminal-text">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-mc-border">
+          <h2 className="text-sm font-bold text-mc-text">
             Connect {integration.name}
           </h2>
           {!isInProgress && (
             <button
               onClick={handleClose}
-              className="text-terminal-dim hover:text-terminal-text transition-colors p-1"
+              className="text-mc-text-tertiary hover:text-mc-text transition-colors p-1"
               aria-label="Close"
             >
               <XIcon className="w-4 h-4" />
@@ -1186,9 +1189,9 @@ export function ConnectFlow({
 
           {/* Connected banner */}
           {stage === 'connected' && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded bg-terminal-green/10 border border-terminal-green/30">
-              <CheckIcon className="w-4 h-4 text-terminal-green shrink-0" />
-              <span className="text-xs text-terminal-green font-mono">
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded bg-mc-success/10 border border-mc-success/30">
+              <CheckIcon className="w-4 h-4 text-mc-success shrink-0" />
+              <span className="text-xs text-mc-success font-mono">
                 {integration.name} connected!
               </span>
             </div>
@@ -1196,18 +1199,18 @@ export function ConnectFlow({
 
           {/* Failed banner */}
           {stage === 'failed' && error && (
-            <div className="px-3 py-2.5 rounded bg-terminal-red/10 border border-terminal-red/30">
-              <span className="text-[10px] text-terminal-red font-mono block">{error}</span>
+            <div className="px-3 py-2.5 rounded bg-mc-danger/10 border border-mc-danger/30">
+              <span className="text-[10px] text-mc-danger font-mono block">{error}</span>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-4 border-t border-terminal-border">
+        <div className="flex items-center justify-between px-5 py-4 border-t border-mc-border">
           {!isInProgress ? (
             <button
               onClick={handleClose}
-              className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:border-terminal-muted transition-colors"
+              className="px-3 py-1.5 text-xs font-mono border border-mc-border rounded text-mc-text-tertiary hover:text-mc-text hover:border-mc-border transition-colors"
             >
               {stage === 'connected' ? 'Close' : 'Cancel'}
             </button>
@@ -1221,7 +1224,7 @@ export function ConnectFlow({
                 onConnected();
                 onClose();
               }}
-              className="px-4 py-1.5 text-xs font-mono rounded border border-terminal-green/40 text-terminal-green hover:bg-terminal-green/10 transition-colors"
+              className="px-4 py-1.5 text-xs font-mono rounded border border-mc-success/40 text-mc-success hover:bg-mc-success/10 transition-colors"
             >
               Done
             </button>
@@ -1230,14 +1233,14 @@ export function ConnectFlow({
           {stage === 'failed' && (
             <button
               onClick={handleRetry}
-              className="px-4 py-1.5 text-xs font-mono rounded border border-terminal-orange/40 text-terminal-orange hover:bg-terminal-orange/10 transition-colors"
+              className="px-4 py-1.5 text-xs font-mono rounded border border-mc-blocked/40 text-mc-blocked hover:bg-mc-blocked/10 transition-colors"
             >
               Retry
             </button>
           )}
 
           {isInProgress && !isTier2 && (
-            <span className="text-[10px] text-terminal-dim font-mono flex items-center gap-1.5">
+            <span className="text-[10px] text-mc-text-tertiary font-mono flex items-center gap-1.5">
               <SpinnerIcon className="w-3 h-3" />
               {stage === 'saving' ? 'Saving...' : 'Verifying...'}
             </span>
