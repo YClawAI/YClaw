@@ -2,13 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── SpaceX Crew Dragon tokens ────────────────────────────────────────
+/* ─── SpaceX Crew Dragon tokens ──────────────────────────────────
  * Exposed as CSS custom properties so vanilla CSS + SVG can consume the
  * same values as the Tailwind `mc-*` utility classes. Component work
  * should prefer the Tailwind classes; these vars exist for: inline SVG
  * fills, third-party components that don't accept classnames, and any
  * runtime computed colors (e.g. d3 / three.js).
- * ──────────────────────────────────────────────────────────────────── */
+ * ───────────────────────────────────────────────────────────────────── */
 :root {
   --mc-bg: #000000;
   --mc-surface: rgba(255, 255, 255, 0.02);
@@ -102,7 +102,7 @@
 
 /* Audit timeline new-event highlight */
 @keyframes highlight-fade {
-  0% { background-color: rgba(59, 130, 246, 0.15); }
+  0% { background-color: rgba(90, 200, 250, 0.15); }
   100% { background-color: transparent; }
 }
 .animate-highlight {

@@ -1,15 +1,12 @@
 name: keeper
 department: support
-description: >-
-  Community moderator across configured channels. Handles moderation actions,
-  FAQ responses, and escalates complex cases to Guide.
-
+description: Community moderator across configured channels. Handles moderation
+  actions, FAQ responses, and escalates complex cases to Guide.
 model:
   provider: anthropic
   model: claude-haiku-4-5
   temperature: 0.5
   maxTokens: 8192
-
 system_prompts:
   - claudeception.md
   - skill-usage.md
@@ -21,10 +18,9 @@ system_prompts:
   - data-integrity.md
   - escalation-policy.md
   - executive-directive.md
-
 triggers:
   - type: cron
-    schedule: "20 13 * * *"
+    schedule: 20 13 * * *
     task: daily_standup
   - type: event
     event: telegram:message
@@ -46,17 +42,6 @@ triggers:
       model: claude-sonnet-4-6
       temperature: 0.5
       maxTokens: 4096
-
-# ============================================================
-# Re-enable these crons when proactive community posting is desired
-# - type: cron
-#   schedule: "0 8 * * *"
-#   task: morning_stats
-# - type: cron
-#   schedule: "0 15 * * 5"
-#   task: community_highlights
-# ============================================================
-
 actions:
   - telegram:message
   - telegram:reply
@@ -73,24 +58,21 @@ actions:
   - discord:get_thread
   - discord:react
   - event:publish
-
 data_sources: []
-
 event_subscriptions:
   - claudeception:reflect
   - telegram:message
   - discord:message
   - discord:mention
   - strategist:keeper_directive
-
 event_publications:
   - standup:report
   - keeper:support_case
   - keeper:community_health
-
 review_bypass: []
-
 heartbeat:
   precheck:
     enabled: true
     maxSilenceHours: 6
+standup_discord_posting: false
+standup_event_only: true
