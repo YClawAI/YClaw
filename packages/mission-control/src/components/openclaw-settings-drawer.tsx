@@ -15,7 +15,7 @@ import type {
   ModelInfo,
 } from '@/types/gateway';
 
-// ── Props ────────────────────────────────────────────────────────────────────
+// ── Props ────────────────────────────────────────────────────────────────────────────────
 
 interface OpenClawSettingsDrawerProps {
   gateway: GatewayStatus | null;
@@ -28,7 +28,7 @@ interface OpenClawSettingsDrawerProps {
   models: ModelInfo[];
 }
 
-// ── SVG Icons (Heroicons outline, strokeWidth 1.5) ───────────────────────────
+// ── SVG Icons (Heroicons outline, strokeWidth 1.5) ─────────────────────────────
 
 function SignalIcon({ className }: { className?: string }) {
   return (
@@ -62,7 +62,7 @@ function ArrowUpCircleIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────────────────
 
 function relativeTime(dateInput: string | number): string {
   const timestamp = typeof dateInput === 'number' ? dateInput : new Date(dateInput).getTime();
@@ -88,11 +88,11 @@ function formatSchedule(job: CronJob): string {
 
 function ErrorBanner({ message, onDismiss }: { message: string; onDismiss: () => void }) {
   return (
-    <div className="mb-3 p-2 bg-terminal-red/10 border border-terminal-red/40 rounded flex items-start gap-2">
-      <span className="text-xs text-terminal-red flex-1">{message}</span>
+    <div className="mb-3 p-2 bg-mc-danger/10 border border-mc-danger/40 rounded-panel flex items-start gap-2">
+      <span className="font-sans text-xs text-mc-danger flex-1">{message}</span>
       <button
         onClick={onDismiss}
-        className="text-[10px] text-terminal-red hover:text-terminal-text shrink-0"
+        className="font-sans text-[10px] text-mc-danger hover:text-mc-text shrink-0 transition-colors duration-mc ease-mc-out"
       >
         dismiss
       </button>
@@ -100,7 +100,7 @@ function ErrorBanner({ message, onDismiss }: { message: string; onDismiss: () =>
   );
 }
 
-// ── ModelConfig (reusable, UI-only) ─────────────────────────────────────────
+// ── ModelConfig (reusable, UI-only) ─────────────────────────────────────────────────
 
 type ProviderKey = 'anthropic' | 'openai' | 'google' | 'xai' | 'other';
 
@@ -122,11 +122,11 @@ const PROVIDER_LABELS: Record<ProviderKey, string> = {
 };
 
 const PROVIDER_COLORS: Record<ProviderKey, string> = {
-  anthropic: 'bg-terminal-purple',
-  openai: 'bg-terminal-green',
-  google: 'bg-terminal-blue',
-  xai: 'bg-terminal-orange',
-  other: 'bg-terminal-dim',
+  anthropic: 'bg-mc-info',
+  openai: 'bg-mc-success',
+  google: 'bg-mc-info',
+  xai: 'bg-mc-warning',
+  other: 'bg-mc-text-tertiary',
 };
 
 const CREATIVITY_STOPS = [
@@ -190,11 +190,11 @@ export function ModelConfig({
       {/* AI Model */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim">
+          <span className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-tertiary">
             AI Model
           </span>
           {selectedModel && selectedModel.id === safeInitialModelId && (
-            <span className="text-[9px] px-1 py-0.5 rounded border border-terminal-green/40 text-terminal-green bg-terminal-green/10">
+            <span className="font-sans text-[9px] px-1 py-0.5 rounded-panel border border-mc-success/40 text-mc-success bg-mc-success/10">
               Recommended
             </span>
           )}
@@ -203,37 +203,37 @@ export function ModelConfig({
           <button
             type="button"
             onClick={() => setDropdownOpen((v) => !v)}
-            className="w-full px-2 py-1.5 text-xs bg-terminal-bg border border-terminal-border rounded flex items-center justify-between hover:border-terminal-muted transition-colors"
+            className="w-full px-2 py-1.5 font-sans text-xs bg-mc-surface border border-mc-border rounded-panel flex items-center justify-between hover:border-mc-border-hover transition-colors duration-mc ease-mc-out"
           >
             {selectedModel ? (
               <div className="flex items-center gap-2">
                 <span
                   className={`w-4 h-4 rounded-full ${PROVIDER_COLORS[getProviderKey(selectedModel.provider)]}`}
                 />
-                <span className="text-terminal-text truncate">
+                <span className="text-mc-text truncate">
                   {selectedModel.alias || selectedModel.name || selectedModel.id}
                 </span>
-                <span className="text-[10px] text-terminal-dim">
+                <span className="font-sans text-[10px] text-mc-text-tertiary">
                   {PROVIDER_LABELS[getProviderKey(selectedModel.provider)]}
                 </span>
               </div>
             ) : (
-              <span className="text-xs text-terminal-dim">Select a model</span>
+              <span className="font-sans text-xs text-mc-text-tertiary">Select a model</span>
             )}
-            <span className="text-terminal-dim text-[10px] ml-2">
+            <span className="text-mc-text-tertiary text-[10px] ml-2">
               {dropdownOpen ? '\u2212' : '+'}
             </span>
           </button>
 
           {dropdownOpen && (
-            <div className="absolute z-10 mt-1 w-full bg-terminal-surface border border-terminal-border rounded shadow-xl max-h-64 overflow-hidden">
-              <div className="p-2 border-b border-terminal-border bg-terminal-muted/20">
+            <div className="absolute z-10 mt-1 w-full bg-mc-surface border border-mc-border rounded-panel shadow-xl max-h-64 overflow-hidden">
+              <div className="p-2 border-b border-mc-border bg-mc-surface/60">
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search models..."
-                  className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-[11px] text-terminal-text font-mono focus:outline-none focus:border-terminal-purple"
+                  className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1 font-sans text-[11px] text-mc-text focus:outline-none focus:border-mc-accent transition-colors duration-mc ease-mc-out"
                 />
               </div>
               <div className="max-h-52 overflow-y-auto text-xs">
@@ -250,9 +250,9 @@ export function ModelConfig({
                     return (
                       <div
                         key={providerKey}
-                        className="border-b border-terminal-border/60 last:border-b-0"
+                        className="border-b border-mc-border/60 last:border-b-0"
                       >
-                        <div className="px-2 py-1 text-[9px] uppercase tracking-widest text-terminal-dim bg-terminal-muted/10">
+                        <div className="px-2 py-1 font-sans text-[9px] uppercase tracking-label text-mc-text-tertiary bg-mc-surface/40">
                           {PROVIDER_LABELS[providerKey]}
                         </div>
                         {filtered.map((model) => {
@@ -263,23 +263,23 @@ export function ModelConfig({
                               key={model.id}
                               type="button"
                               onClick={() => handleModelSelect(model.id)}
-                              className={`w-full px-2 py-1.5 flex items-center justify-between text-left hover:bg-terminal-muted/30 transition-colors ${
-                                isSelected ? 'bg-terminal-muted/30' : ''
+                              className={`w-full px-2 py-1.5 flex items-center justify-between text-left hover:bg-mc-surface/60 transition-colors duration-mc ease-mc-out ${
+                                isSelected ? 'bg-mc-surface/60' : ''
                               }`}
                             >
                               <div className="flex items-center gap-2">
                                 <span
                                   className={`w-3 h-3 rounded-full ${PROVIDER_COLORS[getProviderKey(model.provider)]}`}
                                 />
-                                <span className="text-terminal-text truncate">
+                                <span className="text-mc-text truncate">
                                   {model.alias || model.name || model.id}
                                 </span>
                                 {!model.available && (
-                                  <span className="text-[9px] text-terminal-red ml-1">unavailable</span>
+                                  <span className="font-sans text-[9px] text-mc-danger ml-1">unavailable</span>
                                 )}
                               </div>
                               {isRecommended && (
-                                <span className="text-[9px] px-1 rounded border border-terminal-green/40 text-terminal-green">
+                                <span className="font-sans text-[9px] px-1 rounded-panel border border-mc-success/40 text-mc-success">
                                   Recommended
                                 </span>
                               )}
@@ -299,10 +299,10 @@ export function ModelConfig({
       {/* Creativity */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim">
+          <span className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-tertiary">
             Creativity
           </span>
-          <span className="text-[10px] text-terminal-text">
+          <span className="font-sans text-[10px] text-mc-text">
             {currentCreativity.label} · temp {currentCreativity.temperature.toFixed(1)}
           </span>
         </div>
@@ -313,9 +313,9 @@ export function ModelConfig({
           step={1}
           value={creativityIndex}
           onChange={(e) => handleCreativityChange(Number(e.target.value) || 0)}
-          className="w-full accent-terminal-purple"
+          className="w-full accent-mc-accent"
         />
-        <div className="flex justify-between text-[9px] text-terminal-dim mt-1">
+        <div className="flex justify-between font-sans text-[9px] text-mc-text-tertiary mt-1">
           <span>Precise</span>
           <span>Balanced</span>
           <span>Creative</span>
@@ -325,7 +325,7 @@ export function ModelConfig({
   );
 }
 
-// ── Save Footer (shared pattern for drawer footers) ─────────────────────────
+// ── Save Footer (shared pattern for drawer footers) ───────────────────────
 
 function DrawerSaveFooter({
   dirty,
@@ -343,29 +343,29 @@ function DrawerSaveFooter({
 
   if (saveState === 'saved') {
     buttonText = 'Saved \u2713';
-    buttonStyle = 'border-terminal-green/40 text-terminal-green bg-terminal-green/10';
+    buttonStyle = 'border-mc-success/40 text-mc-success bg-mc-success/10';
   } else if (saveState === 'saving') {
     buttonText = 'Saving...';
-    buttonStyle = 'border-terminal-border text-terminal-dim cursor-not-allowed';
+    buttonStyle = 'border-mc-border text-mc-text-tertiary cursor-not-allowed';
   } else if (dirty) {
     buttonText = 'Save Changes';
-    buttonStyle = 'border-terminal-green/40 text-terminal-green hover:bg-terminal-green/10';
+    buttonStyle = 'border-mc-success/40 text-mc-success hover:bg-mc-success/10';
   } else {
     buttonText = 'Save Changes';
-    buttonStyle = 'border-terminal-border text-terminal-dim cursor-not-allowed';
+    buttonStyle = 'border-mc-border text-mc-text-tertiary cursor-not-allowed';
   }
 
   return (
-    <div className="shrink-0 bg-terminal-surface border-t border-terminal-border px-6 py-3 flex items-center justify-between">
+    <div className="shrink-0 bg-mc-bg/95 backdrop-blur-sm border-t border-mc-border px-6 py-3 flex items-center justify-between">
       <div>
         {dirty && saveState === 'idle' && (
-          <span className="text-xs text-terminal-yellow font-mono">Unsaved changes</span>
+          <span className="font-sans text-xs text-mc-warning">Unsaved changes</span>
         )}
       </div>
       <button
         onClick={onSave}
         disabled={!canClick}
-        className={`px-4 py-1.5 text-xs font-mono rounded border transition-colors ${buttonStyle}`}
+        className={`px-4 py-1.5 font-sans text-xs rounded-panel border transition-colors duration-mc ease-mc-out ${buttonStyle}`}
       >
         {buttonText}
       </button>
@@ -375,14 +375,14 @@ function DrawerSaveFooter({
 
 export { DrawerSaveFooter };
 
-// ── Shared Skills List ──────────────────────────────────────────────────────
+// ── Shared Skills List ────────────────────────────────────────────────────────────
 
 export type SkillTier = 'builtin' | 'trusted' | 'community';
 
 const TIER_BADGE_STYLES: Record<SkillTier, string> = {
-  builtin: 'border-terminal-cyan/40 text-terminal-cyan bg-terminal-cyan/10',
-  trusted: 'border-terminal-green/40 text-terminal-green bg-terminal-green/10',
-  community: 'border-terminal-yellow/40 text-terminal-yellow bg-terminal-yellow/10',
+  builtin: 'border-mc-accent/40 text-mc-accent bg-mc-accent/10',
+  trusted: 'border-mc-success/40 text-mc-success bg-mc-success/10',
+  community: 'border-mc-warning/40 text-mc-warning bg-mc-warning/10',
 };
 
 export function SharedSkillsList({
@@ -404,15 +404,15 @@ export function SharedSkillsList({
   }
 
   return (
-    <div className="p-3 bg-terminal-muted/20 border border-terminal-border rounded">
-      <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim mb-0.5">
+    <div className="p-3 bg-mc-surface border border-mc-border rounded-panel">
+      <h4 className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-tertiary mb-0.5">
         Gateway Skills
       </h4>
-      <p className="text-[9px] text-terminal-dim/70 mb-3">
+      <p className="font-sans text-[9px] text-mc-text-tertiary/70 mb-3">
         {subtitle ?? 'Skills loaded in the OpenClaw gateway'}
       </p>
       {skillItems.length === 0 ? (
-        <div className="text-xs text-terminal-dim">No skills reported by gateway</div>
+        <div className="font-sans text-xs text-mc-text-tertiary">No skills reported by gateway</div>
       ) : (
         <div className="space-y-1.5">
           {skillItems.map((skill) => {
@@ -421,20 +421,20 @@ export function SharedSkillsList({
               <div key={skill.name} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2 min-w-0">
                   <HealthDot healthy={skill.enabled} />
-                  <span className="text-terminal-text truncate">
+                  <span className="text-mc-text truncate">
                     {skill.emoji ? `${skill.emoji} ` : ''}{skill.name}
                   </span>
-                  <span className={`text-[8px] px-1 py-px rounded border shrink-0 ${TIER_BADGE_STYLES[tier]}`}>
+                  <span className={`font-sans text-[8px] px-1 py-px rounded-panel border shrink-0 ${TIER_BADGE_STYLES[tier]}`}>
                     {tier}
                   </span>
                 </div>
                 <button
                   onClick={() => onToggle(skill.name, skill.enabled)}
                   disabled={pendingSkill === skill.name}
-                  className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors shrink-0 ml-2 disabled:opacity-50 ${
+                  className={`font-sans text-[10px] px-1.5 py-0.5 rounded-panel border transition-colors duration-mc ease-mc-out shrink-0 ml-2 disabled:opacity-50 ${
                     skill.enabled
-                      ? 'border-terminal-red/30 text-terminal-red hover:bg-terminal-red/10'
-                      : 'border-terminal-green/30 text-terminal-green hover:bg-terminal-green/10'
+                      ? 'border-mc-danger/30 text-mc-danger hover:bg-mc-danger/10'
+                      : 'border-mc-success/30 text-mc-success hover:bg-mc-success/10'
                   }`}
                 >
                   {pendingSkill === skill.name ? '...' : skill.enabled ? 'disable' : 'enable'}
@@ -448,7 +448,7 @@ export function SharedSkillsList({
   );
 }
 
-// ── Main Component ───────────────────────────────────────────────────────────
+// ── Main Component ──────────────────────────────────────────────────────────────────────────
 
 export function OpenClawSettingsDrawer({
   gateway,
@@ -500,7 +500,7 @@ export function OpenClawSettingsDrawer({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="px-3 py-1.5 text-xs font-mono text-terminal-text border border-terminal-border rounded hover:border-terminal-muted hover:bg-terminal-muted/30 transition-colors"
+        className="px-3 py-1.5 font-sans text-[11px] uppercase tracking-label rounded-panel border border-mc-border text-mc-text-tertiary hover:text-mc-text hover:border-mc-border-hover transition-colors duration-mc ease-mc-out"
       >
         Settings
       </button>
@@ -515,28 +515,28 @@ export function OpenClawSettingsDrawer({
           <ErrorBanner message={errorMessage} onDismiss={() => setErrorMessage(null)} />
         )}
 
-        {/* ── Section 1: Channels Detail ──────────────────────────── */}
+        {/* ── Section 1: Channels Detail ──────────────────────── */}
         <section className="mb-6">
           <button
             onClick={() => toggleSection('channels')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-panel border transition-colors duration-mc ease-mc-out ${
               expandedSections['channels']
-                ? 'border-terminal-green/50 bg-terminal-green/5'
-                : 'border-terminal-border hover:border-terminal-muted'
+                ? 'border-mc-success/50 bg-mc-success/5'
+                : 'border-mc-border hover:border-mc-border-hover'
             }`}
           >
             <div className="flex items-center gap-2">
-              <SignalIcon className="w-4 h-4 text-terminal-green" />
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+              <SignalIcon className="w-4 h-4 text-mc-success" />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
                 Channels
               </span>
               {channels.length > 0 && (
-                <span className="text-[10px] text-terminal-dim">
+                <span className="font-mono tabular-nums text-[10px] text-mc-text-tertiary">
                   ({channels.filter((c) => c.connected).length}/{channels.length})
                 </span>
               )}
             </div>
-            <span className="text-terminal-dim text-xs">
+            <span className="text-mc-text-tertiary text-xs">
               {expandedSections['channels'] ? '\u2212' : '+'}
             </span>
           </button>
@@ -544,33 +544,39 @@ export function OpenClawSettingsDrawer({
           {expandedSections['channels'] && (
             <div className="mt-3 space-y-2">
               {channels.length === 0 ? (
-                <div className="text-xs text-terminal-dim p-3 bg-terminal-muted/20 border border-terminal-border rounded">
-                  No channels configured
+                <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded-panel p-6 flex flex-col items-center justify-center gap-2 text-center">
+                  <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+                  <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+                    No channels
+                  </div>
+                  <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+                    Connect Slack, Discord, or email to route OpenClaw notifications here.
+                  </p>
                 </div>
               ) : (
                 channels.map((ch) => (
-                  <div key={ch.provider} className="p-3 bg-terminal-muted/20 border border-terminal-border rounded">
+                  <div key={ch.provider} className="p-3 bg-mc-surface border border-mc-border rounded-panel">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <HealthDot healthy={ch.connected} />
-                        <span className="text-xs text-terminal-text capitalize">{ch.provider}</span>
+                        <span className="font-sans text-xs text-mc-text capitalize">{ch.provider}</span>
                         {ch.accountId && (
-                          <span className="text-[10px] text-terminal-dim">{ch.accountId}</span>
+                          <span className="font-mono tabular-nums text-[10px] text-mc-text-tertiary">{ch.accountId}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
                         {ch.error && (
-                          <span className="text-[10px] text-terminal-red">{ch.error}</span>
+                          <span className="font-sans text-[10px] text-mc-danger">{ch.error}</span>
                         )}
                         {ch.lastMessageAt && (
-                          <span className="text-[10px] text-terminal-dim">
+                          <span className="font-sans text-[10px] text-mc-text-tertiary">
                             {relativeTime(ch.lastMessageAt)}
                           </span>
                         )}
                       </div>
                     </div>
                     {ch.stats && (
-                      <div className="mt-1 text-[10px] text-terminal-dim">
+                      <div className="mt-1 font-mono tabular-nums text-[10px] text-mc-text-tertiary">
                         Sent: {ch.stats.sent} — Received: {ch.stats.received}
                       </div>
                     )}
@@ -581,30 +587,30 @@ export function OpenClawSettingsDrawer({
           )}
         </section>
 
-        {/* ── Section 2: Model & Skills ───────────────────────────── */}
+        {/* ── Section 2: Model & Skills ─────────────────────── */}
         <section className="mb-6">
           <button
             onClick={() => toggleSection('model')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-panel border transition-colors duration-mc ease-mc-out ${
               expandedSections['model']
-                ? 'border-terminal-purple/50 bg-terminal-purple/5'
-                : 'border-terminal-border hover:border-terminal-muted'
+                ? 'border-mc-info/50 bg-mc-info/5'
+                : 'border-mc-border hover:border-mc-border-hover'
             }`}
           >
             <div className="flex items-center gap-2">
-              <CpuChipIcon className="w-4 h-4 text-terminal-purple" />
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+              <CpuChipIcon className="w-4 h-4 text-mc-info" />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
                 Model & Skills
               </span>
             </div>
-            <span className="text-terminal-dim text-xs">
+            <span className="text-mc-text-tertiary text-xs">
               {expandedSections['model'] ? '\u2212' : '+'}
             </span>
           </button>
 
           {expandedSections['model'] && (
             <div className="mt-3 space-y-3">
-              <div className="p-3 bg-terminal-muted/20 border border-terminal-border rounded space-y-3">
+              <div className="p-3 bg-mc-surface border border-mc-border rounded-panel space-y-3">
                 <ModelConfig
                   models={models}
                   initialModelId={gateway?.model || configModel}
@@ -613,7 +619,7 @@ export function OpenClawSettingsDrawer({
                 />
               </div>
 
-              <div className="border-t border-terminal-border/60" />
+              <div className="border-t border-mc-border/60" />
 
               <SharedSkillsList
                 skills={localSkills}
@@ -623,26 +629,26 @@ export function OpenClawSettingsDrawer({
             </div>
           )}
         </section>
-        {/* ── Section 3: Heartbeat & Cron ─────────────────────────── */}
+        {/* ── Section 3: Heartbeat & Cron ─────────────────────── */}
         <section className="mb-6">
           <button
             onClick={() => toggleSection('cron')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-panel border transition-colors duration-mc ease-mc-out ${
               expandedSections['cron']
-                ? 'border-terminal-orange/50 bg-terminal-orange/5'
-                : 'border-terminal-border hover:border-terminal-muted'
+                ? 'border-mc-warning/50 bg-mc-warning/5'
+                : 'border-mc-border hover:border-mc-border-hover'
             }`}
           >
             <div className="flex items-center gap-2">
-              <ClockIcon className="w-4 h-4 text-terminal-orange" />
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+              <ClockIcon className="w-4 h-4 text-mc-warning" />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
                 Heartbeat & Cron
               </span>
               {cronStatus && (
-                <span className="text-[10px] text-terminal-dim">({cronStatus.jobCount} jobs)</span>
+                <span className="font-mono tabular-nums text-[10px] text-mc-text-tertiary">({cronStatus.jobCount} jobs)</span>
               )}
             </div>
-            <span className="text-terminal-dim text-xs">
+            <span className="text-mc-text-tertiary text-xs">
               {expandedSections['cron'] ? '\u2212' : '+'}
             </span>
           </button>
@@ -650,14 +656,14 @@ export function OpenClawSettingsDrawer({
           {expandedSections['cron'] && (
             <div className="mt-3 space-y-3">
               {cronStatus && (
-                <div className="p-3 bg-terminal-muted/20 border border-terminal-border rounded">
-                  <div className="flex items-center gap-2 text-xs">
+                <div className="p-3 bg-mc-surface border border-mc-border rounded-panel">
+                  <div className="flex items-center gap-2 font-sans text-xs">
                     <HealthDot healthy={cronStatus.running} />
-                    <span className="text-terminal-text">
+                    <span className="text-mc-text">
                       Scheduler {cronStatus.running ? 'running' : 'stopped'}
                     </span>
                     {cronStatus.nextRun && (
-                      <span className="text-terminal-dim ml-auto">
+                      <span className="text-mc-text-tertiary ml-auto">
                         next: {relativeTime(cronStatus.nextRun)}
                       </span>
                     )}
@@ -666,16 +672,16 @@ export function OpenClawSettingsDrawer({
               )}
 
               {cronJobs.length === 0 ? (
-                <div className="text-xs text-terminal-dim p-3 bg-terminal-muted/20 border border-terminal-border rounded">
+                <div className="font-sans text-xs text-mc-text-tertiary p-3 bg-mc-surface border border-mc-border rounded-panel">
                   No cron jobs configured
                 </div>
               ) : (
                 cronJobs.map((job) => (
-                  <div key={job.id} className="p-3 bg-terminal-muted/20 border border-terminal-border rounded">
+                  <div key={job.id} className="p-3 bg-mc-surface border border-mc-border rounded-panel">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <HealthDot healthy={job.enabled} />
-                        <span className="text-xs text-terminal-text font-medium">
+                        <span className="font-sans text-xs text-mc-text font-medium">
                           {job.name || job.id}
                         </span>
                       </div>
@@ -683,24 +689,24 @@ export function OpenClawSettingsDrawer({
                         <button
                           onClick={() => handleRunCronJob(job.id)}
                           disabled={actionPending === job.id}
-                          className="text-[10px] px-1.5 py-0.5 border border-terminal-orange/30 text-terminal-orange rounded hover:bg-terminal-orange/10 transition-colors disabled:opacity-50"
+                          className="font-sans text-[10px] px-1.5 py-0.5 border border-mc-warning/30 text-mc-warning rounded-panel hover:bg-mc-warning/10 transition-colors duration-mc ease-mc-out disabled:opacity-50"
                         >
                           {actionPending === job.id ? '...' : 'run'}
                         </button>
                         <button
                           onClick={() => handleToggleCronJob(job.id, !job.enabled)}
                           disabled={actionPending === job.id}
-                          className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors disabled:opacity-50 ${
+                          className={`font-sans text-[10px] px-1.5 py-0.5 rounded-panel border transition-colors duration-mc ease-mc-out disabled:opacity-50 ${
                             job.enabled
-                              ? 'border-terminal-red/30 text-terminal-red hover:bg-terminal-red/10'
-                              : 'border-terminal-green/30 text-terminal-green hover:bg-terminal-green/10'
+                              ? 'border-mc-danger/30 text-mc-danger hover:bg-mc-danger/10'
+                              : 'border-mc-success/30 text-mc-success hover:bg-mc-success/10'
                           }`}
                         >
                           {job.enabled ? 'disable' : 'enable'}
                         </button>
                       </div>
                     </div>
-                    <div className="text-[10px] text-terminal-dim space-y-0.5">
+                    <div className="font-mono tabular-nums text-[10px] text-mc-text-tertiary space-y-0.5">
                       <div>Schedule: {formatSchedule(job)}</div>
                       <div>Target: {job.sessionTarget}</div>
                       {job.lastRun && (
@@ -718,23 +724,23 @@ export function OpenClawSettingsDrawer({
           )}
         </section>
 
-        {/* ── Section 4: Restart ───────────────────────────────────── */}
+        {/* ── Section 4: Restart ─────────────────────────────── */}
         <section>
           <button
             onClick={() => toggleSection('restart')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-panel border transition-colors duration-mc ease-mc-out ${
               expandedSections['restart']
-                ? 'border-terminal-dim/50 bg-terminal-dim/5'
-                : 'border-terminal-border hover:border-terminal-muted'
+                ? 'border-mc-text-tertiary/50 bg-mc-text-tertiary/5'
+                : 'border-mc-border hover:border-mc-border-hover'
             }`}
           >
             <div className="flex items-center gap-2">
-              <ArrowUpCircleIcon className="w-4 h-4 text-terminal-dim" />
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+              <ArrowUpCircleIcon className="w-4 h-4 text-mc-text-tertiary" />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
                 Restart
               </span>
             </div>
-            <span className="text-terminal-dim text-xs">
+            <span className="text-mc-text-tertiary text-xs">
               {expandedSections['restart'] ? '\u2212' : '+'}
             </span>
           </button>
@@ -745,25 +751,25 @@ export function OpenClawSettingsDrawer({
                 <button
                   onClick={() => setRestartConfirm(true)}
                   disabled={actionPending === 'restart' || !gateway}
-                  className="w-full px-3 py-2 text-xs text-terminal-red border border-terminal-red/30 rounded hover:bg-terminal-red/10 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 font-sans text-xs text-mc-danger border border-mc-danger/30 rounded-panel hover:bg-mc-danger/10 transition-colors duration-mc ease-mc-out disabled:opacity-50"
                 >
                   {actionPending === 'restart' ? 'Restarting...' : 'Restart Gateway'}
                 </button>
               ) : (
-                <div className="p-3 bg-terminal-red/5 border border-terminal-red/30 rounded space-y-2">
-                  <p className="text-xs text-terminal-red">
+                <div className="p-3 bg-mc-danger/5 border border-mc-danger/30 rounded-panel space-y-2">
+                  <p className="font-sans text-xs text-mc-danger">
                     This will restart the OpenClaw gateway. All active sessions will be interrupted.
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={handleRestart}
-                      className="px-3 py-1.5 text-xs text-terminal-bg bg-terminal-red rounded hover:bg-terminal-red/80 transition-colors"
+                      className="px-3 py-1.5 font-sans text-xs text-mc-bg bg-mc-danger rounded-panel hover:bg-mc-danger/80 transition-colors duration-mc ease-mc-out"
                     >
                       Confirm Restart
                     </button>
                     <button
                       onClick={() => setRestartConfirm(false)}
-                      className="px-3 py-1.5 text-xs text-terminal-text border border-terminal-border rounded hover:bg-terminal-muted/30 transition-colors"
+                      className="px-3 py-1.5 font-sans text-xs text-mc-text border border-mc-border rounded-panel hover:bg-mc-surface transition-colors duration-mc ease-mc-out"
                     >
                       Cancel
                     </button>

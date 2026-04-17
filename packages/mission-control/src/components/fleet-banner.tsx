@@ -57,10 +57,10 @@ export function FleetBanner({ initialEcsStatus }: FleetBannerProps) {
 
   if (ecsStatus.status === 'running') {
     return (
-      <div className="shrink-0 bg-terminal-green/10 border-b border-terminal-green/30 px-4 py-2 flex items-center gap-3">
-        <span className="inline-block w-2 h-2 rounded-full bg-terminal-green shadow-[0_0_6px_#a6e3a1]" />
-        <span className="text-xs font-mono text-terminal-green">Fleet Running</span>
-        <span className="text-[10px] font-mono text-terminal-green/60">
+      <div className="shrink-0 bg-mc-success/10 border-b border-mc-success/40 px-4 py-2 flex items-center gap-3">
+        <span className="inline-block w-2 h-2 rounded-full bg-mc-success animate-mc-pulse shadow-[0_0_6px_currentColor] text-mc-success" />
+        <span className="font-sans text-xs uppercase tracking-label text-mc-success">Fleet Running</span>
+        <span className="font-mono tabular-nums text-[10px] text-mc-success/70">
           {ecsStatus.runningCount}/{ecsStatus.desiredCount} containers
         </span>
       </div>
@@ -69,10 +69,10 @@ export function FleetBanner({ initialEcsStatus }: FleetBannerProps) {
 
   if (ecsStatus.status === 'scaling') {
     return (
-      <div className="shrink-0 bg-yellow-400/10 border-b border-yellow-400/30 px-4 py-2 flex items-center gap-3">
-        <span className="inline-block w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
-        <span className="text-xs font-mono text-yellow-400">Fleet Scaling...</span>
-        <span className="text-[10px] font-mono text-yellow-400/60">
+      <div className="shrink-0 bg-mc-warning/10 border-b border-mc-warning/40 px-4 py-2 flex items-center gap-3">
+        <span className="inline-block w-2 h-2 rounded-full bg-mc-warning animate-mc-pulse shadow-[0_0_6px_currentColor] text-mc-warning" />
+        <span className="font-sans text-xs uppercase tracking-label text-mc-warning">Fleet Scaling...</span>
+        <span className="font-mono tabular-nums text-[10px] text-mc-warning/70">
           {ecsStatus.runningCount}/{ecsStatus.desiredCount} containers
         </span>
       </div>
@@ -81,19 +81,19 @@ export function FleetBanner({ initialEcsStatus }: FleetBannerProps) {
 
   if (ecsStatus.status === 'stopped') {
     return (
-      <div className="shrink-0 bg-terminal-red/10 border-b border-terminal-red/30 px-4 py-2 flex items-center gap-3">
-        <span className="inline-block w-2 h-2 rounded-full bg-terminal-red shadow-[0_0_6px_#f38ba8] animate-pulse" />
-        <span className="text-xs font-mono text-terminal-red font-bold">Fleet Stopped</span>
-        <span className="text-[10px] font-mono text-terminal-dim">All agents offline</span>
+      <div className="shrink-0 bg-mc-danger/10 border-b border-mc-danger/40 px-4 py-2 flex items-center gap-3">
+        <span className="inline-block w-2 h-2 rounded-full bg-mc-danger animate-mc-pulse shadow-[0_0_6px_currentColor] text-mc-danger" />
+        <span className="font-sans text-xs font-medium uppercase tracking-label text-mc-danger">Fleet Stopped</span>
+        <span className="font-sans text-[10px] text-mc-text-tertiary">All agents offline</span>
         <button
           onClick={handleStart}
           disabled={pending}
-          className="ml-auto px-3 py-1 text-xs font-mono rounded border border-terminal-green/40 bg-terminal-green/20 text-terminal-green hover:bg-terminal-green/30 disabled:opacity-40 transition-colors"
+          className="ml-auto px-3 py-1 font-sans text-[11px] uppercase tracking-label rounded-panel border border-mc-success/40 bg-mc-success/10 text-mc-success hover:bg-mc-success/20 disabled:opacity-40 transition-colors duration-mc ease-mc-out"
         >
           {pending ? 'Starting...' : 'Start Fleet'}
         </button>
         {error && (
-          <span className="text-[10px] font-mono text-terminal-red">{error}</span>
+          <span className="font-sans text-[10px] text-mc-danger">{error}</span>
         )}
       </div>
     );
@@ -101,9 +101,9 @@ export function FleetBanner({ initialEcsStatus }: FleetBannerProps) {
 
   // status === 'error' — ECS unreachable
   return (
-    <div className="shrink-0 bg-terminal-muted/30 border-b border-terminal-border px-4 py-2 flex items-center gap-3">
-      <span className="inline-block w-2 h-2 rounded-full bg-terminal-dim" />
-      <span className="text-xs font-mono text-terminal-dim">Fleet status unavailable</span>
+    <div className="shrink-0 bg-mc-surface/50 border-b border-mc-border px-4 py-2 flex items-center gap-3">
+      <span className="inline-block w-2 h-2 rounded-full bg-mc-text-tertiary" />
+      <span className="font-sans text-xs uppercase tracking-label text-mc-text-tertiary">Fleet status unavailable</span>
     </div>
   );
 }

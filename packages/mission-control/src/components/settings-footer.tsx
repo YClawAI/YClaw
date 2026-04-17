@@ -26,35 +26,35 @@ export function SettingsFooter({
 
   if (saved) {
     buttonText = 'Saved \u2713';
-    buttonStyle = 'border-terminal-green/40 text-terminal-green bg-terminal-green/10';
+    buttonStyle = 'border-mc-success/40 text-mc-success bg-mc-success/10';
   } else if (saving) {
     buttonText = 'SAVING...';
-    buttonStyle = 'border-terminal-border text-terminal-dim cursor-not-allowed';
+    buttonStyle = 'border-mc-border text-mc-text-tertiary cursor-not-allowed';
   } else if (disabled) {
     buttonText = disabledLabel;
-    buttonStyle = 'border-terminal-border text-terminal-dim cursor-not-allowed';
+    buttonStyle = 'border-mc-border text-mc-text-tertiary cursor-not-allowed';
   } else if (dirty) {
     buttonText = 'SAVE CHANGES';
-    buttonStyle = 'border-terminal-green/40 text-terminal-green hover:bg-terminal-green/10';
+    buttonStyle = 'border-mc-success/40 text-mc-success hover:bg-mc-success/10';
   } else {
     buttonText = 'SAVE CHANGES';
-    buttonStyle = 'border-terminal-border text-terminal-dim cursor-not-allowed';
+    buttonStyle = 'border-mc-border text-mc-text-tertiary cursor-not-allowed';
   }
 
   return (
-    <div className="sticky bottom-0 bg-terminal-surface border-t border-terminal-border px-4 py-3 flex items-center justify-between mt-6">
+    <div className="sticky bottom-0 bg-mc-bg/95 backdrop-blur-sm border-t border-mc-border px-4 py-3 flex items-center justify-between mt-6">
       <div>
         {error && (
-          <span className="text-xs text-terminal-red font-mono">{error}</span>
+          <span className="font-sans text-xs text-mc-danger">{error}</span>
         )}
         {dirty && !error && !saved && (
-          <span className="text-xs text-terminal-yellow font-mono">Unsaved changes</span>
+          <span className="font-sans text-xs text-mc-warning">Unsaved changes</span>
         )}
       </div>
       <button
         onClick={onSave}
         disabled={!canClick}
-        className={`px-4 py-1.5 text-xs font-mono rounded border transition-colors ${buttonStyle}`}
+        className={`px-4 py-1.5 font-sans text-[11px] uppercase tracking-label rounded-panel border transition-colors duration-mc ease-mc-out ${buttonStyle}`}
       >
         {buttonText}
       </button>

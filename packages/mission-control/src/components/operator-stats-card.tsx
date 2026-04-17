@@ -29,18 +29,18 @@ export function OperatorStatsCard({ operator, compact, onClick }: OperatorStatsC
   return (
     <button
       onClick={onClick}
-      className="w-full text-left p-4 rounded-lg border border-terminal-border bg-terminal-surface hover:bg-terminal-muted transition-colors"
+      className="w-full text-left p-4 rounded-lg border border-mc-border bg-mc-surface-hover hover:bg-mc-border transition-colors"
     >
       {/* Header — only uses fields the activity endpoint provides */}
       <div className="flex items-center gap-2 mb-2">
         <span className={`inline-block w-2 h-2 rounded-full ${STATUS_COLORS[operator.status]}`} />
-        <span className="text-sm font-mono font-medium text-terminal-text truncate">
+        <span className="text-sm font-mono font-medium text-mc-text truncate">
           {operator.displayName}
         </span>
       </div>
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-[10px] text-terminal-dim font-mono">{operator.role}</span>
-        <span className="text-[10px] text-terminal-dim font-mono">
+        <span className="text-[10px] text-mc-text-tertiary font-mono">{operator.role}</span>
+        <span className="text-[10px] text-mc-text-tertiary font-mono">
           {relativeTime(operator.lastActiveAt)}
         </span>
       </div>
@@ -49,33 +49,33 @@ export function OperatorStatsCard({ operator, compact, onClick }: OperatorStatsC
       {!compact && (
         <div className="space-y-1.5">
           <div className="flex justify-between text-[10px] font-mono">
-            <span className="text-terminal-dim">Tasks today</span>
-            <span className="text-terminal-text">{stats.tasksToday}</span>
+            <span className="text-mc-text-tertiary">Tasks today</span>
+            <span className="text-mc-text">{stats.tasksToday}</span>
           </div>
           <div className="flex justify-between text-[10px] font-mono">
-            <span className="text-terminal-dim">This week</span>
-            <span className="text-terminal-text">{stats.tasksThisWeek}</span>
+            <span className="text-mc-text-tertiary">This week</span>
+            <span className="text-mc-text">{stats.tasksThisWeek}</span>
           </div>
           <div className="flex justify-between text-[10px] font-mono">
-            <span className="text-terminal-dim">Denied</span>
-            <span className={hasDenials ? 'text-yellow-500' : 'text-terminal-text'}>
+            <span className="text-mc-text-tertiary">Denied</span>
+            <span className={hasDenials ? 'text-yellow-500' : 'text-mc-text'}>
               {stats.deniedRequests}
             </span>
           </div>
           <div className="flex justify-between text-[10px] font-mono">
-            <span className="text-terminal-dim">Pending approvals</span>
-            <span className="text-terminal-text">{stats.pendingApprovals}</span>
+            <span className="text-mc-text-tertiary">Pending approvals</span>
+            <span className="text-mc-text">{stats.pendingApprovals}</span>
           </div>
           <div className="flex justify-between text-[10px] font-mono">
-            <span className="text-terminal-dim">Active locks</span>
-            <span className="text-terminal-text">{stats.activeLocks}</span>
+            <span className="text-mc-text-tertiary">Active locks</span>
+            <span className="text-mc-text">{stats.activeLocks}</span>
           </div>
         </div>
       )}
 
       {/* Compact stats */}
       {compact && (
-        <div className="flex gap-3 text-[10px] font-mono text-terminal-dim">
+        <div className="flex gap-3 text-[10px] font-mono text-mc-text-tertiary">
           <span>{stats.tasksToday} tasks</span>
           {hasDenials && <span className="text-yellow-500">{stats.deniedRequests} denied</span>}
           {stats.activeLocks > 0 && <span>{stats.activeLocks} locks</span>}

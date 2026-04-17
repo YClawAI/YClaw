@@ -1,8 +1,25 @@
 # Mission Control — Complete Style Guide
 
-> Visual design system for the YClaw Mission Control dashboard.
-> Extracted from the live codebase (`packages/mission-control/`).
-> All new components **must** follow these patterns exactly.
+> Implementation-level style guide for the YClaw Mission Control
+> dashboard. **SpaceX Crew Dragon aesthetic** — pure black canvas, 1px
+> cyan hairline borders, outlined (not filled) panels, Inter ultralight
+> for UI + JetBrains Mono for data. Adopted 2026-04-16.
+>
+> Companion: `DESIGN-SYSTEM.md` covers tokens and primitives at a
+> higher level. This file covers the copy-paste class strings and
+> patterns.
+
+---
+
+## Migration Status
+
+The package is mid-migration from `terminal-*` (legacy Catppuccin-ish
+palette) to `mc-*` (SpaceX system). Both palettes live in
+`tailwind.config.ts` so un-migrated components still render.
+
+When you touch a file, migrate it entirely in the same commit — don't
+mix palettes inside a single file. Migration phases are tracked in
+`DESIGN-SYSTEM.md`.
 
 ---
 
@@ -10,106 +27,94 @@
 
 - **Framework:** Next.js 14 (App Router, Server Components + Client Islands)
 - **Styling:** Tailwind CSS (dark mode via `class`)
-- **Font:** JetBrains Mono (monospace everywhere, applied at `<body>`)
-- **Data:** Server Components with 30s revalidation + SSE overlay for real-time
+- **Fonts:** Inter (sans, 200–600) and JetBrains Mono (300–500), loaded
+  via `next/font/google` as CSS variables `--font-inter` and
+  `--font-jetbrains-mono`. Tailwind's `font-sans` / `font-mono`
+  utilities resolve to these.
+- **Data:** Server Components with 30s revalidation + SSE overlay for
+  real-time
 - **State:** React hooks + Zustand stores (e.g., `chat-store`)
-- **Package:** `packages/mission-control/` in the `yclaw` monorepo
+- **Package:** `packages/mission-control/` in the `YClawAI/YClaw` monorepo
 
 ---
 
-## Color Palette (Frozen — Do Not Modify)
+## Color Palette — `mc-*`
 
-Defined in `tailwind.config.ts` → `theme.extend.colors.terminal`:
+Defined in `tailwind.config.ts` → `theme.extend.colors.mc`, and
+mirrored as CSS custom properties in `globals.css`.
 
-| Token | Hex | Usage |
+### Surfaces
+
+| Token | Value | Usage |
 |---|---|---|
-| `terminal-bg` | `#0a0a0f` | Page background |
-| `terminal-surface` | `#111118` | Cards, panels, sidebar, drawers |
-| `terminal-border` | `#1e1e2e` | All borders |
-| `terminal-muted` | `#2a2a3a` | Hover backgrounds, active sidebar items |
-| `terminal-text` | `#cdd6f4` | Primary text |
-| `terminal-dim` | `#6c7086` | Secondary/muted text, timestamps, labels |
-| `terminal-green` | `#a6e3a1` | Active, success, healthy, savings |
-| `terminal-red` | `#f38ba8` | Error, danger, overspend, kill actions |
-| `terminal-yellow` | `#f9e2af` | Warning, pending, idle <1h |
-| `terminal-blue` | `#89b4fa` | Info, completed, links, edit actions |
-| `terminal-purple` | `#cba6f7` | Brand accent, review status, OpenClaw |
-| `terminal-cyan` | `#89dceb` | Fleet badges, fleet budget headers |
-| `terminal-orange` | `#fab387` | Blocked, offline >1h |
+| `mc-bg` | `#000000` | Page background |
+| `mc-surface` | `rgba(255,255,255,0.02)` | Glass-tint panels (opt-in) |
+| `mc-surface-hover` | `rgba(255,255,255,0.04)` | Row hover, sidebar hover |
 
-### Department Color Assignments
+### Borders
 
-| Department | Color | Rationale |
+| Token | Value | Usage |
 |---|---|---|
-| Executive | `terminal-cyan` | Command/control, authority |
-| Marketing | `terminal-orange` | Energy, warmth |
-| Development | `terminal-blue` | Technical, builder |
-| Operations | `terminal-green` | Health, uptime, monitoring |
-| Finance | `terminal-purple` | Wealth, sophistication |
-| Support | `terminal-yellow` | Attention, helpfulness |
+| `mc-border` | `rgba(90,200,250,0.12)` | Default — 1px hairline everywhere |
+| `mc-border-hover` | `rgba(90,200,250,0.22)` | Interactive panel hover |
+| `mc-border-active` | `rgba(90,200,250,0.40)` | Focus / active selection |
 
-### Tailwind Config (Complete)
+### Text
 
-```typescript
-import type { Config } from 'tailwindcss';
+| Token | Value | Usage |
+|---|---|---|
+| `mc-text` | `rgba(255,255,255,0.87)` | Primary body, metric values |
+| `mc-text-secondary` | `rgba(255,255,255,0.50)` | Secondary body |
+| `mc-text-tertiary` | `rgba(255,255,255,0.30)` | Metadata, annotations |
+| `mc-text-label` | `rgba(255,255,255,0.35)` | Uppercase section labels |
 
-const config: Config = {
-  darkMode: 'class',
-  content: [
-    './src/app/**/*.{ts,tsx}',
-    './src/components/**/*.{ts,tsx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        terminal: {
-          bg: '#0a0a0f',
-          surface: '#111118',
-          border: '#1e1e2e',
-          muted: '#2a2a3a',
-          text: '#cdd6f4',
-          dim: '#6c7086',
-          green: '#a6e3a1',
-          red: '#f38ba8',
-          yellow: '#f9e2af',
-          blue: '#89b4fa',
-          purple: '#cba6f7',
-          cyan: '#89dceb',
-          orange: '#fab387',
-        },
-      },
-      fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
-      },
-    },
-  },
-  plugins: [],
-};
+### Accent + Semantic
 
-export default config;
-```
+| Token | Value | Usage |
+|---|---|---|
+| `mc-accent` | `#5AC8FA` | Brand cyan — buttons, focus, key CTAs |
+| `mc-accent-dim` | `rgba(90,200,250,0.15)` | Active chip wash, highlight row |
+| `mc-success` | `#30D158` | Active, healthy, passing |
+| `mc-danger` | `#FF453A` | Error, kill switch, overspend |
+| `mc-warning` | `#FFD60A` | Pending, caution |
+| `mc-info` | `#64D2FF` | Informational notice |
+| `mc-blocked` | `#FF9F0A` | Blocked, stale, offline |
+
+### Department Colors
+
+| Department | Token | Hex |
+|---|---|---|
+| Executive | `mc-dept-executive` | `#FFD60A` (yellow) |
+| Development | `mc-dept-development` | `#5AC8FA` (cyan) |
+| Marketing | `mc-dept-marketing` | `#FF9F0A` (amber) |
+| Operations | `mc-dept-operations` | `#30D158` (iOS green) |
+| Finance | `mc-dept-finance` | `#BF5AF2` (iOS purple) |
+| Support | `mc-dept-support` | `#64D2FF` (light cyan) |
 
 ---
 
 ## Typography
 
-All text is monospace (`font-mono` at body level).
+The monospace-everywhere rule is gone. Inter ultralight (200–400) for
+UI chrome and headings; JetBrains Mono for IDs, metrics, timestamps,
+code.
 
 | Context | Classes |
 |---|---|
-| Page title | `text-lg font-bold text-terminal-text tracking-wide` |
-| Page title (accent) | `text-lg font-bold text-terminal-purple` |
-| Page subtitle | `text-xs text-terminal-dim` |
-| Section headers | `text-xs font-bold uppercase tracking-widest text-terminal-dim` |
-| Section title (bold) | `text-sm font-bold text-terminal-text` |
-| Stat values (large) | `text-2xl font-bold text-terminal-text font-mono` |
-| Stat values (medium) | `text-lg font-bold text-terminal-{color}` |
-| Primary body text | `text-xs text-terminal-text` |
-| Secondary body text | `text-xs text-terminal-dim` |
-| Tiny annotations | `text-[10px] text-terminal-dim` |
-| Drawer section labels | `text-xs font-bold uppercase tracking-widest text-terminal-text` |
-| Drawer sub-headers | `text-[10px] font-bold uppercase tracking-wider text-terminal-dim` |
-| Drawer sub-sub-headers | `text-[10px] font-bold uppercase tracking-wider text-terminal-dim/60` |
+| Page title | `font-sans text-xl font-extralight text-mc-text` |
+| Page subtitle | `font-sans text-xs text-mc-text-secondary` |
+| Section label (uppercase) | `font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label` |
+| Panel title | `font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label` |
+| Primary body text | `font-sans text-xs text-mc-text` |
+| Secondary body text | `font-sans text-[11px] text-mc-text-secondary` |
+| Tiny annotations | `font-sans text-[10px] text-mc-text-tertiary` |
+| Metric value | `font-mono text-2xl text-mc-text tabular-nums` |
+| Inline data / IDs | `font-mono text-xs text-mc-text` |
+| Timestamps | `font-mono text-[11px] text-mc-text-tertiary tabular-nums` |
+| Drawer section label | `font-sans text-xs font-medium uppercase tracking-label text-mc-text` |
+| Drawer sub-header | `font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label` |
+
+`tracking-label` = `0.12em`, defined in `tailwind.config.ts`.
 
 ---
 
@@ -119,194 +124,216 @@ All text is monospace (`font-mono` at body level).
 |---|---|
 | Main content padding | `p-6` |
 | Section gaps | `mb-6` (standard), `mb-8` (between department groups) |
-| Card padding | `p-4` (standard), `p-5` (hero cards) |
-| Grid gaps | `gap-3` (cards), `gap-4` (stats), `gap-6` (major sections) |
+| Card padding | `p-4` (standard), `p-5` (hero panels) |
+| Grid gaps | `gap-3` (cards), `gap-4` (metric strip), `gap-6` (major sections) |
 | Drawer internal padding | `p-6` |
 | Drawer section gaps | `mb-6` |
+| Panel radius | `rounded-panel` = 8px |
+| Chip radius | `rounded-chip` = 6px |
+| Badge radius | `rounded-badge` = 3px |
 
 ---
 
-## Component Recipes
+## Primitives (`@/components/ui`)
 
-### Card
+Prefer these over the recipes below wherever they fit:
+
+| Primitive | Use for |
+|---|---|
+| `<Panel>` | Any outlined container — cards, hero panels, sections |
+| `<Toggle>` | On/off switch in settings |
+| `<Chip>` | Integration tags, status badges, filter pills |
+| `<SliderField>` | Creativity / risk / threshold sliders |
+| `<Metric>` | Top-of-dashboard metric tiles, per-department KPIs |
+
+---
+
+## Component Recipes (when a primitive doesn't fit)
+
+### Card / Panel
 
 ```
-bg-terminal-surface border border-terminal-border rounded p-4
+border border-mc-border rounded-panel bg-transparent p-4
+transition-colors duration-mc ease-mc-out
+hover:border-mc-border-hover
 ```
 
-Accent-bordered cards (e.g., OpenClaw):
+Accent-bordered panel (e.g. OpenClaw):
 ```
-bg-terminal-surface border border-terminal-purple/30 rounded p-5
+border border-mc-accent/30 rounded-panel bg-transparent p-5
+```
+
+Department-bordered panel:
+```
+border border-mc-dept-{dept}/25 rounded-panel bg-transparent p-5
 ```
 
 ### Stat Block (inside cards)
 
 ```
-p-3 bg-terminal-bg rounded text-center
+px-3 py-2 border-l border-mc-border
 ```
-Inner: large value + tiny label underneath
+
+Inner layout: `font-mono text-2xl text-mc-text tabular-nums` value
+above `font-sans text-[10px] uppercase tracking-label text-mc-text-label`
+label.
 
 ### Status Badge
 
-```tsx
-// Component: src/components/status-badge.tsx
-<StatusBadge status="active" />  // green
-<StatusBadge status="pending" /> // yellow
-<StatusBadge status="failed" />  // red
-<StatusBadge status="review" />  // purple
-<StatusBadge status="blocked" /> // orange
-<StatusBadge status="idle" />    // muted
 ```
-
-Pattern:
-```
-inline-flex items-center px-2 py-0.5 rounded text-xs font-mono border
-bg-{color}/10 text-{color} border-{color}/30
+inline-flex items-center gap-1.5 h-6 px-2 rounded-chip border
+font-sans text-[10px] font-medium uppercase tracking-label
+border-mc-{success|warning|danger|info|blocked}/40
+text-mc-{success|warning|danger|info|blocked}
 ```
 
 Status map:
-| Status | Color |
+
+| Status | Token |
 |---|---|
-| active, running | green |
-| completed, merged | blue |
-| failed, error | red |
-| pending, queued | yellow |
-| review | purple |
-| blocked | orange |
-| idle | muted/dim |
+| active, running | `mc-success` |
+| completed, merged | `mc-info` |
+| failed, error | `mc-danger` |
+| pending, queued | `mc-warning` |
+| review | `mc-accent` |
+| blocked, stale | `mc-blocked` |
+| idle | `mc-text-tertiary` |
 
 ### Health Dot
 
-```tsx
-// Component: src/components/health-dot.tsx
-<HealthDot healthy={true} />
-<HealthDot healthy={false} label="Disconnected" />
+```
+inline-block w-2 h-2 rounded-full bg-mc-{success|warning|danger}
+shadow-[0_0_6px_currentColor]
 ```
 
-Pattern:
-```
-inline-block w-2 h-2 rounded-full bg-{color} shadow-[0_0_6px_{hex}]
-```
-- Healthy: `bg-terminal-green shadow-[0_0_6px_#a6e3a1]`
-- Unhealthy: `bg-terminal-red shadow-[0_0_6px_#f38ba8]`
+For live-pulse effect, add `animate-mc-pulse`.
 
-### Button — Ghost (Settings trigger, default actions)
+### Button — Primary
 
 ```
-px-3 py-1.5 text-xs font-mono border border-terminal-border rounded
-text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors
+px-3 py-1.5 rounded-chip border border-mc-accent/40
+bg-mc-accent-dim hover:bg-mc-accent/25
+font-sans text-xs font-medium text-mc-accent
+transition-colors duration-mc ease-mc-out
+focus-visible:outline focus-visible:outline-2 focus-visible:outline-mc-accent focus-visible:outline-offset-2
 ```
 
-**Label: always text, never emoji.** Example: "Settings", not "⚙️"
-
-### Button — Primary (colored actions)
+### Button — Ghost
 
 ```
-px-3 py-1.5 text-xs font-mono rounded border transition-colors
-bg-{color}/20 text-{color} border-{color}/40 hover:bg-{color}/30
+px-3 py-1.5 rounded-chip border border-mc-border
+font-sans text-xs text-mc-text-secondary
+hover:border-mc-border-hover hover:text-mc-text
+transition-colors duration-mc ease-mc-out
 ```
 
 ### Button — Danger
 
 ```
-px-3 py-1.5 text-xs font-mono rounded border transition-colors
-bg-terminal-red/20 text-terminal-red border-terminal-red/40 hover:bg-terminal-red/30
+px-3 py-1.5 rounded-chip border border-mc-danger/40
+bg-mc-danger/10 hover:bg-mc-danger/20
+font-sans text-xs font-medium text-mc-danger
+transition-colors duration-mc ease-mc-out
 ```
 
 ### Button — Toggle (on/off state)
 
-```tsx
-// Off state:
-border-terminal-border text-terminal-dim hover:border-terminal-muted
+Off:
+```
+border-mc-border text-mc-text-secondary hover:border-mc-border-hover
+```
 
-// On state:
-border-terminal-red/50 bg-terminal-red/10 text-terminal-red
-// or green for positive toggles:
-border-terminal-green/50 bg-terminal-green/10 text-terminal-green
+On (positive):
+```
+border-mc-success/50 bg-mc-success/10 text-mc-success
+```
+
+On (destructive):
+```
+border-mc-danger/50 bg-mc-danger/10 text-mc-danger
 ```
 
 ### Input
 
 ```
-bg-terminal-bg border border-terminal-border rounded px-3 py-1.5
-text-xs text-terminal-text placeholder-terminal-dim font-mono
-focus:outline-none focus:border-terminal-purple
+bg-transparent border border-mc-border rounded-chip px-3 py-1.5
+font-mono text-xs text-mc-text placeholder:text-mc-text-tertiary
+focus:outline-none focus:border-mc-border-active
+transition-colors duration-mc ease-mc-out
 ```
 
 ### Progress Bar
 
 ```
-outer: w-full h-2 bg-terminal-muted/30 rounded-full overflow-hidden
-inner: h-full rounded-full transition-all duration-500
+outer: w-full h-px bg-mc-border
+inner: h-px transition-all duration-mc ease-mc-out
 ```
 
-Color thresholds:
-- `>90%` → `#ef4444` (red)
-- `>warn%` → `#f59e0b` (amber)
-- Default → `#22c55e` (green)
+Thresholds:
+- `>90%` → `bg-mc-danger`
+- `>warn%` → `bg-mc-warning`
+- default → `bg-mc-success`
 
 ### List Items
 
 ```
-divide-y divide-terminal-border
-(each): px-4 py-2.5 hover:bg-terminal-muted/30 transition-colors
+divide-y divide-mc-border
+(each): px-4 py-2.5 hover:bg-mc-surface-hover transition-colors duration-mc
 ```
 
-### Modal Overlay
+### Modal / Drawer Overlay
 
 ```
 fixed inset-0 z-50 bg-black/60 backdrop-blur-sm
 ```
 
-### Modal Panel
+### Modal / Drawer Panel
 
 ```
-bg-terminal-surface border border-terminal-border rounded-lg p-6 shadow-2xl
+border border-mc-border rounded-panel bg-mc-bg shadow-2xl
 ```
 
 ---
 
 ## Page Header Pattern
 
-Every page uses the same header structure:
-
 ```tsx
 <div className="flex items-center justify-between mb-6">
-  <h1 className="text-lg font-bold text-terminal-text tracking-wide">Page Title</h1>
+  <h1 className="font-sans text-xl font-extralight text-mc-text tracking-tight">Page Title</h1>
   <div className="flex items-center gap-2">
-    <button className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded hover:bg-terminal-surface transition-colors text-terminal-dim hover:text-terminal-text">
+    <button className="px-3 py-1.5 rounded-chip border border-mc-border font-sans text-xs text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out">
       Settings
     </button>
   </div>
 </div>
 ```
 
-For accent-colored titles (OpenClaw):
+Accent-colored titles (OpenClaw):
+
 ```tsx
-<h1 className="text-lg font-bold text-terminal-purple">OpenClaw</h1>
+<h1 className="font-sans text-xl font-extralight text-mc-accent tracking-tight">OpenClaw</h1>
 ```
 
 ---
 
 ## Settings Drawer Pattern
 
-### Container (`SettingsDrawer` component)
+### Container
 
 ```tsx
-// src/components/settings-drawer.tsx
 <SettingsDrawer open={open} onClose={() => setOpen(false)} title="Page Settings">
-  {/* Accordion sections go here */}
+  {/* Accordion sections */}
 </SettingsDrawer>
 ```
 
-Behavior:
+Behavior (unchanged from legacy):
 - **Position:** Right-side overlay, `max-w-md`, z-50
-- **Mobile:** Bottom sheet with `max-h-[80vh]` and rounded top
-- **Background:** `bg-terminal-surface`, left border
-- **Backdrop:** `bg-black/40`, click-to-close
+- **Mobile:** Bottom sheet with `max-h-[80vh]`, rounded top
+- **Background:** `bg-mc-bg`, left border `border-mc-border`
+- **Backdrop:** `bg-black/60 backdrop-blur-sm`, click-to-close
 - **Escape key** closes drawer
 - **Body scroll** locked when open
-- **Sticky header:** Title (text-sm font-bold) + × close button
+- **Sticky header:** title + × close button
 
 ### Trigger Button
 
@@ -315,82 +342,82 @@ Always a text-labeled ghost button. **Never use emoji.**
 ```tsx
 <button
   onClick={() => setOpen(true)}
-  className="px-3 py-1.5 text-xs font-mono text-terminal-text border border-terminal-border rounded hover:border-terminal-muted hover:bg-terminal-muted/30 transition-colors"
+  className="px-3 py-1.5 rounded-chip border border-mc-border font-sans text-xs text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
 >
   Settings
 </button>
 ```
 
-### Accordion Sections (inside drawer)
-
-Each section follows this exact structure:
+### Accordion Sections
 
 ```tsx
 <section className="mb-6">
-  {/* Section header — collapsible */}
   <button
     onClick={() => toggleSection('sectionKey')}
-    className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-chip border transition-colors duration-mc ease-mc-out ${
       expanded
-        ? 'border-terminal-{accent}/50 bg-terminal-{accent}/5'
-        : 'border-terminal-border hover:border-terminal-muted'
+        ? 'border-mc-accent/40 bg-mc-accent-dim'
+        : 'border-mc-border hover:border-mc-border-hover'
     }`}
   >
     <div className="flex items-center gap-2">
-      <SvgIcon className="w-4 h-4 text-terminal-{accent}" />
-      <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+      <Icon className="w-4 h-4 text-mc-accent" strokeWidth={1.5} />
+      <span className="font-sans text-xs font-medium uppercase tracking-label text-mc-text">
         Section Label
       </span>
     </div>
-    <span className="text-terminal-dim text-xs">
-      {expanded ? '\u2212' : '+'}
+    <span className="font-mono text-xs text-mc-text-tertiary">
+      {expanded ? '−' : '+'}
     </span>
   </button>
 
-  {/* Section content — shown when expanded */}
   {expanded && (
     <div className="mt-3 space-y-3">
-      {/* Sub-cards */}
-      <div className="bg-terminal-muted/20 border border-terminal-border rounded p-3">
-        <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim mb-2">
+      <div className="border border-mc-border rounded-chip p-3">
+        <h4 className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-2">
           Sub-section Title
         </h4>
-        {/* Content: text, inputs, toggles, lists */}
+        {/* Content */}
       </div>
     </div>
   )}
 </section>
 ```
 
-### Section Color Assignments (from existing pages)
+### Section Accent Assignments
 
-| Section Type | Accent Color | Icon Style |
+| Section Type | Accent Token | Icon Style |
 |---|---|---|
-| Content/Directives | `terminal-orange` | Folder SVG |
-| Fleet/Controls | `terminal-cyan` | Cog SVG |
-| Budget/Spend | `terminal-green` | Dollar SVG |
-| Governance/Safety | `terminal-red` | Shield SVG |
-| Audit/Logs | `terminal-blue` | Clipboard SVG |
+| Content / Directives | `mc-warning` | Folder icon |
+| Fleet / Controls | `mc-accent` | Cog icon |
+| Budget / Spend | `mc-success` | Dollar icon |
+| Governance / Safety | `mc-danger` | Shield icon |
+| Audit / Logs | `mc-info` | Clipboard icon |
 
-**Rules:**
-- **No emoji anywhere** in the drawer — use inline SVGs
-- SVGs: `w-4 h-4`, stroke icons (Heroicons style), `strokeWidth={1.5}`
-- Section labels: UPPERCASE, tracking-widest
-- Sub-section labels: `text-[10px]` UPPERCASE
-- All interactive controls use `text-xs font-mono`
-- Toggle states use colored borders + `/10` backgrounds
+Rules:
+- **No emoji anywhere** — use inline SVGs or Lucide icons
+- Icons: `w-4 h-4`, stroke style, `strokeWidth={1.5}`
+- Section labels: UPPERCASE, `tracking-label`
+- Toggle states use `<Toggle>` primitive, not ad-hoc button styles
 
 ---
 
 ## Animation
 
+Every animation respects `prefers-reduced-motion: reduce` — the global
+media query in `globals.css` sets `animation: none` and clamps
+transitions to 0.01ms when the OS preference is on. **Don't add a new
+animation without verifying it degrades gracefully.**
+
 | Pattern | Implementation |
 |---|---|
-| Live connection | `animate-pulse` on green HealthDot |
-| Streaming cursor | `<span className="animate-pulse">\|</span>` |
-| Flash on update | `scale-105` + color change with `transition-all duration-300` |
-| Interactive elements | `transition-colors` on all buttons/links |
-| Stopped/paused | `animate-pulse` on red badges |
+| Live health pulse | `animate-mc-pulse` on the HealthDot |
+| Breathing glow (active agents) | `animate-mc-breathe` |
+| Communication particle | `animate-mc-particle-flow` along an SVG path |
+| Interactive hover | `transition-colors duration-mc ease-mc-out` |
+| Drawer slide | `300ms cubic-bezier(0.16, 1, 0.3, 1)` |
+
+`ease-mc-out` = `cubic-bezier(0.16, 1, 0.3, 1)`. `duration-mc` = 220ms.
 
 ---
 
@@ -401,7 +428,7 @@ Each section follows this exact structure:
 ```tsx
 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
   <div className="lg:col-span-3 space-y-6">
-    {/* Content cards */}
+    {/* Content panels */}
   </div>
   <div className="lg:col-span-2">
     <ChatPanel />
@@ -409,11 +436,12 @@ Each section follows this exact structure:
 </div>
 ```
 
-### Stat Grid (Mission Control home)
+### Metric Strip (Home / Department headers)
 
 ```tsx
-<div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-  <StatCard label="Active Agents" value="12/15" sub="3 idle" />
+<div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+  <Metric label="Active" value="12/15" trend="3 idle" accent="accent" />
+  {/* … */}
 </div>
 ```
 
@@ -421,16 +449,16 @@ Each section follows this exact structure:
 
 ```tsx
 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-  {/* Compact cards */}
+  {/* Compact panels */}
 </div>
 ```
 
-### List Layout (Agents, Channels detail)
+### List Layout
 
 ```tsx
-<div className="space-y-2">
+<div className="divide-y divide-mc-border">
   {items.map(item => (
-    <div className="flex items-center justify-between p-2 bg-terminal-bg rounded">
+    <div className="flex items-center justify-between px-4 py-2.5 hover:bg-mc-surface-hover transition-colors duration-mc">
       {/* Left: dot + name */}
       {/* Right: metadata */}
     </div>
@@ -440,31 +468,34 @@ Each section follows this exact structure:
 
 ---
 
-## Existing Reusable Components
+## Anti-Patterns (Do NOT Do)
 
-Import from `@/components/`:
-
-| Component | Usage |
-|---|---|
-| `HealthDot` | Green/red status dot with optional label |
-| `StatusBadge` | Colored text badge (active/pending/failed/etc.) |
-| `ChatPanel` | Embedded OpenClaw chat (used in chat drawer + OpenClaw page) |
-| `SettingsDrawer` | Right-side overlay drawer container |
-| `RefreshTrigger` | Auto-refresh for server component pages |
-| `FleetKillSwitch` | Emergency pause all agents |
-| `BudgetOverview` | Budget table with per-agent rows |
-| `BudgetEditor` | Per-agent budget config |
-| `BurnVelocity` | Spend rate visualization |
+- **No emoji in UI chrome** — use inline SVGs or Lucide icons
+- **No gear icon for Settings button** — always use the text "Settings"
+- **No palette modifications** — add new semantic tokens only through
+  a Design review; existing tokens are stable
+- **No monospace for UI labels/headings** — monospace is for data
+  only (IDs, metrics, timestamps, code)
+- **No filled panels** — the signature look is outlined; fills are the
+  exception (glass/accent-wash variants only)
+- **No custom scrollbars on new surfaces** — the global thin-gray
+  scrollbar lives in `globals.css`; don't add per-component overrides
+- **No horizontal scrolling** — responsive grid breakpoints only
+- **No inline styles** — Tailwind classes only. Exception: runtime
+  values (progress-bar widths, SVG stroke fills driven by dept
+  color) via the CSS custom property equivalents (e.g.
+  `style={{ background: 'var(--mc-dept-executive)' }}`).
+- **No new animations without reduced-motion** — verify the media
+  query in `globals.css` covers your animation name or add it there
+- **No third-party UI libraries** — primitives live in
+  `src/components/ui/` and are hand-built
 
 ---
 
-## Anti-Patterns (Do NOT Do)
+## Legacy — `terminal-*`
 
-- **No emoji in UI chrome** — use SVG icons (Heroicons style) or text labels
-- **No gear icon for Settings** — always use the text "Settings"
-- **No color modifications** — the terminal-* palette is frozen
-- **No sans-serif fonts** — everything is monospace
-- **No custom scrollbars** — use browser defaults
-- **No horizontal scrolling** — responsive grid breakpoints only
-- **No inline styles** — Tailwind classes only (exception: dynamic widths/colors for progress bars)
-- **No third-party UI libraries** — all components are hand-built with Tailwind
+The `terminal-*` palette still works while migration is in flight.
+Don't write new components against it, and don't change its values.
+The entire namespace is removed in Phase 6 once every file is migrated.
+
+See `DESIGN-SYSTEM.md` for the full terminal → mc token mapping table.

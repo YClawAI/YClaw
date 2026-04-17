@@ -10,9 +10,9 @@ interface ReviewQueueProps {
 }
 
 const COLUMN_HEADERS: Record<string, { label: string; color: string; borderColor: string }> = {
-  pending: { label: 'Pending', color: 'text-terminal-yellow', borderColor: 'border-terminal-yellow/30' },
-  approved: { label: 'Approved', color: 'text-terminal-green', borderColor: 'border-terminal-green/30' },
-  rejected: { label: 'Rejected', color: 'text-terminal-red', borderColor: 'border-terminal-red/30' },
+  pending: { label: 'Pending', color: 'text-mc-warning', borderColor: 'border-mc-warning/30' },
+  approved: { label: 'Approved', color: 'text-mc-success', borderColor: 'border-mc-success/30' },
+  rejected: { label: 'Rejected', color: 'text-mc-danger', borderColor: 'border-mc-danger/30' },
 };
 
 function formatRelativeTime(iso: string): string {
@@ -29,7 +29,7 @@ function Repobadge({ repo }: { repo: string }) {
   // Show just the repo name (strip owner/ prefix if present)
   const shortName = repo.includes('/') ? repo.split('/').pop() : repo;
   return (
-    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-terminal-blue/10 text-terminal-blue border border-terminal-blue/20 truncate max-w-[120px]">
+    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-mc-info/10 text-mc-info border border-mc-info/20 truncate max-w-[120px]">
       {shortName}
     </span>
   );
@@ -85,10 +85,14 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
 
   if (localItems.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-        <div className="text-xs text-terminal-dim text-center py-8">
-          No items in review
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+        <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+          Review queue empty
         </div>
+        <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+          No items awaiting approval. Flagged agent output appears here for operator review.
+        </p>
       </div>
     );
   }
@@ -105,7 +109,7 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
               <span className={`text-xs font-bold uppercase tracking-widest ${header.color}`}>
                 {header.label}
               </span>
-              <span className="text-[10px] font-mono text-terminal-dim">
+              <span className="text-[10px] font-mono text-mc-text-tertiary">
                 {colItems.length}
               </span>
             </div>
@@ -113,25 +117,25 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
             {/* Column cards */}
             <div className="space-y-2 flex-1">
               {colItems.length === 0 ? (
-                <div className="text-[10px] text-terminal-dim text-center py-6">
+                <div className="text-[10px] text-mc-text-tertiary text-center py-6">
                   No items
                 </div>
               ) : (
                 colItems.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-terminal-surface border border-terminal-border rounded p-3 hover:border-terminal-muted transition-colors"
+                    className="bg-mc-surface-hover border border-mc-border rounded p-3 hover:border-mc-border transition-colors"
                   >
                     {/* Title row */}
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <span className="text-xs text-terminal-text font-medium line-clamp-2 flex-1">
+                      <span className="text-xs text-mc-text font-medium line-clamp-2 flex-1">
                         {item.title}
                       </span>
                     </div>
 
                     {/* Description preview */}
                     {item.description && item.description !== item.title && (
-                      <p className="text-[10px] text-terminal-dim line-clamp-2 mb-2 leading-relaxed">
+                      <p className="text-[10px] text-mc-text-tertiary line-clamp-2 mb-2 leading-relaxed">
                         {item.description}
                       </p>
                     )}
@@ -140,15 +144,15 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
                     <div className="flex items-center gap-2 flex-wrap">
                       {item.repo && <Repobadge repo={item.repo} />}
                       {item.prNumber && (
-                        <span className="text-[10px] font-mono text-terminal-dim">
+                        <span className="text-[10px] font-mono text-mc-text-tertiary">
                           #{item.prNumber}
                         </span>
                       )}
                       {item.agentId && (
-                        <span className="text-[10px] text-terminal-dim font-mono">{item.agentId}</span>
+                        <span className="text-[10px] text-mc-text-tertiary font-mono">{item.agentId}</span>
                       )}
                       {item.createdAt && (
-                        <span className="text-[10px] text-terminal-dim font-mono ml-auto">
+                        <span className="text-[10px] text-mc-text-tertiary font-mono ml-auto">
                           {formatRelativeTime(item.createdAt)}
                         </span>
                       )}
@@ -156,14 +160,14 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
 
                     {/* Action buttons for pending items */}
                     {col === 'pending' && (
-                      <div className="mt-2 pt-2 border-t border-terminal-border space-y-1.5">
+                      <div className="mt-2 pt-2 border-t border-mc-border space-y-1.5">
                         <div className="flex items-center gap-2">
                           <div className="relative">
                             <button
                               className={`px-2 py-1 text-[10px] font-mono rounded border transition-colors ${
                                 fleetOnline
-                                  ? 'border-terminal-green/40 text-terminal-green hover:bg-terminal-green/10'
-                                  : 'border-terminal-green/30 text-terminal-green/50 cursor-not-allowed'
+                                  ? 'border-mc-success/40 text-mc-success hover:bg-mc-success/10'
+                                  : 'border-mc-success/30 text-mc-success/50 cursor-not-allowed'
                               }`}
                               onMouseEnter={() => { if (!fleetOnline) setTooltipId(`approve-${item.id}`); }}
                               onMouseLeave={() => setTooltipId(null)}
@@ -173,7 +177,7 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
                               {actionInProgress === item.id ? '...' : confirmingId === item.id ? 'Confirm Approve?' : 'Approve'}
                             </button>
                             {tooltipId === `approve-${item.id}` && !fleetOnline && (
-                              <div className="absolute bottom-full left-0 mb-1 px-2 py-1 text-[9px] font-mono bg-terminal-bg border border-terminal-border rounded text-terminal-dim whitespace-nowrap z-10">
+                              <div className="absolute bottom-full left-0 mb-1 px-2 py-1 text-[9px] font-mono bg-mc-bg border border-mc-border rounded text-mc-text-tertiary whitespace-nowrap z-10">
                                 Unavailable
                               </div>
                             )}
@@ -182,8 +186,8 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
                             <button
                               className={`px-2 py-1 text-[10px] font-mono rounded border transition-colors ${
                                 fleetOnline
-                                  ? 'border-terminal-red/40 text-terminal-red hover:bg-terminal-red/10'
-                                  : 'border-terminal-red/30 text-terminal-red/50 cursor-not-allowed'
+                                  ? 'border-mc-danger/40 text-mc-danger hover:bg-mc-danger/10'
+                                  : 'border-mc-danger/30 text-mc-danger/50 cursor-not-allowed'
                               }`}
                               onMouseEnter={() => { if (!fleetOnline) setTooltipId(`reject-${item.id}`); }}
                               onMouseLeave={() => setTooltipId(null)}
@@ -193,14 +197,14 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
                               {actionInProgress === item.id ? '...' : 'Reject'}
                             </button>
                             {tooltipId === `reject-${item.id}` && !fleetOnline && (
-                              <div className="absolute bottom-full left-0 mb-1 px-2 py-1 text-[9px] font-mono bg-terminal-bg border border-terminal-border rounded text-terminal-dim whitespace-nowrap z-10">
+                              <div className="absolute bottom-full left-0 mb-1 px-2 py-1 text-[9px] font-mono bg-mc-bg border border-mc-border rounded text-mc-text-tertiary whitespace-nowrap z-10">
                                 Unavailable
                               </div>
                             )}
                           </div>
                           {confirmingId === item.id && (
                             <button
-                              className="px-2 py-1 text-[10px] font-mono text-terminal-dim hover:text-terminal-text"
+                              className="px-2 py-1 text-[10px] font-mono text-mc-text-tertiary hover:text-mc-text"
                               onClick={() => setConfirmingId(null)}
                             >
                               Cancel
@@ -208,7 +212,7 @@ export function ReviewQueue({ items, fleetOnline = false }: ReviewQueueProps) {
                           )}
                         </div>
                         {actionError?.id === item.id && (
-                          <div className="text-[10px] font-mono text-terminal-red bg-terminal-red/10 border border-terminal-red/30 rounded px-2 py-1">
+                          <div className="text-[10px] font-mono text-mc-danger bg-mc-danger/10 border border-mc-danger/30 rounded px-2 py-1">
                             {actionError.message}
                           </div>
                         )}

@@ -10,26 +10,26 @@ import { useOperatorActivity } from '@/hooks/use-operators';
 // but we style all types for forward-compatibility
 const ALERT_STYLES: Record<string, { border: string; dot: string }> = {
   high_denial_rate: {
-    border: 'border-terminal-red/40 bg-terminal-red/5 text-terminal-red',
-    dot: 'bg-terminal-red',
+    border: 'border-mc-danger/40 bg-mc-danger/5 text-mc-danger',
+    dot: 'bg-mc-danger',
   },
   invitation_expiring: {
-    border: 'border-terminal-yellow/40 bg-terminal-yellow/5 text-terminal-yellow',
-    dot: 'bg-terminal-yellow',
+    border: 'border-mc-warning/40 bg-mc-warning/5 text-mc-warning',
+    dot: 'bg-mc-warning',
   },
   high_rate_usage: {
-    border: 'border-terminal-yellow/40 bg-terminal-yellow/5 text-terminal-yellow',
-    dot: 'bg-terminal-yellow',
+    border: 'border-mc-warning/40 bg-mc-warning/5 text-mc-warning',
+    dot: 'bg-mc-warning',
   },
   lock_conflict: {
-    border: 'border-terminal-orange/40 bg-terminal-orange/5 text-terminal-orange',
-    dot: 'bg-terminal-orange',
+    border: 'border-mc-blocked/40 bg-mc-blocked/5 text-mc-blocked',
+    dot: 'bg-mc-blocked',
   },
 };
 
 const DEFAULT_ALERT_STYLE = {
-  border: 'border-terminal-border bg-terminal-surface text-terminal-text',
-  dot: 'bg-terminal-dim',
+  border: 'border-mc-border bg-mc-surface-hover text-mc-text',
+  dot: 'bg-mc-text-tertiary',
 };
 
 function formatTime(dateStr: string): string {
@@ -63,18 +63,18 @@ export function ActivityClient({ initialActivity, initialError }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg font-bold text-terminal-text tracking-wide">
+        <h1 className="text-lg font-bold text-mc-text tracking-wide">
           Operator Activity
         </h1>
-        <span className="text-[10px] text-terminal-dim font-mono">
+        <span className="text-[10px] text-mc-text-tertiary font-mono">
           Auto-refreshes every 30s
         </span>
       </div>
 
       {error && (
-        <div className="mb-6 px-4 py-3 rounded-lg border border-terminal-red/30 bg-terminal-red/5">
-          <div className="text-xs font-mono text-terminal-red font-bold mb-1">Error</div>
-          <div className="text-xs font-mono text-terminal-red/80">{error}</div>
+        <div className="mb-6 px-4 py-3 rounded-lg border border-mc-danger/30 bg-mc-danger/5">
+          <div className="text-xs font-mono text-mc-danger font-bold mb-1">Error</div>
+          <div className="text-xs font-mono text-mc-danger/80">{error}</div>
         </div>
       )}
 
@@ -82,10 +82,10 @@ export function ActivityClient({ initialActivity, initialError }: Props) {
       {alerts.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2 px-1">
-            <span className="text-xs font-bold font-mono text-terminal-dim uppercase tracking-wider">
+            <span className="text-xs font-bold font-mono text-mc-text-tertiary uppercase tracking-wider">
               Alerts
             </span>
-            <span className="text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-mono text-mc-text-tertiary bg-mc-border px-1.5 py-0.5 rounded">
               {alerts.length}
             </span>
           </div>
@@ -111,10 +111,10 @@ export function ActivityClient({ initialActivity, initialError }: Props) {
       {/* ── Operator Status Grid ── */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3 px-1">
-          <span className="text-xs font-bold font-mono text-terminal-dim uppercase tracking-wider">
+          <span className="text-xs font-bold font-mono text-mc-text-tertiary uppercase tracking-wider">
             Operator Status
           </span>
-          <span className="text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded">
+          <span className="text-[10px] font-mono text-mc-text-tertiary bg-mc-border px-1.5 py-0.5 rounded">
             {operators.length}
           </span>
         </div>
@@ -130,7 +130,7 @@ export function ActivityClient({ initialActivity, initialError }: Props) {
           </div>
         ) : (
           !error && (
-            <div className="text-center py-8 text-terminal-dim text-xs font-mono">
+            <div className="text-center py-8 text-mc-text-tertiary text-xs font-mono">
               No operator data available
             </div>
           )
@@ -140,48 +140,48 @@ export function ActivityClient({ initialActivity, initialError }: Props) {
       {/* ── Recent Actions Feed ── */}
       <div>
         <div className="flex items-center gap-2 mb-3 px-1">
-          <span className="text-xs font-bold font-mono text-terminal-dim uppercase tracking-wider">
+          <span className="text-xs font-bold font-mono text-mc-text-tertiary uppercase tracking-wider">
             Recent Actions
           </span>
-          <span className="text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded">
+          <span className="text-[10px] font-mono text-mc-text-tertiary bg-mc-border px-1.5 py-0.5 rounded">
             {actions.length}
           </span>
         </div>
         {actions.length > 0 ? (
-          <div className="border border-terminal-border rounded-lg bg-terminal-surface divide-y divide-terminal-border">
+          <div className="border border-mc-border rounded-lg bg-mc-surface-hover divide-y divide-mc-border">
             {actions.map((action, i) => {
               const isDenied = action.decision === 'denied';
               const isAllowed = action.decision === 'allowed';
               const actionColorClass = isDenied
-                ? 'text-terminal-red'
+                ? 'text-mc-danger'
                 : isAllowed
-                  ? 'text-terminal-green'
-                  : 'text-terminal-text';
+                  ? 'text-mc-success'
+                  : 'text-mc-text';
 
               return (
                 <div
                   key={`${action.operatorId}-${action.timestamp}-${i}`}
-                  className={`px-4 py-2.5 flex items-start gap-3 hover:bg-terminal-muted transition-colors ${
-                    isDenied ? 'border-l-2 border-terminal-red' : ''
+                  className={`px-4 py-2.5 flex items-start gap-3 hover:bg-mc-border transition-colors ${
+                    isDenied ? 'border-l-2 border-mc-danger' : ''
                   }`}
                 >
-                  <span className="text-[10px] text-terminal-dim font-mono shrink-0 w-12">
+                  <span className="text-[10px] text-mc-text-tertiary font-mono shrink-0 w-12">
                     {formatTime(action.timestamp)}
                   </span>
-                  <span className="text-xs font-mono text-terminal-text font-medium shrink-0 w-24 truncate">
+                  <span className="text-xs font-mono text-mc-text font-medium shrink-0 w-24 truncate">
                     {operatorNames[action.operatorId] ?? action.operatorId}
                   </span>
                   <span className={`text-[10px] font-mono shrink-0 w-28 truncate ${actionColorClass}`}>
                     {action.action}
                   </span>
-                  <span className="text-[10px] font-mono text-terminal-dim shrink-0 w-20 truncate">
+                  <span className="text-[10px] font-mono text-mc-text-tertiary shrink-0 w-20 truncate">
                     {action.target || '—'}
                   </span>
-                  <span className="text-[10px] font-mono text-terminal-dim truncate flex-1">
+                  <span className="text-[10px] font-mono text-mc-text-tertiary truncate flex-1">
                     {action.summary}
                   </span>
                   {isDenied && (
-                    <span className="text-[10px] font-mono text-terminal-red shrink-0">DENIED</span>
+                    <span className="text-[10px] font-mono text-mc-danger shrink-0">DENIED</span>
                   )}
                 </div>
               );
@@ -189,7 +189,7 @@ export function ActivityClient({ initialActivity, initialError }: Props) {
           </div>
         ) : (
           !error && (
-            <div className="text-center py-8 text-terminal-dim text-xs font-mono">
+            <div className="text-center py-8 text-mc-text-tertiary text-xs font-mono">
               No recent actions
             </div>
           )

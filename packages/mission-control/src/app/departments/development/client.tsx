@@ -47,10 +47,10 @@ const TABS = [
 // ─── Priority Styles ────────────────────────────────────────────────────────
 
 const PRIORITY_STYLES: Record<string, { border: string; text: string; bg: string; label: string }> = {
-  P0: { border: 'border-terminal-red/40', text: 'text-terminal-red', bg: 'bg-terminal-red/10', label: 'P0 Critical' },
-  P1: { border: 'border-terminal-yellow/40', text: 'text-orange-400', bg: 'bg-orange-400/10', label: 'P1 High' },
-  P2: { border: 'border-terminal-yellow/30', text: 'text-terminal-yellow', bg: 'bg-terminal-yellow/10', label: 'P2 Medium' },
-  P3: { border: 'border-terminal-border', text: 'text-terminal-dim', bg: 'bg-terminal-muted/30', label: 'P3 Low' },
+  P0: { border: 'border-mc-danger/40', text: 'text-mc-danger', bg: 'bg-mc-danger/10', label: 'P0 Critical' },
+  P1: { border: 'border-mc-blocked/40', text: 'text-mc-blocked', bg: 'bg-mc-blocked/10', label: 'P1 High' },
+  P2: { border: 'border-mc-warning/30', text: 'text-mc-warning', bg: 'bg-mc-warning/10', label: 'P2 Medium' },
+  P3: { border: 'border-mc-border', text: 'text-mc-text-tertiary', bg: 'bg-mc-surface-hover', label: 'P3 Low' },
 };
 
 function formatQueueTime(score: number): string {
@@ -247,7 +247,7 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
   // KPI values
   const failingCI = github?.failingCI ?? 0;
   const healthLabel = failingCI === 0 ? 'All Clear' : `${failingCI} Failing`;
-  const healthColor = failingCI === 0 ? 'text-terminal-green' : 'text-terminal-red';
+  const healthColor = failingCI === 0 ? 'text-mc-success' : 'text-mc-danger';
 
   const queueTotal = queues ? Object.values(queues).reduce((s, v) => s + v, 0) : 0;
   const scheduleEntries = buildScheduleEntries(schedules);
@@ -268,7 +268,7 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
       <div className="flex items-center justify-end mb-4">
         <button
           onClick={openSettings}
-          className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors"
+          className="px-3 py-1.5 rounded-chip border border-mc-border font-sans text-xs text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
         >
           Settings
         </button>
@@ -296,9 +296,9 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
                   value={`${kpis.runCount24h}`}
                   subtext={`${kpis.errorCount24h} errors`}
                 />
-                <div className="bg-terminal-surface border border-terminal-border rounded p-4 hover:border-terminal-muted transition-colors">
-                  <div className={`text-2xl font-bold font-mono ${healthColor}`}>{healthLabel}</div>
-                  <div className="text-xs text-terminal-dim mt-1">CI Status</div>
+                <div className="relative border border-mc-border rounded-panel bg-transparent p-4 transition-colors duration-mc ease-mc-out hover:border-mc-border-hover">
+                  <div className={`font-mono text-2xl tabular-nums ${healthColor}`}>{healthLabel}</div>
+                  <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mt-1">CI Status</div>
                 </div>
                 <KPICard
                   label="Queue Depth"
@@ -314,7 +314,7 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
 
               {/* Agent Grid (compact) */}
               <div>
-                <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">Agents</h2>
+                <h2 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">Agents</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {agents.map(agent => (
                     <AgentCard
@@ -336,26 +336,26 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
 
               {/* Per-Agent Spend */}
               {agentSpend && agentSpend.length > 0 && (
-                <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+                <div className="border border-mc-border rounded-panel bg-transparent p-4">
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">
                     Agent Spend
                   </h3>
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     {agentSpend.map(s => (
-                      <div key={s.agentId} className="border border-terminal-border rounded p-3">
-                        <div className="text-xs text-terminal-text font-mono mb-2">{s.agentId}</div>
-                        <div className="space-y-1 text-xs text-terminal-dim">
+                      <div key={s.agentId} className="border border-mc-border rounded-panel p-3">
+                        <div className="font-mono text-xs text-mc-text mb-2">{s.agentId}</div>
+                        <div className="space-y-1 font-sans text-xs text-mc-text-tertiary">
                           <div className="flex justify-between">
                             <span>Today</span>
-                            <span className="text-terminal-text font-mono">${s.today.toFixed(2)}</span>
+                            <span className="font-mono text-mc-text tabular-nums">${s.today.toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>7d</span>
-                            <span className="text-terminal-text font-mono">${s.week.toFixed(2)}</span>
+                            <span className="font-mono text-mc-text tabular-nums">${s.week.toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>MTD</span>
-                            <span className="text-terminal-text font-mono">${s.month.toFixed(2)}</span>
+                            <span className="font-mono text-mc-text tabular-nums">${s.month.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
@@ -368,7 +368,7 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
 
               {/* AgentHub Exploration DAG */}
               <div>
-                <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">Exploration DAG</h2>
+                <h2 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">Exploration DAG</h2>
                 <ExplorationDAG
                   commits={ahCommits ?? []}
                   leaves={ahLeaves ?? []}
@@ -390,49 +390,49 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
             <div className="space-y-6">
               {/* Dispatcher status banner */}
               {dispatcherStatus === null || dispatcherStatus === undefined ? (
-                <div className="bg-terminal-surface border border-terminal-border rounded p-4 text-center">
-                  <span className="text-xs text-terminal-dim font-mono">Dispatcher unavailable</span>
+                <div className="border border-mc-border rounded-panel bg-transparent p-4 text-center">
+                  <span className="font-sans text-xs text-mc-text-tertiary">Dispatcher unavailable</span>
                 </div>
               ) : (
                 <>
                   {/* Metrics strip */}
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-                      <div className="text-2xl font-bold text-terminal-text font-mono">{dispatcherStatus.totalProcessed.toLocaleString()}</div>
-                      <div className="text-xs text-terminal-dim mt-1">Total Processed</div>
+                    <div className="border border-mc-border rounded-panel bg-transparent p-4">
+                      <div className="font-mono text-2xl text-mc-text tabular-nums">{dispatcherStatus.totalProcessed.toLocaleString()}</div>
+                      <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mt-1">Total Processed</div>
                     </div>
-                    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-                      <div className={`text-2xl font-bold font-mono ${dispatcherStatus.totalFailed > 0 ? 'text-terminal-red' : 'text-terminal-text'}`}>{dispatcherStatus.totalFailed.toLocaleString()}</div>
-                      <div className="text-xs text-terminal-dim mt-1">Total Failed</div>
+                    <div className="border border-mc-border rounded-panel bg-transparent p-4">
+                      <div className={`font-mono text-2xl tabular-nums ${dispatcherStatus.totalFailed > 0 ? 'text-mc-danger' : 'text-mc-text'}`}>{dispatcherStatus.totalFailed.toLocaleString()}</div>
+                      <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mt-1">Total Failed</div>
                     </div>
-                    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-                      <div className="text-2xl font-bold text-terminal-text font-mono">{formatMs(dispatcherStatus.avgExecutionMs)}</div>
-                      <div className="text-xs text-terminal-dim mt-1">Avg Execution Time</div>
+                    <div className="border border-mc-border rounded-panel bg-transparent p-4">
+                      <div className="font-mono text-2xl text-mc-text tabular-nums">{formatMs(dispatcherStatus.avgExecutionMs)}</div>
+                      <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mt-1">Avg Execution Time</div>
                     </div>
                   </div>
 
                   {/* Worker status panel */}
-                  <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">Workers</h3>
+                  <div className="border border-mc-border rounded-panel bg-transparent p-4">
+                    <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">Workers</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       {(dispatcherStatus.workers.length > 0 ? dispatcherStatus.workers : [
                         { id: 'worker-0', status: 'idle' as const },
                         { id: 'worker-1', status: 'idle' as const },
                         { id: 'worker-2', status: 'idle' as const },
                       ]).map((worker) => (
-                        <div key={worker.id} className={`border rounded p-3 ${worker.status === 'busy' ? 'border-terminal-green/40 bg-terminal-green/5' : 'border-terminal-border bg-terminal-muted/20'}`}>
+                        <div key={worker.id} className={`border rounded-panel p-3 transition-colors duration-mc ease-mc-out ${worker.status === 'busy' ? 'border-mc-success/40 bg-mc-success/5' : 'border-mc-border bg-transparent'}`}>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className={`w-2 h-2 rounded-full ${worker.status === 'busy' ? 'bg-terminal-green animate-pulse' : 'bg-terminal-dim'}`} />
-                            <span className="text-xs font-mono text-terminal-text">{worker.id}</span>
-                            <span className={`ml-auto text-[10px] font-mono uppercase ${worker.status === 'busy' ? 'text-terminal-green' : 'text-terminal-dim'}`}>{worker.status}</span>
+                            <span className={`w-2 h-2 rounded-full ${worker.status === 'busy' ? 'bg-mc-success animate-mc-pulse shadow-[0_0_6px_currentColor] text-mc-success' : 'bg-mc-text-tertiary'}`} />
+                            <span className="font-mono text-xs text-mc-text">{worker.id}</span>
+                            <span className={`ml-auto font-sans text-[10px] font-medium uppercase tracking-label ${worker.status === 'busy' ? 'text-mc-success' : 'text-mc-text-tertiary'}`}>{worker.status}</span>
                           </div>
                           {worker.currentTask && (
-                            <div className="text-[10px] text-terminal-dim font-mono truncate mt-1" title={worker.currentTask}>
+                            <div className="font-mono text-[10px] text-mc-text-tertiary truncate mt-1" title={worker.currentTask}>
                               {worker.currentTask}
                             </div>
                           )}
                           {worker.currentAgent && (
-                            <div className="text-[10px] text-terminal-dim/60 font-mono mt-0.5">{worker.currentAgent}</div>
+                            <div className="font-mono text-[10px] text-mc-text-tertiary/60 mt-0.5">{worker.currentAgent}</div>
                           )}
                         </div>
                       ))}
@@ -446,8 +446,8 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
                 const allEmpty = !builderQueue || Object.values(builderQueue).every(tasks => tasks.length === 0);
                 if (allEmpty) {
                   return (
-                    <div className="bg-terminal-surface border border-terminal-border rounded p-6 text-center">
-                      <span className="text-xs text-terminal-dim font-mono">No tasks in queue</span>
+                    <div className="border border-mc-border rounded-panel bg-transparent p-6 text-center">
+                      <span className="font-sans text-xs text-mc-text-tertiary">No tasks in queue</span>
                     </div>
                   );
                 }
@@ -457,22 +457,22 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
                       const style = PRIORITY_STYLES[priority]!;
                       const tasks = builderQueue?.[priority] ?? [];
                       return (
-                        <div key={priority} className={`bg-terminal-surface border ${style.border} rounded`}>
+                        <div key={priority} className={`border rounded-panel bg-transparent ${style.border}`}>
                           <div className={`px-3 py-2 border-b ${style.border} flex items-center gap-2`}>
-                            <span className={`text-xs font-bold font-mono ${style.text}`}>{style.label}</span>
-                            <span className={`ml-auto text-[10px] font-mono ${style.text}`}>{tasks.length}</span>
+                            <span className={`font-sans text-[11px] font-medium uppercase tracking-label ${style.text}`}>{style.label}</span>
+                            <span className={`ml-auto font-mono text-[10px] tabular-nums ${style.text}`}>{tasks.length}</span>
                           </div>
                           {tasks.length === 0 ? (
-                            <div className="p-3 text-[10px] text-terminal-dim text-center">No tasks</div>
+                            <div className="p-3 font-sans text-[10px] text-mc-text-tertiary text-center">No tasks</div>
                           ) : (
-                            <div className="divide-y divide-terminal-border">
+                            <div className="divide-y divide-mc-border">
                               {tasks.map((task) => (
-                                <div key={task.taskId} className="px-3 py-2 hover:bg-terminal-muted/20 transition-colors">
+                                <div key={task.taskId} className="px-3 py-2 hover:bg-mc-surface-hover transition-colors duration-mc ease-mc-out">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-xs font-mono text-terminal-text truncate" title={task.taskId}>{task.taskId}</span>
-                                    <span className={`ml-auto inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono border ${style.bg} ${style.text} ${style.border}`}>{priority}</span>
+                                    <span className="font-mono text-xs text-mc-text truncate" title={task.taskId}>{task.taskId}</span>
+                                    <span className={`ml-auto inline-flex items-center px-1.5 py-0.5 rounded-badge font-sans text-[10px] font-medium uppercase tracking-label border ${style.bg} ${style.text} ${style.border}`}>{priority}</span>
                                   </div>
-                                  <div className="text-[10px] text-terminal-dim font-mono mt-0.5">
+                                  <div className="font-mono text-[10px] text-mc-text-tertiary tabular-nums mt-0.5">
                                     {formatQueueTime(task.score)} in queue
                                   </div>
                                 </div>
@@ -493,13 +493,13 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
             <div className="space-y-6">
               {/* Event Mesh */}
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">Event Mesh</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-2">Event Mesh</h3>
                 <EventMesh nodes={EVENT_MESH.nodes} edges={EVENT_MESH.edges} />
               </div>
 
               {/* Pipeline Swimlane */}
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">Pipeline Swimlane</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-2">Pipeline Swimlane</h3>
                 <PipelineSwimlane prs={pipelinePrs} deployQueue={deployQueue} />
               </div>
             </div>
@@ -510,13 +510,13 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
             <div className="space-y-6">
               {/* Tech Debt Radar + Items */}
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">Tech Debt Radar</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-2">Tech Debt Radar</h3>
                 <TechDebtRadar axes={techDebt.axes} items={techDebt.items} />
               </div>
 
               {/* Commits Timeline */}
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">Commits Timeline</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-2">Commits Timeline</h3>
                 <CommitsTimeline commits={commitEntries} />
               </div>
             </div>
@@ -525,7 +525,7 @@ export function DevelopmentClient({ agents, live, kpis, github, queues, recentRu
           // ─── Agents Tab ────────────────────────────────────────────
           agents: (
             <div className="space-y-4">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Development Roster</h2>
+              <h2 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Development Roster</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {agents.map(agent => (
                   <DevelopmentAgentCard

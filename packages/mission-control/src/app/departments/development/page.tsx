@@ -153,7 +153,7 @@ export default async function DevelopmentPage() {
   return (
     <div>
       <DeptHeader department="development" />
-      <Suspense fallback={<div className="text-xs text-terminal-dim text-center py-8">Loading development dashboard...</div>}>
+      <Suspense fallback={<div className="text-xs text-mc-text-tertiary text-center py-8">Loading development dashboard...</div>}>
         <DevelopmentClient
           agents={agents}
           live={live}

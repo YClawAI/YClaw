@@ -1,5 +1,5 @@
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ╔════════════════════════════════════════════════════════════════════════╗
  * ║  ORGANIZATION SETTINGS DRAWER — DO NOT REPLACE OR "POLISH"             ║
  * ║                                                                        ║
  * ║  This component renders the MC dashboard "Settings" drawer with        ║
@@ -14,7 +14,7 @@
  * ║  This is NOT the OpenClaw Settings (openclaw-settings-drawer.tsx).     ║
  * ║  This is NOT the Global Settings page (global-settings-content.tsx).   ║
  * ║  If you need to modify OpenClaw gateway settings, edit those files.    ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+ * ╚═════════════════════════════════════════════════════════════════════════╝
  */
 'use client';
 
@@ -50,9 +50,9 @@ const SHARED_SKILLS: SharedSkillDef[] = [
 ];
 
 const TIER_BADGE_STYLES: Record<SkillTier, string> = {
-  builtin: 'border-terminal-cyan/40 text-terminal-cyan bg-terminal-cyan/10',
-  trusted: 'border-terminal-green/40 text-terminal-green bg-terminal-green/10',
-  community: 'border-terminal-yellow/40 text-terminal-yellow bg-terminal-yellow/10',
+  builtin: 'border-mc-accent/40 text-mc-accent bg-mc-accent-dim',
+  trusted: 'border-mc-success/40 text-mc-success bg-mc-success/10',
+  community: 'border-mc-warning/40 text-mc-warning bg-mc-warning/10',
 };
 
 function OrgSkillsList({
@@ -65,11 +65,11 @@ function OrgSkillsList({
   subtitle?: string;
 }) {
   return (
-    <div className="p-3 bg-terminal-muted/20 border border-terminal-border rounded">
-      <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim mb-0.5">
+    <div className="p-3 bg-mc-surface border border-mc-border rounded-panel">
+      <h4 className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-0.5">
         Shared Skills
       </h4>
-      <p className="text-[9px] text-terminal-dim/70 mb-3">
+      <p className="font-sans text-[10px] text-mc-text-tertiary mb-3">
         {subtitle ?? 'Available to all agents across all departments'}
       </p>
       <div className="space-y-1.5">
@@ -79,17 +79,17 @@ function OrgSkillsList({
             <div key={skill.name} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 min-w-0">
                 <HealthDot healthy={enabled} />
-                <span className="text-terminal-text truncate">{skill.label}</span>
-                <span className={`text-[8px] px-1 py-px rounded border shrink-0 ${TIER_BADGE_STYLES[skill.tier]}`}>
+                <span className="font-sans text-mc-text truncate">{skill.label}</span>
+                <span className={`font-sans text-[9px] font-medium uppercase tracking-label px-1 py-px rounded-badge border shrink-0 ${TIER_BADGE_STYLES[skill.tier]}`}>
                   {skill.tier}
                 </span>
               </div>
               <button
                 onClick={() => onToggle(skill.name)}
-                className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors shrink-0 ml-2 ${
+                className={`font-sans text-[10px] font-medium px-1.5 py-0.5 rounded-chip border transition-colors duration-mc ease-mc-out shrink-0 ml-2 ${
                   enabled
-                    ? 'border-terminal-red/30 text-terminal-red hover:bg-terminal-red/10'
-                    : 'border-terminal-green/30 text-terminal-green hover:bg-terminal-green/10'
+                    ? 'border-mc-danger/40 text-mc-danger hover:bg-mc-danger/10'
+                    : 'border-mc-success/40 text-mc-success hover:bg-mc-success/10'
                 }`}
               >
                 {enabled ? 'disable' : 'enable'}
@@ -266,7 +266,7 @@ export function OrgSidecar() {
       {/* Trigger button */}
       <button
         onClick={() => setOpen(true)}
-        className="px-3 py-1.5 text-xs font-mono text-terminal-text border border-terminal-border rounded hover:border-terminal-muted hover:bg-terminal-muted/30 transition-colors"
+        className="px-3 py-1.5 rounded-chip border border-mc-border font-sans text-xs text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
       >
         Settings
       </button>
@@ -278,23 +278,23 @@ export function OrgSidecar() {
         title="Organization Settings"
         footer={saveFooter}
       >
-        {/* ── Section 1: Core Directives ──────────────────────────── */}
+        {/* ── Section 1: Core Directives ──────────────────────── */}
         <section className="mb-6">
           <button
             onClick={() => toggleSection('directives')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-chip border transition-colors duration-mc ease-mc-out ${
               expandedSections['directives']
-                ? 'border-terminal-orange/50 bg-terminal-orange/5'
-                : 'border-terminal-border hover:border-terminal-muted'
+                ? 'border-mc-warning/40 bg-mc-warning/5'
+                : 'border-mc-border hover:border-mc-border-hover'
             }`}
           >
             <div className="flex items-center gap-2">
-              <FolderIcon className="w-4 h-4 text-terminal-orange" />
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+              <FolderIcon className="w-4 h-4 text-mc-warning" />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
                 Core Directives
               </span>
             </div>
-            <span className="text-terminal-dim text-xs">
+            <span className="font-mono text-mc-text-tertiary text-xs">
               {expandedSections['directives'] ? '\u2212' : '+'}
             </span>
           </button>
@@ -307,7 +307,7 @@ export function OrgSidecar() {
                 );
                 return (
                   <div key={category}>
-                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim/60 mb-1.5 px-2">
+                    <h4 className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-1.5 px-2">
                       {category}
                     </h4>
                     <div className="space-y-0.5">
@@ -327,23 +327,23 @@ export function OrgSidecar() {
           )}
         </section>
 
-        {/* ── Section 2: Organization Skills ──────────────────────── */}
+        {/* ── Section 2: Organization Skills ────────────────────── */}
         <section className="mb-6">
           <button
             onClick={() => toggleSection('skills')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-chip border transition-colors duration-mc ease-mc-out ${
               expandedSections['skills']
-                ? 'border-terminal-purple/50 bg-terminal-purple/5'
-                : 'border-terminal-border hover:border-terminal-muted'
+                ? 'border-mc-dept-finance/40 bg-mc-dept-finance/5'
+                : 'border-mc-border hover:border-mc-border-hover'
             }`}
           >
             <div className="flex items-center gap-2">
-              <BookOpenIcon className="w-4 h-4 text-terminal-purple" />
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+              <BookOpenIcon className="w-4 h-4 text-mc-dept-finance" />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
                 Organization Skills
               </span>
             </div>
-            <span className="text-terminal-dim text-xs">
+            <span className="font-mono text-mc-text-tertiary text-xs">
               {expandedSections['skills'] ? '\u2212' : '+'}
             </span>
           </button>
@@ -359,23 +359,23 @@ export function OrgSidecar() {
           )}
         </section>
 
-        {/* ── Section 3: Fleet Controls ───────────────────────────── */}
+        {/* ── Section 3: Fleet Controls ───────────────────────── */}
         <section className="mb-6">
           <button
             onClick={() => toggleSection('fleet')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-chip border transition-colors duration-mc ease-mc-out ${
               expandedSections['fleet']
-                ? 'border-terminal-cyan/50 bg-terminal-cyan/5'
-                : 'border-terminal-border hover:border-terminal-muted'
+                ? 'border-mc-accent/40 bg-mc-accent-dim'
+                : 'border-mc-border hover:border-mc-border-hover'
             }`}
           >
             <div className="flex items-center gap-2">
-              <CogIcon className="w-4 h-4 text-terminal-dim" />
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+              <CogIcon className="w-4 h-4 text-mc-accent" />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
                 Fleet Controls
               </span>
             </div>
-            <span className="text-terminal-dim text-xs">
+            <span className="font-mono text-mc-text-tertiary text-xs">
               {expandedSections['fleet'] ? '\u2212' : '+'}
             </span>
           </button>
@@ -387,34 +387,34 @@ export function OrgSidecar() {
           )}
         </section>
 
-        {/* ── Section 4: Governance & Safety ──────────────────────── */}
+        {/* ── Section 4: Governance & Safety ───────────────────── */}
         <section className="mb-6">
           <button
             onClick={() => toggleSection('governance')}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-chip border transition-colors duration-mc ease-mc-out ${
               expandedSections['governance']
-                ? 'border-terminal-red/50 bg-terminal-red/5'
-                : 'border-terminal-border hover:border-terminal-muted'
+                ? 'border-mc-danger/40 bg-mc-danger/5'
+                : 'border-mc-border hover:border-mc-border-hover'
             }`}
           >
             <div className="flex items-center gap-2">
-              <ShieldIcon className="w-4 h-4 text-terminal-red" />
-              <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+              <ShieldIcon className="w-4 h-4 text-mc-danger" />
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
                 Governance & Safety
               </span>
             </div>
-            <span className="text-terminal-dim text-xs">
+            <span className="font-mono text-mc-text-tertiary text-xs">
               {expandedSections['governance'] ? '\u2212' : '+'}
             </span>
           </button>
 
           {expandedSections['governance'] && (
             <div className="mt-3 space-y-3">
-              <div className="bg-terminal-muted/20 border border-terminal-border rounded p-3">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim mb-2">
+              <div className="bg-mc-surface border border-mc-border rounded-panel p-3">
+                <h4 className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-2">
                   Agent Safety Floor
                 </h4>
-                <p className="text-[10px] text-terminal-dim leading-relaxed">
+                <p className="font-sans text-[11px] text-mc-text-secondary leading-relaxed">
                   Agents cannot self-modify protected prompt files
                   (mission_statement.md, review-rules.md), CI/CD workflows, or
                   safety infrastructure. Humans can edit all files from Mission
@@ -422,33 +422,33 @@ export function OrgSidecar() {
                 </p>
               </div>
 
-              <div className="bg-terminal-muted/20 border border-terminal-border rounded p-3">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim mb-2">
+              <div className="bg-mc-surface border border-mc-border rounded-panel p-3">
+                <h4 className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-2">
                   Protected Paths (CI-Enforced)
                 </h4>
-                <div className="space-y-1 font-mono text-[10px] text-terminal-yellow">
+                <div className="space-y-1 font-mono text-[11px] text-mc-warning tabular-nums">
                   <div>.github/workflows/**</div>
                   <div>packages/core/src/safety/**</div>
                   <div>packages/core/src/review/**</div>
                 </div>
               </div>
 
-              <div className="bg-terminal-muted/20 border border-terminal-border rounded p-3">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim mb-2">
+              <div className="bg-mc-surface border border-mc-border rounded-panel p-3">
+                <h4 className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-2">
                   Codegen Exclusion
                 </h4>
-                <p className="text-[10px] text-terminal-dim leading-relaxed">
+                <p className="font-sans text-[11px] text-mc-text-secondary leading-relaxed">
                   The yclaw repo is excluded from subprocess codegen
                   (self-modification protection). Direct GitHub API actions are
                   unaffected.
                 </p>
               </div>
 
-              <div className="bg-terminal-muted/20 border border-terminal-border rounded p-3">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-terminal-dim mb-2">
+              <div className="bg-mc-surface border border-mc-border rounded-panel p-3">
+                <h4 className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-2">
                   Budget Enforcement Gate
                 </h4>
-                <p className="text-[10px] text-terminal-dim leading-relaxed">
+                <p className="font-sans text-[11px] text-mc-text-secondary leading-relaxed">
                   When hard stop is enabled, a single gate before every LLM call
                   checks Redis spend vs cap. Exceeding the cap triggers
                   BudgetExceededError and suspends the agent. Soft warnings emit

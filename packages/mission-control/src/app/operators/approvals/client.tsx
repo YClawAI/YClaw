@@ -31,7 +31,7 @@ function timeUntil(dateStr: string): string {
 
 function deptColor(dept: string): string {
   if (dept in DEPT_COLORS) return DEPT_COLORS[dept as Department];
-  return 'text-terminal-text';
+  return 'text-mc-text';
 }
 
 function deptLabel(dept: string): string {
@@ -49,25 +49,25 @@ function PendingCard({
   onReject: (id: string) => void;
 }) {
   return (
-    <div className="px-4 py-4 border-b border-terminal-border last:border-b-0">
+    <div className="px-4 py-4 border-b border-mc-border last:border-b-0">
       <div className="flex items-start gap-3 mb-2">
-        <span className="text-[10px] text-terminal-dim font-mono shrink-0">{request.requestId}</span>
+        <span className="text-[10px] text-mc-text-tertiary font-mono shrink-0">{request.requestId}</span>
         <div className="flex-1">
-          <div className="text-xs font-mono text-terminal-text">
+          <div className="text-xs font-mono text-mc-text">
             <span className="font-medium">{request.requestingOperatorName}</span>
-            <span className="text-terminal-dim"> ({request.requesterTier})</span>
-            <span className="text-terminal-dim"> → </span>
+            <span className="text-mc-text-tertiary"> ({request.requesterTier})</span>
+            <span className="text-mc-text-tertiary"> → </span>
             <span className={deptColor(request.targetDepartment)}>{deptLabel(request.targetDepartment)}</span>
-            <span className="text-terminal-dim"> / </span>
-            <span className="text-terminal-text">{request.targetAgent}</span>
+            <span className="text-mc-text-tertiary"> / </span>
+            <span className="text-mc-text">{request.targetAgent}</span>
           </div>
-          <p className="text-[10px] font-mono text-terminal-dim mt-1">
+          <p className="text-[10px] font-mono text-mc-text-tertiary mt-1">
             &ldquo;{request.reason}&rdquo;
           </p>
         </div>
       </div>
       <div className="flex items-center justify-between mt-2">
-        <div className="text-[10px] font-mono text-terminal-dim">
+        <div className="text-[10px] font-mono text-mc-text-tertiary">
           Submitted {relativeTime(request.createdAt)}
           <span className="mx-1.5">·</span>
           Expires in {timeUntil(request.expiresAt)}
@@ -75,13 +75,13 @@ function PendingCard({
         <div className="flex gap-2">
           <button
             onClick={() => onApprove(request.requestId)}
-            className="px-3 py-1 text-[10px] font-mono rounded border border-terminal-green/40 text-terminal-green hover:bg-terminal-green/10 transition-colors"
+            className="px-3 py-1 text-[10px] font-mono rounded border border-mc-success/40 text-mc-success hover:bg-mc-success/10 transition-colors"
           >
             Approve
           </button>
           <button
             onClick={() => onReject(request.requestId)}
-            className="px-3 py-1 text-[10px] font-mono rounded border border-terminal-red/30 text-terminal-red hover:bg-terminal-red/10 transition-colors"
+            className="px-3 py-1 text-[10px] font-mono rounded border border-mc-danger/30 text-mc-danger hover:bg-mc-danger/10 transition-colors"
           >
             Reject
           </button>
@@ -94,32 +94,32 @@ function PendingCard({
 function DecisionRow({ decision }: { decision: ApprovalDecision }) {
   const isApproved = decision.action === 'cross_dept.approve';
   return (
-    <div className="px-4 py-3 border-b border-terminal-border last:border-b-0">
+    <div className="px-4 py-3 border-b border-mc-border last:border-b-0">
       <div className="flex items-start gap-2">
-        <span className={`mt-0.5 ${isApproved ? 'text-terminal-green' : 'text-terminal-red'}`}>
+        <span className={`mt-0.5 ${isApproved ? 'text-mc-success' : 'text-mc-danger'}`}>
           {isApproved ? <CheckIcon /> : <XIcon />}
         </span>
         <div className="flex-1">
-          <div className="text-xs font-mono text-terminal-text">
+          <div className="text-xs font-mono text-mc-text">
             {decision.requestId && (
-              <span className="text-[10px] text-terminal-dim mr-1">{decision.requestId}</span>
+              <span className="text-[10px] text-mc-text-tertiary mr-1">{decision.requestId}</span>
             )}
-            <span className={isApproved ? 'text-terminal-green' : 'text-terminal-red'}>
+            <span className={isApproved ? 'text-mc-success' : 'text-mc-danger'}>
               {isApproved ? 'Approved' : 'Rejected'}
             </span>
-            <span className="text-terminal-dim"> by {decision.decidedBy}</span>
+            <span className="text-mc-text-tertiary"> by {decision.decidedBy}</span>
           </div>
           {decision.note && (
-            <div className="text-[10px] font-mono text-terminal-dim mt-0.5">
+            <div className="text-[10px] font-mono text-mc-text-tertiary mt-0.5">
               &ldquo;{decision.note}&rdquo;
             </div>
           )}
-          <div className="text-[10px] font-mono text-terminal-dim mt-0.5">
+          <div className="text-[10px] font-mono text-mc-text-tertiary mt-0.5">
             {relativeTime(decision.timestamp)}
             {decision.resultingTaskId && (
               <Link
                 href={`/system/queues?task=${decision.resultingTaskId}`}
-                className="ml-2 text-terminal-green hover:text-terminal-green/80 transition-colors"
+                className="ml-2 text-mc-success hover:text-mc-success/80 transition-colors"
               >
                 → Task {decision.resultingTaskId}
               </Link>
@@ -171,34 +171,34 @@ export function ApprovalsClient({ initialData }: { initialData?: ApprovalsPageDa
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg font-bold text-terminal-text tracking-wide">
+        <h1 className="text-lg font-bold text-mc-text tracking-wide">
           Cross-Department Requests
         </h1>
         {pending.length > 0 && (
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-terminal-red/10 border border-terminal-red/30 text-terminal-red">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-mc-danger/10 border border-mc-danger/30 text-mc-danger">
             Pending: {pending.length}
           </span>
         )}
       </div>
 
       {error && (
-        <div className="mb-6 px-4 py-3 rounded-lg border border-terminal-red/30 bg-terminal-red/5">
-          <div className="text-xs font-mono text-terminal-red">{error instanceof Error ? error.message : 'Failed to load'}</div>
+        <div className="mb-6 px-4 py-3 rounded-lg border border-mc-danger/30 bg-mc-danger/5">
+          <div className="text-xs font-mono text-mc-danger">{error instanceof Error ? error.message : 'Failed to load'}</div>
         </div>
       )}
 
       {isLoading && !error && (
-        <div className="text-center py-16 text-terminal-dim text-xs font-mono">Loading...</div>
+        <div className="text-center py-16 text-mc-text-tertiary text-xs font-mono">Loading...</div>
       )}
 
       {/* Pending */}
       {!isLoading && pending.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2 px-1">
-            <span className="text-xs font-bold font-mono text-terminal-dim uppercase tracking-wider">Pending</span>
-            <span className="text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded">{pending.length}</span>
+            <span className="text-xs font-bold font-mono text-mc-text-tertiary uppercase tracking-wider">Pending</span>
+            <span className="text-[10px] font-mono text-mc-text-tertiary bg-mc-border px-1.5 py-0.5 rounded">{pending.length}</span>
           </div>
-          <div className="border border-terminal-border rounded-lg bg-terminal-surface">
+          <div className="border border-mc-border rounded-lg bg-mc-surface-hover">
             {pending.map((r) => (
               <PendingCard key={r.requestId} request={r} onApprove={openApprove} onReject={openReject} />
             ))}
@@ -207,7 +207,7 @@ export function ApprovalsClient({ initialData }: { initialData?: ApprovalsPageDa
       )}
 
       {!isLoading && pending.length === 0 && !error && (
-        <div className="mb-6 text-center py-8 text-terminal-dim text-xs font-mono border border-terminal-border rounded-lg bg-terminal-surface">
+        <div className="mb-6 text-center py-8 text-mc-text-tertiary text-xs font-mono border border-mc-border rounded-lg bg-mc-surface-hover">
           No pending cross-department requests
         </div>
       )}
@@ -216,10 +216,10 @@ export function ApprovalsClient({ initialData }: { initialData?: ApprovalsPageDa
       {!isLoading && decisions.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-2 px-1">
-            <span className="text-xs font-bold font-mono text-terminal-dim uppercase tracking-wider">Recent Decisions</span>
-            <span className="text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded">{decisions.length}</span>
+            <span className="text-xs font-bold font-mono text-mc-text-tertiary uppercase tracking-wider">Recent Decisions</span>
+            <span className="text-[10px] font-mono text-mc-text-tertiary bg-mc-border px-1.5 py-0.5 rounded">{decisions.length}</span>
           </div>
-          <div className="border border-terminal-border rounded-lg bg-terminal-surface">
+          <div className="border border-mc-border rounded-lg bg-mc-surface-hover">
             {decisions.map((d) => (
               <DecisionRow key={d.id} decision={d} />
             ))}
@@ -230,18 +230,18 @@ export function ApprovalsClient({ initialData }: { initialData?: ApprovalsPageDa
       {/* Approve/Reject Confirmation Overlay */}
       {actionType && selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-terminal-surface border border-terminal-border rounded-lg shadow-2xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-sm font-bold font-mono text-terminal-text mb-3">
+          <div className="bg-mc-surface-hover border border-mc-border rounded-lg shadow-2xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-sm font-bold font-mono text-mc-text mb-3">
               {actionType === 'approve' ? 'Approve Request' : 'Reject Request'}
             </h3>
-            <div className="text-xs font-mono text-terminal-dim mb-1">
+            <div className="text-xs font-mono text-mc-text-tertiary mb-1">
               {selectedRequest.requestingOperatorName} → {deptLabel(selectedRequest.targetDepartment)} / {selectedRequest.targetAgent}
             </div>
-            <div className="text-[10px] font-mono text-terminal-dim mb-4">
+            <div className="text-[10px] font-mono text-mc-text-tertiary mb-4">
               &ldquo;{selectedRequest.reason}&rdquo;
             </div>
             <div className="mb-4">
-              <label className="text-[10px] text-terminal-dim font-mono block mb-1">
+              <label className="text-[10px] text-mc-text-tertiary font-mono block mb-1">
                 {actionType === 'reject' ? 'Reason *' : 'Note (optional)'}
               </label>
               <input
@@ -249,14 +249,14 @@ export function ApprovalsClient({ initialData }: { initialData?: ApprovalsPageDa
                 value={actionNote}
                 onChange={(e) => setActionNote(e.target.value)}
                 placeholder={actionType === 'approve' ? 'Approved — priority Q2 work' : 'Reason for rejection...'}
-                className="w-full px-3 py-1.5 text-xs font-mono rounded border border-terminal-border bg-terminal-bg text-terminal-text placeholder:text-terminal-dim/50 focus:outline-none focus:border-terminal-purple/50"
+                className="w-full px-3 py-1.5 text-xs font-mono rounded border border-mc-border bg-mc-bg text-mc-text placeholder:text-mc-text-tertiary/50 focus:outline-none focus:border-mc-accent/50"
               />
             </div>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={closeAction}
                 disabled={actionLoading}
-                className="px-3 py-1.5 text-xs font-mono rounded border border-terminal-border text-terminal-dim hover:text-terminal-text transition-colors"
+                className="px-3 py-1.5 text-xs font-mono rounded border border-mc-border text-mc-text-tertiary hover:text-mc-text transition-colors"
               >
                 Cancel
               </button>
@@ -264,7 +264,7 @@ export function ApprovalsClient({ initialData }: { initialData?: ApprovalsPageDa
                 <button
                   onClick={handleAction}
                   disabled={actionLoading}
-                  className="px-3 py-1.5 text-xs font-mono rounded border border-terminal-green/50 bg-terminal-green/10 text-terminal-green hover:bg-terminal-green/20 transition-colors disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs font-mono rounded border border-mc-success/50 bg-mc-success/10 text-mc-success hover:bg-mc-success/20 transition-colors disabled:opacity-50"
                 >
                   {actionLoading ? 'Approving...' : 'Approve & Create Task'}
                 </button>
@@ -272,7 +272,7 @@ export function ApprovalsClient({ initialData }: { initialData?: ApprovalsPageDa
                 <button
                   onClick={handleAction}
                   disabled={actionLoading || !actionNote.trim()}
-                  className="px-3 py-1.5 text-xs font-mono rounded border border-terminal-red/50 bg-terminal-red/10 text-terminal-red hover:bg-terminal-red/20 transition-colors disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs font-mono rounded border border-mc-danger/50 bg-mc-danger/10 text-mc-danger hover:bg-mc-danger/20 transition-colors disabled:opacity-50"
                 >
                   {actionLoading ? 'Rejecting...' : 'Reject'}
                 </button>

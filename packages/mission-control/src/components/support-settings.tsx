@@ -10,7 +10,7 @@ import {
 import type { AgentCardConfig, AlertDef } from './department-settings-shared';
 import { useDepartmentSettings } from '@/hooks/use-department-settings';
 
-// ── Icons ────────────────────────────────────────────────────────────────────
+// ── Icons ───────────────────────────────────────────────────────────────────────
 
 function BookOpenIcon({ className }: { className?: string }) {
   return (
@@ -36,7 +36,7 @@ function ShieldIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Agent Configs ────────────────────────────────────────────────────────────
+// ── Agent Configs ──────────────────────────────────────────────────────────────────
 
 const GUIDE: AgentCardConfig = {
   name: 'guide',
@@ -81,7 +81,7 @@ const KEEPER: AgentCardConfig = {
 
 const AGENTS: AgentCardConfig[] = [GUIDE, KEEPER];
 
-// ── Knowledge Base ───────────────────────────────────────────────────────────
+// ── Knowledge Base ────────────────────────────────────────────────────────────────
 
 interface KBDocDef {
   id: string;
@@ -100,7 +100,7 @@ const KB_DOCS: KBDocDef[] = [
   { id: 'faqPostLaunch', filename: 'faq-bank-postlaunch.md', label: 'FAQ Bank — Post Launch', usedBy: 'Keeper', placeholder: '# FAQ Bank — Post Launch\n\nQuestions specific to post-launch phase...' },
 ];
 
-// ── Support Channels ─────────────────────────────────────────────────────────
+// ── Support Channels ────────────────────────────────────────────────────────────
 
 interface ChannelDef { name: string; connected: boolean; note?: string }
 
@@ -116,7 +116,7 @@ const SUPPORT_CHANNELS: ChannelDef[] = [
   { name: 'Freshdesk', connected: false },
 ];
 
-// ── Notifications ────────────────────────────────────────────────────────────
+// ── Notifications ─────────────────────────────────────────────────────────────────
 
 const ALERTS: AlertDef[] = [
   { key: 'escalation', label: 'Support ticket escalated', desc: 'Alert when a case is escalated to Guide' },
@@ -127,7 +127,7 @@ const ALERTS: AlertDef[] = [
   { key: 'guideResolved', label: 'Guide resolution completed', desc: 'Notify when Guide successfully resolves a ticket' },
 ];
 
-// ── Form State ───────────────────────────────────────────────────────────────
+// ── Form State ─────────────────────────────────────────────────────────────────────
 
 interface SupportForm {
   directive: string;
@@ -173,7 +173,7 @@ const INITIAL: SupportForm = {
   slackChannel: '#yclaw-support',
 };
 
-// ── KB Document Item (expand/collapse with editable textarea) ────────────────
+// ── KB Document Item (expand/collapse with editable textarea) ────────────
 
 function KBDocItem({
   doc,
@@ -186,27 +186,27 @@ function KBDocItem({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-terminal-border/60 rounded overflow-hidden">
+    <div className="border border-mc-border/60 rounded-panel overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-terminal-muted/10 transition-colors ${
-          open ? 'bg-terminal-muted/10' : ''
+        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-mc-surface/50 transition-colors duration-mc ease-mc-out ${
+          open ? 'bg-mc-surface/50' : ''
         }`}
       >
         <div className="min-w-0">
-          <div className="text-xs text-terminal-text font-medium">{doc.label}</div>
-          <div className="text-[9px] text-terminal-dim">Used by: {doc.usedBy}</div>
+          <div className="font-sans text-xs text-mc-text font-medium">{doc.label}</div>
+          <div className="font-sans text-[9px] text-mc-text-tertiary">Used by: {doc.usedBy}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-2">
-          <span className="text-[9px] text-terminal-dim font-mono">{doc.filename}</span>
-          <span className="text-terminal-dim text-xs">{open ? '\u2212' : '+'}</span>
+          <span className="text-[9px] text-mc-text-tertiary font-mono">{doc.filename}</span>
+          <span className="text-mc-text-tertiary text-xs">{open ? '\u2212' : '+'}</span>
         </div>
       </button>
       {open && (
         <div className="px-3 pb-3">
           <textarea
-            className="w-full bg-terminal-bg border border-terminal-border rounded p-2 text-xs text-terminal-text font-mono resize-y focus:outline-none focus:border-terminal-cyan placeholder:text-terminal-dim/40"
+            className="w-full bg-mc-surface border border-mc-border rounded-panel p-2 text-xs text-mc-text font-mono resize-y focus:outline-none focus:border-mc-accent placeholder:text-mc-text-tertiary/40 transition-colors duration-mc ease-mc-out"
             style={{ maxHeight: 300, minHeight: value ? 150 : 80 }}
             placeholder={doc.placeholder}
             value={value}
@@ -219,7 +219,7 @@ function KBDocItem({
   );
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────────────────────────────
 
 interface Props { open: boolean; onClose: () => void }
 
@@ -293,8 +293,8 @@ export function SupportSettings({ open, onClose }: Props) {
       {/* 3. Knowledge Base */}
       <SettingsSection
         label="Knowledge Base"
-        icon={<BookOpenIcon className="w-4 h-4 text-terminal-cyan" />}
-        iconColor="terminal-cyan"
+        icon={<BookOpenIcon className="w-4 h-4 text-mc-accent" />}
+        iconColor="mc-accent"
         expanded={exp['kb'] ?? false}
         onToggle={() => tog('kb')}
         headerExtra={
@@ -316,8 +316,8 @@ export function SupportSettings({ open, onClose }: Props) {
       {/* 4. Support Channels */}
       <SettingsSection
         label="Support Channels"
-        icon={<HeadphonesIcon className="w-4 h-4 text-terminal-blue" />}
-        iconColor="terminal-blue"
+        icon={<HeadphonesIcon className="w-4 h-4 text-mc-info" />}
+        iconColor="mc-info"
         expanded={exp['channels'] ?? false}
         onToggle={() => tog('channels')}
         headerExtra={
@@ -328,22 +328,22 @@ export function SupportSettings({ open, onClose }: Props) {
           {SUPPORT_CHANNELS.map((ch) => (
             <div key={ch.name} className="flex items-center justify-between py-1.5">
               <div className="flex items-center gap-2">
-                <span className={`w-1.5 h-1.5 rounded-full ${ch.connected ? 'bg-terminal-green' : 'bg-terminal-dim/40'}`} />
-                <span className="text-xs text-terminal-text">{ch.name}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${ch.connected ? 'bg-mc-success' : 'bg-mc-text-tertiary/40'}`} />
+                <span className="font-sans text-xs text-mc-text">{ch.name}</span>
               </div>
               {ch.connected ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] px-1.5 py-0.5 rounded border border-terminal-green/40 text-terminal-green bg-terminal-green/10">
+                  <span className="font-sans text-[9px] px-1.5 py-0.5 rounded-panel border border-mc-success/40 text-mc-success bg-mc-success/10">
                     Connected
                   </span>
-                  {ch.note && <span className="text-[8px] text-terminal-dim">{ch.note}</span>}
-                  <button type="button" className="text-[9px] text-terminal-dim hover:text-terminal-red transition-colors">
+                  {ch.note && <span className="font-sans text-[8px] text-mc-text-tertiary">{ch.note}</span>}
+                  <button type="button" className="font-sans text-[9px] text-mc-text-tertiary hover:text-mc-danger transition-colors duration-mc ease-mc-out">
                     Disconnect
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] px-1.5 py-0.5 rounded border border-terminal-border text-terminal-dim">
+                  <span className="font-sans text-[9px] px-1.5 py-0.5 rounded-panel border border-mc-border text-mc-text-tertiary">
                     Not Connected
                   </span>
                 </div>
@@ -351,7 +351,7 @@ export function SupportSettings({ open, onClose }: Props) {
             </div>
           ))}
         </div>
-        <p className="text-[9px] text-terminal-dim/50 mt-2">
+        <p className="font-sans text-[9px] text-mc-text-tertiary/50 mt-2">
           Additional platforms can be configured as they become available.
         </p>
       </SettingsSection>
@@ -359,8 +359,8 @@ export function SupportSettings({ open, onClose }: Props) {
       {/* 5. Policies & Escalation (merged) */}
       <SettingsSection
         label="Policies & Escalation"
-        icon={<ShieldIcon className="w-4 h-4 text-terminal-red" />}
-        iconColor="terminal-red"
+        icon={<ShieldIcon className="w-4 h-4 text-mc-danger" />}
+        iconColor="mc-danger"
         expanded={exp['policy'] ?? false}
         onToggle={() => tog('policy')}
         headerExtra={
@@ -368,41 +368,41 @@ export function SupportSettings({ open, onClose }: Props) {
         }
       >
         {/* Moderation */}
-        <div className="text-[9px] font-bold uppercase tracking-widest text-terminal-dim/50 mb-1">Moderation</div>
+        <div className="font-sans text-[9px] font-medium uppercase tracking-label text-mc-text-tertiary/50 mb-1">Moderation</div>
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest">Moderation Strictness</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">Moderation Strictness</label>
             <InfoTooltip text="Relaxed = warnings only. Standard = warn then restrict. Strict = immediate action." />
           </div>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.moderationStrictness} onChange={(e) => set('moderationStrictness', e.target.value)}>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.moderationStrictness} onChange={(e) => set('moderationStrictness', e.target.value)}>
             <option value="relaxed">Relaxed</option>
             <option value="standard">Standard</option>
             <option value="strict">Strict</option>
           </select>
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Auto-redact PII</span><span className="text-[10px] text-terminal-dim">Wallet addresses, emails, phone numbers</span></div>
-          <ToggleSwitch checked={form.autoRedactPii} onChange={(v) => set('autoRedactPii', v)} color="terminal-red" />
+          <div><span className="font-sans text-xs text-mc-text block">Auto-redact PII</span><span className="font-sans text-[10px] text-mc-text-tertiary">Wallet addresses, emails, phone numbers</span></div>
+          <ToggleSwitch checked={form.autoRedactPii} onChange={(v) => set('autoRedactPii', v)} color="mc-danger" />
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Enable quiet hours</span><span className="text-[10px] text-terminal-dim">Reduce automated responses during off-hours</span></div>
-          <ToggleSwitch checked={form.quietHoursEnabled} onChange={(v) => set('quietHoursEnabled', v)} color="terminal-red" />
+          <div><span className="font-sans text-xs text-mc-text block">Enable quiet hours</span><span className="font-sans text-[10px] text-mc-text-tertiary">Reduce automated responses during off-hours</span></div>
+          <ToggleSwitch checked={form.quietHoursEnabled} onChange={(v) => set('quietHoursEnabled', v)} color="mc-danger" />
         </div>
         {form.quietHoursEnabled && (
           <>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Start (UTC)</label>
-                <input type="time" className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.quietHoursStart} onChange={(e) => set('quietHoursStart', e.target.value)} />
+                <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Start (UTC)</label>
+                <input type="time" className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-mono tabular-nums text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.quietHoursStart} onChange={(e) => set('quietHoursStart', e.target.value)} />
               </div>
               <div>
-                <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">End (UTC)</label>
-                <input type="time" className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.quietHoursEnd} onChange={(e) => set('quietHoursEnd', e.target.value)} />
+                <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">End (UTC)</label>
+                <input type="time" className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-mono tabular-nums text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.quietHoursEnd} onChange={(e) => set('quietHoursEnd', e.target.value)} />
               </div>
             </div>
             <div>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Auto-response During Quiet Hours</label>
-              <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.quietHoursAutoResponse} onChange={(e) => set('quietHoursAutoResponse', e.target.value)}>
+              <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Auto-response During Quiet Hours</label>
+              <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.quietHoursAutoResponse} onChange={(e) => set('quietHoursAutoResponse', e.target.value)}>
                 <option value="disabled">Disabled</option>
                 <option value="acknowledge">Acknowledge only</option>
                 <option value="faq">FAQ bot</option>
@@ -412,13 +412,13 @@ export function SupportSettings({ open, onClose }: Props) {
         )}
 
         {/* Divider */}
-        <div className="border-t border-terminal-border/40 my-1" />
+        <div className="border-t border-mc-border/40 my-1" />
 
         {/* Escalation */}
-        <div className="text-[9px] font-bold uppercase tracking-widest text-terminal-dim/50 mb-1">Escalation</div>
+        <div className="font-sans text-[9px] font-medium uppercase tracking-label text-mc-text-tertiary/50 mb-1">Escalation</div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Auto-escalate Unresolved Tickets After</label>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.autoEscalateAfter} onChange={(e) => set('autoEscalateAfter', e.target.value)}>
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Auto-escalate Unresolved Tickets After</label>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.autoEscalateAfter} onChange={(e) => set('autoEscalateAfter', e.target.value)}>
             <option value="15">15 minutes</option>
             <option value="30">30 minutes</option>
             <option value="60">1 hour</option>
@@ -427,16 +427,16 @@ export function SupportSettings({ open, onClose }: Props) {
           </select>
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">SLA Target Response Time (min)</label>
-          <input type="number" min={1} className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.slaTarget} onChange={(e) => set('slaTarget', e.target.value)} />
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">SLA Target Response Time (min)</label>
+          <input type="number" min={1} className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-mono tabular-nums text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.slaTarget} onChange={(e) => set('slaTarget', e.target.value)} />
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Auto-assign escalations to Guide</span><span className="text-[10px] text-terminal-dim">Automatically route escalated cases to Guide agent</span></div>
-          <ToggleSwitch checked={form.autoAssignGuide} onChange={(v) => set('autoAssignGuide', v)} color="terminal-red" />
+          <div><span className="font-sans text-xs text-mc-text block">Auto-assign escalations to Guide</span><span className="font-sans text-[10px] text-mc-text-tertiary">Automatically route escalated cases to Guide agent</span></div>
+          <ToggleSwitch checked={form.autoAssignGuide} onChange={(v) => set('autoAssignGuide', v)} color="mc-danger" />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Escalation Priority</label>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.escalationPriority} onChange={(e) => set('escalationPriority', e.target.value)}>
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Escalation Priority</label>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.escalationPriority} onChange={(e) => set('escalationPriority', e.target.value)}>
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
@@ -444,15 +444,15 @@ export function SupportSettings({ open, onClose }: Props) {
           </select>
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Notify on SLA breach</span><span className="text-[10px] text-terminal-dim">Send alert when response time exceeds SLA target</span></div>
-          <ToggleSwitch checked={form.notifySla} onChange={(v) => set('notifySla', v)} color="terminal-red" />
+          <div><span className="font-sans text-xs text-mc-text block">Notify on SLA breach</span><span className="font-sans text-[10px] text-mc-text-tertiary">Send alert when response time exceeds SLA target</span></div>
+          <ToggleSwitch checked={form.notifySla} onChange={(v) => set('notifySla', v)} color="mc-danger" />
         </div>
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest">Max Keeper Retries Before Escalation</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">Max Keeper Retries Before Escalation</label>
             <InfoTooltip text="If Keeper can't resolve after this many attempts, automatically escalate to Guide." />
           </div>
-          <input type="number" min={1} max={10} className="w-24 bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.maxKeeperRetries} onChange={(e) => set('maxKeeperRetries', e.target.value)} />
+          <input type="number" min={1} max={10} className="w-24 bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-mono tabular-nums text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.maxKeeperRetries} onChange={(e) => set('maxKeeperRetries', e.target.value)} />
         </div>
       </SettingsSection>
 

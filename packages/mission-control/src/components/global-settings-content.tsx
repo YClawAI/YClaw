@@ -126,7 +126,7 @@ function InfoTooltip({ text }: { text: string }) {
     <span ref={ref} className="inline-flex">
       <span
         role="note"
-        className="w-4 h-4 rounded-full border border-terminal-dim/40 text-terminal-dim text-[9px] font-bold leading-none flex items-center justify-center hover:border-terminal-text hover:text-terminal-text transition-colors cursor-help"
+        className="w-4 h-4 rounded-full border border-mc-text-tertiary/40 text-mc-text-tertiary text-[9px] font-bold leading-none flex items-center justify-center hover:border-mc-text hover:text-mc-text transition-colors duration-mc ease-mc-out cursor-help"
         onMouseEnter={open}
         onMouseLeave={close}
         onClick={(e) => { e.stopPropagation(); show ? close() : open(); }}
@@ -136,7 +136,7 @@ function InfoTooltip({ text }: { text: string }) {
       </span>
       {show && pos && (
         <div
-          className="fixed w-56 p-2.5 rounded border border-terminal-border bg-terminal-surface shadow-2xl text-[10px] text-terminal-dim leading-relaxed z-[100]"
+          className="fixed w-56 p-2.5 rounded-panel border border-mc-border bg-mc-surface shadow-2xl text-[10px] text-mc-text-tertiary leading-relaxed z-[100]"
           style={{ top: pos.top, left: pos.left }}
           onMouseEnter={open}
           onMouseLeave={close}
@@ -151,28 +151,26 @@ function InfoTooltip({ text }: { text: string }) {
 // ── ToggleSwitch ─────────────────────────────────────────────────────────────
 
 const TOGGLE_STYLES: Record<string, { on: string; off: string; knob: string }> = {
-  'terminal-cyan': { on: 'bg-terminal-cyan/50 border-terminal-cyan/30', off: 'bg-terminal-cyan/20 border-terminal-cyan/30', knob: 'bg-terminal-cyan' },
-  'terminal-green': { on: 'bg-terminal-green/50 border-terminal-green/30', off: 'bg-terminal-green/20 border-terminal-green/30', knob: 'bg-terminal-green' },
-  'terminal-red': { on: 'bg-terminal-red/50 border-terminal-red/30', off: 'bg-terminal-red/20 border-terminal-red/30', knob: 'bg-terminal-red' },
-  'terminal-orange': { on: 'bg-terminal-orange/50 border-terminal-orange/30', off: 'bg-terminal-orange/20 border-terminal-orange/30', knob: 'bg-terminal-orange' },
-  'terminal-blue': { on: 'bg-terminal-blue/50 border-terminal-blue/30', off: 'bg-terminal-blue/20 border-terminal-blue/30', knob: 'bg-terminal-blue' },
-  'terminal-purple': { on: 'bg-terminal-purple/50 border-terminal-purple/30', off: 'bg-terminal-purple/20 border-terminal-purple/30', knob: 'bg-terminal-purple' },
-  'terminal-yellow': { on: 'bg-terminal-yellow/50 border-terminal-yellow/30', off: 'bg-terminal-yellow/20 border-terminal-yellow/30', knob: 'bg-terminal-yellow' },
+  'mc-accent': { on: 'bg-mc-accent/50 border-mc-accent/30', off: 'bg-mc-accent/20 border-mc-accent/30', knob: 'bg-mc-accent' },
+  'mc-success': { on: 'bg-mc-success/50 border-mc-success/30', off: 'bg-mc-success/20 border-mc-success/30', knob: 'bg-mc-success' },
+  'mc-danger': { on: 'bg-mc-danger/50 border-mc-danger/30', off: 'bg-mc-danger/20 border-mc-danger/30', knob: 'bg-mc-danger' },
+  'mc-warning': { on: 'bg-mc-warning/50 border-mc-warning/30', off: 'bg-mc-warning/20 border-mc-warning/30', knob: 'bg-mc-warning' },
+  'mc-info': { on: 'bg-mc-info/50 border-mc-info/30', off: 'bg-mc-info/20 border-mc-info/30', knob: 'bg-mc-info' },
 };
 
 function ToggleSwitch({
   checked,
   onChange,
-  color = 'terminal-cyan',
+  color = 'mc-accent',
 }: {
   checked: boolean;
   onChange: (val: boolean) => void;
   color?: string;
 }) {
-  const styles = TOGGLE_STYLES[color] ?? TOGGLE_STYLES['terminal-cyan']!;
+  const styles = TOGGLE_STYLES[color] ?? TOGGLE_STYLES['mc-accent']!;
   return (
     <button
-      className={`relative w-10 h-5 rounded-full border transition-colors ${checked ? styles.on : styles.off}`}
+      className={`relative w-10 h-5 rounded-full border transition-colors duration-mc ease-mc-out ${checked ? styles.on : styles.off}`}
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
@@ -186,12 +184,12 @@ function ToggleSwitch({
 
 const SECTION_EXPANDED_STYLES: Record<string, string> = {
   slate: 'border-slate-500/50 bg-slate-500/5',
-  cyan: 'border-terminal-cyan/50 bg-terminal-cyan/5',
-  purple: 'border-terminal-purple/50 bg-terminal-purple/5',
-  blue: 'border-terminal-blue/50 bg-terminal-blue/5',
-  red: 'border-terminal-red/50 bg-terminal-red/5',
-  green: 'border-terminal-green/50 bg-terminal-green/5',
-  orange: 'border-terminal-orange/50 bg-terminal-orange/5',
+  cyan: 'border-mc-accent/50 bg-mc-accent/5',
+  purple: 'border-mc-info/50 bg-mc-info/5',
+  blue: 'border-mc-info/50 bg-mc-info/5',
+  red: 'border-mc-danger/50 bg-mc-danger/5',
+  green: 'border-mc-success/50 bg-mc-success/5',
+  orange: 'border-mc-warning/50 bg-mc-warning/5',
 };
 
 function Section({
@@ -211,24 +209,24 @@ function Section({
   tooltip?: string;
   children: React.ReactNode;
 }) {
-  const expandedStyle = SECTION_EXPANDED_STYLES[borderColor] ?? 'border-terminal-border';
+  const expandedStyle = SECTION_EXPANDED_STYLES[borderColor] ?? 'border-mc-border';
   return (
     <section className="mb-4">
       <button
         onClick={onToggle}
         aria-expanded={expanded}
-        className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
-          expanded ? expandedStyle : 'border-terminal-border hover:border-terminal-muted'
+        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-panel border transition-colors duration-mc ease-mc-out ${
+          expanded ? expandedStyle : 'border-mc-border hover:border-mc-border-hover'
         }`}
       >
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+          <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
             {label}
           </span>
           {tooltip && <InfoTooltip text={tooltip} />}
         </div>
-        <span className="text-terminal-dim text-xs">{expanded ? '\u2212' : '+'}</span>
+        <span className="text-mc-text-tertiary text-xs">{expanded ? '\u2212' : '+'}</span>
       </button>
       {expanded && <div className="mt-3 pl-1 space-y-4">{children}</div>}
     </section>
@@ -240,8 +238,8 @@ function Section({
 function SubHeader({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 pt-2">
-      <span className="text-[9px] font-bold uppercase tracking-widest text-terminal-dim/50">{label}</span>
-      <div className="flex-1 border-t border-terminal-border/40" />
+      <span className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-tertiary">{label}</span>
+      <div className="flex-1 border-t border-mc-border/40" />
     </div>
   );
 }
@@ -254,7 +252,7 @@ function MaskedInput({
   onChange,
   placeholder,
   readOnly,
-  focusColor = 'focus:border-terminal-cyan',
+  focusColor = 'focus:border-mc-accent',
 }: {
   label?: string;
   value: string;
@@ -275,7 +273,7 @@ function MaskedInput({
   return (
     <div>
       {label && (
-        <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">
+        <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">
           {label}
         </label>
       )}
@@ -286,12 +284,12 @@ function MaskedInput({
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
           readOnly={readOnly}
-          className={`flex-1 bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none ${focusColor} ${readOnly ? 'opacity-70 cursor-default' : ''}`}
+          className={`flex-1 bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none ${focusColor} ${readOnly ? 'opacity-70 cursor-default' : ''}`}
         />
         <button
           type="button"
           onClick={() => setVisible(!visible)}
-          className="p-1.5 text-terminal-dim hover:text-terminal-text transition-colors"
+          className="p-1.5 text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out"
           aria-label={visible ? 'Hide' : 'Show'}
         >
           {visible ? <EyeSlashIcon /> : <EyeIcon />}
@@ -299,11 +297,11 @@ function MaskedInput({
         <button
           type="button"
           onClick={handleCopy}
-          className="p-1.5 text-terminal-dim hover:text-terminal-text transition-colors"
+          className="p-1.5 text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out"
           aria-label="Copy"
         >
           {copied ? (
-            <span className="text-terminal-green text-[10px] font-mono">ok</span>
+            <span className="text-mc-success text-[10px] font-mono">ok</span>
           ) : (
             <CopyIcon />
           )}
@@ -317,23 +315,23 @@ function MaskedInput({
 
 function StatusDot({ status }: { status: 'connected' | 'available' | 'error' | 'in_progress' }) {
   const colors = {
-    connected: 'bg-terminal-green',
-    available: 'bg-terminal-dim/40',
-    error: 'bg-terminal-red',
-    in_progress: 'bg-terminal-orange animate-pulse',
+    connected: 'bg-mc-success',
+    available: 'bg-mc-text-tertiary/40',
+    error: 'bg-mc-danger',
+    in_progress: 'bg-mc-warning animate-mc-pulse shadow-[0_0_6px_currentColor] text-mc-warning',
   };
   return <span className={`w-2 h-2 rounded-full inline-block shrink-0 ${colors[status]}`} />;
 }
 
 function StatusBadge({ status }: { status: 'connected' | 'available' | 'error' }) {
   const styles = {
-    connected: 'text-terminal-green border-terminal-green/30 bg-terminal-green/10',
-    available: 'text-terminal-dim border-terminal-border bg-terminal-muted/20',
-    error: 'text-terminal-red border-terminal-red/30 bg-terminal-red/10',
+    connected: 'text-mc-success border-mc-success/30 bg-mc-success/10',
+    available: 'text-mc-text-tertiary border-mc-border bg-mc-surface/60',
+    error: 'text-mc-danger border-mc-danger/30 bg-mc-danger/10',
   };
   const labels = { connected: 'Connected', available: 'Available', error: 'Error' };
   return (
-    <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${styles[status]}`}>
+    <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-panel border ${styles[status]}`}>
       {labels[status]}
     </span>
   );
@@ -342,9 +340,9 @@ function StatusBadge({ status }: { status: 'connected' | 'available' | 'error' }
 // ── Connection Card ──────────────────────────────────────────────────────────
 
 const TIER_BADGES: Record<number, { label: string; color: string }> = {
-  1: { label: 'Simple', color: 'text-terminal-dim border-terminal-border' },
-  2: { label: 'Guided', color: 'text-terminal-purple border-terminal-purple/30' },
-  3: { label: 'Full Wiring', color: 'text-terminal-orange border-terminal-orange/30' },
+  1: { label: 'Simple', color: 'text-mc-text-tertiary border-mc-border' },
+  2: { label: 'Guided', color: 'text-mc-info border-mc-info/30' },
+  3: { label: 'Full Wiring', color: 'text-mc-warning border-mc-warning/30' },
 };
 
 function ConnectionCard({
@@ -365,42 +363,42 @@ function ConnectionCard({
   const tierInfo = tier ? TIER_BADGES[tier] : undefined;
 
   return (
-    <div className="flex items-center justify-between py-2 px-2.5 bg-terminal-muted/10 border border-terminal-border/60 rounded hover:border-terminal-muted transition-colors">
+    <div className="flex items-center justify-between py-2 px-2.5 bg-mc-surface/40 border border-mc-border/60 rounded-panel hover:border-mc-border-hover transition-colors duration-mc ease-mc-out">
       <div className="flex items-center gap-2.5 min-w-0">
         <StatusDot status={status === 'in_progress' ? 'available' : status} />
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-terminal-text">{name}</span>
+            <span className="text-xs text-mc-text">{name}</span>
             {tierInfo && (
-              <span className={`text-[8px] font-mono px-1 py-0.5 rounded border ${tierInfo.color}`}>
+              <span className={`text-[8px] font-mono px-1 py-0.5 rounded-panel border ${tierInfo.color}`}>
                 {tierInfo.label}
               </span>
             )}
             {source === 'recipe' && (
-              <span className="text-[8px] font-mono px-1 py-0.5 rounded border border-terminal-cyan/30 text-terminal-cyan">
+              <span className="text-[8px] font-mono px-1 py-0.5 rounded-panel border border-mc-accent/30 text-mc-accent">
                 Recipe
               </span>
             )}
           </div>
           {usedBy && (
-            <span className="text-[10px] text-terminal-dim">{usedBy}</span>
+            <span className="text-[10px] text-mc-text-tertiary">{usedBy}</span>
           )}
           {status === 'in_progress' && (
-            <span className="text-[10px] text-terminal-orange">In progress...</span>
+            <span className="text-[10px] text-mc-warning">In progress...</span>
           )}
         </div>
       </div>
       <button
         type="button"
         onClick={onConnect}
-        className={`text-[10px] font-mono px-2 py-1 rounded border transition-colors ${
+        className={`text-[10px] font-mono px-2 py-1 rounded-panel border transition-colors duration-mc ease-mc-out ${
           status === 'connected'
-            ? 'border-terminal-green/30 text-terminal-green hover:bg-terminal-green/10'
+            ? 'border-mc-success/30 text-mc-success hover:bg-mc-success/10'
             : status === 'error'
-              ? 'border-terminal-red/30 text-terminal-red hover:bg-terminal-red/10'
+              ? 'border-mc-danger/30 text-mc-danger hover:bg-mc-danger/10'
               : status === 'in_progress'
-                ? 'border-terminal-orange/30 text-terminal-orange hover:bg-terminal-orange/10'
-                : 'border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-muted'
+                ? 'border-mc-warning/30 text-mc-warning hover:bg-mc-warning/10'
+                : 'border-mc-border text-mc-text-tertiary hover:text-mc-text hover:border-mc-border-hover'
         }`}
       >
         {status === 'connected' ? 'Configure' : status === 'error' ? 'Reconnect' : status === 'in_progress' ? 'Resume' : 'Connect'}
@@ -430,14 +428,14 @@ function ConnectionCategory({
         className="w-full flex items-center justify-between py-1.5 group"
       >
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim/60 group-hover:text-terminal-dim transition-colors">
+          <span className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-tertiary group-hover:text-mc-text transition-colors duration-mc ease-mc-out">
             {label}
           </span>
           {connectedCount > 0 && (
-            <span className="text-[9px] font-mono text-terminal-green">{connectedCount} connected</span>
+            <span className="text-[9px] font-mono text-mc-success">{connectedCount} connected</span>
           )}
         </div>
-        <span className="text-terminal-dim/40 text-[10px]">{expanded ? '\u2212' : '+'}</span>
+        <span className="text-mc-text-tertiary/40 text-[10px]">{expanded ? '\u2212' : '+'}</span>
       </button>
       {expanded && (
         <div className="space-y-1.5 mt-1 mb-3">
@@ -1042,12 +1040,12 @@ export function GlobalSettingsContent() {
         type="button"
         onClick={() => runTest(id)}
         disabled={state === 'testing'}
-        className={`text-[10px] font-mono px-2.5 py-1 rounded border transition-colors ${
+        className={`text-[10px] font-mono px-2.5 py-1 rounded-panel border transition-colors duration-mc ease-mc-out ${
           state === 'success'
-            ? 'border-terminal-green/30 text-terminal-green'
+            ? 'border-mc-success/30 text-mc-success'
             : state === 'fail'
-              ? 'border-terminal-red/30 text-terminal-red'
-              : 'border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-muted'
+              ? 'border-mc-danger/30 text-mc-danger'
+              : 'border-mc-border text-mc-text-tertiary hover:text-mc-text hover:border-mc-border-hover'
         }`}
       >
         {state === 'testing' ? 'Testing...' : state === 'success' ? 'Connected' : state === 'fail' ? 'Failed' : 'Test Connection'}
@@ -1058,29 +1056,29 @@ export function GlobalSettingsContent() {
   const agentCount = AGENTS.length;
 
   const saveFooterEl = (
-    <div className="sticky bottom-0 z-10 bg-terminal-surface border-t border-terminal-border px-6 py-3 flex items-center justify-between -mx-6 -mb-6 mt-6">
+    <div className="sticky bottom-0 z-10 bg-mc-surface border-t border-mc-border px-6 py-3 flex items-center justify-between -mx-6 -mb-6 mt-6">
       <div>
         {dirty && saveState === 'idle' && (
-          <span className="text-[10px] text-terminal-dim">Unsaved changes</span>
+          <span className="text-[10px] text-mc-text-tertiary">Unsaved changes</span>
         )}
         {saveState === 'error' && saveError && (
-          <span className="text-[10px] text-terminal-red">{saveError}</span>
+          <span className="text-[10px] text-mc-danger">{saveError}</span>
         )}
       </div>
       <button
         type="button"
         onClick={handleSaveAll}
         disabled={!dirty || saveState === 'saving'}
-        className={`px-4 py-1.5 text-xs font-mono rounded border transition-colors ${
+        className={`px-4 py-1.5 text-xs font-mono rounded-panel border transition-colors duration-mc ease-mc-out ${
           saveState === 'saved'
-            ? 'border-terminal-green/40 text-terminal-green bg-terminal-green/10'
+            ? 'border-mc-success/40 text-mc-success bg-mc-success/10'
             : saveState === 'saving'
-              ? 'border-terminal-border text-terminal-dim cursor-not-allowed'
+              ? 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
               : saveState === 'error'
-                ? 'border-terminal-red/40 text-terminal-red'
+                ? 'border-mc-danger/40 text-mc-danger'
                 : dirty
-                  ? 'border-terminal-green/40 text-terminal-green hover:bg-terminal-green/10'
-                  : 'border-terminal-border text-terminal-dim cursor-not-allowed'
+                  ? 'border-mc-success/40 text-mc-success hover:bg-mc-success/10'
+                  : 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
         }`}
       >
         {saveState === 'saved' ? 'Saved \u2713' : saveState === 'saving' ? 'Saving...' : saveState === 'error' ? 'Retry Save' : 'Save Changes'}
@@ -1102,17 +1100,17 @@ export function GlobalSettingsContent() {
           tooltip="Basic organization settings that apply across the entire platform."
         >
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Organization Name</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Organization Name</label>
             <input
               type="text"
               value={form.orgName}
               onChange={(e) => set('orgName', e.target.value)}
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-slate-400"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-slate-400"
             />
           </div>
 
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Organization Logo</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Organization Logo</label>
             <input
               ref={logoInputRef}
               type="file"
@@ -1121,8 +1119,8 @@ export function GlobalSettingsContent() {
               onChange={handleLogoSelect}
             />
             <div
-              className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center transition-colors cursor-pointer ${
-                logoDragOver ? 'border-terminal-green bg-terminal-green/5' : 'border-terminal-border hover:border-terminal-muted'
+              className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center transition-colors duration-mc ease-mc-out cursor-pointer ${
+                logoDragOver ? 'border-mc-success bg-mc-success/5' : 'border-mc-border hover:border-mc-border-hover'
               }`}
               onClick={() => logoInputRef.current?.click()}
               onDragOver={(e) => { e.preventDefault(); setLogoDragOver(true); }}
@@ -1134,24 +1132,24 @@ export function GlobalSettingsContent() {
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={form.orgLogo} alt="Organization logo" className="max-h-16 max-w-full object-contain mb-2" />
-                  <span className="text-[9px] text-terminal-dim">Click to change</span>
+                  <span className="text-[9px] text-mc-text-tertiary">Click to change</span>
                 </>
               ) : (
                 <>
-                  <UploadIcon className="w-6 h-6 text-terminal-dim/40 mb-2" />
-                  <span className="text-[10px] text-terminal-dim">Drop logo or click to upload</span>
-                  <span className="text-[9px] text-terminal-dim/40 mt-1">PNG, SVG, or JPEG</span>
+                  <UploadIcon className="w-6 h-6 text-mc-text-tertiary/40 mb-2" />
+                  <span className="text-[10px] text-mc-text-tertiary">Drop logo or click to upload</span>
+                  <span className="text-[9px] text-mc-text-tertiary/40 mt-1">PNG, SVG, or JPEG</span>
                 </>
               )}
             </div>
           </div>
 
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Default Timezone</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Default Timezone</label>
             <select
               value={form.timezone}
               onChange={(e) => set('timezone', e.target.value)}
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-slate-400"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-slate-400"
             >
               <option value="UTC">UTC</option>
               <option value="US/Eastern">US/Eastern</option>
@@ -1167,11 +1165,11 @@ export function GlobalSettingsContent() {
           </div>
 
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Default Language</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Default Language</label>
             <select
               value={form.language}
               onChange={(e) => set('language', e.target.value)}
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-slate-400"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-slate-400"
             >
               {['English', 'Spanish', 'French', 'German', 'Japanese', 'Chinese', 'Portuguese', 'Korean'].map((l) => (
                 <option key={l} value={l}>{l}</option>
@@ -1180,22 +1178,22 @@ export function GlobalSettingsContent() {
           </div>
 
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Organization ID</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Organization ID</label>
             <div className="flex items-center gap-1">
               <input
                 type="text"
                 value="org_yclaw_001"
                 readOnly
-                className="flex-1 bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono opacity-70 cursor-default"
+                className="flex-1 bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono opacity-70 cursor-default"
               />
               <button
                 type="button"
                 onClick={copyOrgId}
-                className="p-1.5 text-terminal-dim hover:text-terminal-text transition-colors"
+                className="p-1.5 text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out"
                 aria-label="Copy"
               >
                 {copied ? (
-                  <span className="text-terminal-green text-[10px] font-mono">ok</span>
+                  <span className="text-mc-success text-[10px] font-mono">ok</span>
                 ) : (
                   <CopyIcon />
                 )}
@@ -1209,7 +1207,7 @@ export function GlobalSettingsContent() {
         {/* ════════════════════════════════════════════════════════════════ */}
         <Section
           label="Fleet & Infrastructure"
-          icon={<ServerIcon className="w-4 h-4 text-terminal-cyan" />}
+          icon={<ServerIcon className="w-4 h-4 text-mc-accent" />}
           borderColor="cyan"
           expanded={sections['fleet'] ?? false}
           onToggle={() => toggleSection('fleet')}
@@ -1217,16 +1215,16 @@ export function GlobalSettingsContent() {
         >
           {/* Fleet Summary */}
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-terminal-muted/20 border border-terminal-border rounded p-2.5">
-              <div className="text-[9px] text-terminal-dim uppercase tracking-widest mb-1">Agent Count</div>
-              <div className="text-xs text-terminal-text font-mono">{agentCount} agents</div>
-              <div className="text-[10px] text-terminal-dim">across 6 departments</div>
+            <div className="bg-mc-surface/60 border border-mc-border rounded-panel p-2.5">
+              <div className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label mb-1">Agent Count</div>
+              <div className="text-xs text-mc-text font-mono">{agentCount} agents</div>
+              <div className="text-[10px] text-mc-text-tertiary">across 6 departments</div>
             </div>
-            <div className="bg-terminal-muted/20 border border-terminal-border rounded p-2.5">
-              <div className="text-[9px] text-terminal-dim uppercase tracking-widest mb-1">Runtime</div>
-              <div className="text-xs text-terminal-text font-mono flex items-center gap-1.5">
+            <div className="bg-mc-surface/60 border border-mc-border rounded-panel p-2.5">
+              <div className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label mb-1">Runtime</div>
+              <div className="text-xs text-mc-text font-mono flex items-center gap-1.5">
                 ECS Fargate
-                <span className="text-[8px] px-1 py-px rounded border border-terminal-green/30 text-terminal-green bg-terminal-green/10">ACTIVE</span>
+                <span className="text-[8px] px-1 py-px rounded-panel border border-mc-success/30 text-mc-success bg-mc-success/10">ACTIVE</span>
               </div>
             </div>
           </div>
@@ -1234,56 +1232,56 @@ export function GlobalSettingsContent() {
           <SubHeader label="Core Services" />
 
           {/* MongoDB */}
-          <div className="bg-terminal-muted/10 border border-terminal-border rounded p-3 space-y-2.5">
+          <div className="bg-mc-surface/40 border border-mc-border rounded-panel p-3 space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-terminal-text">MongoDB</span>
+                <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">MongoDB</span>
               </div>
               <StatusBadge status={testStates['mongo'] === 'success' ? 'connected' : testStates['mongo'] === 'fail' ? 'error' : (orgSettingsLoaded ? 'connected' : 'available')} />
             </div>
-            <MaskedInput label="Connection URI" value={form.mongoUri} readOnly placeholder="Set via MONGODB_URI env var" focusColor="focus:border-terminal-cyan" />
-            <p className="text-[9px] text-terminal-dim/50 italic">Read-only — configure via the <code className="font-mono">MONGODB_URI</code> environment variable.</p>
+            <MaskedInput label="Connection URI" value={form.mongoUri} readOnly placeholder="Set via MONGODB_URI env var" focusColor="focus:border-mc-accent" />
+            <p className="text-[9px] text-mc-text-tertiary/50 italic">Read-only — configure via the <code className="font-mono">MONGODB_URI</code> environment variable.</p>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-terminal-dim font-mono">{form.mongoUri ? 'Configured via env var' : 'Not configured'}</span>
+              <span className="text-[10px] text-mc-text-tertiary font-mono">{form.mongoUri ? 'Configured via env var' : 'Not configured'}</span>
               <TestButton id="mongo" />
             </div>
           </div>
 
           {/* Redis */}
-          <div className="bg-terminal-muted/10 border border-terminal-border rounded p-3 space-y-2.5">
+          <div className="bg-mc-surface/40 border border-mc-border rounded-panel p-3 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-terminal-text">Redis</span>
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">Redis</span>
               <StatusBadge status={testStates['redis'] === 'success' ? 'connected' : testStates['redis'] === 'fail' ? 'error' : 'available'} />
             </div>
-            <MaskedInput label="Redis URL" value={form.redisUrl} readOnly placeholder="Set via REDIS_URL env var" focusColor="focus:border-terminal-cyan" />
-            <p className="text-[9px] text-terminal-dim/50 italic">Read-only — configure via the <code className="font-mono">REDIS_URL</code> environment variable.</p>
+            <MaskedInput label="Redis URL" value={form.redisUrl} readOnly placeholder="Set via REDIS_URL env var" focusColor="focus:border-mc-accent" />
+            <p className="text-[9px] text-mc-text-tertiary/50 italic">Read-only — configure via the <code className="font-mono">REDIS_URL</code> environment variable.</p>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-terminal-dim font-mono">{form.redisUrl ? 'Configured via env var' : 'Not configured'}</span>
+              <span className="text-[10px] text-mc-text-tertiary font-mono">{form.redisUrl ? 'Configured via env var' : 'Not configured'}</span>
               <TestButton id="redis" />
             </div>
           </div>
 
           {/* OpenClaw Gateway */}
-          <div className="bg-terminal-muted/10 border border-terminal-border rounded p-3 space-y-2.5">
+          <div className="bg-mc-surface/40 border border-mc-border rounded-panel p-3 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-terminal-text">OpenClaw Gateway</span>
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">OpenClaw Gateway</span>
               <StatusBadge status={testStates['openclaw'] === 'success' ? 'connected' : testStates['openclaw'] === 'fail' ? 'error' : 'available'} />
             </div>
             <div>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">WebSocket URL</label>
+              <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">WebSocket URL</label>
               <input
                 type="text"
                 value={form.openclawWsUrl}
                 readOnly
                 placeholder="Set via OPENCLAW_WS_URL env var"
-                className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-cyan opacity-70 cursor-default"
+                className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-accent opacity-70 cursor-default"
               />
             </div>
-            <MaskedInput label="Device Public Key" value={form.openclawPubKey} readOnly placeholder="Set via OPENCLAW_PUB_KEY env var" focusColor="focus:border-terminal-cyan" />
-            <MaskedInput label="Device Private Key" value={form.openclawPrivKey} readOnly placeholder="Set via OPENCLAW_PRIV_KEY env var" focusColor="focus:border-terminal-cyan" />
-            <p className="text-[9px] text-terminal-dim/50 italic">Read-only — configure OpenClaw credentials via environment variables.</p>
+            <MaskedInput label="Device Public Key" value={form.openclawPubKey} readOnly placeholder="Set via OPENCLAW_PUB_KEY env var" focusColor="focus:border-mc-accent" />
+            <MaskedInput label="Device Private Key" value={form.openclawPrivKey} readOnly placeholder="Set via OPENCLAW_PRIV_KEY env var" focusColor="focus:border-mc-accent" />
+            <p className="text-[9px] text-mc-text-tertiary/50 italic">Read-only — configure OpenClaw credentials via environment variables.</p>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-terminal-dim font-mono">{form.openclawWsUrl ? 'Configured' : 'Not configured'}</span>
+              <span className="text-[10px] text-mc-text-tertiary font-mono">{form.openclawWsUrl ? 'Configured' : 'Not configured'}</span>
               <TestButton id="openclaw" />
             </div>
           </div>
@@ -1294,7 +1292,7 @@ export function GlobalSettingsContent() {
         {/* ════════════════════════════════════════════════════════════════ */}
         <Section
           label="AI Providers & Routing"
-          icon={<SparklesIcon className="w-4 h-4 text-terminal-purple" />}
+          icon={<SparklesIcon className="w-4 h-4 text-mc-info" />}
           borderColor="purple"
           expanded={sections['ai'] ?? false}
           onToggle={() => toggleSection('ai')}
@@ -1303,43 +1301,43 @@ export function GlobalSettingsContent() {
           <SubHeader label="LLM Proxy / Router" />
 
           {/* LiteLLM */}
-          <div className="bg-terminal-muted/10 border border-terminal-border rounded p-3 space-y-2.5">
+          <div className="bg-mc-surface/40 border border-mc-border rounded-panel p-3 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-terminal-text">LiteLLM</span>
+              <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">LiteLLM</span>
               <StatusBadge status="available" />
             </div>
             <div>
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Proxy URL</label>
+              <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Proxy URL</label>
               <input
                 type="text"
                 value={form.litellmUrl}
                 readOnly
                 placeholder="Set via LITELLM_URL env var"
-                className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-purple placeholder:text-terminal-dim/30 opacity-70 cursor-default"
+                className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30 opacity-70 cursor-default"
               />
             </div>
-            <MaskedInput label="API Key" value={form.litellmKey} readOnly placeholder="Set via LITELLM_API_KEY env var" focusColor="focus:border-terminal-purple" />
-            <p className="text-[9px] text-terminal-dim/50 italic">Read-only — configure LiteLLM credentials via environment variables.</p>
+            <MaskedInput label="API Key" value={form.litellmKey} readOnly placeholder="Set via LITELLM_API_KEY env var" focusColor="focus:border-mc-info" />
+            <p className="text-[9px] text-mc-text-tertiary/50 italic">Read-only — configure LiteLLM credentials via environment variables.</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-terminal-text">Route all LLM traffic through LiteLLM</span>
+                <span className="text-xs text-mc-text">Route all LLM traffic through LiteLLM</span>
                 <InfoTooltip text="When enabled, all agent LLM requests route through your LiteLLM proxy instead of calling providers directly. Enables unified logging, caching, and rate limiting." />
               </div>
-              <ToggleSwitch checked={form.litellmRoute} onChange={(v) => set('litellmRoute', v)} color="terminal-purple" />
+              <ToggleSwitch checked={form.litellmRoute} onChange={(v) => set('litellmRoute', v)} color="mc-info" />
             </div>
           </div>
 
           {/* OpenRouter */}
-          <div className="bg-terminal-muted/10 border border-terminal-border rounded p-3 space-y-2.5">
+          <div className="bg-mc-surface/40 border border-mc-border rounded-panel p-3 space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-terminal-text">OpenRouter</span>
+                <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">OpenRouter</span>
                 <InfoTooltip text="Access 100+ models through a single API key." />
               </div>
               <StatusBadge status="available" />
             </div>
-            <MaskedInput label="API Key" value={form.openrouterKey} readOnly placeholder="Set via OPENROUTER_API_KEY env var" focusColor="focus:border-terminal-purple" />
-            <p className="text-[9px] text-terminal-dim/50 italic">Read-only — configure via the <code className="font-mono">OPENROUTER_API_KEY</code> environment variable.</p>
+            <MaskedInput label="API Key" value={form.openrouterKey} readOnly placeholder="Set via OPENROUTER_API_KEY env var" focusColor="focus:border-mc-info" />
+            <p className="text-[9px] text-mc-text-tertiary/50 italic">Read-only — configure via the <code className="font-mono">OPENROUTER_API_KEY</code> environment variable.</p>
           </div>
 
           <SubHeader label="Direct Providers" />
@@ -1356,32 +1354,32 @@ export function GlobalSettingsContent() {
             return (
               <div key={p.name} className="flex items-center gap-2 py-1.5">
                 <StatusDot status={apiStatus} />
-                <span className={`text-xs w-28 shrink-0 ${apiStatus === 'connected' ? 'text-terminal-text' : 'text-terminal-dim'}`}>{p.name}</span>
+                <span className={`text-xs w-28 shrink-0 ${apiStatus === 'connected' ? 'text-mc-text' : 'text-mc-text-tertiary'}`}>{p.name}</span>
                 <div className="flex-1">
                   <input
                     type="password"
                     value={form[p.key]}
                     readOnly
                     placeholder="Set via env var"
-                    className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-[10px] text-terminal-text font-mono focus:outline-none focus:border-terminal-purple placeholder:text-terminal-dim/30 opacity-70 cursor-default"
+                    className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1 text-[10px] text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30 opacity-70 cursor-default"
                   />
                 </div>
                 {apiStatus === 'connected' ? (
-                  <span className="text-[9px] font-mono text-terminal-green">Connected</span>
+                  <span className="text-[9px] font-mono text-mc-success">Connected</span>
                 ) : integrationDef ? (
                   <button
                     type="button"
                     onClick={() => setConnectTarget(integrationDef)}
-                    className={`text-[9px] font-mono px-1.5 py-0.5 rounded border transition-colors ${
+                    className={`text-[9px] font-mono px-1.5 py-0.5 rounded-panel border transition-colors duration-mc ease-mc-out ${
                       apiStatus === 'error'
-                        ? 'border-terminal-red/30 text-terminal-red hover:bg-terminal-red/10'
-                        : 'border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-muted'
+                        ? 'border-mc-danger/30 text-mc-danger hover:bg-mc-danger/10'
+                        : 'border-mc-border text-mc-text-tertiary hover:text-mc-text hover:border-mc-border-hover'
                     }`}
                   >
                     {apiStatus === 'error' ? 'Reconnect' : 'Connect'}
                   </button>
                 ) : (
-                  <span className="text-[9px] font-mono text-terminal-dim">Not configured</span>
+                  <span className="text-[9px] font-mono text-mc-text-tertiary">Not configured</span>
                 )}
               </div>
             );
@@ -1391,7 +1389,7 @@ export function GlobalSettingsContent() {
           <button
             type="button"
             onClick={() => set('showMoreProviders', !form.showMoreProviders)}
-            className="text-[10px] font-mono text-terminal-purple hover:text-terminal-text transition-colors"
+            className="text-[10px] font-mono text-mc-info hover:text-mc-text transition-colors duration-mc ease-mc-out"
           >
             {form.showMoreProviders ? 'Hide additional providers' : 'Show more providers...'}
           </button>
@@ -1407,14 +1405,14 @@ export function GlobalSettingsContent() {
               ].map((p) => (
                 <div key={p.name} className="flex items-center gap-2 py-1">
                   <StatusDot status="available" />
-                  <span className="text-xs text-terminal-dim w-28 shrink-0">{p.name}</span>
+                  <span className="text-xs text-mc-text-tertiary w-28 shrink-0">{p.name}</span>
                   <div className="flex-1">
                     <input
                       type="password"
                       value={form[p.keyField]}
                       readOnly
                       placeholder="Set via env var"
-                      className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-[10px] text-terminal-text font-mono focus:outline-none focus:border-terminal-purple placeholder:text-terminal-dim/30 opacity-70 cursor-default"
+                      className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1 text-[10px] text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30 opacity-70 cursor-default"
                     />
                   </div>
                 </div>
@@ -1422,14 +1420,14 @@ export function GlobalSettingsContent() {
               {/* Ollama */}
               <div className="flex items-center gap-2 py-1">
                 <StatusDot status="available" />
-                <span className="text-xs text-terminal-dim w-28 shrink-0">Ollama (Local)</span>
+                <span className="text-xs text-mc-text-tertiary w-28 shrink-0">Ollama (Local)</span>
                 <div className="flex-1">
                   <input
                     type="text"
                     value={form.ollamaUrl}
                     readOnly
                     placeholder="Set via OLLAMA_BASE_URL env var"
-                    className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-[10px] text-terminal-text font-mono focus:outline-none focus:border-terminal-purple placeholder:text-terminal-dim/30 opacity-70 cursor-default"
+                    className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1 text-[10px] text-mc-text font-mono focus:outline-none focus:border-mc-info placeholder:text-mc-text-tertiary/30 opacity-70 cursor-default"
                   />
                 </div>
               </div>
@@ -1439,11 +1437,11 @@ export function GlobalSettingsContent() {
           <SubHeader label="Global Defaults" />
 
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Default Reasoning Model</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Default Reasoning Model</label>
             <select
               value={form.defaultReasoningModel}
               onChange={(e) => set('defaultReasoningModel', e.target.value)}
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-purple"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
             >
               <optgroup label="Anthropic">
                 <option value="claude-opus-4-6">claude-opus-4-6</option>
@@ -1465,11 +1463,11 @@ export function GlobalSettingsContent() {
           </div>
 
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Default Fast Model</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Default Fast Model</label>
             <select
               value={form.defaultFastModel}
               onChange={(e) => set('defaultFastModel', e.target.value)}
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-purple"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-info"
             >
               <optgroup label="Anthropic">
                 <option value="claude-sonnet-4-6">claude-sonnet-4-6</option>
@@ -1486,15 +1484,15 @@ export function GlobalSettingsContent() {
 
           <div className="relative">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest">Provider Fallback Chain</label>
+              <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">Provider Fallback Chain</label>
               <InfoTooltip text="If the primary provider fails or is rate-limited, agents automatically try the next provider in this chain." />
             </div>
             <div className="space-y-1">
               {form.fallbackChain.map((provider, idx) => (
-                <div key={provider} className="flex items-center gap-2 py-1 px-2 bg-terminal-muted/10 border border-terminal-border rounded">
-                  <GripVerticalIcon className="w-3 h-3 text-terminal-dim/10" />
-                  <span className="text-[10px] text-terminal-dim font-mono w-4">{idx + 1}.</span>
-                  <span className="text-xs text-terminal-text flex-1">{provider}</span>
+                <div key={provider} className="flex items-center gap-2 py-1 px-2 bg-mc-surface/40 border border-mc-border rounded-panel">
+                  <GripVerticalIcon className="w-3 h-3 text-mc-text-tertiary/10" />
+                  <span className="text-[10px] text-mc-text-tertiary font-mono w-4">{idx + 1}.</span>
+                  <span className="text-xs text-mc-text flex-1">{provider}</span>
                 </div>
               ))}
             </div>
@@ -1506,7 +1504,7 @@ export function GlobalSettingsContent() {
         {/* ════════════════════════════════════════════════════════════════ */}
         <Section
           label="Connections & Integrations"
-          icon={<PlugIcon className="w-4 h-4 text-terminal-blue" />}
+          icon={<PlugIcon className="w-4 h-4 text-mc-info" />}
           borderColor="blue"
           expanded={sections['connections'] ?? false}
           onToggle={() => toggleSection('connections')}
@@ -1712,7 +1710,7 @@ export function GlobalSettingsContent() {
             );
           })()}
 
-          <p className="text-[10px] text-terminal-dim/50 pt-2">
+          <p className="text-[10px] text-mc-text-tertiary/50 pt-2">
             Need a different integration? Submit a request on GitHub.
           </p>
         </Section>
@@ -1722,7 +1720,7 @@ export function GlobalSettingsContent() {
         {/* ════════════════════════════════════════════════════════════════ */}
         <Section
           label="Data Access & Privacy"
-          icon={<ShieldIcon className="w-4 h-4 text-terminal-red" />}
+          icon={<ShieldIcon className="w-4 h-4 text-mc-danger" />}
           borderColor="red"
           expanded={sections['privacy'] ?? false}
           onToggle={() => toggleSection('privacy')}
@@ -1731,11 +1729,11 @@ export function GlobalSettingsContent() {
           <SubHeader label="PII Handling" />
           <div>
             <div className="flex items-center gap-1.5 mb-1">
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest">PII Mode</label>
+              <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">PII Mode</label>
               <InfoTooltip text="Avoid = agents never process PII. Redact = PII is automatically stripped from logs and outputs. Allowed = no restrictions." />
             </div>
             <select
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-danger"
               value={form.piiMode}
               onChange={(e) => set('piiMode', e.target.value)}
             >
@@ -1745,23 +1743,23 @@ export function GlobalSettingsContent() {
             </select>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-terminal-text">Auto-redact wallet addresses in logs</span>
-            <ToggleSwitch checked={form.redactWallets} onChange={(v) => set('redactWallets', v)} color="terminal-red" />
+            <span className="text-xs text-mc-text">Auto-redact wallet addresses in logs</span>
+            <ToggleSwitch checked={form.redactWallets} onChange={(v) => set('redactWallets', v)} color="mc-danger" />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-terminal-text">Auto-redact email addresses in logs</span>
-            <ToggleSwitch checked={form.redactEmails} onChange={(v) => set('redactEmails', v)} color="terminal-red" />
+            <span className="text-xs text-mc-text">Auto-redact email addresses in logs</span>
+            <ToggleSwitch checked={form.redactEmails} onChange={(v) => set('redactEmails', v)} color="mc-danger" />
           </div>
 
           <SubHeader label="Logging" />
           <div className="flex items-center justify-between">
-            <span className="text-xs text-terminal-text">Log agent prompts & responses</span>
-            <ToggleSwitch checked={form.logPrompts} onChange={(v) => set('logPrompts', v)} color="terminal-red" />
+            <span className="text-xs text-mc-text">Log agent prompts & responses</span>
+            <ToggleSwitch checked={form.logPrompts} onChange={(v) => set('logPrompts', v)} color="mc-danger" />
           </div>
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Log Retention</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Log Retention</label>
             <select
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-danger"
               value={form.logRetention}
               onChange={(e) => set('logRetention', e.target.value)}
             >
@@ -1773,14 +1771,14 @@ export function GlobalSettingsContent() {
           </div>
           <div>
             <div className="flex items-center gap-1.5 mb-1">
-              <label className="text-[10px] text-terminal-dim uppercase tracking-widest">Log Sampling Rate %</label>
+              <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">Log Sampling Rate %</label>
               <InfoTooltip text="Percentage of agent interactions to log. Lower values reduce storage costs but provide less debugging visibility." />
             </div>
             <input
               type="number"
               min={1}
               max={100}
-              className="w-24 bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red"
+              className="w-24 bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-danger"
               value={form.logSamplingRate}
               onChange={(e) => set('logSamplingRate', e.target.value)}
             />
@@ -1788,16 +1786,16 @@ export function GlobalSettingsContent() {
 
           <SubHeader label="Data Access" />
           <div className="flex items-center justify-between">
-            <span className="text-xs text-terminal-text">Agents can read external URLs</span>
-            <ToggleSwitch checked={form.readExternalUrls} onChange={(v) => set('readExternalUrls', v)} color="terminal-red" />
+            <span className="text-xs text-mc-text">Agents can read external URLs</span>
+            <ToggleSwitch checked={form.readExternalUrls} onChange={(v) => set('readExternalUrls', v)} color="mc-danger" />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-terminal-text">Agents can write to external services</span>
-            <ToggleSwitch checked={form.writeExternalServices} onChange={(v) => set('writeExternalServices', v)} color="terminal-red" />
+            <span className="text-xs text-mc-text">Agents can write to external services</span>
+            <ToggleSwitch checked={form.writeExternalServices} onChange={(v) => set('writeExternalServices', v)} color="mc-danger" />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-terminal-text">Allow file system access</span>
-            <ToggleSwitch checked={form.fileSystemAccess} onChange={(v) => set('fileSystemAccess', v)} color="terminal-red" />
+            <span className="text-xs text-mc-text">Allow file system access</span>
+            <ToggleSwitch checked={form.fileSystemAccess} onChange={(v) => set('fileSystemAccess', v)} color="mc-danger" />
           </div>
 
           <SubHeader label="Export & Deletion" />
@@ -1806,14 +1804,14 @@ export function GlobalSettingsContent() {
               type="button"
               onClick={handleExportLogs}
               disabled={exportState === 'exporting'}
-              className={`px-3 py-1.5 text-xs font-mono border rounded transition-colors ${
+              className={`px-3 py-1.5 text-xs font-mono border rounded-panel transition-colors duration-mc ease-mc-out ${
                 exportState === 'done'
-                  ? 'border-terminal-green/40 text-terminal-green bg-terminal-green/10'
+                  ? 'border-mc-success/40 text-mc-success bg-mc-success/10'
                   : exportState === 'error'
-                  ? 'border-terminal-red/30 text-terminal-red'
+                  ? 'border-mc-danger/30 text-mc-danger'
                   : exportState === 'exporting'
-                  ? 'border-terminal-border text-terminal-dim cursor-not-allowed'
-                  : 'border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-muted'
+                  ? 'border-mc-border text-mc-text-tertiary cursor-not-allowed'
+                  : 'border-mc-border text-mc-text-tertiary hover:text-mc-text hover:border-mc-border-hover'
               }`}
             >
               {exportState === 'exporting' ? 'Exporting...' : exportState === 'done' ? 'Downloaded ✓' : exportState === 'error' ? 'Export Failed' : 'Export All Logs'}
@@ -1823,40 +1821,40 @@ export function GlobalSettingsContent() {
               <button
                 type="button"
                 onClick={handlePurgeLogs}
-                className="px-3 py-1.5 text-xs font-mono border border-terminal-red/30 rounded text-terminal-red hover:bg-terminal-red/10 transition-colors"
+                className="px-3 py-1.5 text-xs font-mono border border-mc-danger/30 rounded-panel text-mc-danger hover:bg-mc-danger/10 transition-colors duration-mc ease-mc-out"
               >
                 Purge Old Logs
               </button>
             )}
             {purgeState === 'confirming' && (
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-terminal-red font-mono">
+                <span className="text-[10px] text-mc-danger font-mono">
                   Remove logs older than {form.logRetention} days?
                 </span>
                 <button
                   type="button"
                   onClick={handlePurgeLogs}
-                  className="px-2 py-1 text-[10px] font-mono font-bold border-2 border-terminal-red bg-terminal-red/20 text-terminal-red hover:bg-terminal-red/30 rounded transition-colors"
+                  className="px-2 py-1 text-[10px] font-mono font-bold border-2 border-mc-danger bg-mc-danger/20 text-mc-danger hover:bg-mc-danger/30 rounded-panel transition-colors duration-mc ease-mc-out"
                 >
                   Confirm Purge
                 </button>
                 <button
                   type="button"
                   onClick={() => setPurgeState('idle')}
-                  className="px-2 py-1 text-[10px] font-mono border border-terminal-border text-terminal-dim hover:text-terminal-text rounded transition-colors"
+                  className="px-2 py-1 text-[10px] font-mono border border-mc-border text-mc-text-tertiary hover:text-mc-text rounded-panel transition-colors duration-mc ease-mc-out"
                 >
                   Cancel
                 </button>
               </div>
             )}
             {purgeState === 'purging' && (
-              <span className="text-[10px] text-terminal-dim font-mono">Purging...</span>
+              <span className="text-[10px] text-mc-text-tertiary font-mono">Purging...</span>
             )}
             {purgeState === 'done' && (
-              <span className="text-[10px] text-terminal-green font-mono">{purgeResult ?? 'Done ✓'}</span>
+              <span className="text-[10px] text-mc-success font-mono">{purgeResult ?? 'Done ✓'}</span>
             )}
             {purgeState === 'error' && (
-              <span className="text-[10px] text-terminal-red font-mono">Purge failed — try again</span>
+              <span className="text-[10px] text-mc-danger font-mono">Purge failed — try again</span>
             )}
           </div>
         </Section>
@@ -1866,7 +1864,7 @@ export function GlobalSettingsContent() {
         {/* ════════════════════════════════════════════════════════════════ */}
         <Section
           label="Notifications & Alerts"
-          icon={<BellIcon className="w-4 h-4 text-terminal-green" />}
+          icon={<BellIcon className="w-4 h-4 text-mc-success" />}
           borderColor="green"
           expanded={sections['notifications'] ?? false}
           onToggle={() => toggleSection('notifications')}
@@ -1874,33 +1872,33 @@ export function GlobalSettingsContent() {
         >
           <SubHeader label="Alert Routing" />
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Default Alert Channel</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Default Alert Channel</label>
             <input
               type="text"
               value={form.defaultAlertChannel}
               onChange={(e) => set('defaultAlertChannel', e.target.value)}
               placeholder="#yclaw-alerts"
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-success"
             />
           </div>
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Secondary Alert Channel</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Secondary Alert Channel</label>
             <input
               type="text"
               value={form.secondaryAlertChannel}
               onChange={(e) => set('secondaryAlertChannel', e.target.value)}
               placeholder="#yclaw-operations"
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-success"
             />
           </div>
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Critical Escalation Email</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Critical Escalation Email</label>
             <input
               type="email"
               value={form.criticalEmail}
               onChange={(e) => set('criticalEmail', e.target.value)}
               placeholder="ops@example.com"
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-success"
             />
           </div>
 
@@ -1914,44 +1912,44 @@ export function GlobalSettingsContent() {
             { key: 'alertDailyDigest' as const, label: 'Daily digest summary' },
           ].map((a) => (
             <div key={a.key} className="flex items-center justify-between">
-              <span className="text-xs text-terminal-text">{a.label}</span>
-              <ToggleSwitch checked={form[a.key]} onChange={(v) => set(a.key, v)} color="terminal-green" />
+              <span className="text-xs text-mc-text">{a.label}</span>
+              <ToggleSwitch checked={form[a.key]} onChange={(v) => set(a.key, v)} color="mc-success" />
             </div>
           ))}
 
           <SubHeader label="Quiet Hours" />
           <div className="flex items-center justify-between">
-            <span className="text-xs text-terminal-text">Enable quiet hours</span>
-            <ToggleSwitch checked={form.quietHours} onChange={(v) => set('quietHours', v)} color="terminal-green" />
+            <span className="text-xs text-mc-text">Enable quiet hours</span>
+            <ToggleSwitch checked={form.quietHours} onChange={(v) => set('quietHours', v)} color="mc-success" />
           </div>
           {form.quietHours && (
-            <div className="space-y-3 pl-2 border-l-2 border-terminal-green/20">
+            <div className="space-y-3 pl-2 border-l-2 border-mc-success/20">
               <div className="flex items-center gap-3">
                 <div>
-                  <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Start</label>
+                  <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Start</label>
                   <input
                     type="time"
                     value={form.quietStart}
                     onChange={(e) => set('quietStart', e.target.value)}
-                    className="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green"
+                    className="bg-mc-surface border border-mc-border rounded-panel px-2 py-1 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-success"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">End</label>
+                  <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">End</label>
                   <input
                     type="time"
                     value={form.quietEnd}
                     onChange={(e) => set('quietEnd', e.target.value)}
-                    className="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green"
+                    className="bg-mc-surface border border-mc-border rounded-panel px-2 py-1 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-success"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">During Quiet Hours</label>
+                <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">During Quiet Hours</label>
                 <select
                   value={form.quietBehavior}
                   onChange={(e) => set('quietBehavior', e.target.value)}
-                  className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-green"
+                  className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-success"
                 >
                   <option value="suppress-all">Suppress all</option>
                   <option value="critical-only">Critical only</option>
@@ -1967,7 +1965,7 @@ export function GlobalSettingsContent() {
         {/* ════════════════════════════════════════════════════════════════ */}
         <Section
           label="Security & Access Control"
-          icon={<KeyIcon className="w-4 h-4 text-terminal-orange" />}
+          icon={<KeyIcon className="w-4 h-4 text-mc-warning" />}
           borderColor="orange"
           expanded={sections['security'] ?? false}
           onToggle={() => toggleSection('security')}
@@ -1976,9 +1974,9 @@ export function GlobalSettingsContent() {
           <SubHeader label="API Key Management" />
           <div className="space-y-1">
             <InfoTooltip text="API keys authenticate external tools and services connecting to Mission Control." />
-            <div className="bg-terminal-muted/10 border border-terminal-border rounded overflow-hidden">
+            <div className="bg-mc-surface/40 border border-mc-border rounded-panel overflow-hidden">
               {/* Table header */}
-              <div className="grid grid-cols-[1fr_100px_80px_60px_50px] gap-1 px-2.5 py-1.5 border-b border-terminal-border/50 text-[9px] text-terminal-dim uppercase tracking-widest">
+              <div className="grid grid-cols-[1fr_100px_80px_60px_50px] gap-1 px-2.5 py-1.5 border-b border-mc-border/50 font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">
                 <span>Name</span>
                 <span>Key</span>
                 <span>Created</span>
@@ -1987,13 +1985,13 @@ export function GlobalSettingsContent() {
               </div>
               {/* Row */}
               <div className="grid grid-cols-[1fr_100px_80px_60px_50px] gap-1 px-2.5 py-2 items-center text-xs">
-                <span className="text-terminal-text">Default API Key</span>
-                <span className="text-terminal-dim font-mono text-[10px]">••••••yclaw01</span>
-                <span className="text-terminal-dim text-[10px]">2026-01-15</span>
-                <span className="text-terminal-dim text-[10px]">2h ago</span>
+                <span className="text-mc-text">Default API Key</span>
+                <span className="text-mc-text-tertiary font-mono text-[10px]">••••••yclaw01</span>
+                <span className="text-mc-text-tertiary text-[10px]">2026-01-15</span>
+                <span className="text-mc-text-tertiary text-[10px]">2h ago</span>
                 <button
                   type="button"
-                  className="text-[10px] font-mono text-terminal-red hover:text-terminal-red/80 transition-colors"
+                  className="text-[10px] font-mono text-mc-danger hover:text-mc-danger/80 transition-colors duration-mc ease-mc-out"
                 >
                   Revoke
                 </button>
@@ -2002,7 +2000,7 @@ export function GlobalSettingsContent() {
           </div>
           <button
             type="button"
-            className="text-[10px] font-mono px-2.5 py-1.5 rounded border border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-muted transition-colors"
+            className="text-[10px] font-mono px-2.5 py-1.5 rounded-panel border border-mc-border text-mc-text-tertiary hover:text-mc-text hover:border-mc-border-hover transition-colors duration-mc ease-mc-out"
           >
             + Create API Key
           </button>
@@ -2011,26 +2009,26 @@ export function GlobalSettingsContent() {
           <div>
             <div className="space-y-2">
               <InfoTooltip text="Role-based access control for team management." />
-              <div className="bg-terminal-muted/10 border border-terminal-border rounded overflow-hidden">
-                <div className="grid grid-cols-[1fr_80px_80px] gap-1 px-2.5 py-1.5 border-b border-terminal-border/50 text-[9px] text-terminal-dim uppercase tracking-widest">
+              <div className="bg-mc-surface/40 border border-mc-border rounded-panel overflow-hidden">
+                <div className="grid grid-cols-[1fr_80px_80px] gap-1 px-2.5 py-1.5 border-b border-mc-border/50 font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">
                   <span>User</span>
                   <span>Role</span>
                   <span>Status</span>
                 </div>
                 <div className="grid grid-cols-[1fr_80px_80px] gap-1 px-2.5 py-2 items-center text-xs">
-                  <span className="text-terminal-text">You</span>
-                  <span className="text-terminal-orange text-[10px] font-mono">Owner</span>
-                  <span className="text-terminal-green text-[10px]">Active</span>
+                  <span className="text-mc-text">You</span>
+                  <span className="text-mc-warning text-[10px] font-mono">Owner</span>
+                  <span className="text-mc-success text-[10px]">Active</span>
                 </div>
               </div>
-              <div className="flex gap-2 text-[9px] text-terminal-dim font-mono">
+              <div className="flex gap-2 text-[9px] text-mc-text-tertiary font-mono">
                 {['Owner', 'Admin', 'Operator', 'Viewer'].map((r) => (
-                  <span key={r} className="px-1.5 py-0.5 rounded border border-terminal-border">{r}</span>
+                  <span key={r} className="px-1.5 py-0.5 rounded-panel border border-mc-border">{r}</span>
                 ))}
               </div>
               <button
                 type="button"
-                className="text-[10px] font-mono px-2.5 py-1.5 rounded border border-terminal-border text-terminal-dim"
+                className="text-[10px] font-mono px-2.5 py-1.5 rounded-panel border border-mc-border text-mc-text-tertiary"
               >
                 Invite Member
               </button>
@@ -2039,15 +2037,15 @@ export function GlobalSettingsContent() {
 
           <SubHeader label="Audit Log" />
           <div className="flex items-center justify-between">
-            <span className="text-xs text-terminal-text">Enable audit logging</span>
-            <ToggleSwitch checked={form.auditLogging} onChange={(v) => set('auditLogging', v)} color="terminal-orange" />
+            <span className="text-xs text-mc-text">Enable audit logging</span>
+            <ToggleSwitch checked={form.auditLogging} onChange={(v) => set('auditLogging', v)} color="mc-warning" />
           </div>
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Audit Log Retention</label>
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Audit Log Retention</label>
             <select
               value={form.auditRetention}
               onChange={(e) => set('auditRetention', e.target.value)}
-              className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-orange"
+              className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 text-xs text-mc-text font-mono focus:outline-none focus:border-mc-warning"
             >
               <option value="30">30 days</option>
               <option value="90">90 days</option>
@@ -2058,56 +2056,56 @@ export function GlobalSettingsContent() {
           <button
             type="button"
             onClick={handleViewAuditLog}
-            className="text-[10px] font-mono px-2.5 py-1.5 rounded border border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-muted transition-colors"
+            className="text-[10px] font-mono px-2.5 py-1.5 rounded-panel border border-mc-border text-mc-text-tertiary hover:text-mc-text hover:border-mc-border-hover transition-colors duration-mc ease-mc-out"
           >
             View Audit Log
           </button>
 
           <SubHeader label="Emergency Controls" />
-          <div className="border border-terminal-red/30 rounded p-3 space-y-3">
+          <div className="border border-mc-danger/30 rounded-panel p-3 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-terminal-text">Maintenance Mode</span>
+                <span className="text-xs text-mc-text">Maintenance Mode</span>
                 <InfoTooltip text="Pauses all agent activity via PATCH /api/org/settings { fleetMode: 'paused' }. Agents will not process any tasks, crons, or events until maintenance mode is disabled." />
               </div>
               <div className="flex items-center gap-2">
                 {maintenanceLoading && (
-                  <span className="text-[9px] text-terminal-dim font-mono">Saving...</span>
+                  <span className="text-[9px] text-mc-text-tertiary font-mono">Saving...</span>
                 )}
                 <ToggleSwitch
                   checked={form.maintenanceMode}
                   onChange={(v) => handleMaintenanceToggle(v)}
-                  color="terminal-red"
+                  color="mc-danger"
                 />
               </div>
             </div>
             {form.maintenanceMode && (
-              <div className="flex items-center gap-2 px-2.5 py-2 rounded bg-terminal-red/10 border border-terminal-red/30">
-                <span className="text-terminal-yellow text-sm">&#9888;</span>
-                <span className="text-[10px] text-terminal-red font-mono">Maintenance mode is active. Fleet mode set to &quot;paused&quot; in database.</span>
+              <div className="flex items-center gap-2 px-2.5 py-2 rounded-panel bg-mc-danger/10 border border-mc-danger/30">
+                <span className="text-mc-warning text-sm">&#9888;</span>
+                <span className="text-[10px] text-mc-danger font-mono">Maintenance mode is active. Fleet mode set to &quot;paused&quot; in database.</span>
               </div>
             )}
 
-            <div className="pt-2 border-t border-terminal-red/20">
+            <div className="pt-2 border-t border-mc-danger/20">
               <div className="flex items-center gap-1.5 mb-2">
-                <span className="text-[10px] text-terminal-dim uppercase tracking-widest">Kill Switch</span>
+                <span className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label">Kill Switch</span>
                 <InfoTooltip text="Emergency stop. Sets fleetMode to 'paused' AND scales ECS service to 0 tasks. This is a hard stop — agents will be terminated. Use only in emergencies." />
               </div>
               {killSwitchState === 'done' ? (
-                <div className="flex items-center gap-2 px-2.5 py-2 rounded bg-terminal-red/10 border border-terminal-red/30">
-                  <span className="text-terminal-red text-sm">&#9632;</span>
-                  <span className="text-[10px] text-terminal-red font-mono">Kill switch activated. ECS scaled to 0. Fleet mode paused.</span>
+                <div className="flex items-center gap-2 px-2.5 py-2 rounded-panel bg-mc-danger/10 border border-mc-danger/30">
+                  <span className="text-mc-danger text-sm">&#9632;</span>
+                  <span className="text-[10px] text-mc-danger font-mono">Kill switch activated. ECS scaled to 0. Fleet mode paused.</span>
                 </div>
               ) : killSwitchState === 'error' ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 px-2.5 py-2 rounded bg-terminal-red/10 border border-terminal-red/30">
-                    <span className="text-terminal-red text-sm">&#9888;</span>
-                    <span className="text-[10px] text-terminal-red font-mono">Kill switch failed: {killSwitchError}</span>
+                  <div className="flex items-center gap-2 px-2.5 py-2 rounded-panel bg-mc-danger/10 border border-mc-danger/30">
+                    <span className="text-mc-danger text-sm">&#9888;</span>
+                    <span className="text-[10px] text-mc-danger font-mono">Kill switch failed: {killSwitchError}</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => { setKillSwitchState('idle'); setKillSwitchConfirm(false); }}
-                    className="text-[10px] font-mono text-terminal-dim hover:text-terminal-text transition-colors"
+                    className="text-[10px] font-mono text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out"
                   >
                     Dismiss
                   </button>
@@ -2117,13 +2115,13 @@ export function GlobalSettingsContent() {
                   type="button"
                   onClick={() => setKillSwitchConfirm(true)}
                   disabled={killSwitchState === 'executing'}
-                  className="w-full py-2 text-xs font-mono font-bold rounded border-2 border-terminal-red text-terminal-red hover:bg-terminal-red/10 transition-colors"
+                  className="w-full py-2 text-xs font-mono font-bold rounded-panel border-2 border-mc-danger text-mc-danger hover:bg-mc-danger/10 transition-colors duration-mc ease-mc-out"
                 >
                   Kill Switch &mdash; Disable All Outbound Actions
                 </button>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-[10px] text-terminal-red">
+                  <p className="text-[10px] text-mc-danger">
                     Are you sure? This will set fleetMode to &quot;paused&quot; and scale ECS to 0 tasks. You can re-enable from this page or via AWS console.
                   </p>
                   <div className="flex gap-2">
@@ -2131,7 +2129,7 @@ export function GlobalSettingsContent() {
                       type="button"
                       onClick={() => setKillSwitchConfirm(false)}
                       disabled={killSwitchState === 'executing'}
-                      className="flex-1 py-1.5 text-[10px] font-mono rounded border border-terminal-border text-terminal-dim hover:text-terminal-text transition-colors"
+                      className="flex-1 py-1.5 text-[10px] font-mono rounded-panel border border-mc-border text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out"
                     >
                       Cancel
                     </button>
@@ -2139,7 +2137,7 @@ export function GlobalSettingsContent() {
                       type="button"
                       onClick={handleKillSwitch}
                       disabled={killSwitchState === 'executing'}
-                      className="flex-1 py-1.5 text-[10px] font-mono font-bold rounded border-2 border-terminal-red bg-terminal-red/20 text-terminal-red hover:bg-terminal-red/30 transition-colors"
+                      className="flex-1 py-1.5 text-[10px] font-mono font-bold rounded-panel border-2 border-mc-danger bg-mc-danger/20 text-mc-danger hover:bg-mc-danger/30 transition-colors duration-mc ease-mc-out"
                     >
                       {killSwitchState === 'executing' ? 'Executing...' : 'Confirm Kill Switch'}
                     </button>

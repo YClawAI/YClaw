@@ -34,8 +34,8 @@ export function EventMesh({ nodes, edges }: EventMeshProps) {
 
   if (nodes.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4 flex items-center justify-center py-8">
-        <span className="text-xs text-terminal-dim">No event mesh data</span>
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-4 flex items-center justify-center py-8">
+        <span className="text-xs text-mc-text-tertiary">No event mesh data</span>
       </div>
     );
   }
@@ -53,12 +53,12 @@ export function EventMesh({ nodes, edges }: EventMeshProps) {
   nodes.forEach((n, i) => { idToIdx[n.id] = i; });
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Event Flow</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">Event Flow</h3>
         <div className="flex items-center gap-3">
-          <span className="text-[9px] text-terminal-dim/50 font-mono">Static topology — last updated: 2026-03-17</span>
-          <span className="text-[10px] text-terminal-dim font-mono">{edges.length} connections</span>
+          <span className="text-[9px] text-mc-text-tertiary/50 font-mono">Static topology — last updated: 2026-03-17</span>
+          <span className="text-[10px] text-mc-text-tertiary font-mono">{edges.length} connections</span>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export function EventMesh({ nodes, edges }: EventMeshProps) {
               refY="2"
               orient="auto"
             >
-              <polygon points="0 0, 6 2, 0 4" fill="#6c7086" />
+              <polygon points="0 0, 6 2, 0 4" fill="rgba(255,255,255,0.30)" />
             </marker>
           </defs>
 
@@ -104,7 +104,7 @@ export function EventMesh({ nodes, edges }: EventMeshProps) {
                   strokeWidth="1.5"
                   markerEnd="url(#arrowhead)"
                 />
-                <circle r="2.5" fill="#89b4fa">
+                <circle r="2.5" fill="#64D2FF">
                   <animateMotion
                     dur={`${2 + idx * 0.5}s`}
                     repeatCount="indefinite"
@@ -115,7 +115,7 @@ export function EventMesh({ nodes, edges }: EventMeshProps) {
                   x={(x1 + x2) / 2}
                   y={y - 10}
                   textAnchor="middle"
-                  fill="#6c7086"
+                  fill="rgba(255,255,255,0.30)"
                   fontSize="7"
                   fontFamily="monospace"
                 >
@@ -138,7 +138,7 @@ export function EventMesh({ nodes, edges }: EventMeshProps) {
                   height={nodeHeight}
                   rx="4"
                   fill="#111118"
-                  stroke="#1e1e2e"
+                  stroke="rgba(90,200,250,0.12)"
                   strokeWidth="1"
                 />
                 {node.emoji && (

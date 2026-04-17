@@ -28,13 +28,13 @@ function formatTimeAgo(iso?: string): string {
 function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
   if (!active) {
     return (
-      <svg className="w-3 h-3 text-terminal-dim/40 inline-block ml-1" viewBox="0 0 12 12" fill="currentColor">
+      <svg className="w-3 h-3 text-mc-text-tertiary/40 inline-block ml-1" viewBox="0 0 12 12" fill="currentColor">
         <path d="M6 2l3 4H3zM6 10l-3-4h6z" />
       </svg>
     );
   }
   return (
-    <svg className="w-3 h-3 text-terminal-orange inline-block ml-1" viewBox="0 0 12 12" fill="currentColor">
+    <svg className="w-3 h-3 text-mc-blocked inline-block ml-1" viewBox="0 0 12 12" fill="currentColor">
       {dir === 'asc' ? <path d="M6 2l3 4H3z" /> : <path d="M6 10l-3-4h6z" />}
     </svg>
   );
@@ -73,25 +73,25 @@ export function PostPerformanceTable({ posts }: PostPerformanceTableProps) {
   if (posts.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
-        <span className="text-xs text-terminal-dim">No post data available</span>
+        <span className="text-xs text-mc-text-tertiary">No post data available</span>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+      <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
         POST PERFORMANCE
       </div>
 
-      <div className="bg-terminal-surface border border-terminal-border rounded overflow-x-auto">
+      <div className="bg-mc-surface-hover border border-mc-border rounded overflow-x-auto">
         <table className="w-full min-w-[480px]">
           <thead>
-            <tr className="border-b border-terminal-border">
+            <tr className="border-b border-mc-border">
               {COLUMNS.map((col) => (
                 <th
                   key={col.key}
-                  className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-terminal-dim cursor-pointer hover:text-terminal-text transition-colors select-none whitespace-nowrap text-left"
+                  className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary cursor-pointer hover:text-mc-text transition-colors select-none whitespace-nowrap text-left"
                   onClick={() => handleSort(col.key)}
                 >
                   {col.label}
@@ -104,15 +104,15 @@ export function PostPerformanceTable({ posts }: PostPerformanceTableProps) {
             {sorted.map((post) => (
               <tr
                 key={post.id}
-                className="border-b border-terminal-border/50 hover:bg-terminal-muted/20 transition-colors"
+                className="border-b border-mc-border/50 hover:bg-mc-border/20 transition-colors"
               >
-                <td className="px-3 py-2 text-xs text-terminal-text font-mono max-w-[200px] truncate" title={post.title}>
+                <td className="px-3 py-2 text-xs text-mc-text font-mono max-w-[200px] truncate" title={post.title}>
                   {post.title}
                 </td>
-                <td className="px-3 py-2 text-[10px] text-terminal-dim font-mono">
+                <td className="px-3 py-2 text-[10px] text-mc-text-tertiary font-mono">
                   {post.type ?? '--'}
                 </td>
-                <td className="px-3 py-2 text-[10px] text-terminal-dim font-mono whitespace-nowrap">
+                <td className="px-3 py-2 text-[10px] text-mc-text-tertiary font-mono whitespace-nowrap">
                   {formatTimeAgo(post.publishedAt)}
                 </td>
               </tr>
@@ -120,7 +120,7 @@ export function PostPerformanceTable({ posts }: PostPerformanceTableProps) {
           </tbody>
         </table>
       </div>
-      <div className="mt-2 text-[10px] text-terminal-dim font-mono text-center py-2">
+      <div className="mt-2 text-[10px] text-mc-text-tertiary font-mono text-center py-2">
         Connect analytics to see engagement metrics (impressions, likes, retweets, replies).
       </div>
     </div>

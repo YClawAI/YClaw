@@ -71,13 +71,13 @@ export function AssetDropZone({ sessionId }: Props) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+      <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">
         Import Context
       </h2>
 
       {/* File upload */}
       <div
-        className="border-2 border-dashed border-terminal-border rounded p-6 text-center hover:border-terminal-purple/50 transition-colors cursor-pointer"
+        className="border-2 border-dashed border-mc-border rounded p-6 text-center hover:border-mc-accent/50 transition-colors cursor-pointer"
         onDragOver={e => e.preventDefault()}
         onDrop={e => { e.preventDefault(); handleFileUpload(e.dataTransfer.files); }}
         onClick={() => {
@@ -89,10 +89,10 @@ export function AssetDropZone({ sessionId }: Props) {
           input.click();
         }}
       >
-        <p className="text-xs text-terminal-dim">
+        <p className="text-xs text-mc-text-tertiary">
           {uploading ? 'Uploading...' : 'Drop files here or click to upload'}
         </p>
-        <p className="text-[10px] text-terminal-dim/60 mt-1">
+        <p className="text-[10px] text-mc-text-tertiary/60 mt-1">
           PDF, DOCX, TXT, MD, CSV, JSON, YAML — max 10MB per file
         </p>
       </div>
@@ -104,13 +104,13 @@ export function AssetDropZone({ sessionId }: Props) {
           value={urlInput}
           onChange={e => setUrlInput(e.target.value)}
           placeholder="Paste URL or GitHub repo link..."
-          className="flex-1 bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs text-terminal-text placeholder-terminal-dim focus:outline-none focus:border-terminal-purple font-mono"
+          className="flex-1 bg-mc-bg border border-mc-border rounded px-3 py-1.5 text-xs text-mc-text placeholder-mc-text-tertiary focus:outline-none focus:border-mc-accent font-mono"
           disabled={uploading}
         />
         <button
           onClick={handleUrlImport}
           disabled={uploading || !urlInput.trim()}
-          className="px-3 py-1.5 text-xs font-mono rounded border border-terminal-border text-terminal-dim hover:text-terminal-text transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 text-xs font-mono rounded border border-mc-border text-mc-text-tertiary hover:text-mc-text transition-colors disabled:opacity-50"
         >
           Import
         </button>
@@ -119,7 +119,7 @@ export function AssetDropZone({ sessionId }: Props) {
       {/* Status message */}
       {message && (
         <p className={`text-xs ${message.startsWith('Failed') || message.startsWith('Error')
-          ? 'text-terminal-red' : 'text-terminal-green'}`}>
+          ? 'text-mc-danger' : 'text-mc-success'}`}>
           {message}
         </p>
       )}

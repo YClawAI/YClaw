@@ -95,17 +95,19 @@ export const TIER_LABELS: Record<OperatorTier, string> = {
 };
 
 export const TIER_COLORS: Record<OperatorTier, string> = {
-  root: 'text-terminal-purple bg-terminal-purple/10 border-terminal-purple/30',
-  department_head: 'text-terminal-cyan bg-terminal-cyan/10 border-terminal-cyan/30',
-  contributor: 'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30',
-  observer: 'text-terminal-dim bg-terminal-muted border-terminal-border',
+  // Root keeps its purple tone via mc-dept-finance (#BF5AF2) — only "power
+  // tier" purple in the iOS palette. Department_head takes the cyan accent.
+  root: 'text-mc-dept-finance bg-mc-dept-finance/10 border-mc-dept-finance/30',
+  department_head: 'text-mc-accent bg-mc-accent/10 border-mc-accent/30',
+  contributor: 'text-mc-info bg-mc-info/10 border-mc-info/30',
+  observer: 'text-mc-text-tertiary bg-mc-border border-mc-border',
 };
 
 export const STATUS_COLORS: Record<OperatorStatus, string> = {
-  active: 'bg-terminal-green',
-  invited: 'bg-terminal-yellow',
-  suspended: 'bg-terminal-orange',
-  revoked: 'bg-terminal-red',
+  active: 'bg-mc-success',
+  invited: 'bg-mc-warning',
+  suspended: 'bg-mc-blocked',
+  revoked: 'bg-mc-danger',
 };
 
 // ── Audit types ──

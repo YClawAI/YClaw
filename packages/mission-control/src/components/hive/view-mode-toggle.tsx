@@ -13,34 +13,34 @@ export function ViewModeToggle({ mode, onChange, disabled, disabledReason }: Vie
   if (disabled) {
     return (
       <div
-        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-800/50 text-gray-600 text-xs cursor-not-allowed"
+        className="inline-flex items-center gap-1 px-2 py-1 rounded-chip border border-mc-border font-sans text-xs text-mc-text-tertiary cursor-not-allowed"
         title={disabledReason || '3D not available'}
       >
         <span>2D</span>
-        <span className="text-gray-700">/</span>
-        <span className="text-gray-700">3D</span>
+        <span className="text-mc-text-tertiary/60">/</span>
+        <span className="text-mc-text-tertiary/60">3D</span>
       </div>
     );
   }
 
   return (
-    <div className="inline-flex items-center rounded-lg bg-gray-800/80 backdrop-blur p-0.5">
+    <div className="inline-flex items-center rounded-chip border border-mc-border bg-mc-surface backdrop-blur p-0.5">
       <button
         onClick={() => onChange('2d')}
-        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+        className={`px-3 py-1 font-sans text-xs font-medium rounded-chip transition-colors duration-mc ease-mc-out ${
           mode === '2d'
-            ? 'bg-blue-500/20 text-blue-300 shadow-sm'
-            : 'text-gray-400 hover:text-gray-200'
+            ? 'bg-mc-accent-dim text-mc-accent'
+            : 'text-mc-text-secondary hover:text-mc-text'
         }`}
       >
         2D
       </button>
       <button
         onClick={() => onChange('3d')}
-        className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+        className={`px-3 py-1 font-sans text-xs font-medium rounded-chip transition-colors duration-mc ease-mc-out ${
           mode === '3d'
-            ? 'bg-blue-500/20 text-blue-300 shadow-sm'
-            : 'text-gray-400 hover:text-gray-200'
+            ? 'bg-mc-accent-dim text-mc-accent'
+            : 'text-mc-text-secondary hover:text-mc-text'
         }`}
       >
         3D

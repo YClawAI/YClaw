@@ -64,19 +64,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-terminal-bg flex items-center justify-center">
+    <div className="min-h-screen bg-mc-bg flex items-center justify-center">
       <div className="w-full max-w-sm">
-        <div className="border border-terminal-border rounded-lg p-8 bg-terminal-surface">
+        <div className="border border-mc-border rounded-lg p-8 bg-mc-surface-hover">
           <div className="mb-8 text-center">
-            <h1 className="font-mono text-lg font-bold text-terminal-purple tracking-widest">
+            <h1 className="font-mono text-lg font-bold text-mc-accent tracking-widest">
               MISSION CONTROL
             </h1>
-            <p className="text-terminal-dim text-xs mt-1">YClaw Agent Fleet Dashboard</p>
+            <p className="text-mc-text-tertiary text-xs mt-1">YClaw Agent Fleet Dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-xs text-terminal-dim mb-1 font-mono">
+              <label className="block text-xs text-mc-text-tertiary mb-1 font-mono">
                 Operator API Key
               </label>
               <input
@@ -85,12 +85,12 @@ export default function LoginPage() {
                 required
                 placeholder="gzop_live_..."
                 disabled={loading}
-                className="w-full bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-sm font-mono text-terminal-text placeholder-terminal-muted focus:outline-none focus:border-terminal-purple transition-colors disabled:opacity-50"
+                className="w-full bg-mc-bg border border-mc-border rounded px-3 py-2 text-sm font-mono text-mc-text placeholder-mc-border focus:outline-none focus:border-mc-accent transition-colors disabled:opacity-50"
               />
             </div>
 
             {errorMessage && (
-              <p className="text-xs text-terminal-red font-mono">
+              <p className="text-xs text-mc-danger font-mono">
                 {errorMessage}
               </p>
             )}
@@ -98,7 +98,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || cooldown}
-              className="w-full py-2 px-4 bg-terminal-purple/20 border border-terminal-purple/40 text-terminal-purple rounded text-sm font-mono hover:bg-terminal-purple/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2 px-4 bg-mc-accent/20 border border-mc-accent/40 text-mc-accent rounded text-sm font-mono hover:bg-mc-accent/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Authenticating...' : 'Enter'}
             </button>

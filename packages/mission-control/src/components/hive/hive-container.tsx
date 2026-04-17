@@ -24,7 +24,7 @@ const GraphRenderer3D = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex items-center justify-center h-full text-gray-500">
+      <div className="flex items-center justify-center h-full font-sans text-mc-text-tertiary">
         Loading 3D...
       </div>
     ),
@@ -74,7 +74,7 @@ export function HiveContainer({ agentActivity }: HiveContainerProps) {
   // Phone layout
   if (isPhone) {
     return (
-      <div className="h-full flex flex-col bg-gray-950">
+      <div className="h-full flex flex-col bg-mc-bg">
         <div className="flex-1 overflow-hidden">
           {mobileTab === 'hive' ? (
             <MobileHiveSummary agentStatusRef={agentStatusRef} />
@@ -85,20 +85,20 @@ export function HiveContainer({ agentActivity }: HiveContainerProps) {
             />
           ) : mobileTab === 'settings' ? (
             <div className="px-4 pt-4 space-y-3">
-              <p className="text-sm text-gray-300 font-medium">Quick Links</p>
-              <a href="/settings" className="block text-sm text-blue-400 py-2 border-b border-gray-800">
+              <p className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label">Quick Links</p>
+              <a href="/settings" className="block font-mono text-sm text-mc-accent py-2 border-b border-mc-border hover:text-mc-text transition-colors duration-mc ease-mc-out">
                 Fleet Settings
               </a>
-              <a href="/events" className="block text-sm text-blue-400 py-2 border-b border-gray-800">
+              <a href="/events" className="block font-mono text-sm text-mc-accent py-2 border-b border-mc-border hover:text-mc-text transition-colors duration-mc ease-mc-out">
                 Event Stream
               </a>
-              <a href="/system/queues" className="block text-sm text-blue-400 py-2 border-b border-gray-800">
+              <a href="/system/queues" className="block font-mono text-sm text-mc-accent py-2 border-b border-mc-border hover:text-mc-text transition-colors duration-mc ease-mc-out">
                 Task Queue
               </a>
-              <a href="/system/approvals" className="block text-sm text-blue-400 py-2 border-b border-gray-800">
+              <a href="/system/approvals" className="block font-mono text-sm text-mc-accent py-2 border-b border-mc-border hover:text-mc-text transition-colors duration-mc ease-mc-out">
                 Approvals
               </a>
-              <p className="text-[10px] text-gray-500 pt-2">
+              <p className="font-sans text-[10px] text-mc-text-tertiary pt-2">
                 Full settings are available on desktop.
               </p>
             </div>
@@ -110,7 +110,7 @@ export function HiveContainer({ agentActivity }: HiveContainerProps) {
           onClose={() => setSheetOpen(false)}
         >
           <div className="px-4">
-            <h2 className="text-lg font-semibold text-gray-100 capitalize mb-4">
+            <h2 className="font-sans text-lg font-extralight text-mc-text capitalize mb-4">
               {selectedAgent}
             </h2>
             <AgentDetailMobile
@@ -178,22 +178,22 @@ function AgentDetailMobile({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-800/50 rounded-lg p-3">
-          <div className="text-xs text-gray-400">Status</div>
-          <div className="text-sm font-medium text-gray-100 capitalize mt-1">
+        <div className="border border-mc-border rounded-panel bg-transparent p-3">
+          <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label">Status</div>
+          <div className="font-sans text-sm text-mc-text capitalize mt-1">
             {status?.state || 'unknown'}
           </div>
         </div>
-        <div className="bg-gray-800/50 rounded-lg p-3">
-          <div className="text-xs text-gray-400">Executions (5m)</div>
-          <div className="text-sm font-medium text-gray-100 mt-1">
+        <div className="border border-mc-border rounded-panel bg-transparent p-3">
+          <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label">Executions (5m)</div>
+          <div className="font-mono tabular-nums text-sm text-mc-text mt-1">
             {status?.execCount5m || 0}
           </div>
         </div>
       </div>
-      <div className="bg-gray-800/50 rounded-lg p-3">
-        <div className="text-xs text-gray-400 mb-1">Last Run</div>
-        <div className="text-sm text-gray-200">
+      <div className="border border-mc-border rounded-panel bg-transparent p-3">
+        <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mb-1">Last Run</div>
+        <div className="font-mono tabular-nums text-sm text-mc-text-secondary">
           {status?.lastRunAt
             ? new Date(status.lastRunAt).toLocaleString()
             : 'Never'}

@@ -31,13 +31,13 @@ function timeAgo(dateStr?: string): string {
 }
 
 function healthColor(sessions: number, lastRunAt?: string): string {
-  if (sessions > 0) return 'bg-terminal-green shadow-[0_0_6px_#a6e3a1]'; // active
+  if (sessions > 0) return 'bg-mc-success shadow-[0_0_6px_#30D158]'; // active
   if (lastRunAt) {
     const diff = Date.now() - new Date(lastRunAt).getTime();
-    if (diff < 3600_000) return 'bg-terminal-yellow shadow-[0_0_6px_#f9e2af]'; // idle <1h
-    return 'bg-terminal-orange shadow-[0_0_4px_#fab387]'; // offline >1h
+    if (diff < 3600_000) return 'bg-mc-warning shadow-[0_0_6px_#FFD60A]'; // idle <1h
+    return 'bg-mc-blocked shadow-[0_0_4px_#FF9F0A]'; // offline >1h
   }
-  return 'bg-terminal-dim'; // never ran
+  return 'bg-mc-text-tertiary'; // never ran
 }
 
 export function LiveFleetGrid({ agents, departments, deptColors, initialSessions, initialActivity }: LiveFleetGridProps) {
@@ -85,33 +85,33 @@ export function LiveFleetGrid({ agents, departments, deptColors, initialSessions
                   <a
                     key={agent.name}
                     href={href}
-                    className="flex flex-col gap-2 p-4 rounded border border-terminal-border bg-terminal-surface hover:border-terminal-muted transition-colors"
+                    className="flex flex-col gap-2 p-4 rounded border border-mc-border bg-mc-surface-hover hover:border-mc-border transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {agent.emoji && <span className="text-lg">{agent.emoji}</span>}
-                        <span className="font-bold text-terminal-text">{agent.label}</span>
+                        <span className="font-bold text-mc-text">{agent.label}</span>
                       </div>
                       <span className={`inline-block w-2.5 h-2.5 rounded-full ${dotColor}`} />
                     </div>
-                    <p className="text-xs text-terminal-dim">{agent.description}</p>
+                    <p className="text-xs text-mc-text-tertiary">{agent.description}</p>
                     <div className="flex items-center gap-2 mt-auto text-xs">
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded font-mono border ${
                         agent.system === 'yclaw'
-                          ? 'bg-terminal-purple/10 text-terminal-purple border-terminal-purple/30'
+                          ? 'bg-mc-info/10 text-mc-info border-mc-info/30'
                           : agent.system === 'openclaw'
-                            ? 'bg-terminal-cyan/10 text-terminal-cyan border-terminal-cyan/30'
-                            : 'bg-terminal-yellow/10 text-terminal-yellow border-terminal-yellow/30'
+                            ? 'bg-mc-accent/10 text-mc-accent border-mc-accent/30'
+                            : 'bg-mc-warning/10 text-mc-warning border-mc-warning/30'
                       }`}>
                         {agent.system}
                       </span>
                       {sessionCount > 0 && (
-                        <span className="text-terminal-cyan font-mono">
+                        <span className="text-mc-accent font-mono">
                           {sessionCount} session{sessionCount !== 1 ? 's' : ''}
                         </span>
                       )}
                       {agentActivity?.lastRunAt && (
-                        <span className="ml-auto text-terminal-dim font-mono">
+                        <span className="ml-auto text-mc-text-tertiary font-mono">
                           {timeAgo(agentActivity.lastRunAt)}
                         </span>
                       )}

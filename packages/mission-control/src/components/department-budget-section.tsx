@@ -42,13 +42,13 @@ export function DepartmentBudgetSection({
   return (
     <div className="space-y-6">
       {/* Budget Mode Toggle */}
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
         <BudgetModeToggle initialMode={budgetMode} />
       </div>
 
       {/* Per-Agent Budget Editors */}
       <div>
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <h3 className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
           Agent Budgets
         </h3>
         <div className="space-y-3">
@@ -57,7 +57,7 @@ export function DepartmentBudgetSection({
             const spend = agentSpend?.find((s) => s.agentId === name);
             return (
               <div key={name}>
-                <div className="text-xs font-mono text-terminal-text mb-1">
+                <div className="text-xs font-mono text-mc-text mb-1">
                   {agentLabels[name] ?? name}
                 </div>
                 <BudgetEditor
@@ -74,28 +74,28 @@ export function DepartmentBudgetSection({
 
       {/* Model Config (read-only) */}
       <div>
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <h3 className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
           Model Configuration
         </h3>
         <div className="space-y-2">
           {modelConfigs.map((cfg) => (
             <div
               key={cfg.name}
-              className="bg-terminal-surface border border-terminal-border rounded p-3"
+              className="bg-mc-surface-hover border border-mc-border rounded p-3"
             >
-              <div className="text-xs font-mono text-terminal-text mb-2">{cfg.label}</div>
+              <div className="text-xs font-mono text-mc-text mb-2">{cfg.label}</div>
               <div className="grid grid-cols-3 gap-2 text-[10px]">
                 <div>
-                  <span className="text-terminal-dim block">Provider</span>
-                  <span className="text-terminal-text font-mono">{cfg.provider}</span>
+                  <span className="text-mc-text-tertiary block">Provider</span>
+                  <span className="text-mc-text font-mono">{cfg.provider}</span>
                 </div>
                 <div>
-                  <span className="text-terminal-dim block">Model</span>
-                  <span className="text-terminal-text font-mono">{cfg.model}</span>
+                  <span className="text-mc-text-tertiary block">Model</span>
+                  <span className="text-mc-text font-mono">{cfg.model}</span>
                 </div>
                 <div>
-                  <span className="text-terminal-dim block">Temperature</span>
-                  <span className="text-terminal-text font-mono">{cfg.temperature}</span>
+                  <span className="text-mc-text-tertiary block">Temperature</span>
+                  <span className="text-mc-text font-mono">{cfg.temperature}</span>
                 </div>
               </div>
             </div>
@@ -106,10 +106,10 @@ export function DepartmentBudgetSection({
       {/* Cron Schedules (read-only) */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary">
             Cron Schedules
           </h3>
-          <span className="text-[9px] text-terminal-dim font-mono">
+          <span className="text-[9px] text-mc-text-tertiary font-mono">
             Read-only -- editing in Phase 4
           </span>
         </div>
@@ -117,17 +117,17 @@ export function DepartmentBudgetSection({
           {cronSchedules.map((agent) => (
             <div
               key={agent.name}
-              className="bg-terminal-surface border border-terminal-border rounded p-3"
+              className="bg-mc-surface-hover border border-mc-border rounded p-3"
             >
-              <div className="text-xs font-mono text-terminal-text mb-2">{agent.label}</div>
+              <div className="text-xs font-mono text-mc-text mb-2">{agent.label}</div>
               {agent.schedules.length === 0 ? (
-                <div className="text-[10px] text-terminal-dim">No cron schedules (event-driven)</div>
+                <div className="text-[10px] text-mc-text-tertiary">No cron schedules (event-driven)</div>
               ) : (
                 <div className="space-y-1">
                   {agent.schedules.map((s) => (
                     <div key={s.task} className="flex items-center justify-between text-[10px]">
-                      <span className="text-terminal-text font-mono">{s.task}</span>
-                      <span className="text-terminal-dim font-mono">{s.schedule}</span>
+                      <span className="text-mc-text font-mono">{s.task}</span>
+                      <span className="text-mc-text-tertiary font-mono">{s.schedule}</span>
                     </div>
                   ))}
                 </div>

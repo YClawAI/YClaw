@@ -16,15 +16,15 @@ export interface TechDebtItem {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function healthColor(value: number): string {
-  if (value >= 80) return 'text-terminal-green';
-  if (value >= 50) return 'text-terminal-yellow';
-  return 'text-terminal-red';
+  if (value >= 80) return 'text-mc-success';
+  if (value >= 50) return 'text-mc-warning';
+  return 'text-mc-danger';
 }
 
 function severityBadge(severity: string): { label: string; className: string } {
-  if (severity === 'critical') return { label: 'CRITICAL', className: 'bg-terminal-red/10 text-terminal-red border-terminal-red/30' };
-  if (severity === 'warning') return { label: 'WARNING', className: 'bg-terminal-yellow/10 text-terminal-yellow border-terminal-yellow/30' };
-  return { label: 'INFO', className: 'bg-terminal-dim/10 text-terminal-dim border-terminal-border' };
+  if (severity === 'critical') return { label: 'CRITICAL', className: 'bg-mc-danger/10 text-mc-danger border-mc-danger/30' };
+  if (severity === 'warning') return { label: 'WARNING', className: 'bg-mc-warning/10 text-mc-warning border-mc-warning/30' };
+  return { label: 'INFO', className: 'bg-mc-text-tertiary/10 text-mc-text-tertiary border-mc-border' };
 }
 
 // ─── SVG Radar Chart ─────────────────────────────────────────────────────────
@@ -38,7 +38,7 @@ function RadarChart({ axes }: { axes: TechDebtAxis[] }) {
 
   if (n === 0) {
     return (
-      <div className="flex items-center justify-center h-[300px] text-xs text-terminal-dim">
+      <div className="flex items-center justify-center h-[300px] text-xs text-mc-text-tertiary">
         No tech debt axes configured
       </div>
     );
@@ -76,7 +76,7 @@ function RadarChart({ axes }: { axes: TechDebtAxis[] }) {
   const dataPolygon = dataPoints.map(p => `${p.x},${p.y}`).join(' ');
 
   const avgScore = axes.reduce((s, a) => s + a.score, 0) / axes.length;
-  const fillColor = avgScore >= 80 ? '#a6e3a1' : avgScore >= 50 ? '#f9e2af' : '#f38ba8';
+  const fillColor = avgScore >= 80 ? '#30D158' : avgScore >= 50 ? '#FFD60A' : '#FF453A';
 
   const labelPositions = axes.map((axis, j) => {
     const angle = startAngle + j * angleStep;
@@ -88,22 +88,22 @@ function RadarChart({ axes }: { axes: TechDebtAxis[] }) {
   return (
     <svg viewBox="0 0 300 300" className="w-full max-w-[300px] mx-auto">
       {gridRings.map((ring, i) => (
-        <polygon key={i} points={ring} fill="none" stroke="#1e1e2e" strokeWidth="1" />
+        <polygon key={i} points={ring} fill="none" stroke="rgba(90,200,250,0.12)" strokeWidth="1" />
       ))}
       {axisLines.map((pt, i) => (
-        <line key={i} x1={cx} y1={cy} x2={pt.x} y2={pt.y} stroke="#1e1e2e" strokeWidth="1" />
+        <line key={i} x1={cx} y1={cy} x2={pt.x} y2={pt.y} stroke="rgba(90,200,250,0.12)" strokeWidth="1" />
       ))}
       <polygon points={dataPolygon} fill={fillColor} fillOpacity="0.15" stroke={fillColor} strokeWidth="2" />
       {dataPoints.map((pt, i) => (
-        <circle key={i} cx={pt.x} cy={pt.y} r="3" fill={axes[i]!.score >= 80 ? '#a6e3a1' : axes[i]!.score >= 50 ? '#f9e2af' : '#f38ba8'} />
+        <circle key={i} cx={pt.x} cy={pt.y} r="3" fill={axes[i]!.score >= 80 ? '#30D158' : axes[i]!.score >= 50 ? '#FFD60A' : '#FF453A'} />
       ))}
       {labelPositions.map((lp, i) => (
-        <text key={i} x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" fill="#6c7086" fontSize="9" fontFamily="monospace">
+        <text key={i} x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="middle" fill="rgba(255,255,255,0.30)" fontSize="9" fontFamily="monospace">
           {lp.label}
         </text>
       ))}
       {dataPoints.map((pt, i) => (
-        <text key={`v-${i}`} x={pt.x} y={pt.y - 10} textAnchor="middle" fill={axes[i]!.score >= 80 ? '#a6e3a1' : axes[i]!.score >= 50 ? '#f9e2af' : '#f38ba8'} fontSize="9" fontWeight="bold" fontFamily="monospace">
+        <text key={`v-${i}`} x={pt.x} y={pt.y - 10} textAnchor="middle" fill={axes[i]!.score >= 80 ? '#30D158' : axes[i]!.score >= 50 ? '#FFD60A' : '#FF453A'} fontSize="9" fontWeight="bold" fontFamily="monospace">
           {axes[i]!.score}
         </text>
       ))}
@@ -121,8 +121,8 @@ interface TechDebtRadarProps {
 export function TechDebtRadar({ axes, items }: TechDebtRadarProps) {
   if (axes.length === 0 && items.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4 flex items-center justify-center py-8">
-        <span className="text-xs text-terminal-dim">Awaiting Sentinel audit data</span>
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-4 flex items-center justify-center py-8">
+        <span className="text-xs text-mc-text-tertiary">Awaiting Sentinel audit data</span>
       </div>
     );
   }
@@ -133,12 +133,12 @@ export function TechDebtRadar({ axes, items }: TechDebtRadarProps) {
     <div className="space-y-6">
       {/* Radar Chart */}
       {axes.length > 0 && (
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Tech Debt Radar</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">Tech Debt Radar</h3>
             <div className="flex items-center gap-2">
               <span className={`text-lg font-bold font-mono ${healthColor(avgScore)}`}>{avgScore}</span>
-              <span className="text-[10px] text-terminal-dim">/ 100</span>
+              <span className="text-[10px] text-mc-text-tertiary">/ 100</span>
             </div>
           </div>
 
@@ -148,7 +148,7 @@ export function TechDebtRadar({ axes, items }: TechDebtRadarProps) {
             {axes.map(axis => (
               <div key={axis.label} className="text-center">
                 <div className={`text-sm font-bold font-mono ${healthColor(axis.score)}`}>{axis.score}</div>
-                <div className="text-[10px] text-terminal-dim">{axis.label}</div>
+                <div className="text-[10px] text-mc-text-tertiary">{axis.label}</div>
               </div>
             ))}
           </div>
@@ -157,12 +157,12 @@ export function TechDebtRadar({ axes, items }: TechDebtRadarProps) {
 
       {/* Tech Debt Items */}
       {items.length > 0 && (
-        <div className="bg-terminal-surface border border-terminal-border rounded">
-          <div className="px-4 py-3 border-b border-terminal-border flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Prioritized Debt Items</h3>
-            <span className="text-[10px] font-mono text-terminal-dim">{items.length} items</span>
+        <div className="bg-mc-surface-hover border border-mc-border rounded">
+          <div className="px-4 py-3 border-b border-mc-border flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">Prioritized Debt Items</h3>
+            <span className="text-[10px] font-mono text-mc-text-tertiary">{items.length} items</span>
           </div>
-          <div className="divide-y divide-terminal-border/50">
+          <div className="divide-y divide-mc-border/50">
             {items.map((item, idx) => {
               const badge = severityBadge(item.severity);
               return (
@@ -171,12 +171,12 @@ export function TechDebtRadar({ axes, items }: TechDebtRadarProps) {
                     <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ${badge.className}`}>
                       {badge.label}
                     </span>
-                    <span className="text-xs font-bold text-terminal-text">{item.title}</span>
+                    <span className="text-xs font-bold text-mc-text">{item.title}</span>
                   </div>
                   {item.files && item.files.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {item.files.map(file => (
-                        <span key={file} className="text-[10px] font-mono text-terminal-blue bg-terminal-blue/5 px-1.5 py-0.5 rounded">
+                        <span key={file} className="text-[10px] font-mono text-mc-info bg-mc-info/5 px-1.5 py-0.5 rounded">
                           {file}
                         </span>
                       ))}

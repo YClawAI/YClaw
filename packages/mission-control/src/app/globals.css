@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── SpaceX Crew Dragon tokens ──────────────────────────────────
+ * Exposed as CSS custom properties so vanilla CSS + SVG can consume the
+ * same values as the Tailwind `mc-*` utility classes. Component work
+ * should prefer the Tailwind classes; these vars exist for: inline SVG
+ * fills, third-party components that don't accept classnames, and any
+ * runtime computed colors (e.g. d3 / three.js).
+ * ───────────────────────────────────────────────────────────────────── */
+:root {
+  --mc-bg: #000000;
+  --mc-surface: rgba(255, 255, 255, 0.02);
+  --mc-surface-hover: rgba(255, 255, 255, 0.04);
+  --mc-border: rgba(90, 200, 250, 0.12);
+  --mc-border-hover: rgba(90, 200, 250, 0.22);
+  --mc-border-active: rgba(90, 200, 250, 0.40);
+  --mc-accent: #5AC8FA;
+  --mc-accent-dim: rgba(90, 200, 250, 0.15);
+  --mc-text: rgba(255, 255, 255, 0.87);
+  --mc-text-secondary: rgba(255, 255, 255, 0.50);
+  --mc-text-tertiary: rgba(255, 255, 255, 0.30);
+  --mc-text-label: rgba(255, 255, 255, 0.35);
+  --mc-success: #30D158;
+  --mc-danger: #FF453A;
+  --mc-warning: #FFD60A;
+  --mc-info: #64D2FF;
+  --mc-blocked: #FF9F0A;
+  --mc-dept-executive: #FFD60A;
+  --mc-dept-development: #5AC8FA;
+  --mc-dept-marketing: #FF9F0A;
+  --mc-dept-operations: #30D158;
+  --mc-dept-finance: #BF5AF2;
+  --mc-dept-support: #64D2FF;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -11,14 +44,43 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0a0a0f;
+    background: var(--mc-bg);
   }
   ::-webkit-scrollbar-thumb {
-    background: #2a2a3a;
+    background: var(--mc-border-hover);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a3a4a;
+    background: var(--mc-border-active);
+  }
+}
+
+/* Respect the OS-level reduced-motion preference across every animation
+ * in the app. Covers both the custom mc-* keyframes and every Tailwind
+ * animation class actually referenced in mission-control components.
+ * Phase 6c audited callsites: animate-pulse (status dots, loading
+ * placeholders), animate-spin (spinners), animate-ping (burn-velocity
+ * flash), animate-highlight (audit-timeline new-event fade), animate-in
+ * (toast entrance). The generic `*` transition-duration override
+ * disables every remaining CSS transition at the same time. */
+@media (prefers-reduced-motion: reduce) {
+  .mc-animate-pulse,
+  .mc-animate-breathe,
+  .mc-animate-particle,
+  .animate-mc-pulse,
+  .animate-mc-breathe,
+  .animate-mc-particle-flow,
+  .animate-pulse,
+  .animate-spin,
+  .animate-ping,
+  .animate-highlight,
+  .animate-in {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
   }
 }
 

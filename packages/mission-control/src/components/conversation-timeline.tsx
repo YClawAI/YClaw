@@ -28,16 +28,16 @@ interface ConversationTimelineProps {
 }
 
 const SENDER_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  user: { bg: 'bg-terminal-muted/50', text: 'text-terminal-dim', label: 'User' },
-  keeper: { bg: 'bg-terminal-yellow/10', text: 'text-terminal-yellow', label: 'Keeper' },
-  guide: { bg: 'bg-terminal-blue/10', text: 'text-terminal-blue', label: 'Guide' },
+  user: { bg: 'bg-mc-border/50', text: 'text-mc-text-tertiary', label: 'User' },
+  keeper: { bg: 'bg-mc-warning/10', text: 'text-mc-warning', label: 'Keeper' },
+  guide: { bg: 'bg-mc-info/10', text: 'text-mc-info', label: 'Guide' },
 };
 
 const SENTIMENT_BADGE: Record<string, { text: string; bg: string }> = {
-  neutral: { text: 'text-terminal-dim', bg: 'bg-terminal-dim/20' },
-  confused: { text: 'text-terminal-yellow', bg: 'bg-terminal-yellow/10' },
-  angry: { text: 'text-terminal-orange', bg: 'bg-terminal-orange/10' },
-  urgent: { text: 'text-terminal-red', bg: 'bg-terminal-red/10' },
+  neutral: { text: 'text-mc-text-tertiary', bg: 'bg-mc-text-tertiary/20' },
+  confused: { text: 'text-mc-warning', bg: 'bg-mc-warning/10' },
+  angry: { text: 'text-mc-blocked', bg: 'bg-mc-blocked/10' },
+  urgent: { text: 'text-mc-danger', bg: 'bg-mc-danger/10' },
 };
 
 export function ConversationTimeline({ supportCase, messages, onClose }: ConversationTimelineProps) {
@@ -72,12 +72,12 @@ export function ConversationTimeline({ supportCase, messages, onClose }: Convers
       />
 
       {/* Side panel */}
-      <div role="dialog" aria-modal="true" aria-label={`Case ${supportCase.id}`} className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-lg bg-terminal-surface border-l border-terminal-border shadow-2xl flex flex-col max-sm:max-w-full">
+      <div role="dialog" aria-modal="true" aria-label={`Case ${supportCase.id}`} className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-lg bg-mc-surface-hover border-l border-mc-border shadow-2xl flex flex-col max-sm:max-w-full">
         {/* Header */}
-        <div className="shrink-0 px-4 py-3 border-b border-terminal-border">
+        <div className="shrink-0 px-4 py-3 border-b border-mc-border">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-terminal-text font-mono">
+              <span className="text-xs font-bold text-mc-text font-mono">
                 {supportCase.id.toUpperCase()}
               </span>
               <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${sentimentStyle.bg} ${sentimentStyle.text}`}>
@@ -86,20 +86,20 @@ export function ConversationTimeline({ supportCase, messages, onClose }: Convers
             </div>
             <button
               onClick={onClose}
-              className="text-terminal-dim hover:text-terminal-text transition-colors text-lg leading-none"
+              className="text-mc-text-tertiary hover:text-mc-text transition-colors text-lg leading-none"
             >
               &times;
             </button>
           </div>
 
           {supportCase.subject && (
-            <div className="text-sm text-terminal-text mb-2">{supportCase.subject}</div>
+            <div className="text-sm text-mc-text mb-2">{supportCase.subject}</div>
           )}
 
-          <div className="flex items-center gap-3 text-[10px] text-terminal-dim font-mono">
+          <div className="flex items-center gap-3 text-[10px] text-mc-text-tertiary font-mono">
             {supportCase.userId && <span>{supportCase.userId}</span>}
             {supportCase.channel && (
-              <span className="px-1.5 py-0.5 rounded border border-terminal-border uppercase">
+              <span className="px-1.5 py-0.5 rounded border border-mc-border uppercase">
                 {supportCase.channel}
               </span>
             )}
@@ -110,7 +110,7 @@ export function ConversationTimeline({ supportCase, messages, onClose }: Convers
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
           {messages.length === 0 ? (
-            <div className="text-xs text-terminal-dim text-center py-8">
+            <div className="text-xs text-mc-text-tertiary text-center py-8">
               No messages in transcript
             </div>
           ) : (
@@ -125,16 +125,16 @@ export function ConversationTimeline({ supportCase, messages, onClose }: Convers
                         {msg.senderName}
                       </span>
                       {msg.modAction && (
-                        <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-terminal-green/10 text-terminal-green border border-terminal-green/30">
+                        <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-mc-success/10 text-mc-success border border-mc-success/30">
                           {msg.modAction.toUpperCase()}
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-terminal-dim font-mono">
+                    <span className="text-[10px] text-mc-text-tertiary font-mono">
                       {formatDate(msg.timestamp)} {formatTime(msg.timestamp)}
                     </span>
                   </div>
-                  <p className="text-xs text-terminal-text leading-relaxed">
+                  <p className="text-xs text-mc-text leading-relaxed">
                     {msg.content}
                   </p>
                 </div>
@@ -144,10 +144,10 @@ export function ConversationTimeline({ supportCase, messages, onClose }: Convers
         </div>
 
         {/* Action bar */}
-        <div className="shrink-0 border-t border-terminal-border px-4 py-3 flex gap-2">
+        <div className="shrink-0 border-t border-mc-border px-4 py-3 flex gap-2">
           <button
             onClick={onClose}
-            className="ml-auto px-3 py-1.5 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors"
+            className="ml-auto px-3 py-1.5 text-xs font-mono border border-mc-border rounded text-mc-text-tertiary hover:text-mc-text hover:bg-mc-surface-hover transition-colors"
           >
             CLOSE
           </button>

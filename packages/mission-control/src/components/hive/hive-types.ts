@@ -31,14 +31,19 @@ export interface HiveLink {
   target: string;
 }
 
-/** Department hex colors for canvas rendering (matches tailwind terminal- palette) */
+/**
+ * Department hex colors for canvas + WebGL rendering.
+ * Matches the SpaceX `mc-dept-*` tokens in tailwind.config.ts — see
+ * DESIGN-SYSTEM.md for the remap. Kept as raw hex (not CSS var refs)
+ * because canvas 2D and three.js materials need concrete values.
+ */
 export const DEPT_HEX: Record<Department, string> = {
-  executive: '#89dceb',
-  development: '#89b4fa',
-  marketing: '#fab387',
-  operations: '#a6e3a1',
-  finance: '#cba6f7',
-  support: '#f9e2af',
+  executive: '#FFD60A',   // mc-dept-executive (was #5AC8FA mc-accent)
+  development: '#5AC8FA', // mc-dept-development (was #64D2FF mc-info)
+  marketing: '#FF9F0A',   // mc-dept-marketing (was #FF9F0A mc-blocked)
+  operations: '#30D158',  // mc-dept-operations (was #30D158 mc-success)
+  finance: '#BF5AF2',     // mc-dept-finance (was #5AC8FA mc-accent)
+  support: '#64D2FF',     // mc-dept-support (was #FFD60A mc-warning)
 };
 
 /**
@@ -62,7 +67,7 @@ export function hexAlpha(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-// ── Event Types ─────────────────────────────────────────
+// ── Event Types ─────────────────────────────────
 
 export type HiveEventCategory =
   // Inter-agent
@@ -142,7 +147,7 @@ export const EVENT_CATEGORY_GLOW: Record<HiveEventCategory, number> = {
   openclaw_trigger: 7, openclaw_directive: 7, openclaw_response: 5,
 };
 
-// ── Particle System ─────────────────────────────────────────
+// ── Particle System ─────────────────────────────
 
 export interface Particle {
   id: string;
@@ -161,7 +166,7 @@ export interface Particle {
   p2: { x: number; y: number };
 }
 
-// ── Big Moment Overlays ─────────────────────────────────────
+// ── Big Moment Overlays ──────────────────────────
 
 export type BigMomentType = 'starburst' | 'ripple' | 'goldPulse' | 'errorFlash' | 'openclawPulse';
 
@@ -176,7 +181,7 @@ export interface BigMoment {
   targetNodes?: Array<{ x: number; y: number }>;  // for starburst
 }
 
-// ── Agent Status (enhanced for Phase 2) ─────────────────────
+// ── Agent Status (enhanced for Phase 2) ─────────────
 
 export type AgentRunState = 'idle' | 'running' | 'error' | 'paused';
 
@@ -189,7 +194,7 @@ export interface AgentRealtimeStatus {
   lastErrorAt: number;        // for error shake
 }
 
-// ── Fleet / Org Settings ────────────────────────────────────
+// ── Fleet / Org Settings ────────────────────────
 
 export type FleetMode = 'active' | 'paused';
 export type DeployMode = 'auto' | 'review' | 'lockdown';
@@ -202,7 +207,7 @@ export interface FleetStatus {
   flags: Record<string, boolean>;
 }
 
-// ── Org File (GitHub-backed) ────────────────────────────────
+// ── Org File (GitHub-backed) ────────────────────
 
 export interface OrgFileResponse {
   filename: string;

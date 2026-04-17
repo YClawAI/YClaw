@@ -24,14 +24,14 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  active: 'bg-terminal-green/10 text-terminal-green border-terminal-green/30',
-  running: 'bg-terminal-green/10 text-terminal-green border-terminal-green/30',
-  completed: 'bg-terminal-blue/10 text-terminal-blue border-terminal-blue/30',
-  merged: 'bg-terminal-blue/10 text-terminal-blue border-terminal-blue/30',
-  failed: 'bg-terminal-red/10 text-terminal-red border-terminal-red/30',
-  error: 'bg-terminal-red/10 text-terminal-red border-terminal-red/30',
-  pending: 'bg-terminal-yellow/10 text-terminal-yellow border-terminal-yellow/30',
-  queued: 'bg-terminal-yellow/10 text-terminal-yellow border-terminal-yellow/30',
+  active: 'border-mc-success/40 text-mc-success bg-mc-success/10',
+  running: 'border-mc-success/40 text-mc-success bg-mc-success/10',
+  completed: 'border-mc-info/40 text-mc-info bg-mc-info/10',
+  merged: 'border-mc-info/40 text-mc-info bg-mc-info/10',
+  failed: 'border-mc-danger/40 text-mc-danger bg-mc-danger/10',
+  error: 'border-mc-danger/40 text-mc-danger bg-mc-danger/10',
+  pending: 'border-mc-warning/40 text-mc-warning bg-mc-warning/10',
+  queued: 'border-mc-warning/40 text-mc-warning bg-mc-warning/10',
 };
 
 export function LiveActivity({ initialRuns }: { initialRuns: RunEntry[] }) {
@@ -43,34 +43,54 @@ export function LiveActivity({ initialRuns }: { initialRuns: RunEntry[] }) {
   });
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded">
-      <div className="px-4 py-3 border-b border-terminal-border flex items-center justify-between">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Recent Activity</h2>
-        <span className={`inline-block w-1.5 h-1.5 rounded-full ${connected ? 'bg-terminal-green animate-pulse' : 'bg-terminal-dim'}`} title={connected ? 'Live' : 'Connecting...'} />
+    <div className="border border-mc-border rounded-panel bg-transparent transition-colors duration-mc ease-mc-out hover:border-mc-border-hover">
+      <div className="px-4 py-3 border-b border-mc-border flex items-center justify-between">
+        <h2 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Recent Activity</h2>
+        <span
+          className={`inline-block w-1.5 h-1.5 rounded-full ${connected ? 'bg-mc-success animate-mc-pulse shadow-[0_0_6px_currentColor]' : 'bg-mc-text-tertiary'}`}
+          title={connected ? 'Live' : 'Connecting...'}
+        />
       </div>
       {runs.length === 0 ? (
-        <div className="p-4 text-xs text-terminal-dim text-center">No recent activity</div>
+        <div className="p-4 font-sans text-xs text-mc-text-tertiary text-center">No recent activity</div>
       ) : (
-        <div className="divide-y divide-terminal-border">
+        <div className="divide-y divide-mc-border">
           {runs.map((run, i) => {
             const agent = AGENTS.find((a) => a.name === run.agentId);
-            const statusStyle = STATUS_STYLES[run.status?.toLowerCase()] ?? 'bg-terminal-muted/50 text-terminal-dim border-terminal-border';
+            const statusStyle = STATUS_STYLES[run.status?.toLowerCase()] ?? 'border-mc-border text-mc-text-secondary bg-transparent';
             return (
-              <div key={`${run.createdAt}-${i}`} className="px-4 py-2.5 flex items-center gap-3 text-xs hover:bg-terminal-muted/30 transition-colors">
+              <div
+                key={`${run.createdAt}-${i}`}
+                className="px-4 py-2.5 flex items-center gap-3 text-xs hover:bg-mc-surface-hover transition-colors duration-mc ease-mc-out"
+              >
                 <span className="text-sm">{agent?.emoji || '?'}</span>
-                <a href={`/agents/${run.agentId}`} className="text-terminal-text font-semibold hover:text-terminal-purple">
+                <a
+                  href={`/agents/${run.agentId}`}
+                  className="font-sans text-mc-text font-medium hover:text-mc-accent transition-colors duration-mc ease-mc-out"
+                >
                   {agent?.label || run.agentId}
                 </a>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-mono border ${statusStyle}`}>
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-badge font-sans text-[10px] font-medium uppercase tracking-label border ${statusStyle}`}
+                >
                   {run.status}
                 </span>
-                {run.taskId && <span className="text-terminal-dim font-mono truncate max-w-[200px]">{run.taskId}</span>}
+                {run.taskId && (
+                  <span className="font-mono text-xs text-mc-text-secondary truncate max-w-[200px]">
+                    {run.taskId}
+                  </span>
+                )}
                 {run.executionId && (
-                  <span className="text-terminal-dim/50 font-mono text-[10px] truncate max-w-[120px]" title={run.executionId}>
+                  <span
+                    className="font-mono text-[10px] text-mc-text-tertiary truncate max-w-[120px]"
+                    title={run.executionId}
+                  >
                     {run.executionId.slice(0, 8)}
                   </span>
                 )}
-                <span className="ml-auto text-terminal-dim">{formatTimeAgo(run.createdAt)}</span>
+                <span className="ml-auto font-mono tabular-nums text-[11px] text-mc-text-tertiary">
+                  {formatTimeAgo(run.createdAt)}
+                </span>
               </div>
             );
           })}

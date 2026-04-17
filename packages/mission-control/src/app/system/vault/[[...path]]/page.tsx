@@ -98,16 +98,16 @@ export default function VaultPage({ params }: VaultPageProps) {
   return (
     <div className="flex gap-4 h-full">
       <aside className="w-52 shrink-0 overflow-y-auto">
-        <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">Vault</div>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">Vault</div>
         <VaultTree entries={rootEntries} vaultRoot={vaultRoot} activePath={currentPath} depth={0} />
       </aside>
 
       <div className="flex-1 min-w-0">
         {!fileExists && segments.length > 0 ? (
-          <div className="text-terminal-red text-sm font-mono">File not found: {currentPath}</div>
+          <div className="text-mc-danger text-sm font-mono">File not found: {currentPath}</div>
         ) : isDir ? (
           <div>
-            <h2 className="text-sm font-bold text-terminal-dim mb-4 font-mono">
+            <h2 className="text-sm font-bold text-mc-text-tertiary mb-4 font-mono">
               /{currentPath || 'vault'}
             </h2>
             <div className="flex flex-col gap-1">
@@ -115,37 +115,45 @@ export default function VaultPage({ params }: VaultPageProps) {
                 <a
                   key={e.path}
                   href={`/system/vault/${e.path}`}
-                  className="flex items-center gap-2 py-1.5 px-3 rounded text-sm font-mono hover:bg-terminal-surface text-terminal-text"
+                  className="flex items-center gap-2 py-1.5 px-3 rounded text-sm font-mono hover:bg-mc-surface-hover text-mc-text"
                 >
-                  <span className="text-terminal-dim">{e.isDir ? '📁' : '📄'}</span>
+                  <span className="text-mc-text-tertiary">{e.isDir ? '📁' : '📄'}</span>
                   {e.name}
                 </a>
               ))}
               {dirEntries.length === 0 && (
-                <p className="text-terminal-dim text-sm">Empty directory.</p>
+                <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+                  <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+                  <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+                    Empty directory
+                  </div>
+                  <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+                    No files or subdirectories at this path.
+                  </p>
+                </div>
               )}
             </div>
           </div>
         ) : content ? (
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between text-xs font-mono text-terminal-dim">
+            <div className="flex items-center justify-between text-xs font-mono text-mc-text-tertiary">
               <span className="truncate">/{currentPath}</span>
               {downloadHref && (
                 <a
                   href={downloadHref}
-                  className="ml-4 shrink-0 text-terminal-blue hover:underline"
+                  className="ml-4 shrink-0 text-mc-info hover:underline"
                 >
                   Download
                 </a>
               )}
             </div>
             <article
-              className="prose prose-invert prose-sm max-w-none prose-headings:font-mono prose-headings:text-terminal-text prose-p:text-terminal-dim prose-code:text-terminal-cyan prose-pre:bg-terminal-surface prose-pre:border prose-pre:border-terminal-border prose-a:text-terminal-blue prose-strong:text-terminal-text"
+              className="prose prose-invert prose-sm max-w-none prose-headings:font-mono prose-headings:text-mc-text prose-p:text-mc-text-tertiary prose-code:text-mc-accent prose-pre:bg-mc-surface-hover prose-pre:border prose-pre:border-mc-border prose-a:text-mc-info prose-strong:text-mc-text"
               dangerouslySetInnerHTML={{ __html: content }}
             />
           </div>
         ) : (
-          <p className="text-terminal-dim text-sm">Select a file from the vault.</p>
+          <p className="text-mc-text-tertiary text-sm">Select a file from the vault.</p>
         )}
       </div>
     </div>
@@ -173,8 +181,8 @@ function VaultTree({ entries, vaultRoot, activePath, depth }: VaultTreeProps) {
               href={href}
               className={`flex items-center gap-1.5 py-0.5 px-2 rounded text-xs font-mono transition-colors ${
                 isActive
-                  ? 'text-terminal-text bg-terminal-muted'
-                  : 'text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface'
+                  ? 'text-mc-text bg-mc-border'
+                  : 'text-mc-text-tertiary hover:text-mc-text hover:bg-mc-surface-hover'
               }`}
               style={{ paddingLeft: `${8 + depth * 12}px` }}
             >

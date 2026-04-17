@@ -175,20 +175,20 @@ export function OnboardingClient({ initialStatus, initialError }: Props) {
     return (
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-sm font-bold text-terminal-text mb-2">Onboarding</h1>
-          <p className="text-xs text-terminal-dim mb-6">
+          <h1 className="text-sm font-bold text-mc-text mb-2">Onboarding</h1>
+          <p className="text-xs text-mc-text-tertiary mb-6">
             Set up your AI organization. Answer a few questions, import context documents,
             and configure departments. All generated artifacts require your approval.
           </p>
           {error && (
-            <div className="bg-terminal-red/10 border border-terminal-red/30 rounded p-3 mb-4">
-              <p className="text-xs text-terminal-red">{error}</p>
+            <div className="bg-mc-danger/10 border border-mc-danger/30 rounded p-3 mb-4">
+              <p className="text-xs text-mc-danger">{error}</p>
             </div>
           )}
           <button
             onClick={startOnboarding}
             disabled={loading}
-            className="px-4 py-2 text-xs font-mono rounded border bg-terminal-purple/20 text-terminal-purple border-terminal-purple/40 hover:bg-terminal-purple/30 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-xs font-mono rounded border bg-mc-accent/20 text-mc-accent border-mc-accent/40 hover:bg-mc-accent/30 transition-colors disabled:opacity-50"
           >
             {loading ? 'Starting...' : 'Begin Onboarding'}
           </button>
@@ -211,8 +211,8 @@ export function OnboardingClient({ initialStatus, initialError }: Props) {
         </div>
         <div className="flex-1 space-y-6">
           {error && (
-            <div className="bg-terminal-red/10 border border-terminal-red/30 rounded p-3">
-              <p className="text-xs text-terminal-red">{error}</p>
+            <div className="bg-mc-danger/10 border border-mc-danger/30 rounded p-3">
+              <p className="text-xs text-mc-danger">{error}</p>
             </div>
           )}
           {currentQuestion && (
@@ -223,7 +223,7 @@ export function OnboardingClient({ initialStatus, initialError }: Props) {
           )}
           {artifacts.length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Generated Artifacts</h2>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">Generated Artifacts</h2>
               {artifacts.map(artifact => (
                 <ArtifactPreview
                   key={artifact.id}

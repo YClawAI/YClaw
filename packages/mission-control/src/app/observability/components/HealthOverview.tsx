@@ -28,17 +28,17 @@ function formatUptime(seconds: number): string {
 }
 
 const STATUS_COLORS = {
-  healthy: 'text-terminal-green',
-  degraded: 'text-terminal-orange',
-  unhealthy: 'text-terminal-red',
-  disabled: 'text-terminal-dim',
+  healthy: 'text-mc-success',
+  degraded: 'text-mc-blocked',
+  unhealthy: 'text-mc-danger',
+  disabled: 'text-mc-text-tertiary',
 } as const;
 
 const STATUS_DOT = {
-  healthy: 'bg-terminal-green',
-  degraded: 'bg-terminal-orange',
-  unhealthy: 'bg-terminal-red',
-  disabled: 'bg-terminal-dim',
+  healthy: 'bg-mc-success',
+  degraded: 'bg-mc-blocked',
+  unhealthy: 'bg-mc-danger',
+  disabled: 'bg-mc-text-tertiary',
 } as const;
 
 export function HealthOverview({ status, uptimeSeconds, components, channels }: HealthOverviewProps) {
@@ -52,14 +52,14 @@ export function HealthOverview({ status, uptimeSeconds, components, channels }: 
             {status.toUpperCase()}
           </span>
         </div>
-        <span className="text-xs text-terminal-dim font-mono">
+        <span className="text-xs text-mc-text-tertiary font-mono">
           Uptime: {formatUptime(uptimeSeconds)}
         </span>
       </div>
 
       {/* Infrastructure components */}
       <div>
-        <h4 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">
+        <h4 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-2">
           Infrastructure
         </h4>
         <div className="space-y-1">
@@ -67,11 +67,11 @@ export function HealthOverview({ status, uptimeSeconds, components, channels }: 
             <div key={name} className="flex items-center justify-between text-xs font-mono">
               <div className="flex items-center gap-2">
                 <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[comp.status]}`} />
-                <span className="text-terminal-text">{name}</span>
+                <span className="text-mc-text">{name}</span>
               </div>
               <div className="flex items-center gap-3">
                 {comp.latencyMs !== undefined && (
-                  <span className="text-terminal-dim">{comp.latencyMs}ms</span>
+                  <span className="text-mc-text-tertiary">{comp.latencyMs}ms</span>
                 )}
                 <span className={STATUS_COLORS[comp.status]}>{comp.status}</span>
               </div>
@@ -83,7 +83,7 @@ export function HealthOverview({ status, uptimeSeconds, components, channels }: 
       {/* Channels */}
       {Object.keys(channels).length > 0 && (
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">
+          <h4 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-2">
             Channels
           </h4>
           <div className="space-y-1">
@@ -91,7 +91,7 @@ export function HealthOverview({ status, uptimeSeconds, components, channels }: 
               <div key={name} className="flex items-center justify-between text-xs font-mono">
                 <div className="flex items-center gap-2">
                   <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[ch.status]}`} />
-                  <span className="text-terminal-text">{name}</span>
+                  <span className="text-mc-text">{name}</span>
                 </div>
                 <span className={STATUS_COLORS[ch.status]}>{ch.status}</span>
               </div>

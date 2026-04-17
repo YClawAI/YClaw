@@ -42,29 +42,29 @@ export function ChatDrawer() {
 
   return (
     <aside
-      className={`shrink-0 border-l border-terminal-border bg-terminal-surface flex flex-col transition-all duration-200 overflow-hidden ${
+      className={`shrink-0 border-l border-mc-border bg-mc-bg flex flex-col transition-all duration-mc ease-mc-out overflow-hidden ${
         open ? 'w-[380px]' : 'w-0 border-l-0'
       }`}
     >
       <div className="flex flex-col h-full">
-        <div className="px-4 py-3 border-b border-terminal-border flex items-center justify-between shrink-0">
+        <div className="px-4 py-3 border-b border-mc-border flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-sm">🚀</span>
-            <span className="text-xs font-bold text-terminal-purple font-mono">OpenClaw</span>
-            <span className="text-[10px] text-terminal-dim font-mono">&mdash; Chat</span>
+            <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-accent">OpenClaw</span>
+            <span className="font-sans text-[10px] text-mc-text-tertiary">&mdash; Chat</span>
           </div>
           <div className="flex items-center gap-2">
             {messages.length > 0 && (
               <button
                 onClick={clearMessages}
-                className="text-[10px] text-terminal-dim hover:text-terminal-red transition-colors"
+                className="font-sans text-[10px] uppercase tracking-label text-mc-text-tertiary hover:text-mc-danger transition-colors duration-mc ease-mc-out"
               >
                 Clear
               </button>
             )}
             <button
               onClick={() => setOpen(false)}
-              className="text-terminal-dim hover:text-terminal-text transition-colors text-lg leading-none"
+              className="text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out text-lg leading-none"
             >
               &times;
             </button>

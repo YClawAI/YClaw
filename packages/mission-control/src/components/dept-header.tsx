@@ -11,24 +11,24 @@ export function DeptHeader({ department, healthy = true }: DeptHeaderProps) {
   const agents = getAgentsByDept(department);
   const colorClass = DEPT_COLORS[department];
   const statusDot = healthy
-    ? 'bg-terminal-green shadow-[0_0_6px_#a6e3a1]'
-    : 'bg-terminal-yellow shadow-[0_0_6px_#f9e2af]';
+    ? 'bg-mc-success shadow-[0_0_6px_#30D158]'
+    : 'bg-mc-warning shadow-[0_0_6px_#FFD60A]';
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4 mb-6">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-4 mb-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-2xl">{meta.icon}</span>
           <div>
             <h1 className={`text-lg font-bold ${colorClass}`}>{meta.label} Department</h1>
-            <p className="text-xs text-terminal-dim">
+            <p className="text-xs text-mc-text-tertiary">
               Lead: {meta.lead} · {agents.length} agent{agents.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <span className={`inline-block w-2.5 h-2.5 rounded-full ${statusDot}`} />
-          <span className="text-xs text-terminal-dim font-mono">{healthy ? 'All Healthy' : 'Degraded'}</span>
+          <span className="text-xs text-mc-text-tertiary font-mono">{healthy ? 'All Healthy' : 'Degraded'}</span>
         </div>
       </div>
     </div>

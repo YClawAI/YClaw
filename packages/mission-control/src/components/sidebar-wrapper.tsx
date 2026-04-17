@@ -7,7 +7,7 @@ export function SidebarWrapper({ children }: { children: ReactNode }) {
   const collapsed = useSidebarStore((s) => s.collapsed);
   return (
     <aside
-      className={`shrink-0 bg-terminal-surface border-r border-terminal-border overflow-y-auto transition-all duration-200 ${
+      className={`shrink-0 bg-mc-bg border-r border-mc-border overflow-y-auto transition-all duration-mc ease-mc-out ${
         collapsed ? 'w-16' : 'w-[260px]'
       }`}
     >

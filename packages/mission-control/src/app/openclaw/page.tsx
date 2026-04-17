@@ -83,8 +83,8 @@ export default async function OpenClawPage() {
       {/* ── Header ──────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-lg font-bold text-terminal-purple">OpenClaw</h1>
-          <p className="text-xs text-terminal-dim">Orchestrator — Gateway to the Agent Fleet</p>
+          <h1 className="text-lg font-bold text-mc-accent">OpenClaw</h1>
+          <p className="text-xs text-mc-text-tertiary">Orchestrator — Gateway to the Agent Fleet</p>
         </div>
         <div className="flex items-center gap-2">
           {gateway ? <StatusBadge status="active" /> : <StatusBadge status="error" />}
@@ -105,50 +105,50 @@ export default async function OpenClawPage() {
       <div className="space-y-6">
 
         {/* ── Card 1: Gateway Health (Hero) — full width ──────── */}
-        <div className="bg-terminal-surface border border-terminal-purple/30 rounded p-5">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="bg-mc-surface-hover border border-mc-accent/30 rounded p-5">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             Gateway Health
           </h2>
           {gateway ? (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <div className="p-3 bg-terminal-bg rounded text-center">
-                  <div className="text-lg font-bold text-terminal-green">Connected</div>
-                  <div className="text-[10px] text-terminal-dim">Status</div>
+                <div className="p-3 bg-mc-bg rounded text-center">
+                  <div className="text-lg font-bold text-mc-success">Connected</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Status</div>
                 </div>
-                <div className="p-3 bg-terminal-bg rounded text-center">
-                  <div className="text-lg font-bold text-terminal-purple">{gateway.model || 'Unknown'}</div>
-                  <div className="text-[10px] text-terminal-dim">Model</div>
+                <div className="p-3 bg-mc-bg rounded text-center">
+                  <div className="text-lg font-bold text-mc-accent">{gateway.model || 'Unknown'}</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Model</div>
                 </div>
-                <div className="p-3 bg-terminal-bg rounded text-center">
-                  <div className="text-lg font-bold text-terminal-text">{gateway.version || 'N/A'}</div>
-                  <div className="text-[10px] text-terminal-dim">Version</div>
+                <div className="p-3 bg-mc-bg rounded text-center">
+                  <div className="text-lg font-bold text-mc-text">{gateway.version || 'N/A'}</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Version</div>
                 </div>
-                <div className="p-3 bg-terminal-bg rounded text-center">
-                  <div className="text-lg font-bold text-terminal-text">{sessions.length}</div>
-                  <div className="text-[10px] text-terminal-dim">Sessions</div>
+                <div className="p-3 bg-mc-bg rounded text-center">
+                  <div className="text-lg font-bold text-mc-text">{sessions.length}</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Sessions</div>
                 </div>
-                <div className="p-3 bg-terminal-bg rounded text-center sm:col-span-2">
-                  <div className="text-lg font-bold text-terminal-text">
+                <div className="p-3 bg-mc-bg rounded text-center sm:col-span-2">
+                  <div className="text-lg font-bold text-mc-text">
                     {gateway.contextTokens ? `${Math.round(gateway.contextTokens / 1000)}k` : '—'} / {gateway.totalTokens ? `${Math.round(gateway.totalTokens / 1000)}k` : '—'}
                   </div>
-                  <div className="text-[10px] text-terminal-dim">Context / Total Tokens</div>
+                  <div className="text-[10px] text-mc-text-tertiary">Context / Total Tokens</div>
                 </div>
               </div>
-              <div className="flex gap-4 mt-3 text-xs text-terminal-dim">
+              <div className="flex gap-4 mt-3 text-xs text-mc-text-tertiary">
                 <span>
                   Thinking:{' '}
-                  <span className="text-terminal-text">{gateway.thinkMode || 'off'}</span>
+                  <span className="text-mc-text">{gateway.thinkMode || 'off'}</span>
                 </span>
                 <span>
                   Elevated:{' '}
-                  <span className={gateway.elevated ? 'text-terminal-green' : 'text-terminal-text'}>
+                  <span className={gateway.elevated ? 'text-mc-success' : 'text-mc-text'}>
                     {gateway.elevated ? 'on' : 'off'}
                   </span>
                 </span>
                 {gateway.uptime && (
                   <span>
-                    Uptime: <span className="text-terminal-text">{gateway.uptime}</span>
+                    Uptime: <span className="text-mc-text">{gateway.uptime}</span>
                   </span>
                 )}
               </div>
@@ -158,7 +158,7 @@ export default async function OpenClawPage() {
                     href={openClawUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-terminal-blue hover:underline font-mono"
+                    className="text-xs text-mc-info hover:underline font-mono"
                   >
                     Open WebUI ↗
                   </a>
@@ -166,7 +166,7 @@ export default async function OpenClawPage() {
               )}
             </>
           ) : (
-            <div className="text-sm text-terminal-dim">Gateway unreachable</div>
+            <div className="text-sm text-mc-text-tertiary">Gateway unreachable</div>
           )}
         </div>
 
@@ -174,41 +174,41 @@ export default async function OpenClawPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* Card 2: Model Pipeline */}
-          <div className="bg-terminal-surface border border-terminal-purple/30 rounded p-4">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+          <div className="bg-mc-surface-hover border border-mc-accent/30 rounded p-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
               Model Pipeline
             </h2>
             <div className="space-y-2">
               {models.length > 0 ? (
                 models.map((m) => (
-                  <div key={m.id} className="flex items-center justify-between p-2 bg-terminal-bg rounded">
+                  <div key={m.id} className="flex items-center justify-between p-2 bg-mc-bg rounded">
                     <div className="flex items-center gap-2">
                       <HealthDot healthy={m.available} />
-                      <span className="text-xs text-terminal-purple">{m.alias || m.id}</span>
-                      <span className="text-[10px] text-terminal-dim">{m.provider}</span>
+                      <span className="text-xs text-mc-accent">{m.alias || m.id}</span>
+                      <span className="text-[10px] text-mc-text-tertiary">{m.provider}</span>
                     </div>
                     <StatusBadge status={m.available ? 'active' : 'error'} />
                   </div>
                 ))
               ) : (
-                <div className="flex items-center justify-between p-2 bg-terminal-bg rounded">
+                <div className="flex items-center justify-between p-2 bg-mc-bg rounded">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-terminal-dim">Primary</span>
-                    <span className="text-xs text-terminal-purple">{gateway?.model || 'Unknown'}</span>
+                    <span className="text-xs text-mc-text-tertiary">Primary</span>
+                    <span className="text-xs text-mc-accent">{gateway?.model || 'Unknown'}</span>
                   </div>
                   <StatusBadge status="active" />
                 </div>
               )}
             </div>
             {gateway && (
-              <div className="flex gap-4 mt-3 text-xs text-terminal-dim">
+              <div className="flex gap-4 mt-3 text-xs text-mc-text-tertiary">
                 <span>
                   Thinking:{' '}
-                  <span className="text-terminal-text">{gateway.thinkMode || 'off'}</span>
+                  <span className="text-mc-text">{gateway.thinkMode || 'off'}</span>
                 </span>
                 <span>
                   Elevated:{' '}
-                  <span className={gateway.elevated ? 'text-terminal-green' : 'text-terminal-text'}>
+                  <span className={gateway.elevated ? 'text-mc-success' : 'text-mc-text'}>
                     {gateway.elevated ? 'on' : 'off'}
                   </span>
                 </span>
@@ -217,14 +217,14 @@ export default async function OpenClawPage() {
           </div>
 
           {/* Card 3: Sessions & Load */}
-          <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+          <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
               Sessions & Load
             </h2>
             <div className="mb-3">
-              <div className="text-lg font-bold text-terminal-text">
+              <div className="text-lg font-bold text-mc-text">
                 {sessions.length}
-                <span className="text-xs font-normal text-terminal-dim ml-2">Active Sessions</span>
+                <span className="text-xs font-normal text-mc-text-tertiary ml-2">Active Sessions</span>
               </div>
             </div>
 
@@ -233,18 +233,18 @@ export default async function OpenClawPage() {
                 {sessions.slice(0, 5).map((s) => (
                   <div key={s.key} className="flex items-center justify-between text-xs py-1">
                     <div className="flex items-center gap-2 truncate max-w-[300px]">
-                      <span className="text-terminal-text">{s.displayName || s.key}</span>
+                      <span className="text-mc-text">{s.displayName || s.key}</span>
                       {s.channel && (
-                        <span className="text-[10px] text-terminal-dim">{s.channel}</span>
+                        <span className="text-[10px] text-mc-text-tertiary">{s.channel}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {s.totalTokens && s.contextTokens && (
-                        <span className="text-[10px] text-terminal-dim">
+                        <span className="text-[10px] text-mc-text-tertiary">
                           {Math.round(s.totalTokens / 1000)}k/{Math.round(s.contextTokens / 1000)}k
                         </span>
                       )}
-                      <span className="text-[10px] text-terminal-dim">
+                      <span className="text-[10px] text-mc-text-tertiary">
                         {s.updatedAt ? relativeTime(s.updatedAt) : ''}
                       </span>
                     </div>
@@ -252,28 +252,28 @@ export default async function OpenClawPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-xs text-terminal-dim">No session data</div>
+              <div className="text-xs text-mc-text-tertiary">No session data</div>
             )}
           </div>
         </div>
 
         {/* ── Card 4: Channels — full width ──────────────────── */}
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             Channels
           </h2>
           {channels.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
               {channels.map((ch) => (
-                <div key={ch.provider} className="flex items-center gap-2 p-2 bg-terminal-bg rounded">
+                <div key={ch.provider} className="flex items-center gap-2 p-2 bg-mc-bg rounded">
                   <HealthDot healthy={ch.connected} />
                   <div>
-                    <div className="text-xs text-terminal-text capitalize">{ch.provider}</div>
+                    <div className="text-xs text-mc-text capitalize">{ch.provider}</div>
                     {ch.error && (
-                      <div className="text-[10px] text-terminal-red truncate max-w-[120px]">{ch.error}</div>
+                      <div className="text-[10px] text-mc-danger truncate max-w-[120px]">{ch.error}</div>
                     )}
                     {ch.stats && (
-                      <div className="text-[10px] text-terminal-dim">
+                      <div className="text-[10px] text-mc-text-tertiary">
                         {ch.stats.sent}s / {ch.stats.received}r
                       </div>
                     )}
@@ -282,44 +282,44 @@ export default async function OpenClawPage() {
               ))}
             </div>
           ) : (
-            <div className="text-xs text-terminal-dim">No channel data</div>
+            <div className="text-xs text-mc-text-tertiary">No channel data</div>
           )}
         </div>
 
         {/* ── Card 5: Cron Jobs — full width ─────────────────── */}
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             Cron Jobs
           </h2>
           {cronJobs.length > 0 ? (
             <div className="space-y-1">
               {cronJobs.map((job) => (
-                  <div key={job.name} className="flex items-center justify-between py-1.5 border-b border-terminal-border/30 last:border-0">
+                  <div key={job.name} className="flex items-center justify-between py-1.5 border-b border-mc-border/30 last:border-0">
                     <div className="flex items-center gap-2">
                       <HealthDot healthy={job.enabled} />
-                      <span className="text-xs text-terminal-text">{job.name}</span>
-                      <span className="text-[10px] text-terminal-dim font-mono">{job.schedule.expr || job.schedule.at || (job.schedule.everyMs ? `every ${Math.round(job.schedule.everyMs / 60000)}m` : job.schedule.kind)}</span>
+                      <span className="text-xs text-mc-text">{job.name}</span>
+                      <span className="text-[10px] text-mc-text-tertiary font-mono">{job.schedule.expr || job.schedule.at || (job.schedule.everyMs ? `every ${Math.round(job.schedule.everyMs / 60000)}m` : job.schedule.kind)}</span>
                     </div>
                   </div>
               ))}
             </div>
           ) : (
-            <div className="text-xs text-terminal-dim">No cron jobs configured</div>
+            <div className="text-xs text-mc-text-tertiary">No cron jobs configured</div>
           )}
         </div>
 
         {/* ── Card 6: Skills — full width ─────────────────────── */}
         {skills.length > 0 && (
-          <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+          <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
               Skills ({skills.length})
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
               {skills.map((skill) => (
-                <div key={skill.name} className="p-2 bg-terminal-bg rounded">
-                  <div className="text-xs text-terminal-text">{skill.name}</div>
+                <div key={skill.name} className="p-2 bg-mc-bg rounded">
+                  <div className="text-xs text-mc-text">{skill.name}</div>
                   {skill.description && (
-                    <div className="text-[10px] text-terminal-dim truncate">{skill.description}</div>
+                    <div className="text-[10px] text-mc-text-tertiary truncate">{skill.description}</div>
                   )}
                 </div>
               ))}

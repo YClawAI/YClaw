@@ -8,10 +8,10 @@ const PRIORITIES = ['P0', 'P1', 'P2', 'P3'] as const;
 type Priority = (typeof PRIORITIES)[number];
 
 const PRIORITY_COLORS: Record<Priority, string> = {
-  P0: 'text-terminal-red',
-  P1: 'text-terminal-orange',
-  P2: 'text-terminal-yellow',
-  P3: 'text-terminal-dim',
+  P0: 'text-mc-danger',
+  P1: 'text-mc-blocked',
+  P2: 'text-mc-warning',
+  P3: 'text-mc-text-tertiary',
 };
 
 interface TaskRecord {
@@ -56,10 +56,10 @@ export default async function BuilderQueuePage() {
       <RefreshTrigger />
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-lg font-bold text-terminal-text tracking-wide">Task Queue</h1>
-          <p className="text-xs text-terminal-dim mt-1">P0 (safety) → P1 (reviews) → P2 (issues) → P3 (background)</p>
+          <h1 className="text-lg font-bold text-mc-text tracking-wide">Task Queue</h1>
+          <p className="text-xs text-mc-text-tertiary mt-1">P0 (safety) → P1 (reviews) → P2 (issues) → P3 (background)</p>
         </div>
-        <span className="text-sm text-terminal-dim font-mono">{totalTasks} tasks</span>
+        <span className="text-sm text-mc-text-tertiary font-mono">{totalTasks} tasks</span>
       </div>
 
       <div className="flex flex-col gap-6">
@@ -72,16 +72,16 @@ export default async function BuilderQueuePage() {
               </h2>
 
               {tasks.length === 0 ? (
-                <div className="text-terminal-dim text-sm py-3 px-4 border border-terminal-border/50 rounded bg-terminal-surface/30">
+                <div className="text-mc-text-tertiary text-sm py-3 px-4 border border-mc-border/50 rounded bg-mc-surface-hover/30">
                   Empty
                 </div>
               ) : (
-                <div className="border border-terminal-border rounded overflow-hidden">
+                <div className="border border-mc-border rounded overflow-hidden">
                   <table className="w-full text-sm font-mono">
-                    <thead className="bg-terminal-surface border-b border-terminal-border">
+                    <thead className="bg-mc-surface-hover border-b border-mc-border">
                       <tr>
                         {['Task ID', 'Agent', 'Status', 'Title', 'Created'].map((h) => (
-                          <th key={h} className="text-left px-4 py-2 text-xs text-terminal-dim font-normal">
+                          <th key={h} className="text-left px-4 py-2 text-xs text-mc-text-tertiary font-normal">
                             {h}
                           </th>
                         ))}
@@ -89,18 +89,18 @@ export default async function BuilderQueuePage() {
                     </thead>
                     <tbody>
                       {tasks.map((task) => (
-                        <tr key={task.taskId} className="border-b border-terminal-border/50 hover:bg-terminal-surface/50">
-                          <td className="px-4 py-2 text-terminal-text truncate max-w-40 font-mono text-xs">
+                        <tr key={task.taskId} className="border-b border-mc-border/50 hover:bg-mc-surface-hover/50">
+                          <td className="px-4 py-2 text-mc-text truncate max-w-40 font-mono text-xs">
                             {task.taskId}
                           </td>
-                          <td className="px-4 py-2 text-terminal-cyan">{task.agentId ?? '—'}</td>
+                          <td className="px-4 py-2 text-mc-accent">{task.agentId ?? '—'}</td>
                           <td className="px-4 py-2">
                             {task.status ? <StatusBadge status={task.status} /> : '—'}
                           </td>
-                          <td className="px-4 py-2 text-terminal-text truncate max-w-64">
+                          <td className="px-4 py-2 text-mc-text truncate max-w-64">
                             {task.title ?? task.description ?? '—'}
                           </td>
-                          <td className="px-4 py-2 text-terminal-dim text-xs">
+                          <td className="px-4 py-2 text-mc-text-tertiary text-xs">
                             {task.createdAt ? new Date(task.createdAt).toLocaleString() : '—'}
                           </td>
                         </tr>

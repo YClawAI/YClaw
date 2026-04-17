@@ -40,12 +40,12 @@ export default function EventsPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-terminal-text mb-2">Event Feed</h1>
-          <p className="text-terminal-dim">Real-time agent activity stream</p>
+          <h1 className="text-2xl font-bold text-mc-text mb-2">Event Feed</h1>
+          <p className="text-mc-text-tertiary">Real-time agent activity stream</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${connected ? 'bg-terminal-green animate-live' : 'bg-terminal-dim'}`} />
-          <span className="text-xs text-terminal-dim">{connected ? 'Connected' : 'Reconnecting...'}</span>
+          <span className={`w-2 h-2 rounded-full ${connected ? 'bg-mc-success animate-live' : 'bg-mc-text-tertiary'}`} />
+          <span className="text-xs text-mc-text-tertiary">{connected ? 'Connected' : 'Reconnecting...'}</span>
         </div>
       </div>
 
@@ -54,25 +54,25 @@ export default function EventsPage() {
           events.map((event) => (
             <div
               key={event.id}
-              className="bg-terminal-surface border border-terminal-border rounded-lg px-4 py-3 flex items-start gap-4 animate-fade-in"
+              className="bg-mc-surface-hover border border-mc-border rounded-lg px-4 py-3 flex items-start gap-4 animate-fade-in"
             >
               <div className="flex-shrink-0 mt-0.5">
-                <span className="inline-block w-2 h-2 rounded-full bg-terminal-cyan" />
+                <span className="inline-block w-2 h-2 rounded-full bg-mc-accent" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-terminal-text capitalize">{event.agentName}</span>
-                  <span className="text-xs text-terminal-dim">{event.type}</span>
+                  <span className="text-sm font-medium text-mc-text capitalize">{event.agentName}</span>
+                  <span className="text-xs text-mc-text-tertiary">{event.type}</span>
                 </div>
-                <p className="text-sm text-terminal-dim truncate">{event.summary}</p>
+                <p className="text-sm text-mc-text-tertiary truncate">{event.summary}</p>
               </div>
-              <time className="text-xs text-terminal-dim flex-shrink-0 whitespace-nowrap">
+              <time className="text-xs text-mc-text-tertiary flex-shrink-0 whitespace-nowrap">
                 {new Date(event.timestamp).toLocaleTimeString()}
               </time>
             </div>
           ))
         ) : (
-          <p className="text-terminal-dim text-center py-12">No events yet</p>
+          <p className="text-mc-text-tertiary text-center py-12">No events yet</p>
         )}
       </div>
     </div>

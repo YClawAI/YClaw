@@ -6,6 +6,7 @@
 export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { Nav } from '@/components/nav';
@@ -26,6 +27,23 @@ export const metadata: Metadata = {
   title: 'YClaw Mission Control',
   description: 'Department-centric command center for the YClaw Agent System',
 };
+
+// SpaceX aesthetic font stack (Phase 1). Inter ultralight (200–400) for UI
+// labels/headings, JetBrains Mono for data/code/metrics. Exposed as CSS
+// variables so Tailwind's font-sans / font-mono utilities resolve to them.
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['200', '300', '400', '500', '600'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['300', '400', '500'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+});
 
 /** Race a promise against a timeout — returns fallback if the promise takes too long */
 function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
@@ -92,8 +110,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { health, fleetStatus, ecsStatus, agentStatuses, alertCount } = await getInitialState();
 
   return (
-    <html lang="en" className="dark">
-      <body className="bg-terminal-bg text-terminal-text font-mono min-h-screen">
+    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="bg-mc-bg text-mc-text font-sans min-h-screen">
         <Providers>
           <div className="flex h-screen overflow-hidden">
             <SidebarWrapper>

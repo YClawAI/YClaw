@@ -16,7 +16,7 @@ import type { AgentCardConfig, AlertDef } from './department-settings-shared';
 import type { BudgetSummary } from '@/lib/treasury-data';
 import { useDepartmentSettings } from '@/hooks/use-department-settings';
 
-// ── Icons ────────────────────────────────────────────────────────────────────
+// ── Icons ───────────────────────────────────────────────────────────────────────
 
 function DollarIcon({ className }: { className?: string }) {
   return (
@@ -34,7 +34,7 @@ function ChartIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Agent Config ─────────────────────────────────────────────────────────────
+// ── Agent Config ──────────────────────────────────────────────────────────────────
 
 const TREASURER: AgentCardConfig = {
   name: 'treasurer',
@@ -61,7 +61,7 @@ const TREASURER: AgentCardConfig = {
 
 const AGENTS: AgentCardConfig[] = [TREASURER];
 
-// ── Notifications ────────────────────────────────────────────────────────────
+// ── Notifications ─────────────────────────────────────────────────────────────────
 
 const ALERTS: AlertDef[] = [
   { key: 'budgetExceeded', label: 'Budget exceeded', desc: 'Alert when any agent exceeds daily/monthly budget' },
@@ -71,7 +71,7 @@ const ALERTS: AlertDef[] = [
   { key: 'reportReady', label: 'Report ready', desc: 'Notify when weekly/monthly report is generated' },
 ];
 
-// ── Form State ───────────────────────────────────────────────────────────────
+// ── Form State ─────────────────────────────────────────────────────────────────────
 
 interface FinForm {
   directive: string;
@@ -109,14 +109,14 @@ function AgentBudgetRow({ agent }: {
       <div className="flex items-center justify-between py-1.5">
         <div className="flex items-center gap-2 min-w-0">
           {agent.emoji && <span className="text-sm">{agent.emoji}</span>}
-          <span className="text-xs text-terminal-text truncate">{agent.label}</span>
+          <span className="font-sans text-xs text-mc-text truncate">{agent.label}</span>
         </div>
-        <div className="flex items-center gap-3 text-[10px] text-terminal-dim shrink-0">
+        <div className="flex items-center gap-3 font-mono tabular-nums text-[10px] text-mc-text-tertiary shrink-0">
           <span>${(agent.dailySpendCents / 100).toFixed(2)} / ${(agent.dailyLimitCents / 100).toFixed(0)}</span>
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="text-[9px] px-1.5 py-0.5 rounded border border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-muted transition-colors"
+            className="font-sans text-[9px] uppercase tracking-label px-1.5 py-0.5 rounded-panel border border-mc-border text-mc-text-tertiary hover:text-mc-text hover:border-mc-border-hover transition-colors duration-mc ease-mc-out"
           >
             edit
           </button>
@@ -126,7 +126,7 @@ function AgentBudgetRow({ agent }: {
   }
 
   return (
-    <div className="py-2 border-t border-terminal-border/40">
+    <div className="py-2 border-t border-mc-border/40">
       <BudgetEditor
         agentId={agent.agentId}
         budget={{
@@ -142,7 +142,7 @@ function AgentBudgetRow({ agent }: {
       <button
         type="button"
         onClick={() => setEditing(false)}
-        className="mt-2 text-[9px] px-2 py-0.5 rounded border border-terminal-border text-terminal-dim hover:text-terminal-text transition-colors"
+        className="mt-2 font-sans text-[9px] uppercase tracking-label px-2 py-0.5 rounded-panel border border-mc-border text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out"
       >
         collapse
       </button>
@@ -150,7 +150,7 @@ function AgentBudgetRow({ agent }: {
   );
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────────────────────────────
 
 interface Props {
   open: boolean;
@@ -223,15 +223,15 @@ export function FinanceSettings({ open, onClose, budgetData, budgetRows }: Props
   return (
     <DeptSettingsShell open={open} onClose={onClose} title="Finance Settings" dirty={dirty} saveState={saveState} saveError={saveError} onSave={() => handleSave('Finance Settings', form)}>
       {/* Budget Controls — the live system, shown first without preview banner */}
-      <SettingsSection label="Budget Controls" icon={<DollarIcon className="w-4 h-4 text-terminal-green" />} iconColor="terminal-green" expanded={exp['budget'] ?? false} onToggle={() => tog('budget')}>
+      <SettingsSection label="Budget Controls" icon={<DollarIcon className="w-4 h-4 text-mc-success" />} iconColor="mc-success" expanded={exp['budget'] ?? false} onToggle={() => tog('budget')}>
         {budgetData ? (
           <div className="space-y-5">
             <div>
-              <h4 className="text-[10px] font-bold text-terminal-dim uppercase tracking-widest mb-2">Budget Mode</h4>
+              <h4 className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label mb-2">Budget Mode</h4>
               <BudgetModeToggle initialMode={budgetData.config.mode} />
             </div>
             <div>
-              <h4 className="text-[10px] font-bold text-terminal-dim uppercase tracking-widest mb-2">Global Fleet Budget</h4>
+              <h4 className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label mb-2">Global Fleet Budget</h4>
               <GlobalBudgetCard
                 config={budgetData.config}
                 mode={budgetData.config.mode}
@@ -240,7 +240,7 @@ export function FinanceSettings({ open, onClose, budgetData, budgetRows }: Props
               />
             </div>
             <div>
-              <h4 className="text-[10px] font-bold text-terminal-dim uppercase tracking-widest mb-2">Per-Agent Budgets</h4>
+              <h4 className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label mb-2">Per-Agent Budgets</h4>
               {budgetRows ? (
                 <BudgetOverview rows={budgetRows} />
               ) : (
@@ -253,7 +253,7 @@ export function FinanceSettings({ open, onClose, budgetData, budgetRows }: Props
             </div>
           </div>
         ) : (
-          <div className="text-xs text-terminal-dim italic p-3 bg-terminal-muted/20 border border-terminal-border rounded">
+          <div className="font-sans text-xs text-mc-text-tertiary italic p-3 bg-mc-surface/50 border border-mc-border rounded-panel">
             Budget data unavailable. Budget controls will appear here when treasury data loads.
           </div>
         )}
@@ -274,18 +274,18 @@ export function FinanceSettings({ open, onClose, budgetData, budgetRows }: Props
       />
 
       {/* Cost Tracking */}
-      <SettingsSection label="Cost Tracking" icon={<ChartIcon className="w-4 h-4 text-terminal-blue" />} iconColor="terminal-blue" expanded={exp['cost'] ?? false} onToggle={() => tog('cost')}>
+      <SettingsSection label="Cost Tracking" icon={<ChartIcon className="w-4 h-4 text-mc-info" />} iconColor="mc-info" expanded={exp['cost'] ?? false} onToggle={() => tog('cost')}>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">AI usage tracking</span><span className="text-[10px] text-terminal-dim">Track token usage and costs per agent</span></div>
-          <ToggleSwitch checked={form.aiUsageTracking} onChange={(v) => set('aiUsageTracking', v)} color="terminal-blue" />
+          <div><span className="font-sans text-xs text-mc-text block">AI usage tracking</span><span className="font-sans text-[10px] text-mc-text-tertiary">Track token usage and costs per agent</span></div>
+          <ToggleSwitch checked={form.aiUsageTracking} onChange={(v) => set('aiUsageTracking', v)} color="mc-info" />
         </div>
         <div className="flex items-center justify-between">
-          <div><span className="text-xs text-terminal-text block">Infrastructure cost tracking</span><span className="text-[10px] text-terminal-dim">Track ECS, Redis, MongoDB costs</span></div>
-          <ToggleSwitch checked={form.infraCostTracking} onChange={(v) => set('infraCostTracking', v)} color="terminal-blue" />
+          <div><span className="font-sans text-xs text-mc-text block">Infrastructure cost tracking</span><span className="font-sans text-[10px] text-mc-text-tertiary">Track ECS, Redis, MongoDB costs</span></div>
+          <ToggleSwitch checked={form.infraCostTracking} onChange={(v) => set('infraCostTracking', v)} color="mc-info" />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Report Frequency</label>
-          <select className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-blue" value={form.reportFrequency} onChange={(e) => set('reportFrequency', e.target.value)}>
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Report Frequency</label>
+          <select className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-info transition-colors duration-mc ease-mc-out" value={form.reportFrequency} onChange={(e) => set('reportFrequency', e.target.value)}>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>

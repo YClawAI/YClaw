@@ -47,15 +47,15 @@ export function TabLayout({ tabs, children, defaultTab }: TabLayoutProps) {
 
   return (
     <div>
-      <div className="flex gap-1 mb-6 border-b border-terminal-border">
+      <div className="flex gap-1 mb-6 border-b border-mc-border">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setTab(tab.key)}
-            className={`px-4 py-2 text-xs font-mono transition-colors border-b-2 -mb-px ${
+            className={`px-4 py-2 font-sans text-[11px] font-medium uppercase tracking-label transition-colors duration-mc ease-mc-out border-b-2 -mb-px ${
               activeTab === tab.key
-                ? 'text-terminal-text border-terminal-purple'
-                : 'text-terminal-dim border-transparent hover:text-terminal-text'
+                ? 'text-mc-text border-mc-accent'
+                : 'text-mc-text-tertiary border-transparent hover:text-mc-text'
             }`}
           >
             {tab.label}

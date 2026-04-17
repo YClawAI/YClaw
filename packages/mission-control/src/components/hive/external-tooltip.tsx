@@ -40,17 +40,17 @@ export function ExternalTooltip({ service, activity }: ExternalTooltipProps) {
 
   return (
     <div
-      className="bg-terminal-surface/95 backdrop-blur-sm border border-terminal-border rounded-lg shadow-2xl p-3 min-w-[180px]"
+      className="bg-mc-bg/95 backdrop-blur-sm border border-mc-border rounded-panel shadow-2xl p-3 min-w-[180px]"
       style={{ borderColor: hexAlpha(service.color, 0.3) }}
     >
       <div className="flex items-center gap-2.5 mb-2">
         <span className="text-lg">{service.icon}</span>
         <div>
-          <div className="text-sm font-bold text-terminal-text">
+          <div className="font-sans text-sm font-medium text-mc-text">
             {service.name}
           </div>
           <div
-            className="text-[10px] uppercase tracking-wider"
+            className="font-sans text-[10px] uppercase tracking-label"
             style={{ color: service.color }}
           >
             {service.category === 'orchestrator' ? 'Orchestrator' : 'External Service'}
@@ -60,8 +60,8 @@ export function ExternalTooltip({ service, activity }: ExternalTooltipProps) {
 
       {Object.keys(byAgent).length > 0 && (
         <div className="mb-2">
-          <div className="text-[10px] text-terminal-dim mb-1">
-            Events (last hour):
+          <div className="font-sans text-[10px] text-mc-text-label mb-1 uppercase tracking-label">
+            Events (last hour)
           </div>
           {Object.entries(byAgent)
             .sort(([, a], [, b]) => b - a)
@@ -71,24 +71,24 @@ export function ExternalTooltip({ service, activity }: ExternalTooltipProps) {
                 key={agent}
                 className="flex justify-between text-[10px] py-0.5"
               >
-                <span className="text-terminal-text capitalize">{agent}</span>
-                <span className="text-terminal-dim font-mono">{count}</span>
+                <span className="font-sans text-mc-text capitalize">{agent}</span>
+                <span className="font-mono tabular-nums text-mc-text-secondary">{count}</span>
               </div>
             ))}
         </div>
       )}
 
-      <div className="mt-2 pt-2 border-t border-terminal-border">
+      <div className="mt-2 pt-2 border-t border-mc-border">
         <div className="flex items-center gap-1.5">
           <span
-            className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-terminal-green animate-pulse' : 'bg-terminal-dim'}`}
+            className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-mc-success animate-mc-pulse shadow-[0_0_6px_currentColor]' : 'bg-mc-text-tertiary'}`}
           />
-          <span className="text-[10px] text-terminal-dim">
+          <span className="font-sans text-[10px] text-mc-text-secondary">
             {lastEventAgo ? `Last: ${lastEventAgo}` : 'No recent activity'}
           </span>
         </div>
         {lastDetail && (
-          <div className="text-[10px] text-terminal-dim/70 mt-1 truncate max-w-[200px]">
+          <div className="font-sans text-[10px] text-mc-text-tertiary mt-1 truncate max-w-[200px]">
             {lastDetail}
           </div>
         )}

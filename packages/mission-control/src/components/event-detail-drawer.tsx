@@ -5,20 +5,20 @@ import type { UnifiedEvent } from '@/lib/event-log-queries';
 import { AGENTS } from '@/lib/agents';
 
 const STATUS_STYLES: Record<string, string> = {
-  active:    'text-terminal-green bg-terminal-green/10 border-terminal-green/30',
-  running:   'text-terminal-green bg-terminal-green/10 border-terminal-green/30',
-  completed: 'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30',
-  success:   'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30',
-  merged:    'text-terminal-blue bg-terminal-blue/10 border-terminal-blue/30',
-  failed:    'text-terminal-red bg-terminal-red/10 border-terminal-red/30',
-  error:     'text-terminal-red bg-terminal-red/10 border-terminal-red/30',
-  pending:   'text-terminal-yellow bg-terminal-yellow/10 border-terminal-yellow/30',
-  queued:    'text-terminal-yellow bg-terminal-yellow/10 border-terminal-yellow/30',
+  active:    'text-mc-success bg-mc-success/10 border-mc-success/30',
+  running:   'text-mc-success bg-mc-success/10 border-mc-success/30',
+  completed: 'text-mc-info bg-mc-info/10 border-mc-info/30',
+  success:   'text-mc-info bg-mc-info/10 border-mc-info/30',
+  merged:    'text-mc-info bg-mc-info/10 border-mc-info/30',
+  failed:    'text-mc-danger bg-mc-danger/10 border-mc-danger/30',
+  error:     'text-mc-danger bg-mc-danger/10 border-mc-danger/30',
+  pending:   'text-mc-warning bg-mc-warning/10 border-mc-warning/30',
+  queued:    'text-mc-warning bg-mc-warning/10 border-mc-warning/30',
 };
 
 function StatusBadge({ status }: { status?: string }) {
   if (!status) return null;
-  const style = STATUS_STYLES[status.toLowerCase()] ?? 'text-terminal-dim bg-terminal-muted border-terminal-border';
+  const style = STATUS_STYLES[status.toLowerCase()] ?? 'text-mc-text-tertiary bg-mc-border border-mc-border';
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-mono border ${style}`}>
       {status}
@@ -29,7 +29,7 @@ function StatusBadge({ status }: { status?: string }) {
 function JsonBlock({ data }: { data: Record<string, unknown> }) {
   const json = JSON.stringify(data, null, 2);
   return (
-    <pre className="text-[11px] font-mono text-terminal-text bg-terminal-bg border border-terminal-border rounded p-3 overflow-auto max-h-72 whitespace-pre-wrap break-all">
+    <pre className="text-[11px] font-mono text-mc-text bg-mc-bg border border-mc-border rounded p-3 overflow-auto max-h-72 whitespace-pre-wrap break-all">
       {json}
     </pre>
   );
@@ -38,8 +38,8 @@ function JsonBlock({ data }: { data: Record<string, unknown> }) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim">{label}</span>
-      <div className="text-xs text-terminal-text font-mono">{children}</div>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary">{label}</span>
+      <div className="text-xs text-mc-text font-mono">{children}</div>
     </div>
   );
 }
@@ -73,21 +73,21 @@ export function EventDetailDrawer({ event, open, onClose }: EventDetailDrawerPro
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
-      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-terminal-surface border-l border-terminal-border shadow-2xl overflow-y-auto max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:max-w-full max-sm:max-h-[80vh] max-sm:rounded-t-xl max-sm:border-t max-sm:border-l-0">
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-mc-surface-hover border-l border-mc-border shadow-2xl overflow-y-auto max-sm:top-auto max-sm:left-0 max-sm:right-0 max-sm:bottom-0 max-sm:max-w-full max-sm:max-h-[80vh] max-sm:rounded-t-xl max-sm:border-t max-sm:border-l-0">
         {/* Header */}
-        <div className="sticky top-0 bg-terminal-surface px-6 py-4 border-b border-terminal-border flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-mc-surface-hover px-6 py-4 border-b border-mc-border flex items-center justify-between z-10">
           <div className="flex items-center gap-2">
             {agent?.emoji && <span className="text-lg">{agent.emoji}</span>}
-            <h2 className="text-sm font-bold text-terminal-text">
+            <h2 className="text-sm font-bold text-mc-text">
               {agent?.label ?? event.agentId}
             </h2>
-            <span className="text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-mono text-mc-text-tertiary bg-mc-border px-1.5 py-0.5 rounded">
               {event.type}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="text-terminal-dim hover:text-terminal-text transition-colors text-lg leading-none"
+            className="text-mc-text-tertiary hover:text-mc-text transition-colors text-lg leading-none"
             aria-label="Close"
           >
             &times;
@@ -101,14 +101,17 @@ export function EventDetailDrawer({ event, open, onClose }: EventDetailDrawerPro
 
             <Row label="Status">
               <StatusBadge status={event.status} />
-              {!event.status && <span className="text-terminal-dim">—</span>}
+              {!event.status && <span className="text-mc-text-tertiary">—</span>}
             </Row>
 
             <Row label="Source">
+              {/* Pre-flip used purple for event_log + cyan for others; mechanical flip
+                  collapsed both to mc-accent. Route event_log to mc-dept-finance
+                  (only iOS-palette purple) to preserve the two-way distinction. */}
               <span className={`px-1.5 py-0.5 rounded border text-[10px] ${
                 event.source === 'event_log'
-                  ? 'text-terminal-purple bg-terminal-purple/10 border-terminal-purple/30'
-                  : 'text-terminal-cyan bg-terminal-cyan/10 border-terminal-cyan/30'
+                  ? 'text-mc-dept-finance bg-mc-dept-finance/10 border-mc-dept-finance/30'
+                  : 'text-mc-accent bg-mc-accent/10 border-mc-accent/30'
               }`}>
                 {event.source}
               </span>
@@ -134,7 +137,7 @@ export function EventDetailDrawer({ event, open, onClose }: EventDetailDrawerPro
           {/* Payload */}
           {hasPayload && (
             <div>
-              <h3 className="text-[10px] font-bold uppercase tracking-widest text-terminal-dim mb-2">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-mc-text-tertiary mb-2">
                 Payload
               </h3>
               <JsonBlock data={event.payload!} />
@@ -142,7 +145,7 @@ export function EventDetailDrawer({ event, open, onClose }: EventDetailDrawerPro
           )}
 
           {!hasPayload && (
-            <div className="text-xs text-terminal-dim italic">No additional payload data</div>
+            <div className="text-xs text-mc-text-tertiary italic">No additional payload data</div>
           )}
         </div>
       </div>

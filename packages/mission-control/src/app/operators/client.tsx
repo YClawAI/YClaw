@@ -42,10 +42,10 @@ function TierBadge({ tier }: { tier: Operator['tier'] }) {
 
 function DeptTag({ dept }: { dept: string }) {
   const isDept = dept in DEPT_META;
-  const bg = isDept ? DEPT_BG_COLORS[dept as Department] : 'bg-terminal-muted border-terminal-border';
+  const bg = isDept ? DEPT_BG_COLORS[dept as Department] : 'bg-mc-border border-mc-border';
   const label = isDept ? DEPT_META[dept as Department].label : dept;
   return (
-    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${bg} text-terminal-text`}>
+    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${bg} text-mc-text`}>
       {label}
     </span>
   );
@@ -65,17 +65,17 @@ function OperatorRow({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left px-4 py-3 hover:bg-terminal-muted transition-colors rounded border border-transparent hover:border-terminal-border"
+      className="w-full text-left px-4 py-3 hover:bg-mc-border transition-colors rounded border border-transparent hover:border-mc-border"
     >
       <div className="flex items-center gap-3">
         <StatusDot status={operator.status} />
-        <span className="font-mono text-sm text-terminal-text font-medium flex-shrink-0">
+        <span className="font-mono text-sm text-mc-text font-medium flex-shrink-0">
           {primaryName}
         </span>
-        <span className="text-xs text-terminal-dim font-mono">{operator.role}</span>
+        <span className="text-xs text-mc-text-tertiary font-mono">{operator.role}</span>
         <TierBadge tier={operator.tier} />
         <div className="flex-1" />
-        <span className="text-[10px] text-terminal-dim font-mono">
+        <span className="text-[10px] text-mc-text-tertiary font-mono">
           {operator.status === 'revoked'
             ? `revoked ${relativeTime(operator.revokedAt)}`
             : relativeTime(operator.lastActiveAt ?? operator.createdAt)}
@@ -83,12 +83,12 @@ function OperatorRow({
       </div>
       <div className="flex items-center gap-2 mt-1.5 ml-5">
         {!isInvited && operator.email && (
-          <span className="text-[10px] text-terminal-dim font-mono">{operator.email}</span>
+          <span className="text-[10px] text-mc-text-tertiary font-mono">{operator.email}</span>
         )}
         <div className="flex-1" />
         <div className="flex gap-1.5 flex-wrap justify-end">
           {allDepts ? (
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border bg-terminal-muted border-terminal-border text-terminal-dim">
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border bg-mc-border border-mc-border text-mc-text-tertiary">
               All Departments
             </span>
           ) : (
@@ -116,14 +116,14 @@ function StatusGroup({
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-2 px-1">
-        <span className="text-xs font-bold font-mono text-terminal-dim uppercase tracking-wider">
+        <span className="text-xs font-bold font-mono text-mc-text-tertiary uppercase tracking-wider">
           {label}
         </span>
-        <span className="text-[10px] font-mono text-terminal-dim bg-terminal-muted px-1.5 py-0.5 rounded">
+        <span className="text-[10px] font-mono text-mc-text-tertiary bg-mc-border px-1.5 py-0.5 rounded">
           {operators.length}
         </span>
       </div>
-      <div className="border border-terminal-border rounded-lg divide-y divide-terminal-border bg-terminal-surface">
+      <div className="border border-mc-border rounded-lg divide-y divide-mc-border bg-mc-surface-hover">
         {operators.map((op) => (
           <OperatorRow
             key={op.operatorId}
@@ -197,12 +197,12 @@ export function OperatorsClient({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg font-bold text-terminal-text tracking-wide">
+        <h1 className="text-lg font-bold text-mc-text tracking-wide">
           Operators
         </h1>
         <button
           onClick={() => setInviteOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs font-mono rounded border border-terminal-purple/40 text-terminal-purple hover:bg-terminal-purple/10 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 text-xs font-mono rounded border border-mc-accent/40 text-mc-accent hover:bg-mc-accent/10 transition-colors"
         >
           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
             <path d="M12 5v14M5 12h14" strokeLinecap="round" />
@@ -217,12 +217,12 @@ export function OperatorsClient({
       <StatusGroup label="Revoked" operators={revoked} onSelect={setSelectedOperator} />
 
       {loadError && (
-        <div className="mb-6 px-4 py-3 rounded-lg border border-terminal-red/30 bg-terminal-red/5">
-          <div className="text-xs font-mono text-terminal-red font-bold mb-1">Failed to load operators</div>
-          <div className="text-xs font-mono text-terminal-red/80">{loadError}</div>
+        <div className="mb-6 px-4 py-3 rounded-lg border border-mc-danger/30 bg-mc-danger/5">
+          <div className="text-xs font-mono text-mc-danger font-bold mb-1">Failed to load operators</div>
+          <div className="text-xs font-mono text-mc-danger/80">{loadError}</div>
           <button
             onClick={() => refetch()}
-            className="mt-2 text-[10px] font-mono text-terminal-text border border-terminal-border rounded px-2 py-1 hover:bg-terminal-muted transition-colors"
+            className="mt-2 text-[10px] font-mono text-mc-text border border-mc-border rounded px-2 py-1 hover:bg-mc-border transition-colors"
           >
             Retry
           </button>
@@ -230,8 +230,14 @@ export function OperatorsClient({
       )}
 
       {!loadError && operators.length === 0 && (
-        <div className="text-center py-16 text-terminal-dim text-sm font-mono">
-          No operators found. Invite one to get started.
+        <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+          <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+          <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+            No operators
+          </div>
+          <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+            Your roster is empty. Invite an operator to get started.
+          </p>
         </div>
       )}
 

@@ -4,9 +4,9 @@ import { useState, useTransition } from 'react';
 import { updateBudgetConfig, type BudgetConfig, type BudgetMode } from '@/lib/actions/budget-config';
 
 function barColor(pct: number): string {
-  if (pct >= 100) return 'bg-terminal-red';
-  if (pct >= 80) return 'bg-terminal-yellow';
-  return 'bg-terminal-green';
+  if (pct >= 100) return 'bg-mc-danger';
+  if (pct >= 80) return 'bg-mc-warning';
+  return 'bg-mc-success';
 }
 
 export function GlobalBudgetCard({
@@ -53,20 +53,20 @@ export function GlobalBudgetCard({
   }
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-cyan">Global Fleet Budget</h3>
+        <h3 className="text-xs font-bold uppercase tracking-widest text-mc-accent">Global Fleet Budget</h3>
         <button
           onClick={() => editing ? save() : setEditing(true)}
           disabled={isPending}
-          className="text-xs font-mono text-terminal-blue hover:text-terminal-cyan disabled:opacity-40 transition-colors"
+          className="text-xs font-mono text-mc-info hover:text-mc-accent disabled:opacity-40 transition-colors"
         >
           {isPending ? '...' : editing ? 'Save' : 'Edit'}
         </button>
       </div>
 
       {error && (
-        <div className="mb-3 text-xs text-terminal-red bg-terminal-red/10 border border-terminal-red/30 rounded px-2 py-1">
+        <div className="mb-3 text-xs text-mc-danger bg-mc-danger/10 border border-mc-danger/30 rounded px-2 py-1">
           {error}
         </div>
       )}
@@ -75,14 +75,14 @@ export function GlobalBudgetCard({
         {/* Daily */}
         <div>
           <div className="flex items-baseline justify-between mb-1">
-            <span className="text-xs text-terminal-dim">Daily (fleet)</span>
-            <span className="text-xs font-mono text-terminal-text">
+            <span className="text-xs text-mc-text-tertiary">Daily (fleet)</span>
+            <span className="text-xs font-mono text-mc-text">
               ${fleetDailySpend.toFixed(2)} / {editing ? (
                 <input
                   type="number"
                   value={dailyStr}
                   onChange={(e) => setDailyStr(e.target.value)}
-                  className="w-20 bg-terminal-bg border border-terminal-border rounded px-1 text-xs text-terminal-text"
+                  className="w-20 bg-mc-bg border border-mc-border rounded px-1 text-xs text-mc-text"
                   min={0}
                   step={10}
                 />
@@ -91,7 +91,7 @@ export function GlobalBudgetCard({
               )}
             </span>
           </div>
-          <div className="w-full bg-terminal-border rounded-full h-2">
+          <div className="w-full bg-mc-border rounded-full h-2">
             <div className={`h-2 rounded-full transition-all ${barColor(dailyPct)}`} style={{ width: `${Math.min(dailyPct, 100)}%` }} />
           </div>
         </div>
@@ -99,14 +99,14 @@ export function GlobalBudgetCard({
         {/* Monthly */}
         <div>
           <div className="flex items-baseline justify-between mb-1">
-            <span className="text-xs text-terminal-dim">Monthly (fleet)</span>
-            <span className="text-xs font-mono text-terminal-text">
+            <span className="text-xs text-mc-text-tertiary">Monthly (fleet)</span>
+            <span className="text-xs font-mono text-mc-text">
               ${fleetMonthlySpend.toFixed(2)} / {editing ? (
                 <input
                   type="number"
                   value={monthlyStr}
                   onChange={(e) => setMonthlyStr(e.target.value)}
-                  className="w-20 bg-terminal-bg border border-terminal-border rounded px-1 text-xs text-terminal-text"
+                  className="w-20 bg-mc-bg border border-mc-border rounded px-1 text-xs text-mc-text"
                   min={0}
                   step={100}
                 />
@@ -115,7 +115,7 @@ export function GlobalBudgetCard({
               )}
             </span>
           </div>
-          <div className="w-full bg-terminal-border rounded-full h-2">
+          <div className="w-full bg-mc-border rounded-full h-2">
             <div className={`h-2 rounded-full transition-all ${barColor(monthlyPct)}`} style={{ width: `${Math.min(monthlyPct, 100)}%` }} />
           </div>
         </div>
@@ -124,11 +124,11 @@ export function GlobalBudgetCard({
       {editing && (
         <div className="mt-3 flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-terminal-dim">Action:</span>
+            <span className="text-xs text-mc-text-tertiary">Action:</span>
             <select
               value={action}
               onChange={(e) => setAction(e.target.value as BudgetConfig['globalAction'])}
-              className="bg-terminal-bg border border-terminal-border rounded px-2 py-0.5 text-xs text-terminal-text font-mono"
+              className="bg-mc-bg border border-mc-border rounded px-2 py-0.5 text-xs text-mc-text font-mono"
             >
               <option value="alert">Alert</option>
               <option value="pause">Pause</option>
@@ -136,20 +136,20 @@ export function GlobalBudgetCard({
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-terminal-dim">Alert at:</span>
+            <span className="text-xs text-mc-text-tertiary">Alert at:</span>
             <input
               type="number"
               value={thresholdStr}
               onChange={(e) => setThresholdStr(e.target.value)}
-              className="w-12 bg-terminal-bg border border-terminal-border rounded px-1 text-xs text-terminal-text"
+              className="w-12 bg-mc-bg border border-mc-border rounded px-1 text-xs text-mc-text"
               min={0}
               max={100}
             />
-            <span className="text-xs text-terminal-dim">%</span>
+            <span className="text-xs text-mc-text-tertiary">%</span>
           </div>
           <button
             onClick={() => { setEditing(false); setError(null); }}
-            className="ml-auto text-xs text-terminal-dim hover:text-terminal-text"
+            className="ml-auto text-xs text-mc-text-tertiary hover:text-mc-text"
           >
             Cancel
           </button>

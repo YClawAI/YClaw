@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-// ─── Local Types ──────────────────────────────────────────────────────────────
+// ─── Local Types ───────────────────────────────────────────────────────────────────────
 
 export interface ScheduleEntry {
   agent: string;
@@ -14,18 +14,20 @@ export interface ScheduleEntry {
   status?: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────────────
 
 function statusDotClass(status?: string): string {
-  if (status === 'healthy') return 'bg-terminal-green';
-  if (status === 'warning') return 'bg-terminal-yellow';
-  if (status === 'error') return 'bg-terminal-red';
-  return 'bg-terminal-dim';
+  if (status === 'healthy') return 'bg-mc-success';
+  if (status === 'warning') return 'bg-mc-warning';
+  if (status === 'error') return 'bg-mc-danger';
+  return 'bg-mc-text-tertiary';
 }
 
 function typeBadge(type: ScheduleEntry['type']): { label: string; className: string } {
-  if (type === 'cron') return { label: 'CRON', className: 'bg-terminal-purple/10 text-terminal-purple border-terminal-purple/30' };
-  return { label: 'EVENT', className: 'bg-terminal-cyan/10 text-terminal-cyan border-terminal-cyan/30' };
+  // Pre-flip used purple for CRON + cyan for EVENT; mechanical flip collapsed
+  // both to mc-accent. Route CRON to mc-dept-finance to preserve the distinction.
+  if (type === 'cron') return { label: 'CRON', className: 'bg-mc-dept-finance/10 text-mc-dept-finance border-mc-dept-finance/30' };
+  return { label: 'EVENT', className: 'bg-mc-accent/10 text-mc-accent border-mc-accent/30' };
 }
 
 function formatTime(iso: string): string {
@@ -37,7 +39,7 @@ function formatTime(iso: string): string {
   }
 }
 
-// ─── Chevron Icon ────────────────────────────────────────────────────────────
+// ─── Chevron Icon ────────────────────────────────────────────────────────────────────
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -57,7 +59,7 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Main Component ──────────────────────────────────────────────────────────────────
 
 interface SchedulesPanelProps {
   schedules: ScheduleEntry[];
@@ -70,8 +72,14 @@ export function SchedulesPanel({ schedules, title = 'Schedules & Triggers', defa
 
   if (schedules.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border rounded p-4 flex items-center justify-center py-8">
-        <span className="text-xs text-terminal-dim">No schedules configured</span>
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-6 flex flex-col items-center justify-center gap-2 text-center">
+        <span className="text-2xl text-mc-text-tertiary/40">◇</span>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">
+          No schedules
+        </div>
+        <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
+          No recurring triggers configured. Configured schedules appear here with status indicators.
+        </p>
       </div>
     );
   }
@@ -81,32 +89,32 @@ export function SchedulesPanel({ schedules, title = 'Schedules & Triggers', defa
   const errorCt = schedules.filter(s => s.status === 'error').length;
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded">
+    <div className="bg-mc-surface-hover border border-mc-border rounded">
       {/* Collapsible header */}
       <button
         onClick={() => setOpen(!open)}
-        className="w-full px-4 py-3 flex items-center justify-between hover:bg-terminal-muted/20 transition-colors"
+        className="w-full px-4 py-3 flex items-center justify-between hover:bg-mc-border/20 transition-colors"
       >
         <div className="flex items-center gap-2">
           <ChevronIcon open={open} />
-          <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">{title}</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">{title}</h3>
         </div>
         <div className="flex items-center gap-3 text-[10px] font-mono">
-          {healthyCt > 0 && <span className="text-terminal-green">{healthyCt} healthy</span>}
-          {warningCt > 0 && <span className="text-terminal-yellow">{warningCt} warn</span>}
-          {errorCt > 0 && <span className="text-terminal-red">{errorCt} error</span>}
-          <span className="text-terminal-dim">{schedules.length} total</span>
+          {healthyCt > 0 && <span className="text-mc-success">{healthyCt} healthy</span>}
+          {warningCt > 0 && <span className="text-mc-warning">{warningCt} warn</span>}
+          {errorCt > 0 && <span className="text-mc-danger">{errorCt} error</span>}
+          <span className="text-mc-text-tertiary">{schedules.length} total</span>
         </div>
       </button>
 
       {/* Table */}
       {open && (
-        <div className="border-t border-terminal-border overflow-x-auto">
+        <div className="border-t border-mc-border overflow-x-auto">
           <table className="w-full text-xs font-mono">
-            <thead className="bg-terminal-bg/50">
-              <tr className="border-b border-terminal-border">
+            <thead className="bg-mc-bg/50">
+              <tr className="border-b border-mc-border">
                 {['Agent', 'Type', 'Schedule', 'Description', 'Last Run', 'Next Run', 'Status'].map(h => (
-                  <th key={h} className="text-left px-3 py-2 text-[10px] text-terminal-dim font-normal uppercase tracking-wider">
+                  <th key={h} className="text-left px-3 py-2 text-[10px] text-mc-text-tertiary font-normal uppercase tracking-wider">
                     {h}
                   </th>
                 ))}
@@ -118,20 +126,20 @@ export function SchedulesPanel({ schedules, title = 'Schedules & Triggers', defa
                 return (
                   <tr
                     key={`${entry.agent}-${entry.schedule}-${idx}`}
-                    className="border-b border-terminal-border/30 hover:bg-terminal-muted/10"
+                    className="border-b border-mc-border/30 hover:bg-mc-border/10"
                   >
-                    <td className="px-3 py-2 text-terminal-text">{entry.agent}</td>
+                    <td className="px-3 py-2 text-mc-text">{entry.agent}</td>
                     <td className="px-3 py-2">
                       <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ${badge.className}`}>
                         {badge.label}
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-terminal-dim">{entry.schedule}</td>
-                    <td className="px-3 py-2 text-terminal-text">{entry.humanReadable ?? '--'}</td>
-                    <td className="px-3 py-2 text-terminal-dim">
+                    <td className="px-3 py-2 text-mc-text-tertiary">{entry.schedule}</td>
+                    <td className="px-3 py-2 text-mc-text">{entry.humanReadable ?? '--'}</td>
+                    <td className="px-3 py-2 text-mc-text-tertiary">
                       {entry.lastRun ? formatTime(entry.lastRun) : '--'}
                     </td>
-                    <td className="px-3 py-2 text-terminal-dim">
+                    <td className="px-3 py-2 text-mc-text-tertiary">
                       {entry.nextRun ? formatTime(entry.nextRun) : '--'}
                     </td>
                     <td className="px-3 py-2">

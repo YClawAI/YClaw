@@ -143,7 +143,7 @@ export function SupportClient({ agents, live, kpis, recentRuns, communityTemp, a
       <div className="flex justify-end mb-4">
         <button
           onClick={() => setSettingsOpen(true)}
-          className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors"
+          className="px-3 py-1.5 rounded-chip border border-mc-border font-sans text-xs text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
         >
           Settings
         </button>
@@ -178,13 +178,13 @@ export function SupportClient({ agents, live, kpis, recentRuns, communityTemp, a
 
               {/* Community Temperature */}
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">Community Temperature</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-2">Community Temperature</h3>
                 <CommunityTemperature data={communityTemp} />
               </div>
 
               {/* Agent Cards */}
               <div>
-                <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+                <div className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-3">
                   Agents
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -225,8 +225,8 @@ export function SupportClient({ agents, live, kpis, recentRuns, communityTemp, a
           inbox: (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Guide Activity</h3>
-                <span className="text-[10px] text-terminal-dim font-mono">
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Guide Activity</h3>
+                <span className="font-mono text-[10px] text-mc-text-tertiary tabular-nums">
                   {guideCases.length} recent runs
                 </span>
               </div>
@@ -239,14 +239,14 @@ export function SupportClient({ agents, live, kpis, recentRuns, communityTemp, a
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Live feed -- left 2/3 */}
               <div className="lg:col-span-2">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">Keeper Activity</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-2">Keeper Activity</h3>
                 <ModerationFeed entries={moderationEntries} />
               </div>
 
               {/* Right sidebar */}
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-2">Mod Action Summary</h3>
+                  <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label mb-2">Mod Action Summary</h3>
                   <ModActionSummaryChart data={
                     Object.entries(
                       moderationEntries.reduce((acc, e) => {

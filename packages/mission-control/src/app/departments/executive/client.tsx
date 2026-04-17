@@ -47,11 +47,12 @@ function ExecKPI({
   subtext?: string;
 }) {
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-4 hover:border-terminal-muted transition-colors">
+    <div className="relative border border-mc-border rounded-panel bg-transparent p-4 transition-colors duration-mc ease-mc-out hover:border-mc-border-hover">
+      <div className="absolute left-0 top-0 h-0.5 w-8 rounded-tl-panel bg-mc-dept-executive" />
       {children}
-      <div className="text-xs text-terminal-dim mt-1">{label}</div>
+      <div className="font-sans text-[10px] font-medium uppercase tracking-label text-mc-text-label mt-1">{label}</div>
       {subtext && (
-        <div className="text-[10px] text-terminal-dim/60 mt-0.5">{subtext}</div>
+        <div className="font-sans text-[10px] text-mc-text-tertiary mt-0.5">{subtext}</div>
       )}
     </div>
   );
@@ -78,21 +79,21 @@ function StandupSynthesisSection({ synthesis }: { synthesis: StandupSynthesis | 
   };
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded">
+    <div className="border border-mc-border rounded-panel bg-transparent">
       <div className="px-4 py-3">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+        <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">
           Standup Synthesis
         </h3>
       </div>
       <div className="px-4 pb-4">
         {!synthesis ? (
-          <div className="text-xs text-terminal-dim text-center py-4">
+          <div className="font-sans text-xs text-mc-text-tertiary text-center py-4">
             No standup synthesis yet.
           </div>
         ) : (
           <div className="space-y-3">
             {/* Summary */}
-            <p className="text-xs text-terminal-text leading-relaxed">
+            <p className="font-sans text-xs text-mc-text leading-relaxed">
               {synthesis.summary}
             </p>
 
@@ -101,7 +102,7 @@ function StandupSynthesisSection({ synthesis }: { synthesis: StandupSynthesis | 
               <div>
                 <button
                   onClick={() => toggle('risks')}
-                  className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-terminal-red hover:text-terminal-red/80 transition-colors"
+                  className="flex items-center gap-1.5 font-sans text-[10px] font-medium uppercase tracking-label text-mc-danger hover:text-mc-danger/80 transition-colors duration-mc ease-mc-out"
                 >
                   <span className="text-[8px]">{expandedSection === 'risks' ? '▼' : '▶'}</span>
                   Risks ({synthesis.risks.length})
@@ -109,8 +110,8 @@ function StandupSynthesisSection({ synthesis }: { synthesis: StandupSynthesis | 
                 {expandedSection === 'risks' && (
                   <ul className="mt-1.5 space-y-1 pl-3">
                     {synthesis.risks.map((r, i) => (
-                      <li key={i} className="text-xs text-terminal-text flex items-start gap-1.5">
-                        <span className="text-terminal-red shrink-0 mt-0.5">*</span>
+                      <li key={i} className="font-sans text-xs text-mc-text flex items-start gap-1.5">
+                        <span className="text-mc-danger shrink-0 mt-0.5">*</span>
                         {r}
                       </li>
                     ))}
@@ -123,7 +124,7 @@ function StandupSynthesisSection({ synthesis }: { synthesis: StandupSynthesis | 
               <div>
                 <button
                   onClick={() => toggle('asks')}
-                  className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-terminal-yellow hover:text-terminal-yellow/80 transition-colors"
+                  className="flex items-center gap-1.5 font-sans text-[10px] font-medium uppercase tracking-label text-mc-warning hover:text-mc-warning/80 transition-colors duration-mc ease-mc-out"
                 >
                   <span className="text-[8px]">{expandedSection === 'asks' ? '▼' : '▶'}</span>
                   Asks ({synthesis.asks.length})
@@ -131,8 +132,8 @@ function StandupSynthesisSection({ synthesis }: { synthesis: StandupSynthesis | 
                 {expandedSection === 'asks' && (
                   <ul className="mt-1.5 space-y-1 pl-3">
                     {synthesis.asks.map((a, i) => (
-                      <li key={i} className="text-xs text-terminal-text flex items-start gap-1.5">
-                        <span className="text-terminal-yellow shrink-0 mt-0.5">?</span>
+                      <li key={i} className="font-sans text-xs text-mc-text flex items-start gap-1.5">
+                        <span className="text-mc-warning shrink-0 mt-0.5">?</span>
                         {a}
                       </li>
                     ))}
@@ -145,7 +146,7 @@ function StandupSynthesisSection({ synthesis }: { synthesis: StandupSynthesis | 
               <div>
                 <button
                   onClick={() => toggle('highlights')}
-                  className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-terminal-green hover:text-terminal-green/80 transition-colors"
+                  className="flex items-center gap-1.5 font-sans text-[10px] font-medium uppercase tracking-label text-mc-success hover:text-mc-success/80 transition-colors duration-mc ease-mc-out"
                 >
                   <span className="text-[8px]">{expandedSection === 'highlights' ? '▼' : '▶'}</span>
                   Highlights ({synthesis.highlights.length})
@@ -153,8 +154,8 @@ function StandupSynthesisSection({ synthesis }: { synthesis: StandupSynthesis | 
                 {expandedSection === 'highlights' && (
                   <ul className="mt-1.5 space-y-1 pl-3">
                     {synthesis.highlights.map((h, i) => (
-                      <li key={i} className="text-xs text-terminal-text flex items-start gap-1.5">
-                        <span className="text-terminal-green shrink-0 mt-0.5">+</span>
+                      <li key={i} className="font-sans text-xs text-mc-text flex items-start gap-1.5">
+                        <span className="text-mc-success shrink-0 mt-0.5">+</span>
                         {h}
                       </li>
                     ))}
@@ -164,7 +165,7 @@ function StandupSynthesisSection({ synthesis }: { synthesis: StandupSynthesis | 
             )}
 
             {/* Generated timestamp */}
-            <div className="text-[10px] text-terminal-dim/60 pt-1 border-t border-terminal-border">
+            <div className="font-mono text-[10px] text-mc-text-tertiary tabular-nums pt-1 border-t border-mc-border">
               Generated {formatRelativeTime(synthesis.generatedAt)}
             </div>
           </div>
@@ -232,10 +233,10 @@ export function ExecClient({ agents, live, kpis, pendingApprovals, activeObjecti
     <div>
       {/* Header bar */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold text-terminal-text tracking-wide">Executive</h2>
+        <h2 className="font-sans text-xl font-extralight text-mc-text tracking-wide">Executive</h2>
         <button
           onClick={() => setSettingsOpen(true)}
-          className="px-3 py-1.5 text-xs font-mono border border-terminal-border rounded text-terminal-dim hover:text-terminal-text hover:bg-terminal-surface transition-colors"
+          className="px-3 py-1.5 rounded-chip border border-mc-border font-sans text-xs text-mc-text-secondary hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
         >
           Settings
         </button>
@@ -251,15 +252,15 @@ export function ExecClient({ agents, live, kpis, pendingApprovals, activeObjecti
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* 1. Active Objectives */}
                 <ExecKPI label="Active Objectives">
-                  <div className="text-2xl font-bold text-terminal-text font-mono">
+                  <div className="font-mono text-2xl text-mc-text tabular-nums">
                     {activeObjectives}
                   </div>
                 </ExecKPI>
 
                 {/* 2. Pending Approvals */}
                 <ExecKPI label="Pending Approvals">
-                  <div className="text-2xl font-bold font-mono">
-                    <span className={pendingApprovals > 0 ? 'text-terminal-yellow' : 'text-terminal-text'}>
+                  <div className="font-mono text-2xl tabular-nums">
+                    <span className={pendingApprovals > 0 ? 'text-mc-warning' : 'text-mc-text'}>
                       {pendingApprovals}
                     </span>
                   </div>
@@ -267,7 +268,7 @@ export function ExecClient({ agents, live, kpis, pendingApprovals, activeObjecti
 
                 {/* 3. Exec Dept Spend (MTD) */}
                 <ExecKPI label="Exec Dept Spend (MTD)">
-                  <div className="text-2xl font-bold text-terminal-text font-mono">
+                  <div className="font-mono text-2xl text-mc-text tabular-nums">
                     ${kpis.spendMTD.toFixed(2)}
                   </div>
                 </ExecKPI>
@@ -277,12 +278,12 @@ export function ExecClient({ agents, live, kpis, pendingApprovals, activeObjecti
                   label="Dept Health"
                   subtext={healthyCount === totalCount ? 'All systems nominal' : `${totalCount - healthyCount} agent(s) degraded`}
                 >
-                  <div className="text-2xl font-bold font-mono">
-                    <span className={healthyCount === totalCount ? 'text-terminal-green' : 'text-terminal-yellow'}>
+                  <div className="font-mono text-2xl tabular-nums">
+                    <span className={healthyCount === totalCount ? 'text-mc-success' : 'text-mc-warning'}>
                       {healthyCount}
                     </span>
-                    <span className="text-terminal-dim text-lg">/{totalCount}</span>
-                    <span className="text-terminal-dim text-sm ml-1">healthy</span>
+                    <span className="text-mc-text-tertiary text-lg">/{totalCount}</span>
+                    <span className="font-sans text-mc-text-tertiary text-sm ml-1">healthy</span>
                   </div>
                 </ExecKPI>
               </div>
@@ -317,10 +318,10 @@ export function ExecClient({ agents, live, kpis, pendingApprovals, activeObjecti
               {/* Heartbeat Monitor */}
               <HeartbeatMonitor data={heartbeatMonitorData} />
 
-              <div className={`border rounded p-3 text-xs ${
+              <div className={`border rounded-panel p-3 font-sans text-xs transition-colors duration-mc ease-mc-out ${
                 agentHubHealth.ok
-                  ? 'bg-terminal-green/5 border-terminal-green/20 text-terminal-dim'
-                  : 'bg-terminal-red/5 border-terminal-red/20 text-terminal-red'
+                  ? 'bg-mc-success/5 border-mc-success/20 text-mc-text-tertiary'
+                  : 'bg-mc-danger/5 border-mc-danger/20 text-mc-danger'
               }`}>
                 {agentHubHealth.ok
                   ? 'AgentHub reachable. Executive activity reflects live commit traffic.'
@@ -339,7 +340,7 @@ export function ExecClient({ agents, live, kpis, pendingApprovals, activeObjecti
           directives: (
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Directive Timeline</h3>
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">Directive Timeline</h3>
               </div>
               <DirectiveTimeline objectives={objectives} />
             </div>
@@ -349,7 +350,7 @@ export function ExecClient({ agents, live, kpis, pendingApprovals, activeObjecti
           'review-queue': (
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+                <h3 className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text-label">
                   Review Queue
                 </h3>
               </div>

@@ -37,18 +37,18 @@ export function EventFeed({ initialRuns, agentNames }: EventFeedProps) {
   });
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded">
-      <div className="px-4 py-3 border-b border-terminal-border flex items-center justify-between">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">Activity</h2>
+    <div className="bg-mc-surface-hover border border-mc-border rounded">
+      <div className="px-4 py-3 border-b border-mc-border flex items-center justify-between">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">Activity</h2>
         <span
-          className={`inline-block w-1.5 h-1.5 rounded-full ${connected ? 'bg-terminal-green animate-pulse' : 'bg-terminal-dim'}`}
+          className={`inline-block w-1.5 h-1.5 rounded-full ${connected ? 'bg-mc-success animate-pulse' : 'bg-mc-text-tertiary'}`}
           title={connected ? 'Live' : 'Connecting...'}
         />
       </div>
       {runs.length === 0 ? (
-        <div className="p-4 text-xs text-terminal-dim text-center">No recent activity</div>
+        <div className="p-4 text-xs text-mc-text-tertiary text-center">No recent activity</div>
       ) : (
-        <div className="divide-y divide-terminal-border">
+        <div className="divide-y divide-mc-border">
           {runs.map((run, i) => (
             <EventFeedItem
               key={`${run.createdAt}-${i}`}

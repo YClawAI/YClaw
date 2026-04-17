@@ -279,7 +279,7 @@ export function ChatPanel({ compact = false, pageContext, embedded = false }: { 
   return (
     <div
       className={`relative flex flex-col ${
-        embedded ? 'h-full' : `border border-terminal-border rounded bg-terminal-bg ${compact ? 'h-48' : 'h-[500px]'}`
+        embedded ? 'h-full' : `border border-mc-border rounded-panel bg-mc-bg ${compact ? 'h-48' : 'h-[500px]'}`
       }`}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -287,33 +287,33 @@ export function ChatPanel({ compact = false, pageContext, embedded = false }: { 
       onDrop={handleDrop}
     >
       {!embedded && (
-        <div className="px-3 py-2 border-b border-terminal-border bg-terminal-surface flex items-center gap-2">
+        <div className="px-3 py-2 border-b border-mc-border flex items-center gap-2">
           <span className="text-sm">🚀</span>
-          <span className="text-xs font-semibold text-terminal-purple">Chat with Assistant</span>
+          <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-accent">Chat with Assistant</span>
           <span className="ml-auto flex items-center gap-2">
             {messages.length > 0 && (
               <button
                 onClick={clearMessages}
-                className="text-[10px] text-terminal-dim hover:text-terminal-red transition-colors"
+                className="font-sans text-[10px] uppercase tracking-label text-mc-text-tertiary hover:text-mc-danger transition-colors duration-mc ease-mc-out"
               >
                 Clear
               </button>
             )}
-            <span className="text-[10px] text-terminal-dim">OpenClaw Gateway</span>
+            <span className="font-sans text-[10px] text-mc-text-tertiary">OpenClaw Gateway</span>
           </span>
         </div>
       )}
 
       {/* Drop overlay */}
       {dragging && (
-        <div className="absolute inset-0 z-10 bg-terminal-purple/10 border-2 border-dashed border-terminal-purple rounded flex items-center justify-center">
-          <span className="text-sm text-terminal-purple font-mono">Drop image here</span>
+        <div className="absolute inset-0 z-10 bg-mc-accent/10 border-2 border-dashed border-mc-accent rounded-panel flex items-center justify-center">
+          <span className="font-sans text-sm uppercase tracking-label text-mc-accent">Drop image here</span>
         </div>
       )}
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3">
         {messages.length === 0 && !streaming && (
-          <div className="text-terminal-dim text-xs text-center py-8">
+          <div className="font-sans text-mc-text-tertiary text-xs text-center py-8">
             Send a message...
             <div className="mt-1 text-[10px]">Drop or paste images to include them</div>
           </div>
@@ -321,12 +321,12 @@ export function ChatPanel({ compact = false, pageContext, embedded = false }: { 
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
-              className={`max-w-[80%] px-3 py-2 rounded text-xs transition-opacity ${
+              className={`max-w-[80%] px-3 py-2 rounded-panel font-sans text-xs transition-opacity ${
                 msg.role === 'user'
-                  ? 'bg-terminal-purple/20 text-terminal-text'
+                  ? 'bg-mc-accent/15 border border-mc-accent/30 text-mc-text'
                   : msg.interrupted
-                    ? 'bg-terminal-muted text-terminal-text opacity-50'
-                    : 'bg-terminal-muted text-terminal-text'
+                    ? 'bg-mc-surface border border-mc-border text-mc-text opacity-50'
+                    : 'bg-mc-surface border border-mc-border text-mc-text'
               }`}
             >
               {msg.images && msg.images.length > 0 && (
@@ -337,16 +337,16 @@ export function ChatPanel({ compact = false, pageContext, embedded = false }: { 
                       key={j}
                       src={img}
                       alt="attached"
-                      className="w-24 h-24 object-cover rounded border border-terminal-border"
+                      className="w-24 h-24 object-cover rounded-panel border border-mc-border"
                     />
                   ))}
                 </div>
               )}
               <div className="whitespace-pre-wrap">{msg.content}</div>
-              <div className="text-[10px] text-terminal-dim mt-1 flex items-center gap-1.5">
+              <div className="font-mono tabular-nums text-[10px] text-mc-text-tertiary mt-1 flex items-center gap-1.5">
                 <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
                 {msg.interrupted && (
-                  <span className="italic text-terminal-dim">[interrupted]</span>
+                  <span className="italic text-mc-text-tertiary">[interrupted]</span>
                 )}
               </div>
             </div>
@@ -354,11 +354,11 @@ export function ChatPanel({ compact = false, pageContext, embedded = false }: { 
         ))}
         {streaming && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] bg-terminal-muted px-3 py-2 rounded text-xs text-terminal-text">
+            <div className="max-w-[80%] bg-mc-surface border border-mc-border px-3 py-2 rounded-panel font-sans text-xs text-mc-text">
               {streamingContent ? (
-                <div className="whitespace-pre-wrap">{streamingContent}<span className="animate-pulse">|</span></div>
+                <div className="whitespace-pre-wrap">{streamingContent}<span className="animate-mc-pulse">|</span></div>
               ) : (
-                <div className="text-terminal-dim animate-pulse">Thinking...</div>
+                <div className="text-mc-text-tertiary animate-mc-pulse">Thinking...</div>
               )}
             </div>
           </div>
@@ -367,18 +367,18 @@ export function ChatPanel({ compact = false, pageContext, embedded = false }: { 
 
       {/* Image previews */}
       {images.length > 0 && (
-        <div className="px-2 py-1.5 border-t border-terminal-border flex gap-1.5 bg-terminal-surface/50">
+        <div className="px-2 py-1.5 border-t border-mc-border flex gap-1.5 bg-mc-surface/50">
           {images.map((img, i) => (
             <div key={i} className="relative group">
               {/* eslint-disable-next-line @next/next/no-img-element -- base64 data URLs from FileReader; next/image optimization doesn't apply */}
               <img
                 src={img}
                 alt="preview"
-                className="w-12 h-12 object-cover rounded border border-terminal-border"
+                className="w-12 h-12 object-cover rounded-panel border border-mc-border"
               />
               <button
                 onClick={() => removeImage(i)}
-                className="absolute -top-1 -right-1 w-4 h-4 bg-terminal-red text-white text-[10px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute -top-1 -right-1 w-4 h-4 bg-mc-danger text-white text-[10px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-mc ease-mc-out"
               >
                 ×
               </button>
@@ -387,11 +387,11 @@ export function ChatPanel({ compact = false, pageContext, embedded = false }: { 
         </div>
       )}
 
-      <div className="p-2 border-t border-terminal-border bg-terminal-surface/50">
+      <div className="p-2 border-t border-mc-border bg-mc-surface/50">
         <div className="flex gap-2 items-end">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="shrink-0 p-1.5 text-terminal-dim hover:text-terminal-text transition-colors"
+            className="shrink-0 p-1.5 text-mc-text-tertiary hover:text-mc-text transition-colors duration-mc ease-mc-out"
             title="Attach image"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -423,16 +423,16 @@ export function ChatPanel({ compact = false, pageContext, embedded = false }: { 
             onPaste={handlePaste}
             placeholder={streaming ? 'Type to interrupt...' : 'Message assistant...'}
             rows={1}
-            className="flex-1 bg-transparent text-xs text-terminal-text placeholder-terminal-dim resize-none outline-none font-mono py-1.5 max-h-24 overflow-y-auto"
+            className="flex-1 bg-transparent font-sans text-xs text-mc-text placeholder-mc-text-tertiary resize-none outline-none py-1.5 max-h-24 overflow-y-auto"
             style={{ minHeight: '28px' }}
           />
           <button
             onClick={() => void handleSend()}
             disabled={!input.trim() && images.length === 0}
-            className={`shrink-0 px-2.5 py-1.5 text-xs font-mono rounded transition-colors ${
+            className={`shrink-0 px-2.5 py-1.5 font-sans text-[11px] uppercase tracking-label rounded-panel transition-colors duration-mc ease-mc-out ${
               streaming
-                ? 'bg-terminal-orange/20 text-terminal-orange hover:bg-terminal-orange/30 border border-terminal-orange/40'
-                : 'bg-terminal-purple/20 text-terminal-purple hover:bg-terminal-purple/30 border border-terminal-purple/40'
+                ? 'bg-mc-warning/15 text-mc-warning hover:bg-mc-warning/25 border border-mc-warning/40'
+                : 'bg-mc-accent/15 text-mc-accent hover:bg-mc-accent/25 border border-mc-accent/40'
             } disabled:opacity-30 disabled:cursor-not-allowed`}
             title={streaming ? 'Send (interrupts current response)' : 'Send'}
           >

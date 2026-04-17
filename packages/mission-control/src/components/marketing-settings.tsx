@@ -10,7 +10,7 @@ import {
 import type { AgentCardConfig, AlertDef } from './department-settings-shared';
 import { useDepartmentSettings } from '@/hooks/use-department-settings';
 
-// ── Icons ────────────────────────────────────────────────────────────────────
+// ── Icons ───────────────────────────────────────────────────────────────────────
 
 function BookOpenIcon({ className }: { className?: string }) {
   return (
@@ -36,7 +36,7 @@ function ShieldIcon({ className }: { className?: string }) {
   );
 }
 
-// ── Agent Configs ────────────────────────────────────────────────────────────
+// ── Agent Configs ──────────────────────────────────────────────────────────────────
 
 const EMBER: AgentCardConfig = {
   name: 'ember',
@@ -128,7 +128,7 @@ const SCOUT: AgentCardConfig = {
 
 const AGENTS: AgentCardConfig[] = [EMBER, FORGE, SCOUT];
 
-// ── Brand Assets ─────────────────────────────────────────────────────────────
+// ── Brand Assets ──────────────────────────────────────────────────────────────────
 
 interface BrandAssetDef {
   id: string;
@@ -146,7 +146,7 @@ const BRAND_ASSETS: BrandAssetDef[] = [
   { id: 'designSystem', filename: 'design-system.md', label: 'Design System', lineCount: '', usedBy: 'Forge', placeholder: '# Design System\n\nDefine visual guidelines, color palette, typography...' },
 ];
 
-// ── Channels ─────────────────────────────────────────────────────────────────
+// ── Channels ─────────────────────────────────────────────────────────────────────
 
 interface ChannelDef {
   name: string;
@@ -165,7 +165,7 @@ const CHANNELS: ChannelDef[] = [
   { name: 'Email Marketing', connected: false },
 ];
 
-// ── Notifications ────────────────────────────────────────────────────────────
+// ── Notifications ─────────────────────────────────────────────────────────────────
 
 const ALERTS: AlertDef[] = [
   { key: 'contentFlagged', label: 'Content flagged by Reviewer', desc: 'Alert when content is rejected or needs revision' },
@@ -176,7 +176,7 @@ const ALERTS: AlertDef[] = [
   { key: 'scheduleMissed', label: 'Posting schedule missed', desc: 'Alert when a scheduled batch fails to publish' },
 ];
 
-// ── Form State ───────────────────────────────────────────────────────────────
+// ── Form State ─────────────────────────────────────────────────────────────────────
 
 interface MktForm {
   directive: string;
@@ -208,7 +208,7 @@ const INITIAL: MktForm = {
   slackChannel: '#yclaw-marketing',
 };
 
-// ── Brand Asset Item (expand/collapse with editable textarea) ────────────────
+// ── Brand Asset Item (expand/collapse with editable textarea) ────────────
 
 function BrandAssetItem({
   asset,
@@ -221,29 +221,29 @@ function BrandAssetItem({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-terminal-border/60 rounded overflow-hidden">
+    <div className="border border-mc-border/60 rounded-panel overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-terminal-muted/10 transition-colors ${
-          open ? 'bg-terminal-muted/10' : ''
+        className={`w-full flex items-center justify-between px-3 py-2 text-left hover:bg-mc-surface/10 transition-colors duration-mc ease-mc-out ${
+          open ? 'bg-mc-surface/10' : ''
         }`}
       >
         <div className="min-w-0">
-          <div className="text-xs text-terminal-text font-medium">{asset.label}</div>
-          <div className="text-[9px] text-terminal-dim">
+          <div className="font-sans text-xs text-mc-text font-medium">{asset.label}</div>
+          <div className="font-sans text-[9px] text-mc-text-tertiary">
             {asset.lineCount ? `${asset.lineCount} · ` : ''}Used by: {asset.usedBy}
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-2">
-          <span className="text-[9px] text-terminal-dim font-mono">{asset.filename}</span>
-          <span className="text-terminal-dim text-xs">{open ? '\u2212' : '+'}</span>
+          <span className="text-[9px] text-mc-text-tertiary font-mono tabular-nums">{asset.filename}</span>
+          <span className="text-mc-text-tertiary text-xs">{open ? '\u2212' : '+'}</span>
         </div>
       </button>
       {open && (
         <div className="px-3 pb-3">
           <textarea
-            className="w-full bg-terminal-bg border border-terminal-border rounded p-2 text-xs text-terminal-text font-mono resize-y focus:outline-none focus:border-terminal-orange placeholder:text-terminal-dim/40"
+            className="w-full bg-mc-surface border border-mc-border rounded-panel p-2 font-sans text-xs text-mc-text resize-y focus:outline-none focus:border-mc-warning transition-colors duration-mc ease-mc-out placeholder:text-mc-text-tertiary/40"
             style={{ maxHeight: 300, minHeight: value ? 150 : 80 }}
             placeholder={asset.placeholder}
             value={value}
@@ -256,7 +256,7 @@ function BrandAssetItem({
   );
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────────────────────────────
 
 interface Props { open: boolean; onClose: () => void }
 
@@ -330,8 +330,8 @@ export function MarketingSettings({ open, onClose }: Props) {
       {/* 3. Brand Assets */}
       <SettingsSection
         label="Brand Assets"
-        icon={<BookOpenIcon className="w-4 h-4 text-terminal-orange" />}
-        iconColor="terminal-orange"
+        icon={<BookOpenIcon className="w-4 h-4 text-mc-warning" />}
+        iconColor="mc-warning"
         expanded={exp['assets'] ?? false}
         onToggle={() => tog('assets')}
         headerExtra={
@@ -353,8 +353,8 @@ export function MarketingSettings({ open, onClose }: Props) {
       {/* 4. Channels */}
       <SettingsSection
         label="Channels"
-        icon={<GlobeIcon className="w-4 h-4 text-terminal-blue" />}
-        iconColor="terminal-blue"
+        icon={<GlobeIcon className="w-4 h-4 text-mc-info" />}
+        iconColor="mc-info"
         expanded={exp['channels'] ?? false}
         onToggle={() => tog('channels')}
         headerExtra={
@@ -365,49 +365,49 @@ export function MarketingSettings({ open, onClose }: Props) {
           {CHANNELS.map((ch) => (
             <div key={ch.name} className="flex items-center justify-between py-1.5">
               <div className="flex items-center gap-2">
-                <span className={`w-1.5 h-1.5 rounded-full ${ch.connected ? 'bg-terminal-green' : 'bg-terminal-dim/40'}`} />
-                <span className="text-xs text-terminal-text">{ch.name}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${ch.connected ? 'bg-mc-success' : 'bg-mc-text-tertiary/40'}`} />
+                <span className="font-sans text-xs text-mc-text">{ch.name}</span>
               </div>
               {ch.connected ? (
-                <span className="text-[9px] px-1.5 py-0.5 rounded border border-terminal-green/40 text-terminal-green bg-terminal-green/10">
+                <span className="font-sans text-[9px] px-1.5 py-0.5 rounded-panel border border-mc-success/40 text-mc-success bg-mc-success/10 uppercase tracking-label">
                   Connected
                 </span>
               ) : (
-                <span className="text-[9px] px-1.5 py-0.5 rounded border border-terminal-border text-terminal-dim">
+                <span className="font-sans text-[9px] px-1.5 py-0.5 rounded-panel border border-mc-border text-mc-text-tertiary uppercase tracking-label">
                   Not Connected
                 </span>
               )}
             </div>
           ))}
         </div>
-        <p className="text-[9px] text-terminal-dim/50 mt-2">
+        <p className="font-sans text-[9px] text-mc-text-tertiary/50 mt-2">
           Additional platforms can be configured as they become available.
         </p>
       </SettingsSection>
 
       {/* 5. Brand & Safety */}
-      <SettingsSection label="Brand & Safety" icon={<ShieldIcon className="w-4 h-4 text-terminal-red" />} iconColor="terminal-red" expanded={exp['brand'] ?? false} onToggle={() => tog('brand')}>
+      <SettingsSection label="Brand & Safety" icon={<ShieldIcon className="w-4 h-4 text-mc-danger" />} iconColor="mc-danger" expanded={exp['brand'] ?? false} onToggle={() => tog('brand')}>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Banned Topics</label>
-          <textarea className="w-full bg-terminal-bg border border-terminal-border rounded p-2 text-xs text-terminal-text font-mono resize-y min-h-[60px] focus:outline-none focus:border-terminal-red placeholder:text-terminal-dim/40" placeholder="Enter topics separated by commas" value={form.bannedTopics} onChange={(e) => set('bannedTopics', e.target.value)} rows={3} />
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Banned Topics</label>
+          <textarea className="w-full bg-mc-surface border border-mc-border rounded-panel p-2 font-sans text-xs text-mc-text resize-y min-h-[60px] focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out placeholder:text-mc-text-tertiary/40" placeholder="Enter topics separated by commas" value={form.bannedTopics} onChange={(e) => set('bannedTopics', e.target.value)} rows={3} />
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Voice / Tone Guidelines</label>
-          <input type="text" className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.voiceTone} onChange={(e) => set('voiceTone', e.target.value)} placeholder="e.g., Professional but approachable" />
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Voice / Tone Guidelines</label>
+          <input type="text" className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.voiceTone} onChange={(e) => set('voiceTone', e.target.value)} placeholder="e.g., Professional but approachable" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Required Hashtags</label>
-            <input type="text" className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.requiredHashtags} onChange={(e) => set('requiredHashtags', e.target.value)} placeholder="#yclaw" />
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Required Hashtags</label>
+            <input type="text" className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.requiredHashtags} onChange={(e) => set('requiredHashtags', e.target.value)} placeholder="#yclaw" />
           </div>
           <div>
-            <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Banned Hashtags</label>
-            <input type="text" className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.bannedHashtags} onChange={(e) => set('bannedHashtags', e.target.value)} placeholder="#NFA, #DYOR" />
+            <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Banned Hashtags</label>
+            <input type="text" className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-sans text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.bannedHashtags} onChange={(e) => set('bannedHashtags', e.target.value)} placeholder="#NFA, #DYOR" />
           </div>
         </div>
         <div>
-          <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">Max Hashtags Per Post</label>
-          <input type="number" min={0} max={30} className="w-24 bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-red" value={form.maxHashtags} onChange={(e) => set('maxHashtags', Number(e.target.value) || 0)} />
+          <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">Max Hashtags Per Post</label>
+          <input type="number" min={0} max={30} className="w-24 bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-mono tabular-nums text-xs text-mc-text focus:outline-none focus:border-mc-danger transition-colors duration-mc ease-mc-out" value={form.maxHashtags} onChange={(e) => set('maxHashtags', Number(e.target.value) || 0)} />
         </div>
       </SettingsSection>
 

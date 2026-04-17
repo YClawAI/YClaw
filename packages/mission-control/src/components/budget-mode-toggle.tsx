@@ -8,8 +8,8 @@ const MODES: { value: BudgetMode; label: string; desc: string; color: string; ac
     value: 'enforcing',
     label: 'Enforcing',
     desc: 'Agents will be paused/stopped when over budget',
-    color: 'border-terminal-green/40 text-terminal-green',
-    activeColor: 'bg-terminal-green/20 border-terminal-green text-terminal-green',
+    color: 'border-mc-success/40 text-mc-success',
+    activeColor: 'bg-mc-success/20 border-mc-success text-mc-success',
   },
   {
     value: 'tracking',
@@ -22,8 +22,8 @@ const MODES: { value: BudgetMode; label: string; desc: string; color: string; ac
     value: 'off',
     label: 'Off',
     desc: 'Budget system disabled — no tracking, no enforcement',
-    color: 'border-terminal-border text-terminal-dim',
-    activeColor: 'bg-terminal-dim/20 border-terminal-dim text-terminal-dim',
+    color: 'border-mc-border text-mc-text-tertiary',
+    activeColor: 'bg-mc-text-tertiary/20 border-mc-text-tertiary text-mc-text-tertiary',
   },
 ];
 
@@ -50,7 +50,7 @@ export function BudgetModeToggle({ initialMode }: { initialMode: BudgetMode }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-text">Budget System</h2>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-mc-text">Budget System</h2>
       </div>
 
       <div className="flex items-center gap-2 mb-2">
@@ -60,19 +60,19 @@ export function BudgetModeToggle({ initialMode }: { initialMode: BudgetMode }) {
             onClick={() => handleSwitch(m.value)}
             disabled={isPending}
             className={`px-4 py-2 text-xs font-mono rounded border transition-all disabled:opacity-40 ${
-              mode === m.value ? m.activeColor : `${m.color} hover:bg-terminal-surface/50`
+              mode === m.value ? m.activeColor : `${m.color} hover:bg-mc-surface-hover/50`
             }`}
           >
             {m.label}
           </button>
         ))}
-        {isPending && <span className="text-xs text-terminal-dim ml-2">Saving...</span>}
+        {isPending && <span className="text-xs text-mc-text-tertiary ml-2">Saving...</span>}
       </div>
 
-      <p className="text-xs text-terminal-dim">{active.desc}</p>
+      <p className="text-xs text-mc-text-tertiary">{active.desc}</p>
 
       {error && (
-        <div className="mt-2 text-xs text-terminal-red bg-terminal-red/10 border border-terminal-red/30 rounded px-2 py-1">
+        <div className="mt-2 text-xs text-mc-danger bg-mc-danger/10 border border-mc-danger/30 rounded px-2 py-1">
           {error}
         </div>
       )}

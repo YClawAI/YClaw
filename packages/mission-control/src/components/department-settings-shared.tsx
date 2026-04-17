@@ -7,7 +7,7 @@ import { AgentCard } from './agent-settings-card';
 import type { AgentCardConfig } from './agent-settings-card';
 import type { ModelInfo } from '@/types/gateway';
 
-// ── Shared model list ────────────────────────────────────────────────────────
+// ── Shared model list ───────────────────────────────────────────────
 
 export const DEFAULT_MODELS: ModelInfo[] = [
   { id: 'claude-opus-4-6', provider: 'anthropic', name: 'Claude Opus 4.6', available: true },
@@ -21,7 +21,7 @@ export const DEFAULT_MODELS: ModelInfo[] = [
   { id: 'grok-3', provider: 'xai', name: 'Grok 3', available: true },
 ];
 
-// ── SVG Icons ────────────────────────────────────────────────────────────────
+// ── SVG Icons ───────────────────────────────────────────────────────────
 
 export function DocumentIcon({ className }: { className?: string }) {
   return (
@@ -68,7 +68,7 @@ export function InfoTooltip({ text }: { text: string }) {
     <span ref={ref} className="inline-flex">
       <button
         type="button"
-        className="w-4 h-4 rounded-full border border-terminal-dim/40 text-terminal-dim text-[9px] font-bold leading-none flex items-center justify-center hover:border-terminal-text hover:text-terminal-text transition-colors"
+        className="w-4 h-4 rounded-full border border-mc-border text-mc-text-tertiary text-[9px] font-medium leading-none flex items-center justify-center hover:border-mc-border-hover hover:text-mc-text transition-colors duration-mc ease-mc-out"
         onMouseEnter={open}
         onMouseLeave={close}
         onClick={() => (show ? close() : open())}
@@ -78,7 +78,7 @@ export function InfoTooltip({ text }: { text: string }) {
       </button>
       {show && pos && (
         <div
-          className="fixed w-56 p-2.5 rounded border border-terminal-border bg-terminal-surface shadow-2xl text-[10px] text-terminal-dim leading-relaxed z-[100]"
+          className="fixed w-56 p-2.5 rounded-panel border border-mc-border bg-mc-bg/95 backdrop-blur-sm shadow-2xl font-sans text-[10px] text-mc-text-tertiary leading-relaxed z-[100]"
           style={{ top: pos.top, left: pos.left }}
           onMouseEnter={open}
           onMouseLeave={close}
@@ -93,13 +93,11 @@ export function InfoTooltip({ text }: { text: string }) {
 // ── Collapsible Section ──────────────────────────────────────────────────────
 
 const SECTION_EXPANDED_STYLES: Record<string, string> = {
-  'terminal-cyan': 'border-terminal-cyan/50 bg-terminal-cyan/5',
-  'terminal-purple': 'border-terminal-purple/50 bg-terminal-purple/5',
-  'terminal-orange': 'border-terminal-orange/50 bg-terminal-orange/5',
-  'terminal-yellow': 'border-terminal-yellow/50 bg-terminal-yellow/5',
-  'terminal-green': 'border-terminal-green/50 bg-terminal-green/5',
-  'terminal-blue': 'border-terminal-blue/50 bg-terminal-blue/5',
-  'terminal-red': 'border-terminal-red/50 bg-terminal-red/5',
+  'mc-accent': 'border-mc-accent/40 bg-mc-accent/5',
+  'mc-info': 'border-mc-info/40 bg-mc-info/5',
+  'mc-warning': 'border-mc-warning/40 bg-mc-warning/5',
+  'mc-success': 'border-mc-success/40 bg-mc-success/5',
+  'mc-danger': 'border-mc-danger/40 bg-mc-danger/5',
 };
 
 export function SettingsSection({
@@ -119,70 +117,69 @@ export function SettingsSection({
   headerExtra?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const expandedStyle = SECTION_EXPANDED_STYLES[iconColor] ?? 'border-terminal-border';
+  const expandedStyle = SECTION_EXPANDED_STYLES[iconColor] ?? 'border-mc-border';
   return (
     <section className="mb-4">
       <button
         onClick={onToggle}
         aria-expanded={expanded}
-        className={`w-full flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
-          expanded ? expandedStyle : 'border-terminal-border hover:border-terminal-muted'
+        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-panel border transition-colors duration-mc ease-mc-out ${
+          expanded ? expandedStyle : 'border-mc-border hover:border-mc-border-hover'
         }`}
       >
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-xs font-bold uppercase tracking-widest text-terminal-text">
+          <span className="font-sans text-[11px] font-medium uppercase tracking-label text-mc-text">
             {label}
           </span>
           {headerExtra && (
             <span onClick={(e) => e.stopPropagation()}>{headerExtra}</span>
           )}
         </div>
-        <span className="text-terminal-dim text-xs">{expanded ? '\u2212' : '+'}</span>
+        <span className="text-mc-text-tertiary text-xs">{expanded ? '\u2212' : '+'}</span>
       </button>
       {expanded && <div className="mt-3 pl-1 space-y-4">{children}</div>}
     </section>
   );
 }
 
-// ── Toggle Switch ────────────────────────────────────────────────────────────
+// ── Toggle Switch ─────────────────────────────────────────────────────────────
 
 const TOGGLE_STYLES: Record<string, { on: string; off: string; knob: string }> = {
-  'terminal-cyan': { on: 'bg-terminal-cyan/50 border-terminal-cyan/30', off: 'bg-terminal-cyan/20 border-terminal-cyan/30', knob: 'bg-terminal-cyan' },
-  'terminal-orange': { on: 'bg-terminal-orange/50 border-terminal-orange/30', off: 'bg-terminal-orange/20 border-terminal-orange/30', knob: 'bg-terminal-orange' },
-  'terminal-yellow': { on: 'bg-terminal-yellow/50 border-terminal-yellow/30', off: 'bg-terminal-yellow/20 border-terminal-yellow/30', knob: 'bg-terminal-yellow' },
-  'terminal-green': { on: 'bg-terminal-green/50 border-terminal-green/30', off: 'bg-terminal-green/20 border-terminal-green/30', knob: 'bg-terminal-green' },
-  'terminal-blue': { on: 'bg-terminal-blue/50 border-terminal-blue/30', off: 'bg-terminal-blue/20 border-terminal-blue/30', knob: 'bg-terminal-blue' },
-  'terminal-red': { on: 'bg-terminal-red/50 border-terminal-red/30', off: 'bg-terminal-red/20 border-terminal-red/30', knob: 'bg-terminal-red' },
+  'mc-accent': { on: 'bg-mc-accent/40 border-mc-accent/30', off: 'bg-mc-surface border-mc-border', knob: 'bg-mc-accent' },
+  'mc-info': { on: 'bg-mc-info/40 border-mc-info/30', off: 'bg-mc-surface border-mc-border', knob: 'bg-mc-info' },
+  'mc-warning': { on: 'bg-mc-warning/40 border-mc-warning/30', off: 'bg-mc-surface border-mc-border', knob: 'bg-mc-warning' },
+  'mc-success': { on: 'bg-mc-success/40 border-mc-success/30', off: 'bg-mc-surface border-mc-border', knob: 'bg-mc-success' },
+  'mc-danger': { on: 'bg-mc-danger/40 border-mc-danger/30', off: 'bg-mc-surface border-mc-border', knob: 'bg-mc-danger' },
 };
 
 export function ToggleSwitch({
   checked,
   onChange,
-  color = 'terminal-cyan',
+  color = 'mc-accent',
 }: {
   checked: boolean;
   onChange: (val: boolean) => void;
   color?: string;
 }) {
-  const styles = TOGGLE_STYLES[color] ?? TOGGLE_STYLES['terminal-cyan']!;
+  const styles = TOGGLE_STYLES[color] ?? TOGGLE_STYLES['mc-accent']!;
   return (
     <button
-      className={`relative w-10 h-5 rounded-full border transition-colors ${
+      className={`relative w-10 h-5 rounded-full border transition-colors duration-mc ease-mc-out ${
         checked ? styles.on : styles.off
       }`}
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
     >
-      <span className={`absolute top-0.5 left-0 w-4 h-4 rounded-full ${styles.knob} transition-transform ${
+      <span className={`absolute top-0.5 left-0 w-4 h-4 rounded-full ${styles.knob} transition-transform duration-mc ease-mc-out ${
         checked ? 'translate-x-5' : 'translate-x-0.5'
       }`} />
     </button>
   );
 }
 
-// ── Department Directive Section ─────────────────────────────────────────────
+// ── Department Directive Section ────────────────────────────────────────────────
 
 const DIRECTIVE_TOOLTIP =
   'The department directive is shared instructions read by all agents in this department before every task. It defines priorities, focus areas, and rules of engagement. Update it whenever your goals change.';
@@ -201,23 +198,23 @@ export function DepartmentDirectiveSection({
   return (
     <SettingsSection
       label="Department Directive"
-      icon={<DocumentIcon className="w-4 h-4 text-terminal-cyan" />}
-      iconColor="terminal-cyan"
+      icon={<DocumentIcon className="w-4 h-4 text-mc-accent" />}
+      iconColor="mc-accent"
       expanded={expanded}
       onToggle={onToggle}
       headerExtra={<InfoTooltip text={DIRECTIVE_TOOLTIP} />}
     >
       <div>
         <textarea
-          className="w-full bg-terminal-bg border border-terminal-border rounded p-2 text-xs text-terminal-text font-mono resize-y min-h-[120px] focus:outline-none focus:border-terminal-cyan placeholder:text-terminal-dim/40"
+          className="w-full bg-mc-surface border border-mc-border rounded-panel p-2 font-sans text-xs text-mc-text resize-y min-h-[120px] focus:outline-none focus:border-mc-accent placeholder:text-mc-text-tertiary/40 transition-colors duration-mc ease-mc-out"
           placeholder="e.g., Focus on Q1 launch. Prioritize security reviews over feature work. All external communications require Reviewer approval before publishing."
           value={directive}
           onChange={(e) => onDirectiveChange(e.target.value)}
           rows={6}
         />
         <div className="flex justify-end mt-1">
-          <span className={`text-[10px] font-mono ${
-            directive.length > 500 ? 'text-terminal-yellow' : 'text-terminal-dim'
+          <span className={`font-mono tabular-nums text-[10px] ${
+            directive.length > 500 ? 'text-mc-warning' : 'text-mc-text-tertiary'
           }`}>
             {directive.length} chars
           </span>
@@ -227,7 +224,7 @@ export function DepartmentDirectiveSection({
   );
 }
 
-// ── Agents Section ───────────────────────────────────────────────────────────
+// ── Agents Section ───────────────────────────────────────────────────────────────
 
 export function AgentsSection({
   agents,
@@ -262,8 +259,8 @@ export function AgentsSection({
   return (
     <SettingsSection
       label="Agents"
-      icon={<UsersIcon className="w-4 h-4 text-terminal-purple" />}
-      iconColor="terminal-purple"
+      icon={<UsersIcon className="w-4 h-4 text-mc-info" />}
+      iconColor="mc-info"
       expanded={expanded}
       onToggle={onToggle}
     >
@@ -290,7 +287,7 @@ export function AgentsSection({
   );
 }
 
-// ── Notifications Section ────────────────────────────────────────────────────
+// ── Notifications Section ───────────────────────────────────────────────────────
 
 export interface AlertDef {
   key: string;
@@ -318,33 +315,33 @@ export function NotificationsSection({
   return (
     <SettingsSection
       label="Notifications"
-      icon={<BellIcon className="w-4 h-4 text-terminal-yellow" />}
-      iconColor="terminal-yellow"
+      icon={<BellIcon className="w-4 h-4 text-mc-warning" />}
+      iconColor="mc-warning"
       expanded={expanded}
       onToggle={onToggle}
     >
       <div>
-        <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-2">
+        <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-2">
           Alert Types
         </label>
         <div className="space-y-3">
           {alerts.map((a) => (
             <div key={a.key} className="flex items-center justify-between">
               <div>
-                <span className="text-xs text-terminal-text block">{a.label}</span>
-                <span className="text-[10px] text-terminal-dim">{a.desc}</span>
+                <span className="font-sans text-xs text-mc-text block">{a.label}</span>
+                <span className="font-sans text-[10px] text-mc-text-tertiary">{a.desc}</span>
               </div>
               <ToggleSwitch
                 checked={alertStates[a.key] ?? false}
                 onChange={(val) => onAlertToggle(a.key, val)}
-                color="terminal-yellow"
+                color="mc-warning"
               />
             </div>
           ))}
         </div>
       </div>
       <div>
-        <label className="text-[10px] text-terminal-dim uppercase tracking-widest block mb-1">
+        <label className="font-sans text-[10px] font-medium text-mc-text-tertiary uppercase tracking-label block mb-1">
           Slack Channel
         </label>
         <input
@@ -352,14 +349,14 @@ export function NotificationsSection({
           value={slackChannel}
           onChange={(e) => onSlackChannelChange(e.target.value)}
           placeholder="#channel-name"
-          className="w-full bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs text-terminal-text font-mono focus:outline-none focus:border-terminal-yellow"
+          className="w-full bg-mc-surface border border-mc-border rounded-panel px-2 py-1.5 font-mono tabular-nums text-xs text-mc-text focus:outline-none focus:border-mc-warning transition-colors duration-mc ease-mc-out"
         />
       </div>
     </SettingsSection>
   );
 }
 
-// ── Drawer shell with save footer ────────────────────────────────────────────
+// ── Drawer shell with save footer ───────────────────────────────────────────────────
 
 export function useDeptSaveState(department?: string) {
   const [dirty, setDirty] = useState(false);
@@ -437,7 +434,7 @@ export function DeptSettingsShell({
       footer={<DrawerSaveFooter dirty={dirty} saveState={saveState} onSave={onSave} />}
     >
       {saveError && (
-        <div className="mx-1 mb-3 rounded-md bg-terminal-red/10 border border-terminal-red/20 p-2 text-xs text-terminal-red">
+        <div className="mx-1 mb-3 rounded-panel bg-mc-danger/10 border border-mc-danger/40 p-2 font-sans text-xs text-mc-danger">
           Save failed: {saveError}
         </div>
       )}
@@ -446,7 +443,7 @@ export function DeptSettingsShell({
   );
 }
 
-// ── Helper to build initial toggle states ────────────────────────────────────
+// ── Helper to build initial toggle states ──────────────────────────────────────────────
 
 export function buildCronStates(agents: AgentCardConfig[]): Record<string, Record<string, boolean>> {
   const r: Record<string, Record<string, boolean>> = {};

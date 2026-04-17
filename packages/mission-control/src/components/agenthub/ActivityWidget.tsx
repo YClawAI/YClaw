@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import type { AHCommit } from '@/lib/agenthub-api';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ActivityWidgetProps {
   /** Recent commits — activity is derived from these. */
@@ -17,7 +17,7 @@ interface ActivityRow {
   isIdle: boolean;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────────────────────────
 
 function formatRelativeTime(iso: string): string {
   if (!iso) return '--';
@@ -73,28 +73,28 @@ function deriveRows(commits: AHCommit[]): ActivityRow[] {
   return rows;
 }
 
-// ─── Bar Component ───────────────────────────────────────────────────────────
+// ─── Bar Component ────────────────────────────────────────────────────────────────────
 
 function ActivityBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
-    <div className="w-24 h-2 bg-terminal-muted/30 rounded-sm overflow-hidden">
+    <div className="w-24 h-2 bg-mc-border/30 rounded-sm overflow-hidden">
       <div className={`h-full rounded-sm ${color}`} style={{ width: `${pct}%` }} />
     </div>
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
+// ─── Main Component ─────────────────────────────────────────────────────────────────
 
 export function ActivityWidget({ commits }: ActivityWidgetProps) {
   const rows = useMemo(() => deriveRows(commits), [commits]);
 
   if (rows.length === 0) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border border-dashed rounded p-4 flex flex-col items-center justify-center gap-2 text-center">
-        <span className="text-2xl text-terminal-dim/40">&#9671;</span>
-        <div className="text-xs font-bold uppercase tracking-widest text-terminal-dim/60">AgentHub Activity</div>
-        <p className="text-[10px] text-terminal-dim/40 max-w-xs">
+      <div className="bg-mc-surface-hover border border-mc-border border-dashed rounded p-4 flex flex-col items-center justify-center gap-2 text-center">
+        <span className="text-2xl text-mc-text-tertiary/40">&#9671;</span>
+        <div className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary/60">AgentHub Activity</div>
+        <p className="text-[10px] text-mc-text-tertiary/40 max-w-xs">
           No AgentHub activity data available. Activity will populate when agents begin pushing to AgentHub.
         </p>
       </div>
@@ -104,33 +104,33 @@ export function ActivityWidget({ commits }: ActivityWidgetProps) {
   const maxCommits = Math.max(...rows.map(r => r.commits24h), 1);
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded">
-      <div className="px-4 py-3 border-b border-terminal-border">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim">
+    <div className="bg-mc-surface-hover border border-mc-border rounded">
+      <div className="px-4 py-3 border-b border-mc-border">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary">
           AgentHub Activity (24h)
         </h3>
       </div>
-      <div className="divide-y divide-terminal-border">
+      <div className="divide-y divide-mc-border">
         {rows.map((row) => (
           <div
             key={row.agentId}
             className={`px-4 py-2 flex items-center gap-3 ${row.isIdle ? 'opacity-40' : ''}`}
           >
-            <span className="text-xs font-mono text-terminal-text w-24 truncate">{row.agentId}</span>
+            <span className="text-xs font-mono text-mc-text w-24 truncate">{row.agentId}</span>
             <div className="flex items-center gap-1.5 flex-1">
-              <ActivityBar value={row.commits24h} max={maxCommits} color="bg-terminal-blue" />
-              <span className="text-[10px] font-mono text-terminal-dim w-6 text-right">{row.commits24h}</span>
+              <ActivityBar value={row.commits24h} max={maxCommits} color="bg-mc-info" />
+              <span className="text-[10px] font-mono text-mc-text-tertiary w-6 text-right">{row.commits24h}</span>
             </div>
-            <span className="text-[10px] font-mono text-terminal-dim w-8 text-right">
+            <span className="text-[10px] font-mono text-mc-text-tertiary w-8 text-right">
               {formatRelativeTime(row.lastActivityAt)}
             </span>
           </div>
         ))}
       </div>
       {/* Legend */}
-      <div className="px-4 py-2 border-t border-terminal-border flex items-center gap-4 text-[10px] text-terminal-dim">
+      <div className="px-4 py-2 border-t border-mc-border flex items-center gap-4 text-[10px] text-mc-text-tertiary">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-sm bg-terminal-blue" />
+          <span className="w-2 h-2 rounded-sm bg-mc-info" />
           commits
         </span>
         <span className="ml-auto">ago</span>

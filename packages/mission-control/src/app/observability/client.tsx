@@ -76,8 +76,8 @@ export function ObservabilityClient({ initialHealth, initialTimeline, initialErr
 
   if (error && !health) {
     return (
-      <div className="bg-terminal-surface border border-terminal-border rounded p-6">
-        <p className="text-xs text-terminal-red font-mono">{error}</p>
+      <div className="bg-mc-surface-hover border border-mc-border rounded p-6">
+        <p className="text-xs text-mc-danger font-mono">{error}</p>
       </div>
     );
   }
@@ -87,8 +87,8 @@ export function ObservabilityClient({ initialHealth, initialTimeline, initialErr
       {/* Row 1: Health + Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Health Overview */}
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             System Health
           </h3>
           {health ? (
@@ -99,19 +99,19 @@ export function ObservabilityClient({ initialHealth, initialTimeline, initialErr
               channels={health.channels}
             />
           ) : (
-            <div className="text-xs text-terminal-dim font-mono">Loading...</div>
+            <div className="text-xs text-mc-text-tertiary font-mono">Loading...</div>
           )}
         </div>
 
         {/* System Stats */}
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             System Stats
           </h3>
           {health ? (
             <SystemStats agents={health.agents} tasks={health.tasks} />
           ) : (
-            <div className="text-xs text-terminal-dim font-mono">Loading...</div>
+            <div className="text-xs text-mc-text-tertiary font-mono">Loading...</div>
           )}
         </div>
       </div>
@@ -119,16 +119,16 @@ export function ObservabilityClient({ initialHealth, initialTimeline, initialErr
       {/* Row 2: Errors + Timeline */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Errors */}
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             Recent Errors
           </h3>
           <ErrorSummary errors={health?.recentErrors ?? []} />
         </div>
 
         {/* Audit Timeline */}
-        <div className="bg-terminal-surface border border-terminal-border rounded p-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-terminal-dim mb-3">
+        <div className="bg-mc-surface-hover border border-mc-border rounded p-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-mc-text-tertiary mb-3">
             Audit Timeline
           </h3>
           <div className="max-h-80 overflow-y-auto">

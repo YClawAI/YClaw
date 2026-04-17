@@ -36,10 +36,10 @@ export function ConversationFlow({ question, onSubmit, loading }: Props) {
   };
 
   return (
-    <div className="bg-terminal-surface border border-terminal-border rounded p-5">
+    <div className="bg-mc-surface-hover border border-mc-border rounded p-5">
       <div className="mb-4">
-        <p className="text-sm text-terminal-text font-mono mb-2">{question.prompt}</p>
-        <p className="text-xs text-terminal-dim">{question.helpText}</p>
+        <p className="text-sm text-mc-text font-mono mb-2">{question.prompt}</p>
+        <p className="text-xs text-mc-text-tertiary">{question.helpText}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -48,7 +48,7 @@ export function ConversationFlow({ question, onSubmit, loading }: Props) {
           onChange={e => setAnswer(e.target.value)}
           placeholder={question.defaultAnswer ?? 'Type your answer...'}
           rows={4}
-          className="w-full bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs text-terminal-text placeholder-terminal-dim focus:outline-none focus:border-terminal-purple resize-y font-mono"
+          className="w-full bg-mc-bg border border-mc-border rounded px-3 py-2 text-xs text-mc-text placeholder-mc-text-tertiary focus:outline-none focus:border-mc-accent resize-y font-mono"
           disabled={loading}
         />
 
@@ -56,7 +56,7 @@ export function ConversationFlow({ question, onSubmit, loading }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-1.5 text-xs font-mono rounded border bg-terminal-purple/20 text-terminal-purple border-terminal-purple/40 hover:bg-terminal-purple/30 transition-colors disabled:opacity-50"
+            className="px-4 py-1.5 text-xs font-mono rounded border bg-mc-accent/20 text-mc-accent border-mc-accent/40 hover:bg-mc-accent/30 transition-colors disabled:opacity-50"
           >
             {loading ? 'Processing...' : question.stageComplete ? 'Complete Stage' : 'Continue'}
           </button>
@@ -66,7 +66,7 @@ export function ConversationFlow({ question, onSubmit, loading }: Props) {
               type="button"
               onClick={useDefault}
               disabled={loading}
-              className="px-3 py-1.5 text-xs font-mono rounded border border-terminal-border text-terminal-dim hover:text-terminal-text transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-mono rounded border border-mc-border text-mc-text-tertiary hover:text-mc-text transition-colors disabled:opacity-50"
             >
               Use recommended default
             </button>

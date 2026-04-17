@@ -23,14 +23,14 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 const STATUS_DOT: Record<string, string> = {
-  completed: 'bg-terminal-blue',
-  merged: 'bg-terminal-blue',
-  active: 'bg-terminal-green',
-  running: 'bg-terminal-green',
-  failed: 'bg-terminal-red',
-  error: 'bg-terminal-red',
-  pending: 'bg-terminal-yellow',
-  queued: 'bg-terminal-yellow',
+  completed: 'bg-mc-info',
+  merged: 'bg-mc-info',
+  active: 'bg-mc-success',
+  running: 'bg-mc-success',
+  failed: 'bg-mc-danger',
+  error: 'bg-mc-danger',
+  pending: 'bg-mc-warning',
+  queued: 'bg-mc-warning',
 };
 
 export function AgentEventFeed({ agentId, initialRuns }: { agentId: string; initialRuns: RunEntry[] }) {
@@ -47,27 +47,27 @@ export function AgentEventFeed({ agentId, initialRuns }: { agentId: string; init
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-terminal-purple">Live Feed</h2>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-mc-accent">Live Feed</h2>
         <span
-          className={`inline-block w-1.5 h-1.5 rounded-full ${connected ? 'bg-terminal-green animate-pulse' : 'bg-terminal-dim'}`}
+          className={`inline-block w-1.5 h-1.5 rounded-full ${connected ? 'bg-mc-success animate-pulse' : 'bg-mc-text-tertiary'}`}
           title={connected ? 'Live' : 'Connecting...'}
         />
       </div>
       {runs.length === 0 ? (
-        <div className="text-xs text-terminal-dim">No recent events</div>
+        <div className="text-xs text-mc-text-tertiary">No recent events</div>
       ) : (
         <div className="space-y-1">
           {runs.slice(0, 10).map((run, i) => {
-            const dot = STATUS_DOT[run.status?.toLowerCase()] ?? 'bg-terminal-dim';
+            const dot = STATUS_DOT[run.status?.toLowerCase()] ?? 'bg-mc-text-tertiary';
             return (
               <div key={`${run.createdAt}-${i}`} className="flex items-center gap-2 text-xs py-1">
                 <span className={`inline-block w-1.5 h-1.5 rounded-full ${dot}`} />
-                <span className="text-terminal-text">{run.status}</span>
-                {run.taskId && <span className="text-terminal-dim font-mono truncate max-w-[140px]">{run.taskId}</span>}
+                <span className="text-mc-text">{run.status}</span>
+                {run.taskId && <span className="text-mc-text-tertiary font-mono truncate max-w-[140px]">{run.taskId}</span>}
                 {run.cost?.totalUsd != null && (
-                  <span className="text-terminal-green">${run.cost.totalUsd.toFixed(4)}</span>
+                  <span className="text-mc-success">${run.cost.totalUsd.toFixed(4)}</span>
                 )}
-                <span className="ml-auto text-terminal-dim">{formatTimeAgo(run.createdAt)}</span>
+                <span className="ml-auto text-mc-text-tertiary">{formatTimeAgo(run.createdAt)}</span>
               </div>
             );
           })}

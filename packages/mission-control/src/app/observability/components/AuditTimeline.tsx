@@ -22,9 +22,12 @@ interface AuditTimelineProps {
   initialHasMore: boolean;
 }
 
+// Pre-flip used purple for operator + cyan for execution; mechanical flip
+// collapsed both to mc-accent. Route operator to mc-dept-finance (only
+// iOS-palette purple) to preserve the two-way source distinction.
 const SOURCE_COLORS = {
-  operator: 'text-terminal-purple',
-  execution: 'text-terminal-cyan',
+  operator: 'text-mc-dept-finance',
+  execution: 'text-mc-accent',
 } as const;
 
 export function AuditTimeline({ initialEvents, initialCursor, initialHasMore }: AuditTimelineProps) {
@@ -54,7 +57,7 @@ export function AuditTimeline({ initialEvents, initialCursor, initialHasMore }: 
 
   if (events.length === 0) {
     return (
-      <div className="text-xs text-terminal-dim font-mono py-2">
+      <div className="text-xs text-mc-text-tertiary font-mono py-2">
         No audit events
       </div>
     );
@@ -69,27 +72,27 @@ export function AuditTimeline({ initialEvents, initialCursor, initialHasMore }: 
         const sourceColor = SOURCE_COLORS[event.source];
 
         return (
-          <div key={event.id} className="flex items-start gap-2 text-xs font-mono py-1 border-b border-terminal-border/30">
-            <span className="text-terminal-dim shrink-0">{time}</span>
+          <div key={event.id} className="flex items-start gap-2 text-xs font-mono py-1 border-b border-mc-border/30">
+            <span className="text-mc-text-tertiary shrink-0">{time}</span>
             <span className={`shrink-0 ${sourceColor}`}>
               {event.source === 'operator' ? 'OP' : 'EX'}
             </span>
             <div className="flex-1 min-w-0">
-              <span className="text-terminal-text">{event.action}</span>
+              <span className="text-mc-text">{event.action}</span>
               {event.operatorId && (
-                <span className="text-terminal-purple ml-2">{event.operatorId}</span>
+                <span className="text-mc-dept-finance ml-2">{event.operatorId}</span>
               )}
               {event.agentId && (
-                <span className="text-terminal-cyan ml-2">{event.agentId}</span>
+                <span className="text-mc-accent ml-2">{event.agentId}</span>
               )}
               {event.decision === 'denied' && (
-                <span className="text-terminal-red ml-2">DENIED</span>
+                <span className="text-mc-danger ml-2">DENIED</span>
               )}
               {event.errorCode && (
-                <span className="text-terminal-orange ml-2">{event.errorCode}</span>
+                <span className="text-mc-blocked ml-2">{event.errorCode}</span>
               )}
               {event.message && (
-                <div className="text-terminal-dim truncate">{event.message}</div>
+                <div className="text-mc-text-tertiary truncate">{event.message}</div>
               )}
             </div>
           </div>
@@ -100,7 +103,7 @@ export function AuditTimeline({ initialEvents, initialCursor, initialHasMore }: 
         <button
           onClick={loadMore}
           disabled={loading}
-          className="w-full py-2 text-xs font-mono text-terminal-blue hover:text-terminal-text transition-colors disabled:opacity-50"
+          className="w-full py-2 text-xs font-mono text-mc-info hover:text-mc-text transition-colors disabled:opacity-50"
         >
           {loading ? 'Loading...' : 'Load more'}
         </button>
