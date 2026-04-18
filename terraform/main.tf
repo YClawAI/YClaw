@@ -895,7 +895,8 @@ resource "aws_ecs_task_definition" "ao" {
       ]
 
       secrets = [
-        { name = "GITHUB_TOKEN", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:GITHUB_TOKEN::" },
+        # GITHUB_TOKEN removed — AO uses GitHub App auth (GITHUB_APP_ID/PRIVATE_KEY/INSTALLATION_ID).
+        # Injecting GITHUB_TOKEN conflicts with the App token flow and crashes the entrypoint.
         { name = "ANTHROPIC_API_KEY", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:ANTHROPIC_API_KEY::" },
         { name = "REDIS_URL", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:REDIS_URL::" },
         { name = "OPENAI_API_KEY", valueFrom = "${aws_secretsmanager_secret.agent_secrets.arn}:OPENAI_API_KEY::" },
