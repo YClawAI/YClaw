@@ -150,3 +150,4 @@ jobs:
 
   # TODO(release): wire GHCR docker publish once root Dockerfile is verified to
   # build cleanly without internal infra. Until then, releases ship source-only.
+  # Tracked in: https://github.com/YClawAI/YClaw/issues/148
