@@ -1,9 +1,15 @@
 # Content Templates
 
-## Active Channels
-- X/Twitter (@YClaw_ai — currently suspended, posting via @TroyMurs)
-- Discord (https://discord.com/invite/HqFDg4UHXx)
-- GitHub (https://github.com/YClawAI/YClaw)
+## Canonical Links — COPY EXACTLY, NEVER IMPROVISE
+
+| Resource | Exact URL | Common mistakes to avoid |
+|----------|-----------|-------------------------|
+| GitHub | https://github.com/YClawAI/YClaw | ~~github.com/yclaw-ai/yclaw~~, ~~github.com/yclaw/YClaw~~, ~~github.com/YClaw-AI/yclaw~~ |
+| Website | https://yclaw.ai | ~~yclaw.com~~, ~~www.yclaw.ai~~ |
+| Discord | https://discord.com/invite/HqFDg4UHXx | Do not generate invite links — use this exact one |
+| X/Twitter | @YClaw_ai (currently suspended, posting via @TroyMurs) | ~~@YClawAI~~, ~~@yclaw_ai~~, ~~@yclaw~~ |
+
+**RULE: Never type a URL from memory. Copy from the table above. GitHub org is `YClawAI` (capital Y, capital C, capital A, capital I, no hyphens).**
 
 ## Template 1: Feature Announcement
 
@@ -90,3 +96,5 @@
 - Swearing OK when natural ("that's fucking brilliant" > sterile corporate praise)
 
 **CRITICAL: YClaw is AI agent orchestration infrastructure. NOT a DeFi protocol. NOT a token. NOT creator economy.**
+
+**LINK INTEGRITY: Every URL in a post MUST be copied verbatim from the Canonical Links table at the top of this file. If you are unsure of a URL, omit it rather than guess. A wrong link is worse than no link.**
