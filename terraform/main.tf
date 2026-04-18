@@ -888,7 +888,7 @@ resource "aws_ecs_task_definition" "ao" {
       environment = [
         { name = "YCLAW_AO_PROJECT", value = "yclaw" },
         { name = "NODE_ENV", value = var.environment },
-        { name = "YCLAW_REPOS", value = "YClawAI/YClaw" },
+        { name = "YCLAW_REPOS", value = "YClawAI/YClaw YClawAI/yclaw-site" },
         { name = "YCLAW_AO_OVERLAY_REPO", value = "YClawAI/YClaw" },
         { name = "AO_CALLBACK_URL", value = "http://yclaw-agents.yclaw.internal:3000/api/ao/callback" },
         { name = "AO_CALLBACK_FALLBACK_URL", value = "https://agents.yclaw.ai/api/ao/callback" },
