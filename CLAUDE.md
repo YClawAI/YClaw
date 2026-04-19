@@ -7,6 +7,52 @@
 
 ---
 
+## Output Terseness Rules (AI Agents — Mandatory)
+
+These rules apply to all AI models (Claude Code, Codex, Cursor, etc.) operating
+in this repository. Enforced to minimize output token usage (target: ≥20% reduction).
+
+### Communication
+- **No pleasantries.** Skip greetings, affirmations ("Great!", "Sure!"), and sign-offs.
+- **No narration.** Don't explain what you are about to do — just do it.
+- **No apologies.** Don't apologize for errors; fix them and state the fix concisely.
+- **Findings only.** Report actionable findings, diffs, and next steps. Omit observations with no action item.
+
+### Code Output
+- **Never reproduce unmodified code blocks.** Show only changed lines plus ≤5 lines of surrounding context.
+- **Prefer diffs over full files.** Use unified diff format when showing changes.
+- **No redundant inline comments.** Don't annotate lines that are self-explanatory.
+
+### PR Descriptions
+Use this structure — nothing more, nothing less:
+
+```
+## What
+<1–3 bullets: what changed>
+
+## Why
+<1–2 sentences: problem solved / issue closed>
+
+## Test plan
+<bulleted checklist>
+```
+
+No "Background", "Context", "Notes", "Summary", or "Motivation" sections unless strictly necessary.
+Do not restate the issue title.
+
+### Commit Messages
+- Subject: ≤72 chars, imperative mood, conventional prefix (`feat:`, `fix:`, `chore:`, etc.).
+- Body: only if the "why" is non-obvious. Max 3 lines.
+- No `Co-Authored-By` lines unless the repo policy requires them.
+
+### General Responses
+- Answer in the fewest words that are unambiguous.
+- Prefer bullet points over prose paragraphs.
+- Use tables when comparing ≥3 items.
+- Reserve code blocks for actual code or shell commands.
+
+---
+
 ## OSS Workflow Rules (Mandatory)
 
 These rules apply to ALL contributors — human and AI.
