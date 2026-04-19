@@ -148,6 +148,66 @@ jobs:
           fi
           gh release create "$TAG" "${FLAGS[@]}"
 
-  # TODO(release): wire GHCR docker publish once root Dockerfile is verified to
-  # build cleanly without internal infra. Until then, releases ship source-only.
-  # Tracked in: https://github.com/YClawAI/YClaw/issues/148
+  publish-docker:
+    name: Publish Docker image (GHCR)
+    needs: [validate, build-test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write       # push to GHCR
+      attestations: write   # SLSA provenance attestation
+      id-token: write       # OIDC token for attest-build-provenance
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        with:
+          egress-policy: audit
+          allowed-endpoints: >
+            github.com:443
+            api.github.com:443
+            ghcr.io:443
+            pkg-containers.githubusercontent.com:443
+            objects.githubusercontent.com:443
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca # v3.9.0
+
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: ghcr.io/yclawai/yclaw
+          tags: |
+            type=raw,value=${{ needs.validate.outputs.tag }}
+            type=raw,value=latest,enable=${{ inputs.prerelease != 'true' }}
+
+      - name: Build and push to GHCR
+        id: push
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=release-docker
+          cache-to: type=gha,mode=max,scope=release-docker
+
+      - name: Attest build provenance (SLSA)
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-name: ghcr.io/yclawai/yclaw
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
