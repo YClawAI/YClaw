@@ -1,7 +1,9 @@
 import { TwitterApi } from 'twitter-api-v2';
+import type { Redis } from 'ioredis';
 import type { ActionResult, ActionExecutor } from './types.js';
 import type { ToolDefinition } from '../config/schema.js';
 import { createLogger } from '../logging/logger.js';
+import { checkTwitterDedup, recordPostedTweet } from './twitter-dedup.js';
 
 const logger = createLogger('twitter-executor');
 
@@ -25,8 +27,11 @@ const logger = createLogger('twitter-executor');
 export class TwitterExecutor implements ActionExecutor {
   readonly name = 'twitter';
   private client: TwitterApi | null = null;
+  private readonly redis: Redis | null;
 
-  constructor() {
+  constructor(redis?: Redis | null) {
+    this.redis = redis ?? null;
+
     const appKey = process.env.TWITTER_APP_KEY;
     const appSecret = process.env.TWITTER_APP_SECRET;
     const accessToken = process.env.TWITTER_ACCESS_TOKEN;
@@ -210,11 +215,32 @@ export class TwitterExecutor implements ActionExecutor {
       return { success: false, error: 'Missing required parameter: text' };
     }
 
+    // ── Dedup gate ─────────────────────────────────────────────────────────
+    const dedup = await checkTwitterDedup(this.redis, text);
+    if (dedup.isDuplicate) {
+      const simPct = dedup.similarity !== undefined
+        ? `${(dedup.similarity * 100).toFixed(1)}%`
+        : 'exact';
+      logger.warn('Tweet blocked by dedup gate', {
+        similarity: simPct,
+        textPreview: text.slice(0, 80),
+      });
+      return {
+        success: false,
+        error: `Duplicate post blocked by dedup gate (similarity: ${simPct}). ` +
+               'Near-identical content was posted within the last 12 hours.',
+      };
+    }
+
     logger.info('Posting tweet', { textLength: text.length });
 
     try {
       const result = await this.client!.v2.tweet(text);
       logger.info('Tweet posted successfully', { tweetId: result.data.id });
+
+      // Record in dedup store so subsequent near-identical posts are blocked
+      await recordPostedTweet(this.redis, text);
+
       return {
         success: true,
         data: { tweetId: result.data.id, text: result.data.text },
@@ -233,6 +259,24 @@ export class TwitterExecutor implements ActionExecutor {
     const tweets = params.tweets as string[] | undefined;
     if (!tweets || !Array.isArray(tweets) || tweets.length === 0) {
       return { success: false, error: 'Missing required parameter: tweets (non-empty array of strings)' };
+    }
+
+    // ── Dedup gate (check against the combined thread text) ────────────────
+    const threadText = tweets.join('\n');
+    const dedup = await checkTwitterDedup(this.redis, threadText);
+    if (dedup.isDuplicate) {
+      const simPct = dedup.similarity !== undefined
+        ? `${(dedup.similarity * 100).toFixed(1)}%`
+        : 'exact';
+      logger.warn('Thread blocked by dedup gate', {
+        similarity: simPct,
+        tweetCount: tweets.length,
+      });
+      return {
+        success: false,
+        error: `Duplicate thread blocked by dedup gate (similarity: ${simPct}). ` +
+               'Near-identical content was posted within the last 12 hours.',
+      };
     }
 
     logger.info('Posting thread', { tweetCount: tweets.length });
@@ -263,6 +307,9 @@ export class TwitterExecutor implements ActionExecutor {
 
         logger.info(`Thread tweet ${i + 1}/${tweets.length} posted`, { tweetId: result.data.id });
       }
+
+      // Record the combined thread text so near-identical threads are blocked
+      await recordPostedTweet(this.redis, threadText);
 
       return {
         success: true,
