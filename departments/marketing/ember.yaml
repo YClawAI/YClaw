@@ -29,6 +29,11 @@ triggers:
   - type: cron
     schedule: "10 13 * * *"
     task: daily_standup
+    model:
+      provider: anthropic
+      model: claude-haiku-4-5
+      temperature: 0.2
+      maxTokens: 4096
   - type: cron
     schedule: "0 14 * * 1-5"       # Weekdays 14:00 UTC
     task: daily_content_batch
