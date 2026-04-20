@@ -8,6 +8,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { getToken } from './token-manager.mjs';
 import { AoQueueStore } from './queue-store.mjs';
 import { registerProject, listProjects } from './project-store.mjs';
+import { defaultLogStore, buildOffloadNotice } from './log-store.mjs';
 import {
   buildSpawnIssueBody,
   buildSpawnIssueTitle,
@@ -43,6 +44,20 @@ const SESSION_POLL_INTERVAL_MS = parseInt(process.env.AO_SESSION_POLL_INTERVAL_M
 const SESSION_POLL_TIMEOUT_MS = parseInt(process.env.AO_SESSION_POLL_TIMEOUT_MS || '1200000', 10);
 const SESSION_HARVEST_FALLBACK_MS = parseInt(process.env.AO_SESSION_HARVEST_FALLBACK_MS || '600000', 10);
 const SESSION_SWEEP_INTERVAL_MS = parseInt(process.env.AO_SESSION_SWEEP_INTERVAL_MS || '60000', 10);
+
+// --- Log offloading (Context Mode) ---
+// Directive/context payloads larger than this threshold are sandboxed into the
+// log store. Claude receives a compact summary + retrieval URLs instead of the
+// raw content. This prevents CI logs and verbose build output from filling up
+// Claude's context window in long-running agent sessions.
+const LOG_OFFLOAD_THRESHOLD_BYTES = parseInt(
+  process.env.AO_LOG_OFFLOAD_THRESHOLD_BYTES || String(8 * 1024), // 8 KB default
+  10,
+);
+// The URL Claude uses to retrieve log excerpts — defaults to the bridge itself.
+const LOG_RETRIEVAL_BASE_URL = process.env.AO_LOG_RETRIEVAL_URL || `http://localhost:${parseInt(process.env.AO_BRIDGE_PORT || '8420')}`;
+// How often to sweep old log files. Default: every 6 hours.
+const LOG_CLEANUP_INTERVAL_MS = parseInt(process.env.AO_LOG_CLEANUP_INTERVAL_MS || String(6 * 60 * 60 * 1000), 10);
 
 // --- Track active spawns for cleanup ---
 const activeProcesses = new Map();

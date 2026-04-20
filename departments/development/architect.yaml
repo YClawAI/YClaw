@@ -32,7 +32,7 @@ triggers:
     task: daily_standup
     model:
       provider: anthropic
-      model: claude-sonnet-4-6
+      model: claude-haiku-4-5
       maxTokens: 4096
       temperature: 0.2
 

@@ -21,9 +21,19 @@ triggers:
   - type: cron
     schedule: 22 13 * * *
     task: daily_standup
+    model:
+      provider: anthropic
+      model: claude-haiku-4-5
+      temperature: 0.2
+      maxTokens: 4096
   - type: cron
     schedule: 0 7 * * *
     task: treasury_check
+    model:
+      provider: anthropic
+      model: claude-haiku-4-5
+      temperature: 0
+      maxTokens: 4096
   - type: cron
     schedule: 0 8 * * 1
     task: weekly_spend
