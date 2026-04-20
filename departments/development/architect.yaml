@@ -118,6 +118,11 @@ triggers:
     event: architect:rebase_needed
     task: evaluate_rebase
 
+  # New repo onboarding
+  - type: event
+    event: github:repository_created
+    task: onboard_new_repo
+
   - type: event
     event: claudeception:reflect
     task: self_reflection
@@ -129,12 +134,18 @@ triggers:
 
 actions:
   - github:get_contents
+  - github:get_multiple_files
   - github:get_diff
   - github:get_issue
   - github:create_issue
+  - github:close_issue
   - github:list_issues
   - github:update_issue
+  - github:get_pr
+  - github:list_prs
   - github:pr_comment
+  - github:pr_review
+  - github:compare_commits
   - github:add_labels
   - github:remove_label
   - ao:status
@@ -147,6 +158,8 @@ actions:
   - discord:react
   - event:publish
   - deploy:assess
+  - deploy:architect_approve
+  - deploy:status
 
 data_sources: []
 
@@ -163,6 +176,7 @@ event_subscriptions:
   - strategist:architect_directive
   - deploy:review
   - architect:rebase_needed
+  - github:repository_created
 
 event_publications:
   - standup:report
