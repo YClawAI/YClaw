@@ -2,13 +2,28 @@
 
 **Directive:** Resume X content cadence. Target 5-7 posts/week.  
 **Source:** strategist:ember_directive (content_cadence, P1)  
-**Status:** All approved. Queued pending Twitter credential restoration (Issue #127).  
+**Status:** All approved. Queued pending Twitter credential restoration (Issue #175).  
 **Approved by:** Reviewer (auto-review gate)
 
 ---
 
+## ⚠️ Pipeline Status — 2026-04-21
+
+**Twitter 401 blocker persists.** Issue #127 was closed on GitHub but API credentials have NOT been rotated in the environment. Issue #175 created to track.
+
+**Manual posts by TroyMurs (2026-04-20):**
+- `2046229202723021137` — social-network-16x9 tweet (score 94) ✅ LIVE
+- `2046229229549805817` — Mizuho Agent Factory tweet (score 92) ✅ LIVE  
+- `2046228795040870575` — Autonomous oversight/Reviewer gate tweet ✅ LIVE
+
+**Queued batch (7 posts, all approved, scores 92-95):** Awaiting credential rotation.
+
+**Human action required:** Rotate Twitter API credentials in vault/env config. Reference: https://github.com/YClawAI/YClaw/issues/175
+
+---
+
 ## Post 1 — Dev Velocity
-**Review ID:** a1c16a4e-01f0-43e7-b1e6-51691d21ccac | **Score:** 92 | **Angle:** autonomous dev pipeline output
+**Review ID:** a1c16a4e-01f0-43e7-b1e6-51691d21ccac | **Score:** 92 | **Angle:** autonomous dev pipeline output | **Status:** Queued
 
 > YClaw's agent org closed 15 GitHub issues last week.
 >
@@ -21,7 +36,7 @@
 ---
 
 ## Post 2 — Org vs Runner Positioning
-**Review ID:** d09c457a-68f5-4025-8e58-16d42611a721 | **Score:** 95 | **Angle:** agent org infrastructure differentiation
+**Review ID:** d09c457a-68f5-4025-8e58-16d42611a721 | **Score:** 95 | **Angle:** agent org infrastructure differentiation | **Status:** Queued
 
 > Most agent frameworks give you a runner.
 >
@@ -37,7 +52,7 @@
 ---
 
 ## Post 3 — Self-Modifying Agents with Governance
-**Review ID:** e9a4a9a2-fc0b-4b4a-9354-fecdb1bd2e29 | **Score:** 92 | **Angle:** self-modification + safety rails
+**Review ID:** e9a4a9a2-fc0b-4b4a-9354-fecdb1bd2e29 | **Score:** 92 | **Angle:** self-modification + safety rails | **Status:** Queued
 
 > YClaw agents can rewrite their own system prompts, update their schedules, and switch LLM providers mid-run.
 >
@@ -50,7 +65,7 @@
 ---
 
 ## Post 4 — Autonomous Dev Pipeline (How It Works)
-**Review ID:** 1740dd83-4275-42ac-8e83-992cba024311 | **Score:** 92 | **Angle:** pipeline mechanics walkthrough
+**Review ID:** 1740dd83-4275-42ac-8e83-992cba024311 | **Score:** 92 | **Angle:** pipeline mechanics walkthrough | **Status:** Queued
 
 > How YClaw's autonomous dev pipeline works:
 >
@@ -65,7 +80,7 @@
 ---
 
 ## Post 5 — Model-Agnostic / No Lock-In
-**Review ID:** e427d220-8b13-4778-8412-541cb79920ac | **Score:** 92 | **Angle:** model-agnostic positioning vs vendor lock-in
+**Review ID:** e427d220-8b13-4778-8412-541cb79920ac | **Score:** 92 | **Angle:** model-agnostic positioning vs vendor lock-in | **Status:** Queued
 
 > The lock-in problem with AI agent platforms isn't the features. It's the model dependency.
 >
@@ -81,7 +96,7 @@
 ---
 
 ## Post 6 — Thread: What It Takes to Run an AI Agent Org
-**Review ID:** 1afcb5f1-d8f3-4686-943c-e7e20248aeff | **Score:** 92 | **Angle:** technical deep dive thread (5 tweets)
+**Review ID:** 1afcb5f1-d8f3-4686-943c-e7e20248aeff | **Score:** 92 | **Angle:** technical deep dive thread (5 tweets) | **Status:** Queued
 
 **Tweet 1:**
 > Thread: What it actually takes to run an AI agent organization (not a demo)
@@ -118,7 +133,7 @@
 ---
 
 ## Post 7 — Weekend Community Post
-**Review ID:** e7cb9657-db52-4bcb-88c3-1377321286d0 | **Score:** 92 | **Angle:** developer invite, community-focused
+**Review ID:** e7cb9657-db52-4bcb-88c3-1377321286d0 | **Score:** 92 | **Angle:** developer invite, community-focused | **Status:** Queued
 
 > If you're building with AI agents and want to see how a real multi-agent org is structured — the YClaw repo is public.
 >
@@ -131,17 +146,19 @@
 
 ---
 
-## Publishing Schedule (Queued)
+## Publishing Schedule
 
 | Post | Day | Time (UTC) | Status |
 |------|-----|------------|--------|
-| Post 1 (Dev velocity) | Mon Apr 21 | 14:00 | Queued — Twitter 401 |
-| Post 2 (Org vs runner) | Tue Apr 22 | 14:00 | Queued — Twitter 401 |
-| Post 3 (Self-modifying) | Wed Apr 23 | 14:00 | Queued — Twitter 401 |
-| Post 4 (Pipeline how-to) | Thu Apr 24 | 14:00 | Queued — Twitter 401 |
-| Post 5 (No lock-in) | Fri Apr 25 | 14:00 | Queued — Twitter 401 |
-| Post 6 (Thread) | Midweek | 16:30 | Queued — Twitter 401 |
-| Post 7 (Weekend) | Sat/Sun | 15:00 | Queued — Twitter 401 |
+| Post 1 (Dev velocity) | Mon Apr 21 | 14:00 | Queued — Issue #175 |
+| Post 2 (Org vs runner) | Tue Apr 22 | 14:00 | Queued — Issue #175 |
+| Post 3 (Self-modifying) | Wed Apr 23 | 14:00 | Queued — Issue #175 |
+| Post 4 (Pipeline how-to) | Thu Apr 24 | 14:00 | Queued — Issue #175 |
+| Post 5 (No lock-in) | Fri Apr 25 | 14:00 | Queued — Issue #175 |
+| Post 6 (Thread) | Midweek | 16:30 | Queued — Issue #175 |
+| Post 7 (Weekend) | Sat/Sun | 15:00 | Queued — Issue #175 |
 
 **Blocker:** Twitter/X credentials returning 401. Issue #127 closed on GitHub but env not yet rotated.  
-Human action required: rotate Twitter API credentials in environment config.
+**Tracking:** https://github.com/YClawAI/YClaw/issues/175  
+**Human action required:** Rotate Twitter API credentials in vault/env config.  
+**Content status:** All 7 posts brand/quality clean. No revision needed. Ready to fire on credential restoration.
