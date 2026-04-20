@@ -129,12 +129,41 @@ envsubst '${AO_AUTH_TOKEN}' < /app/agent-orchestrator.yaml > /tmp/ao-config-rend
 cp /tmp/ao-config-rendered.yaml /app/agent-orchestrator.yaml
 rm -f /tmp/ao-config-rendered.yaml
 
+# --- Ensure AO state directory exists (needed for project store) ---
+mkdir -p /data/ao-state
+chown -R ao:ao /data/ao-state 2>/dev/null || true
+
 # --- Clone project repos into workspace (first run only) ---
-# Configure YCLAW_REPOS as a space-separated list of repos to clone, e.g.:
+# YCLAW_REPOS is now bootstrap-only. Repos registered at runtime via
+# POST /api/projects/register are persisted in /data/ao-state/projects.json
+# and merged with bootstrap repos automatically.
+#
+# Bootstrap usage (pre-clone for performance):
 #   YCLAW_REPOS="your-org/project-a your-org/project-b"
-# If not set, the entrypoint skips repo cloning (configure in agent-orchestrator.yaml instead).
-if [ -n "$YCLAW_REPOS" ]; then
-  for repo in $YCLAW_REPOS; do
+# If not set, entrypoint skips bootstrap cloning.
+
+# Collect all repos to clone: bootstrap (YCLAW_REPOS) + persisted store
+ALL_REPOS="$YCLAW_REPOS"
+if [ -f "/data/ao-state/projects.json" ]; then
+  PERSISTED_REPOS=$(node -e "
+    try {
+      const fs = require('fs');
+      const data = JSON.parse(fs.readFileSync('/data/ao-state/projects.json', 'utf-8'));
+      if (data && data.projects) {
+        console.log(Object.values(data.projects).map(p => p.repo).join(' '));
+      }
+    } catch (e) {
+      // Ignore — empty or malformed store
+    }
+  " 2>/dev/null || true)
+  if [ -n "$PERSISTED_REPOS" ]; then
+    echo "[ao-entrypoint] Persisted project store: $PERSISTED_REPOS"
+    ALL_REPOS="$ALL_REPOS $PERSISTED_REPOS"
+  fi
+fi
+
+if [ -n "$ALL_REPOS" ]; then
+  for repo in $ALL_REPOS; do
     repo_name=$(echo "$repo" | cut -d'/' -f2)
     repo_slug_name=$(repo_slug "$repo")
     repo_url="https://github.com/${repo}.git"
@@ -187,10 +216,11 @@ if [ -n "$YCLAW_REPOS" ]; then
   done
 fi
 
-# --- Validate static repo path contracts before booting AO ---
+# --- Validate repo path contracts before booting AO ---
+# Validates both bootstrap repos (YCLAW_REPOS) and persisted store repos (ALL_REPOS).
 VALIDATION_WARNINGS=0
-if [ -n "$YCLAW_REPOS" ]; then
-  for repo in $YCLAW_REPOS; do
+if [ -n "$ALL_REPOS" ]; then
+  for repo in $ALL_REPOS; do
     expected="/data/worktrees/$(repo_slug "$repo")"
     yaml_path=$(grep -A5 "repo: ${repo}" /app/agent-orchestrator.yaml | grep 'path:' | awk '{print $2}' | head -1)
     if [ -n "$yaml_path" ] && [ "$yaml_path" != "$expected" ]; then
@@ -212,7 +242,7 @@ fi
 if [ "$VALIDATION_WARNINGS" -gt 0 ]; then
   echo "[ao-entrypoint] Repo path contract validation: ${VALIDATION_WARNINGS} warning(s), continuing startup."
 else
-  echo "[ao-entrypoint] Static repo path contract validation passed."
+  echo "[ao-entrypoint] Repo path contract validation passed."
 fi
 
 # --- Overlay AO runtime files from the freshly-pulled repo ---
@@ -223,7 +253,7 @@ fi
 if [ -n "$YCLAW_AO_OVERLAY_REPO" ]; then
   AO_SRC="/data/worktrees/$(repo_slug "$YCLAW_AO_OVERLAY_REPO")/ao"
   if [ -d "$AO_SRC" ]; then
-    for f in ao-bridge-server.mjs queue-store.mjs token-manager.mjs runtime-process.mjs agent-orchestrator.yaml; do
+    for f in ao-bridge-server.mjs queue-store.mjs token-manager.mjs runtime-process.mjs project-store.mjs agent-orchestrator.yaml; do
       if [ -f "$AO_SRC/$f" ]; then
         cp "$AO_SRC/$f" "/app/$f"
       fi
