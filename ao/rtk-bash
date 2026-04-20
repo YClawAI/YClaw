@@ -1,0 +1,22 @@
+#!/bin/bash
+# rtk-bash — RTK-wrapped bash for LLM tool execution.
+#
+# Claude Code sets SHELL to this wrapper so every tool invocation
+# routes through the RTK output filter before the result enters
+# Claude's context window. 60-90% context reduction on verbose
+# commands (npm install, test suites, lint).
+#
+# Toggle:
+#   RTK_ENABLED=1 (default) — filter active
+#   RTK_ENABLED=0            — bypass; raw bash output (for debugging)
+#
+# Raw output is always retained by the CloudWatch log driver on
+# the container's stdout/stderr stream — RTK only filters what
+# Claude sees, not what is stored.
+set +e
+
+if [ "${RTK_ENABLED:-1}" != "1" ] || ! command -v rtk >/dev/null 2>&1; then
+  exec /bin/bash "$@"
+fi
+
+exec rtk -- bash "$@"
