@@ -14,6 +14,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildCodeGraph, estimateTokens } from './code-graph.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -136,14 +137,26 @@ export async function runCodexReview(worktreePath, baseBranch, issueNumber) {
 
   const customPrompt = loadReviewPrompt();
 
+  // Build targeted code graph — extract only the functions containing changed
+  // lines, plus their call sites. Injected into Codex instructions to reduce
+  // tokens loaded vs. dumping whole files (expected 3–10× reduction).
+  const codeGraph = await buildCodeGraph(worktreePath, baseBranch).catch((err) => {
+    console.warn(`[review-gate] Code graph build skipped: ${err?.message}`);
+    return null;
+  });
+  if (codeGraph) {
+    console.log(`[review-gate] Code graph built for #${issueNumber || '?'} (≈${estimateTokens(codeGraph)} tokens)`);
+  }
+
   // Codex CLI does not allow a positional [PROMPT] when --base is used.
-  // Write the custom prompt to .codex/instructions.md in the worktree so Codex
+  // Write the custom prompt (+ code graph) to .codex/instructions.md so Codex
   // picks it up automatically as project-level instructions.
-  if (customPrompt) {
+  const instrParts = [customPrompt, codeGraph].filter(Boolean);
+  if (instrParts.length > 0) {
     try {
       const instrDir = join(worktreePath, '.codex');
       mkdirSync(instrDir, { recursive: true });
-      writeFileSync(join(instrDir, 'instructions.md'), customPrompt + '\n');
+      writeFileSync(join(instrDir, 'instructions.md'), instrParts.join('\n\n') + '\n');
     } catch (err) {
       console.warn(`[review-gate] Failed to write .codex/instructions.md: ${err?.message}`);
     }
@@ -339,9 +352,10 @@ export function evaluateReviewResult(reviewOutput) {
  * @param {string} worktreePath
  * @param {ReviewFinding[]} findings
  * @param {number|undefined} issueNumber
+ * @param {string} [baseBranch]  Base branch for code graph diff (default: 'HEAD~1')
  * @returns {Promise<boolean>}  true if remediation succeeded (committed changes)
  */
-export async function runRemediation(worktreePath, findings, issueNumber) {
+export async function runRemediation(worktreePath, findings, issueNumber, baseBranch = 'HEAD~1') {
   // Check for stale index lock
   const lockPath = join(worktreePath, '.git', 'index.lock');
   if (existsSync(lockPath)) {
@@ -357,7 +371,16 @@ export async function runRemediation(worktreePath, findings, issueNumber) {
     .map(f => `- ${f.title}: ${f.body?.slice(0, 200) || 'No details'}${f.code_location ? ` (${f.code_location.absolute_file_path}:${f.code_location.line_range?.start || '?'})` : ''}`)
     .join('\n');
 
-  const prompt = `A code review found the following issues. Fix them:\n\n${findingsSummary}\n\nMake minimal, targeted fixes. Do not refactor unrelated code. Do not commit or push — just edit the files.`;
+  // Build targeted code graph so Claude operates on the relevant functions only.
+  const codeGraph = await buildCodeGraph(worktreePath, baseBranch).catch(() => null);
+  const graphHeader = codeGraph
+    ? `${codeGraph}\n\n---\n\n`
+    : '';
+  if (codeGraph) {
+    console.log(`[review-gate] Remediation code graph ready (≈${estimateTokens(codeGraph)} tokens)`);
+  }
+
+  const prompt = `${graphHeader}A code review found the following issues. Fix them:\n\n${findingsSummary}\n\nMake minimal, targeted fixes. Do not refactor unrelated code. Do not commit or push — just edit the files.`;
 
   console.log(`[review-gate] Running remediation for ${findings.length} findings`);
 
@@ -505,7 +528,7 @@ export async function reviewAndRemediateLoop({ worktreePath, baseBranch, issueNu
       break;
     }
 
-    const remediated = await runRemediation(worktreePath, remediationFindings, issueNumber);
+    const remediated = await runRemediation(worktreePath, remediationFindings, issueNumber, baseBranch);
     if (!remediated) {
       console.warn('[review-gate] Remediation made no changes — escalating');
       break;
