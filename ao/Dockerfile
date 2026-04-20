@@ -71,18 +71,20 @@ RUN curl -fsSL https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_li
 # Claude's context window by 60-90%. Baked in as a static musl binary — no
 # runtime deps. Raw output is retained by the CloudWatch log driver; RTK only
 # filters what Claude sees. Set RTK_ENABLED=0 at container runtime to bypass.
-ARG RTK_VERSION=0.3.2
+ARG RTK_VERSION=0.37.1
 RUN set -eux; \
     ARCH="$(dpkg --print-architecture)"; \
     case "$ARCH" in \
       amd64) RTK_TARGET="x86_64-unknown-linux-musl" ;; \
-      arm64) RTK_TARGET="aarch64-unknown-linux-musl" ;; \
+      arm64) RTK_TARGET="aarch64-unknown-linux-gnu" ;; \
       *) echo "[rtk] Unsupported arch ${ARCH} — skipping RTK install"; exit 0 ;; \
     esac; \
     curl -fsSL \
-      "https://github.com/rtk-ai/rtk/releases/download/v${RTK_VERSION}/rtk-${RTK_TARGET}" \
-      -o /usr/local/bin/rtk \
-    && chmod +x /usr/local/bin/rtk
+      "https://github.com/rtk-ai/rtk/releases/download/v${RTK_VERSION}/rtk-${RTK_TARGET}.tar.gz" \
+      -o /tmp/rtk.tar.gz \
+    && tar -xzf /tmp/rtk.tar.gz -C /usr/local/bin/ rtk \
+    && chmod +x /usr/local/bin/rtk \
+    && rm /tmp/rtk.tar.gz
 
 # RTK-wrapped bash: Claude Code uses SHELL env var to select the tool shell.
 # Filters tool output through RTK before returning it as a tool result to Claude.
