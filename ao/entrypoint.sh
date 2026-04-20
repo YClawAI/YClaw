@@ -348,7 +348,7 @@ exec gosu ao /bin/bash -c '
   # RTK_ENABLED=1 (default): Claude Code's SHELL is set to rtk-bash so every
   # tool invocation is filtered before the result enters Claude's context window.
   # RTK_ENABLED=0: bypass filter entirely — use for debugging or raw output inspection.
-  export RTK_ENABLED="${RTK_ENABLED:-1}"
+  export RTK_ENABLED="${RTK_ENABLED:-0}"
   if [ "${RTK_ENABLED}" = "1" ] && command -v rtk >/dev/null 2>&1; then
     export SHELL=/usr/local/bin/rtk-bash
     echo "[ao-entrypoint] RTK output filter enabled (SHELL=${SHELL})"
