@@ -22,6 +22,11 @@ triggers:
   - type: cron
     schedule: 20 13 * * *
     task: daily_standup
+    model:
+      provider: anthropic
+      model: claude-haiku-4-5
+      temperature: 0.2
+      maxTokens: 4096
   - type: event
     event: telegram:message
     task: handle_message
