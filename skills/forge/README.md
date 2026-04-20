@@ -40,6 +40,22 @@ Reference for generating videos via two providers:
 
 **File:** `video-generation.md`
 
+### weekly-proactive-generation
+
+Workflow for proactive weekly asset generation (Mondays 10:00 UTC). Generates 3-5 brand assets without waiting for explicit requests, ensuring Ember always has fresh, on-brand visuals available for the content calendar.
+
+Covers:
+- **Asset mix planning** -- social post (16:9), profile picture (1:1), banner/hero (3:2), optional vertical/OG card.
+- **Prompt engineering for YClaw** -- conceptual themes (networks, agents, departments), brand palette, lighting, composition.
+- **Parallel generation** -- all assets generated concurrently via `flux:generate`.
+- **Documentation** -- markdown files for each asset with metadata, use cases, brand compliance checklist.
+- **Delivery workflow** -- summary report, Discord notification, `forge:asset_ready` event publication, memory update.
+- **Verification checklist** -- all assets conform to design system, correct aspect ratios/resolutions, brand-aligned.
+
+**Time to execute:** ~5 minutes. **Cost:** ~$0.30 per week.
+
+**File:** `weekly-proactive-generation.md`
+
 ## Triggers
 
 | Event | Task |
@@ -47,7 +63,8 @@ Reference for generating videos via two providers:
 | `ember:needs_asset` | `create_asset` |
 | `strategist:slack_delegation` | `handle_slack_delegation` |
 | `forge:directive` | `handle_directive` |
-| Cron (daily) | `daily_standup` |
+| Cron (Monday 10:00 UTC) | `weekly_asset_generation` |
+| Cron (daily 13:00 UTC) | `daily_standup` |
 
 ## Integration
 
