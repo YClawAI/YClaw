@@ -27,7 +27,7 @@ triggers:
   task: review_queue_check
   model:
     provider: anthropic
-    model: claude-sonnet-4-6
+    model: claude-haiku-4-5
     temperature: 0.0
     maxTokens: 2048
 # Universal content review event. ANY agent publishing externally MUST emit this
