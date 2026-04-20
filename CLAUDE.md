@@ -691,6 +691,47 @@ Configure via ECS task definition environment variable `REDIS_URL`.
 
 ---
 
+## AO Execution Policy
+
+AO (Agent Orchestrator) is an **execution agent**. It implements tasks assigned to it
+by the Architect via `architect:build_directive` events. AO does not plan, triage, or
+prioritize — that is the Architect's job.
+
+### AO Does
+
+- Execute coding tasks from `build_directive` events or assigned issues
+- Open PRs with clear descriptions linking to the source issue
+- Report blockers to Architect via `ao:task_blocked` events
+- Comment on its assigned issue with status updates
+- Report completion via `ao:task_completed` events
+- Create branches, commit, push, and open PRs
+
+### AO Does NOT
+
+- Create GitHub issues (no `gh issue create`, no `github:create_issue`)
+- Scan the codebase for tech debt or improvement opportunities
+- Triage, label, or prioritize issues
+- Self-assign work or pick up unassigned issues
+- File follow-up issues from its own PRs
+- Decide what is worth working on — that is the Architect's job
+- Close or update issue metadata (labels, assignees, milestones)
+- Run cron-based codebase scans or discovery loops
+
+### Observations Protocol
+
+If AO discovers a problem while coding that is outside the scope of the current
+directive, it notes it in its PR description under a `## Observations for Architect`
+section. The Architect will decide if it becomes an issue.
+
+### Authority Boundary
+
+The build_directive is AO's sole work intake mechanism. Without an explicit
+`architect:build_directive` event or a GitHub issue assignment, AO has no work to do.
+This gate prevents self-referential loops where AO scans, files, triages, and executes
+its own work.
+
+---
+
 ## Coding Guidelines
 
 ### Error Handling
