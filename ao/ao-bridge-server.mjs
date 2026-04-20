@@ -7,6 +7,7 @@ import { join, resolve } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { getToken } from './token-manager.mjs';
 import { AoQueueStore } from './queue-store.mjs';
+import { registerProject, listProjects } from './project-store.mjs';
 import {
   buildSpawnIssueBody,
   buildSpawnIssueTitle,
@@ -2707,6 +2708,72 @@ const server = http.createServer(async (req, res) => {
       res.end(JSON.stringify({ status: 'cleaned', issue }));
     } catch (err) {
       console.error(`[ao-bridge] Cleanup error: ${err.message}`);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message, status: 'failed' }));
+    }
+    return;
+  }
+
+  // --- List registered projects ---
+  if (req.method === 'GET' && req.url === '/api/projects') {
+    try {
+      const projects = listProjects();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', projects }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // --- Register a project dynamically (no redeploy needed) ---
+  if (req.method === 'POST' && req.url === '/api/projects/register') {
+    try {
+      const { repoUrl, name, branch } = await parseBody(req);
+
+      // Accept either a full GitHub URL or an "owner/repo" slug
+      let repo = repoUrl;
+      if (typeof repo !== 'string' || !repo.trim()) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'repoUrl is required' }));
+        return;
+      }
+
+      // Normalise: strip https://github.com/ prefix and .git suffix
+      repo = repo
+        .trim()
+        .replace(/^https?:\/\/github\.com\//i, '')
+        .replace(/\.git$/i, '');
+
+      if (!sanitizeRepo(repo)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'invalid repo: must be in "owner/name" format' }));
+        return;
+      }
+
+      const projectName = typeof name === 'string' && name.trim() ? name.trim() : undefined;
+      const projectBranch = typeof branch === 'string' && branch.trim() ? branch.trim() : 'main';
+
+      console.log(`[ao-bridge] Dynamic project registration requested: ${repo}`);
+
+      // Clone / sync the repo mirror and register in AO config
+      const repoPath = await ensureRepoMirror(repo);
+
+      // Persist to the runtime project store (survives container restarts)
+      const { isNew } = registerProject({ repo, name: projectName, branch: projectBranch });
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        status: 'registered',
+        repo,
+        repoPath,
+        isNew,
+        name: projectName || repo.replace(/\//g, '__'),
+        branch: projectBranch,
+      }));
+    } catch (err) {
+      console.error(`[ao-bridge] Project registration error: ${err.message}`);
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: err.message, status: 'failed' }));
     }
