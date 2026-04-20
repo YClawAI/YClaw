@@ -344,6 +344,18 @@ exec gosu ao /bin/bash -c '
   # REDIS_URL powers the AO queue store (ao-bridge dedup, job queue).
   export REDIS_URL="${REDIS_URL:-}"
 
+  # -- RTK terminal output filter --
+  # RTK_ENABLED=1 (default): Claude Code's SHELL is set to rtk-bash so every
+  # tool invocation is filtered before the result enters Claude's context window.
+  # RTK_ENABLED=0: bypass filter entirely — use for debugging or raw output inspection.
+  export RTK_ENABLED="${RTK_ENABLED:-1}"
+  if [ "${RTK_ENABLED}" = "1" ] && command -v rtk >/dev/null 2>&1; then
+    export SHELL=/usr/local/bin/rtk-bash
+    echo "[ao-entrypoint] RTK output filter enabled (SHELL=${SHELL})"
+  else
+    echo "[ao-entrypoint] RTK output filter disabled (RTK_ENABLED=${RTK_ENABLED})"
+  fi
+
   # -- Clean stale AO runtime state from the persistent home volume --
   AO_RUNTIME_DIR="$HOME/.agent-orchestrator"
   echo "[ao-entrypoint] Cleaning stale AO runtime state..."
