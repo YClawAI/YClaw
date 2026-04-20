@@ -291,6 +291,34 @@ if [ ! -f "$AO_HOME/.claude/settings.json" ] && [ -f "/home/ao/.claude/settings.
   cp /home/ao/.claude/settings.json "$AO_HOME/.claude/settings.json"
 fi
 
+# --- AO Execution Policy (user-level CLAUDE.md) ---
+# This constrains Claude Code sessions across ALL repos AO works on.
+# The repo-level CLAUDE.md has the full policy; this is the cross-repo enforcement.
+cat > "$AO_HOME/.claude/CLAUDE.md" << 'AO_POLICY_EOF'
+# AO Execution Policy
+
+You are an execution agent. You implement tasks assigned to you.
+
+## You DO
+- Execute coding tasks from build_directives or assigned issues
+- Open PRs with clear descriptions linking to the issue
+- Report blockers to Architect
+- Comment on your assigned issue with status updates
+
+## You DO NOT
+- Create GitHub issues
+- Scan the codebase for tech debt or improvement opportunities
+- Triage, label, or prioritize issues
+- Self-assign work
+- File follow-up issues from your own PRs
+- Decide what is worth working on — that is Architect's job
+
+If you discover a problem while coding, note it in your PR description
+under a "## Observations for Architect" section. Architect will decide
+if it becomes an issue.
+AO_POLICY_EOF
+chown ao:ao "$AO_HOME/.claude/CLAUDE.md" 2>/dev/null || true
+
 # Symlink ao user's HOME directories to AO_HOME so Claude Code finds configs
 mkdir -p /home/ao/.config
 rm -rf /home/ao/.claude /home/ao/.config/gh 2>/dev/null || true
