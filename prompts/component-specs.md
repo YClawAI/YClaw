@@ -1,6 +1,7 @@
 # Component Specifications
 
 > How each component should look, behave, and animate. Reference this before building any component.
+> Palette: Cyan (#00F0FF) primary, Purple (#7B2FFF) secondary, Dark backgrounds. See `design-system.md` for tokens.
 
 ---
 
@@ -15,12 +16,13 @@ Canonical CSS snippets for the three primitive components (card, button, input) 
   background: var(--brand-bg-card);
   border: 1px solid var(--brand-border);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  transition: border-color 400ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 20px;
+  transition: border-color 200ms var(--ease-out),
+              box-shadow 200ms var(--ease-out);
 }
 .card:hover {
   border-color: var(--brand-border-hover);
+  background: var(--brand-bg-elevated);
   box-shadow: var(--shadow-glow-sm);
 }
 ```
@@ -30,24 +32,51 @@ Canonical CSS snippets for the three primitive components (card, button, input) 
 ```css
 .btn-primary {
   background: var(--brand-primary);
-  color: var(--brand-text-primary);
+  color: var(--brand-text-inverse);
   border: none;
   border-radius: var(--radius-md);
-  padding: 0.75rem 1.5rem;
+  padding: 10px 24px;
   font-weight: 600;
+  min-height: 44px;
+  transition: background 150ms var(--ease-out), transform 150ms var(--ease-out);
 }
+.btn-primary:hover { background: var(--brand-primary-hover); transform: scale(1.02); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:focus-visible { box-shadow: 0 0 0 2px var(--brand-primary); outline: none; }
+.btn-primary:disabled { opacity: 0.4; cursor: default; transform: none; }
+
 .btn-secondary {
   background: transparent;
   color: var(--brand-text-primary);
   border: 1px solid var(--brand-border);
   border-radius: var(--radius-md);
-  padding: 0.75rem 1.5rem;
+  padding: 10px 24px;
+  min-height: 44px;
 }
+.btn-secondary:hover {
+  background: var(--brand-bg-elevated);
+  border-color: var(--brand-border-hover);
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--brand-text-secondary);
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 8px 16px;
+}
+.btn-ghost:hover {
+  background: var(--brand-bg-elevated);
+  color: var(--brand-text-primary);
+}
+
+.btn-danger {
+  background: var(--brand-error);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 24px;
+  font-weight: 600;
+  min-height: 44px;
 }
 ```
 
@@ -55,18 +84,21 @@ Canonical CSS snippets for the three primitive components (card, button, input) 
 
 ```css
 .input {
-  background: var(--brand-bg-primary);
+  background: var(--brand-bg-input);
   border: 1px solid var(--brand-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--brand-text-primary);
-  padding: 0.75rem 1rem;
-  font-family: var(--font-body);
+  padding: 10px 14px;
+  font: 400 16px/1.5 var(--font-body);
+  height: 44px;
 }
 .input:focus {
-  border-color: var(--brand-primary);
-  box-shadow: var(--shadow-glow-sm);
+  border-color: var(--brand-border-active);
+  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.4);
   outline: none;
 }
+.input::placeholder { color: var(--brand-text-tertiary); }
+.input--error { border-color: var(--brand-error); }
 ```
 
 ### Animation: float-up
@@ -76,9 +108,10 @@ Canonical CSS snippets for the three primitive components (card, button, input) 
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-/* Duration: 400ms, Easing: cubic-bezier(0.4, 0, 0.2, 1) */
+/* Duration: 300ms, Easing: var(--ease-out) */
 /* Stagger: 100ms per element */
 /* Never slide horizontally. Fade + subtle vertical only. */
+/* Respect prefers-reduced-motion: disable entirely. */
 ```
 
 ---
@@ -86,19 +119,20 @@ Canonical CSS snippets for the three primitive components (card, button, input) 
 ## Shared Patterns
 
 ### Hover Behavior
-All interactive elements warm up on hover:
-- Border: transitions from `--brand-border` to `--brand-border-hover` over 400ms
-- Glow: faint box-shadow appears (`--shadow-glow-lg`)
+All interactive elements:
+- Border transitions from `var(--brand-border)` to `var(--brand-border-hover)` over `var(--duration-fast)`
+- Glow: faint box-shadow appears (`var(--shadow-glow-sm)`)
 - **Never snap.** Always transition.
-- Easing: `cubic-bezier(0.4, 0, 0.2, 1)`
+- Easing: `var(--ease-out)`
 
 ### Loading States
-- Skeleton screens use `--brand-surface-dark` with a subtle pulse animation
+- Skeleton screens use `var(--brand-bg-elevated)` with a subtle pulse animation
 - Never show spinners. Use skeleton shapes that match the final content.
-- Gradient shimmer moves left-to-right, using the accent gradient at 5% opacity
+- Gradient shimmer moves left-to-right: `linear-gradient(90deg, transparent, rgba(0,240,255,0.05), transparent)`
+- Skeleton border-radius matches the component it replaces
 
 ### Transitions Between Pages
-- Content fades in (`float-up` animation, 1s duration, staggered by 100ms per element)
+- Content fades in (`float-up` animation, 300ms, staggered by 100ms per element)
 - **Never slide.** Fade only.
 - Sections appear in order: label → title → content → interactive elements
 
@@ -108,25 +142,25 @@ All interactive elements warm up on hover:
 
 ### Desktop Nav
 ```
-[[Logo]] [YClaw wordmark]     [Dashboard] [Agents] [Events] [Docs]     [Connect]
+[Logo] [YClaw]     [Dashboard] [Agents] [Events] [Docs]     [Connect]
 ```
 
-- Fixed to top, backdrop blur, semi-transparent dark background
-- Logo icon: YClaw SVG (20px)
-- Wordmark: Inter Thin, gradient fill, letter-spacing 8px
-- Links: Inter 300, 12px, muted color, hover → accent
-- CTA button: Ghost style (border), hover fills with accent
-- Height: ~64px with 18px padding
+- Fixed to top, `backdrop-filter: blur(12px)`, `var(--brand-bg-primary)` at 90% opacity
+- Logo icon: YClaw mark SVG (20px), cyan primary fill
+- Wordmark: Inter Bold, 24px, `var(--gradient-hero)` fill
+- Links: Inter 500, 14px, `var(--brand-text-secondary)`, hover → `var(--brand-primary)`
+- CTA button: Ghost style, hover border → `var(--brand-primary)`
+- Height: 56px, padding: 0 24px
 
 ### Mobile Nav
-- Hamburger icon (three thin lines, muted)
-- Opens full-screen overlay with dark background
-- Links centered, larger (18px), stacked vertically
-- Logo icon centered at top of overlay
+- Hamburger icon (three thin lines, `var(--brand-text-secondary)`)
+- Opens full-screen overlay with `var(--brand-bg-primary)` background
+- Links centered, 18px, stacked vertically, `var(--space-4)` gap
+- Logo centered at top of overlay
 
 ### User / Operator Connection
 - "Connect" button in nav (ghost style)
-- Connected state: Show username in JetBrains Mono + role badge (operator/admin)
+- Connected state: Username in JetBrains Mono + role badge (operator/admin)
 - Dropdown on click: username, role, settings, disconnect
 
 ---
@@ -138,7 +172,7 @@ Reusable SVG component with configurable size and animation.
 ### Props
 ```typescript
 interface LogoProps {
-  size: 'xs' | 'sm' | 'md' | 'lg' | 'hero';  // 16, 24, 48, 80, 280px
+  size: 'xs' | 'sm' | 'md' | 'lg' | 'hero';  // 12, 16, 24, 48, 280px
   animate?: boolean;          // default true for hero, false for others
   variant?: 'full' | 'simple' | 'mono';  // default 'full'
   className?: string;
@@ -146,23 +180,29 @@ interface LogoProps {
 ```
 
 ### Size Behavior
-- **xs (16px):** Footer, inline references. Simple variant, no glow.
-- **sm (24px):** Nav, extension header. Simple variant, subtle glow.
-- **md (48px):** Section headers, cards. Full variant, subtle animation.
-- **lg (80px):** Feature sections. Full variant, full animation.
+- **xs (12px):** Footer, inline references. Simple variant, no glow.
+- **sm (16px):** Nav, extension header. Simple variant, subtle glow.
+- **md (24px):** Section headers, cards. Full variant, subtle animation.
+- **lg (48px):** Feature sections. Full variant, full animation.
 - **hero (280px):** Landing page hero. Full variant, all animations.
+
+### Color Rules
+- Primary fill: `var(--brand-primary)` (#00F0FF)
+- Secondary fill: `var(--brand-secondary)` (#7B2FFF) for depth elements
+- Mono variant: `var(--brand-text-primary)` only
+- Glow: `var(--shadow-glow-md)` on lg+ sizes
 
 ### Animation Rules
 - The logo shape never moves or rotates
-- Inner elements can pulse (customize scale and timing)
-- Glow effects can breathe (opacity and scale oscillation)
+- Inner elements can pulse (scale 1→1.05, 3s infinite)
+- Glow effects can breathe (opacity 0.8→1, 4s infinite)
 - Static decorative elements remain fixed
 
 ---
 
 ## Data Card
 
-Used in the Explore/listing page grid. Customize fields for your domain.
+Used in listing page grids. Customize fields for your domain.
 
 ### Layout
 ```
@@ -171,41 +211,41 @@ Used in the Explore/listing page grid. Customize fields for your domain.
 ```
 
 ### Icon
-- 48px, rounded-lg (14px radius)
-- Background: subtle gradient (accent at 10% opacity)
-- Border: accent at 13% opacity
-- Content: First letter of item name, gradient text
+- 48px, `var(--radius-lg)` (8px radius)
+- Background: `var(--brand-bg-elevated)`
+- Border: 1px solid `var(--brand-border)`
+- Content: First letter of item name, `var(--brand-text-primary)`
 
 ### Data Display
-- Primary metric: JetBrains Mono, 20px, weight 300, white
-- Change indicator: JetBrains Mono, 11px, positive color or negative color
-- Secondary metrics: JetBrains Mono, 11px, muted color
+- Primary metric: JetBrains Mono, 20px, weight 500, `var(--brand-text-primary)`
+- Change indicator: JetBrains Mono, 12px, positive = `var(--brand-success)`, negative = `var(--brand-error)`
+- Secondary metrics: JetBrains Mono, 12px, `var(--brand-text-secondary)`
 
 ### Hover
-- Border warms to `--brand-border-hover`
-- Faint card glow appears
-- Slight translateY(-2px)
+- Border transitions to `var(--brand-border-hover)`
+- Faint card glow appears (`var(--shadow-glow-sm)`)
+- TranslateY(-2px)
 
 ---
 
 ## Time-Series Chart
 
 ### Visual Style
-- Line: 1.5px stroke, gradient (accent → secondary)
+- Line: 1.5px stroke, `var(--gradient-hero)` (cyan → purple)
 - Fill: Same gradient, 10% opacity at top fading to 0% at bottom
-- Background: `--brand-bg-elevated` with `--brand-border`
-- Border radius: `--radius-md`
+- Background: `var(--brand-bg-elevated)` with `var(--brand-border)`
+- Border radius: `var(--radius-md)`
 
 ### Timeframe Tabs
-- Options: 1H, 4H, 1D, 1W, 1M, ALL (customize for your domain)
-- Active tab: accent text
-- Inactive: ghost text
+- Options: 1H, 4H, 1D, 1W, 1M, ALL
+- Active tab: `var(--brand-primary)` text
+- Inactive: `var(--brand-text-secondary)` text
 - Tab style: no background, just text color change
 
 ### Crosshair / Tooltip
-- Vertical line: 1px, ghost color
-- Tooltip: surface-dark background, border, shows value + timestamp
-- Value in JetBrains Mono with gradient fill
+- Vertical line: 1px, `var(--brand-text-tertiary)`
+- Tooltip: `var(--brand-bg-card)`, border, shows value + timestamp
+- Value in JetBrains Mono with `var(--brand-text-primary)` color
 
 ---
 
@@ -217,8 +257,8 @@ Right sidebar or modal for primary user interactions (agent management, task dis
 ```
 [Dispatch]  [Config]  [Approvals]
 ```
-- Active tab: accent text + bottom border in gradient
-- Inactive: muted text
+- Active tab: `var(--brand-primary)` text + 2px bottom border in `var(--brand-primary)`
+- Inactive: `var(--brand-text-secondary)` text
 
 ### Task Dispatch Form
 ```
@@ -231,8 +271,7 @@ Right sidebar or modal for primary user interactions (agent management, task dis
 
 ### Agent Config Form
 ```
-[Model]     [Sonnet ▾]  (dropdown, active has gradient background)
-
+[Model]     [dropdown]
 Prompts:    [mission_statement.md, ...]  [Edit]
 Schedule:   [Cron Expression]
 Budget:     [$50/day]
@@ -262,11 +301,11 @@ Used on agent detail pages and org-wide dashboard.
 
 ### Type Icons
 - Small circles (8px) or small icons (16px) with type-specific color:
-  - Success: accent
-  - Failure: danger
-  - In progress: secondary
-  - Idle: muted
-  - Approval needed: accent with glow
+  - Success: `var(--brand-success)`
+  - Failure: `var(--brand-error)`
+  - In progress: `var(--brand-primary)` with pulse animation
+  - Idle: `var(--brand-text-tertiary)`
+  - Approval needed: `var(--brand-warning)` with glow
 
 ### Description Format
 Agent activity descriptions:
@@ -282,18 +321,18 @@ Agent activity descriptions:
 ## Ranked Table
 
 ### Header
-- JetBrains Mono, 9px, ghost color, uppercase, letter-spacing 2px
+- JetBrains Mono, 12px, `var(--brand-text-secondary)`, uppercase, letter-spacing 0.05em
 
 ### Rows
-- Rank: JetBrains Mono, bold. Top 3 get gradient text.
-- Name: Inter 400, white. Truncate with ellipsis.
-- Primary metric: JetBrains Mono 500, gradient fill for top 10, muted for others.
-- Secondary metric: JetBrains Mono 400, muted.
+- Rank: JetBrains Mono, weight 600. Top 3 get `var(--gradient-hero)` text fill.
+- Name: Inter 400, `var(--brand-text-primary)`. Truncate with ellipsis.
+- Primary metric: JetBrains Mono 500, `var(--brand-text-primary)`.
+- Secondary metric: JetBrains Mono 400, `var(--brand-text-secondary)`.
 
 ### Current User Row
-- Highlighted with faint accent border on left (2px)
-- Slightly different background (`--brand-surface-dark`)
-- "You" badge next to name
+- Highlighted with `var(--brand-primary)` 2px left border
+- Background: `var(--brand-bg-elevated)`
+- "You" badge next to name (`var(--brand-primary-muted)` bg, `var(--brand-primary)` text)
 
 ---
 
@@ -307,9 +346,9 @@ Horizontal row of key metrics (used on landing page and dashboard).
 Active Agents        Tasks Completed      Uptime             Departments
 ```
 
-- Value: JetBrains Mono, 24-28px, weight 600, gradient fill
-- Label: 10-11px, ghost color, uppercase, letter-spacing 1px
-- Separated by 1px vertical borders (`--brand-border`)
+- Value: JetBrains Mono, 28px, weight 600, `var(--gradient-hero)` fill
+- Label: 12px, `var(--brand-text-secondary)`, uppercase, letter-spacing 0.05em
+- Separated by 1px vertical borders (`var(--brand-border)`)
 - Each cell centered, equal width
 
 ---
@@ -318,19 +357,19 @@ Active Agents        Tasks Completed      Uptime             Departments
 
 ### Layout
 ```
-[[Logo]]  [YClaw]                           [2m ago]
-[Title — bold, white]
-[Description — light, muted]
+[Logo]  [YClaw]                           [2m ago]
+[Title — Inter 600, var(--brand-text-primary)]
+[Description — Inter 400, var(--brand-text-secondary)]
 [Action Button (optional)]
 ```
 
 ### Behavior
-- Slides in from top-right
+- Slides in from top-right (200ms, `var(--ease-out)`)
 - Auto-dismisses after 5 seconds
 - Hover pauses the dismiss timer
-- Close button (X) in top right, ghost color
-- Background: surface-dark with border
-- Max width: 380px
+- Close button (X) in top right, `var(--brand-text-secondary)`
+- Background: `var(--brand-bg-card)`, border: `var(--brand-border)`
+- Max width: 380px, radius: `var(--radius-lg)`
 
 ---
 
@@ -346,53 +385,38 @@ Active Agents        Tasks Completed      Uptime             Departments
 ```
 
 ### Card Style
-- Background: `--brand-bg-card`
-- Border: `--brand-border`
-- Radius: `--radius-lg`
-- Value: JetBrains Mono, 20-24px, white or gradient
-- Label: 11px, ghost color, uppercase
-- The highest-priority card should have a subtle accent border glow to draw attention
+- Background: `var(--brand-bg-card)`
+- Border: `var(--brand-border)`
+- Radius: `var(--radius-lg)`
+- Value: JetBrains Mono, 24px, `var(--brand-text-primary)`
+- Label: 12px, `var(--brand-text-secondary)`, uppercase
+- Highest-priority card: subtle `var(--shadow-glow-sm)` border glow
 
 ---
 
-## Form Inputs
+## Priority Selector
 
-### Text/Number Input
-- Background: `--brand-bg-elevated`
-- Border: `--brand-border`
-- Radius: `--radius-md`
-- Text: Inter 300, 16px, white
-- Placeholder: `--brand-ghost`
-- Focus: border becomes `--brand-accent` at 30% opacity
-- Height: 48px
-- Padding: 14px 16px
-
-### MAX Button (inside input)
-- Position: absolute right
-- JetBrains Mono, 10px, uppercase, accent color
-- Hover: brighter accent
-
-### Priority Selector
 - Row of small pills: [P0] [P1] [P2] [P3]
-- Active: surface-dark background + accent border
-- Inactive: ghost border, ghost text
+- Active: `var(--brand-bg-elevated)` background + `var(--brand-primary)` border
+- Inactive: `var(--brand-border)` border, `var(--brand-text-secondary)` text
+- P0 active: `var(--brand-error)` border (critical priority)
 
 ---
 
 ## Modals
 
 ### Overlay
-- Background: dark at 80% opacity + backdrop-blur(12px)
+- Background: rgba(0, 0, 0, 0.8) + `backdrop-filter: blur(12px)`
 
 ### Modal Box
-- Background: `--brand-bg-elevated`
-- Border: `--brand-border`
-- Radius: `--radius-xl`
+- Background: `var(--brand-bg-card)`
+- Border: `var(--brand-border)`
+- Radius: `var(--radius-xl)` (12px)
 - Max width: 480px
-- Padding: 32px
-- Close button: top-right, ghost color, 24px
+- Padding: 24px
+- Close button: top-right, ghost style
 
 ### Animation
 - Overlay fades in (200ms)
-- Modal fades in + translateY from 20px (300ms, eased)
-- Close: reverse, slightly faster (200ms)
+- Modal fades in + translateY from 20px (200ms, `var(--ease-out)`)
+- Close: reverse, 150ms
