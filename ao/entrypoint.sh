@@ -253,7 +253,7 @@ fi
 if [ -n "$YCLAW_AO_OVERLAY_REPO" ]; then
   AO_SRC="/data/worktrees/$(repo_slug "$YCLAW_AO_OVERLAY_REPO")/ao"
   if [ -d "$AO_SRC" ]; then
-    for f in ao-bridge-server.mjs queue-store.mjs token-manager.mjs runtime-process.mjs project-store.mjs agent-orchestrator.yaml; do
+    for f in ao-bridge-server.mjs queue-store.mjs token-manager.mjs runtime-process.mjs project-store.mjs agent-orchestrator.yaml entrypoint.sh; do
       if [ -f "$AO_SRC/$f" ]; then
         cp "$AO_SRC/$f" "/app/$f"
       fi
@@ -448,7 +448,24 @@ exec gosu ao /bin/bash -c '
   AO_PID=$!
 
   # Wait for any child to exit — if ao dies, we exit (ECS restarts us)
-  wait -n "$AO_PID" "$AO_BRIDGE_PID"
-  echo "[ao-entrypoint] A child process exited. Shutting down..."
-  exit 1
+  # Keep container alive as long as the bridge is running.
+  # If AO daemon exits (idle, no pending tasks, graceful restart),
+  # restart it automatically. Only exit if the bridge server dies.
+  while true; do
+    wait -n "$AO_PID" "$AO_BRIDGE_PID" 2>/dev/null
+    EXITED_PID=$?
+
+    if ! kill -0 "$AO_BRIDGE_PID" 2>/dev/null; then
+      echo "[ao-entrypoint] Bridge server died unexpectedly. Shutting down..."
+      exit 1
+    fi
+
+    if ! kill -0 "$AO_PID" 2>/dev/null; then
+      echo "[ao-entrypoint] AO daemon exited (exit code $EXITED_PID). Restarting in 5s..."
+      sleep 5
+      ao start "$AO_PROJECT" &
+      AO_PID=$!
+      echo "[ao-entrypoint] AO daemon restarted (PID $AO_PID)"
+    fi
+  done
 '
