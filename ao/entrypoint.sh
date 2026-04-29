@@ -80,8 +80,9 @@ fi
 echo "[ao-entrypoint] Bridge server RUNNING (PID $AO_BRIDGE_PID)"
 
 # Start AO daemon
-echo "[ao-entrypoint] Starting AO daemon..."
-gosu ao ao start "$AO_PROJECT" &
+AO_PROJ="${AO_PROJECT:-yclaw}"
+echo "[ao-entrypoint] Starting AO daemon (project: $AO_PROJ)..."
+gosu ao ao start "$AO_PROJ" &
 AO_PID=$!
 sleep 1
 
@@ -103,7 +104,7 @@ while true; do
   if ! kill -0 $AO_PID 2>/dev/null; then
     echo "[ao-entrypoint] AO daemon exited. Restarting in 5s..."
     sleep 5
-    gosu ao ao start "$AO_PROJECT" &
+    gosu ao ao start "$AO_PROJ" &
     AO_PID=$!
     echo "[ao-entrypoint] AO daemon restarted (PID $AO_PID)"
   fi
