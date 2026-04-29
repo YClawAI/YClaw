@@ -112,9 +112,8 @@ COPY package.json /app/package.json
 RUN cd /app && npm install && chown -R ao:ao /app
 
 COPY entrypoint.sh /app/entrypoint.sh
-COPY ao-bridge-server.mjs queue-store.mjs spawn-followup.mjs token-manager.mjs review-gate.mjs project-store.mjs agent-orchestrator.yaml /app/
+COPY *.mjs agent-orchestrator.yaml /app/
 COPY prompts/ /app/prompts/
-COPY runtime-process.mjs /app/runtime-process.mjs
 COPY adapters/ /app/adapters/
 COPY register-plugins.sh /app/register-plugins.sh
 RUN chmod +x /app/entrypoint.sh /app/register-plugins.sh && chown -R ao:ao /app

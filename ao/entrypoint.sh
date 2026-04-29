@@ -48,18 +48,12 @@ export CI="true"
 export AO_CONFIG_PATH=/app/agent-orchestrator.yaml
 export AO_CALLBACK_URL="${AO_CALLBACK_URL:-https://agents.yclaw.ai/api/ao/callback}"
 
-# Overlay runtime files from cloned repo (critical: includes modules not in Docker image)
+# Overlay ALL runtime files from cloned repo (critical: many modules not in Docker image)
 AO_SRC="/data/worktrees/YClawAI__YClaw/ao"
 if [ -d "$AO_SRC" ]; then
-  for f in ao-bridge-server.mjs queue-store.mjs token-manager.mjs runtime-process.mjs project-store.mjs agent-orchestrator.yaml log-store.mjs spawn-followup.mjs review-gate.mjs; do
-    if [ -f "$AO_SRC/$f" ]; then
-      cp "$AO_SRC/$f" "/app/$f" && echo "[ao-entrypoint] Overlaid $f"
-    else
-      echo "[ao-entrypoint] WARN: $f not found in repo"
-    fi
-  done
-else
-  echo "[ao-entrypoint] WARN: AO source dir not found — using baked image files"
+  echo "[ao-entrypoint] Overlaying runtime files from repo..."
+  cp "$AO_SRC"/*.mjs /app/ 2>/dev/null && echo "[ao-entrypoint]   -> .mjs modules"
+  cp "$AO_SRC"/agent-orchestrator.yaml /app/ 2>/dev/null && echo "[ao-entrypoint]   -> agent-orchestrator.yaml"
 fi
 
 # Start bridge server
