@@ -87,6 +87,8 @@ describe('resolveInitPlan', () => {
     const plan = resolveInitPlan(getPreset('local-demo'));
     expect(plan.compose).not.toBeNull();
     expect(plan.compose?.services.yclaw).toBeDefined();
+    expect(plan.compose?.services['mission-control']).toBeDefined();
+    expect(plan.compose?.services.ao).toBeDefined();
     expect(plan.compose?.services.mongodb).toBeDefined();
     expect(plan.compose?.services.redis).toBeDefined();
     expect(plan.compose?.services.postgres).toBeDefined();
