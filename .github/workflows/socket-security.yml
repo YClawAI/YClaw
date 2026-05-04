@@ -19,6 +19,40 @@ jobs:
         with:
           egress-policy: audit
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - uses: SocketDev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
         with:
-          mode: diff
+          fetch-depth: 2
+      - name: Check Socket credentials
+        id: socket-auth
+        env:
+          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
+        run: |
+          if [ -z "${SOCKET_SECURITY_API_KEY:-}" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Socket scan skipped::SOCKET_SECURITY_API_KEY is not configured; skipping Socket dependency scan."
+            {
+              echo "### Socket scan skipped"
+              echo ""
+              echo "Set the repository or organization secret \`SOCKET_SECURITY_API_KEY\` to enable Socket dependency scanning."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        if: steps.socket-auth.outputs.enabled == 'true'
+        with:
+          python-version: '3.12'
+      - name: Install Socket CLI
+        if: steps.socket-auth.outputs.enabled == 'true'
+        run: pip install socketsecurity --upgrade
+      - name: Run Socket Security Scan
+        if: steps.socket-auth.outputs.enabled == 'true'
+        env:
+          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
+          GH_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          socketcli \
+            --target-path "$GITHUB_WORKSPACE" \
+            --scm github \
+            --pr-number "$PR_NUMBER"

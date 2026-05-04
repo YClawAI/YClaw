@@ -35,6 +35,8 @@ describe('Non-interactive init', () => {
     const composeYaml = generateDockerCompose(plan);
     const composeParsed = parseYaml(composeYaml);
     expect(composeParsed.services.yclaw).toBeDefined();
+    expect(composeParsed.services['mission-control']).toBeDefined();
+    expect(composeParsed.services.ao).toBeDefined();
   });
 
   it('small-team: includes Slack token in env', () => {

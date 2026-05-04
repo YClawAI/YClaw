@@ -26,6 +26,7 @@ export const DEFAULT_ACL: AclMap = {
   'architect:deploy_complete': ['architect'],
   'architect:rebase_needed': ['architect'],
   'architect:task_blocked': ['architect'],
+  'architect:spec_finalized': ['architect'],
 
   // Mechanic
   'mechanic:task_completed': ['mechanic'],
@@ -49,6 +50,8 @@ export const DEFAULT_ACL: AclMap = {
   // Strategist
   'strategist:midweek_adjustment': ['strategist'],
   'strategist:architect_directive': ['strategist'],
+  'strategist:builder_directive': ['strategist'],
+  'strategist:deployer_directive': ['strategist'],
   'strategist:ember_directive': ['strategist'],
   'strategist:designer_directive': ['strategist'],
   'strategist:design_generate': ['strategist'],
@@ -60,16 +63,20 @@ export const DEFAULT_ACL: AclMap = {
   'strategist:treasurer_directive': ['strategist'],
   'strategist:guide_directive': ['strategist'],
   'strategist:reviewer_directive': ['strategist'],
+  'strategist:librarian_directive': ['strategist'],
   'strategist:weekly_directive': ['strategist'],
 
   // Ember
   'ember:content_ready': ['ember'],
   'ember:needs_asset': ['ember'],
+  'ember:asset_revision_requested': ['ember'],
+  'content:review_required': ['content'],
   'review:pending': ['ember', 'scout'],
 
   // Reviewer
   'reviewer:approved': ['reviewer'],
   'reviewer:flagged': ['reviewer'],
+  'reviewer:queue_stale': ['reviewer'],
 
   // Designer
   'designer:design_review': ['designer'],
@@ -77,9 +84,23 @@ export const DEFAULT_ACL: AclMap = {
 
   // Forge
   'forge:asset_ready': ['forge'],
+  'forge:asset_failed': ['forge'],
 
   // Keeper
   'keeper:support_case': ['keeper'],
+  'keeper:community_health': ['keeper'],
+
+  // Guide
+  'guide:case_escalated': ['guide'],
+  'guide:case_resolved': ['guide'],
+
+  // Librarian
+  'librarian:curation_complete': ['librarian'],
+
+  // Scout
+  'scout:intel_report': ['scout'],
+  'scout:outreach_ready': ['scout'],
+  'scout:pipeline_report': ['scout'],
 
   // Treasurer
   'treasurer:low_balance': ['treasurer'],
@@ -105,10 +126,17 @@ export const DEFAULT_ACL: AclMap = {
   'github:pr_merged': ['github', 'github-webhook'],
   'github:repository_created': ['github', 'github-webhook'],
 
+  // External platform/system webhooks
+  'ci:lockfile_drift': ['ci'],
+  'telegram:message': ['telegram'],
+  'vault:entry_created': ['vault'],
+  'vault:entry_updated': ['vault'],
+
   // Coordination events
   'standup:report': [
     'architect', 'ember', 'scout', 'sentinel', 'strategist', 'reviewer',
     'designer', 'forge', 'keeper', 'guide', 'treasurer', 'mechanic',
+    'librarian',
   ],
   'claudeception:reflect': ['system'],
 
@@ -124,6 +152,7 @@ export const DEFAULT_ACL: AclMap = {
   'sentinel:infra_alert': ['sentinel'],
   'sentinel:status_report': ['sentinel'],
   'sentinel:quality_report': ['sentinel'],
+  'sentinel:incident_report': ['sentinel'],
 
   // Discord (adapter publishes as 'discord', webhook as 'discord-webhook')
   'discord:message': ['discord', 'discord-webhook'],

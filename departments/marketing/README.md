@@ -66,8 +66,8 @@ flowchart LR
 
 | Direction | Event |
 |-----------|-------|
-| Subscribes | `ember:needs_asset`, `forge:directive`, `strategist:slack_delegation`, `claudeception:reflect` |
-| Publishes | `standup:report`, `forge:asset_ready` |
+| Subscribes | `ember:needs_asset`, `ember:asset_revision_requested`, `strategist:forge_directive`, `claudeception:reflect` |
+| Publishes | `standup:report`, `forge:asset_ready`, `forge:asset_failed` |
 
 ## Scheduled Tasks (Crons)
 
@@ -84,6 +84,8 @@ flowchart LR
 | Ember | 16:30 Mon-Fri | `midday_post` | 12:30 PM ET |
 | Ember | 22:00 Mon-Fri | `afternoon_engagement` | 6:00 PM ET |
 | Ember | 15:00 Sat-Sun | `weekend_content` | 11:00 AM ET |
+| Forge | 10:00 Monday | `weekly_asset_generation` | Weekly asset pack |
+| Forge | 09:00 1st of month | `monthly_brand_review` | Profile/banner review |
 
 ## Key Capabilities
 

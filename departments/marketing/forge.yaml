@@ -33,9 +33,6 @@ triggers:
     event: ember:asset_revision_requested
     task: revise_asset
   - type: event
-    event: strategist:slack_delegation
-    task: handle_slack_delegation
-  - type: event
     event: strategist:forge_directive
     task: handle_directive
   - type: event
@@ -69,7 +66,6 @@ event_subscriptions:
   - claudeception:reflect
   - ember:needs_asset
   - ember:asset_revision_requested
-  - strategist:slack_delegation
 event_publications:
   - standup:report
   - forge:asset_ready
