@@ -70,7 +70,7 @@ export class EventActionExecutor implements ActionExecutor {
       return { success: false, error: 'Missing required parameters: source, type' };
     }
 
-    // LLMs often send the full namespaced type (e.g. "strategist:slack_delegation")
+    // LLMs often send the full namespaced type (e.g. "strategist:forge_directive")
     // because that's what appears in YAML configs. Strip the source prefix to avoid
     // double-prefixing in EventBus dispatch (which constructs "source:type").
     let eventType = type;

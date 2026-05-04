@@ -49,7 +49,37 @@ export function generateEnvFile(plan: ResolvedInitPlan): string {
     },
     {
       label: 'Docker Compose',
-      keys: ['COMPOSE_PROFILES', 'POSTGRES_PASSWORD', 'MC_PORT'],
+      keys: ['COMPOSE_PROFILES', 'POSTGRES_PASSWORD'],
+    },
+    {
+      label: 'Mission Control',
+      keys: ['MC_PORT', 'NEXTAUTH_SECRET', 'NEXTAUTH_URL'],
+    },
+    {
+      label: 'Autonomy Defaults',
+      keys: ['GOVERNANCE_MODE', 'REACTION_LOOP_ENABLED', 'BUDGET_ENFORCEMENT_ENABLED'],
+    },
+    {
+      label: 'GitHub',
+      keys: [
+        'GITHUB_OWNER',
+        'GITHUB_REPO',
+        'GITHUB_APP_ID',
+        'GITHUB_APP_PRIVATE_KEY',
+        'GITHUB_APP_INSTALLATION_ID',
+        'GITHUB_TOKEN',
+      ],
+    },
+    {
+      label: 'Agent Orchestrator',
+      keys: [
+        'AO_SERVICE_URL',
+        'AO_AUTH_TOKEN',
+        'AO_CALLBACK_URL',
+        'AO_MAX_CONCURRENT',
+        'YCLAW_AO_PROJECT',
+        'YCLAW_REPOS',
+      ],
     },
   ];
 
@@ -62,7 +92,8 @@ export function generateEnvFile(plan: ResolvedInitPlan): string {
       const value = plan.env[key] ?? '';
       // Empty values are placeholders the user needs to fill in
       if (value === '') {
-        lines.push(`${key}=  # TODO: fill in`);
+        lines.push(`# TODO: fill in ${key}`);
+        lines.push(`${key}=`);
       } else if (/[#\s"'\\$`!]/.test(value)) {
         // Quote values with special characters
         const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');

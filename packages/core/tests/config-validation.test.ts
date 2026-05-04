@@ -7,9 +7,28 @@
  * Run via: npx turbo test (or vitest run)
  */
 
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { validateAllConfigs } from '../src/config/loader.js';
+import { getPromptsDir, validateAllConfigs } from '../src/config/loader.js';
 import { DataSourceSchema, AgentConfigSchema } from '../src/config/schema.js';
+import { DEFAULT_ACL } from '../src/triggers/event-acl.js';
+
+function explicitWorkflowTasks(markdown: string): Set<string> {
+  const tasks = new Set<string>();
+  const pattern = /^##\s+Task:\s+([A-Za-z0-9_-]+)/gim;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(markdown)) !== null) {
+    tasks.add(match[1].toLowerCase());
+  }
+  return tasks;
+}
+
+function triggerEvents(trigger: { type: string; event?: string; events?: string[] }): string[] {
+  if (trigger.type === 'event' && trigger.event) return [trigger.event];
+  if (trigger.type === 'batch_event' && Array.isArray(trigger.events)) return trigger.events;
+  return [];
+}
 
 // ── Real YAML files ──────────────────────────────────────────────────────────
 
@@ -43,6 +62,101 @@ describe('validateAllConfigs: all department YAML files', () => {
     for (const dept of expected) {
       expect(departments, `No agents loaded for department: ${dept}`).toContain(dept);
     }
+  });
+});
+
+// ── Runtime wiring drift guards ──────────────────────────────────────────────
+
+describe('validateAllConfigs: trigger workflow coverage', () => {
+  it('every configured trigger task in a workflow-backed agent has an explicit workflow section', () => {
+    const { valid } = validateAllConfigs();
+    const missing: string[] = [];
+
+    for (const config of valid) {
+      const workflowPrompt = config.system_prompts.find(p => p.includes('workflow'));
+      if (!workflowPrompt) continue;
+
+      const workflowPath = join(getPromptsDir(), workflowPrompt);
+      if (!existsSync(workflowPath)) {
+        missing.push(`${config.name}: workflow prompt file does not exist: ${workflowPrompt}`);
+        continue;
+      }
+
+      const tasks = explicitWorkflowTasks(readFileSync(workflowPath, 'utf8'));
+      for (const trigger of config.triggers) {
+        const task = trigger.task.toLowerCase();
+        if (task !== 'none' && !tasks.has(task)) {
+          missing.push(
+            `${config.name}: trigger task "${trigger.task}" is missing "## Task: ${trigger.task}" in ${workflowPrompt}`,
+          );
+        }
+      }
+    }
+
+    if (missing.length > 0) {
+      throw new Error(
+        `Configured trigger task(s) have no explicit workflow instructions:\n` +
+        missing.map(item => `  - ${item}`).join('\n') +
+        `\nFix: add a matching "## Task: <task>" section or remove/rename the trigger.`,
+      );
+    }
+
+    expect(missing).toHaveLength(0);
+  });
+});
+
+describe('validateAllConfigs: event ACL coverage', () => {
+  it('every configured event is present in DEFAULT_ACL and every publication is source-authorized', () => {
+    const { valid } = validateAllConfigs();
+    const configuredEvents = new Map<string, Set<string>>();
+    const unauthorizedPublications: string[] = [];
+
+    const remember = (event: string, detail: string): void => {
+      const details = configuredEvents.get(event) ?? new Set<string>();
+      details.add(detail);
+      configuredEvents.set(event, details);
+    };
+
+    for (const config of valid) {
+      for (const event of config.event_publications) {
+        remember(event, `${config.name} publishes it`);
+        const allowedSources = DEFAULT_ACL[event];
+        if (allowedSources && !allowedSources.includes(config.name)) {
+          unauthorizedPublications.push(
+            `${config.name} publishes "${event}" but DEFAULT_ACL allows only: ${allowedSources.join(', ')}`,
+          );
+        }
+      }
+
+      for (const event of config.event_subscriptions) {
+        remember(event, `${config.name} subscribes to it`);
+      }
+
+      for (const trigger of config.triggers) {
+        for (const event of triggerEvents(trigger)) {
+          remember(event, `${config.name} triggers on it`);
+        }
+      }
+    }
+
+    const missingAcl = [...configuredEvents.entries()]
+      .filter(([event]) => !DEFAULT_ACL[event])
+      .map(([event, details]) => `${event} (${[...details].sort().join('; ')})`)
+      .sort();
+
+    if (missingAcl.length > 0 || unauthorizedPublications.length > 0) {
+      throw new Error(
+        `Configured event ACL drift detected:\n` +
+        [
+          ...missingAcl.map(item => `  - Missing DEFAULT_ACL entry: ${item}`),
+          ...unauthorizedPublications.sort().map(item => `  - Unauthorized publication: ${item}`),
+        ].join('\n') +
+        `\nFix: add the event to DEFAULT_ACL with the actual publisher namespace(s), or remove the stale config reference.`,
+      );
+    }
+
+    expect(missingAcl).toHaveLength(0);
+    expect(unauthorizedPublications).toHaveLength(0);
   });
 });
 

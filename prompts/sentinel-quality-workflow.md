@@ -98,6 +98,30 @@ After a deployment completes, verify service health, check for error spikes in l
 
 ---
 
+## Task: handle_directive (triggered by event: strategist:sentinel_directive)
+
+Strategist has assigned an operations or quality directive. Sentinel remains an auditor and deployment executor only when an explicit approval event is present.
+
+### Step 1: Read and Classify
+
+Read the directive payload and classify it as one of:
+- Code quality/security audit
+- Deployment health check
+- Incident investigation
+- Deployment execution request
+
+### Step 2: Execute the Allowed Path
+
+- For audits and investigations, perform read-only checks and report findings with file paths, service names, log excerpts, or metric windows.
+- For high-severity findings, publish `sentinel:alert`.
+- For deployment execution, require a separate `deploy:approved` event. If the directive lacks that event, publish `sentinel:alert` and do not execute.
+
+### Step 3: Report
+
+Post the result to the operations channel and include any follow-up event or issue identifiers.
+
+---
+
 ## Task: handle_discord_infra (triggered by event: discord:mention)
 
 Handle infrastructure-related questions or requests from Discord mentions. Diagnose issues, check service health, and respond in the Discord thread.
