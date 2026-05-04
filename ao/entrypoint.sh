@@ -29,8 +29,15 @@ if [ -n "$GITHUB_APP_ID" ] && [ -n "$GITHUB_APP_PRIVATE_KEY" ] && [ -n "$GITHUB_
   fi
 fi
 
-# Clone repos
-for repo in YClawAI/YClaw YClawAI/yclaw-site; do
+# Clone bootstrap repos. YCLAW_REPOS accepts comma or whitespace separated
+# owner/repo slugs so installs can add external projects without editing AO.
+BOOTSTRAP_REPOS="${YCLAW_REPOS:-YClawAI/YClaw}"
+BOOTSTRAP_REPOS="${BOOTSTRAP_REPOS//,/ }"
+for repo in $BOOTSTRAP_REPOS; do
+  if [[ ! "$repo" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+    echo "[ao-entrypoint] WARN: skipping invalid repo slug: $repo"
+    continue
+  fi
   slug=$(echo "$repo" | sed 's#/#__#g')
   if [ ! -d "/data/worktrees/$slug/.git" ]; then
     echo "[ao-entrypoint] Cloning $repo..."
@@ -80,7 +87,7 @@ fi
 echo "[ao-entrypoint] Bridge server RUNNING (PID $AO_BRIDGE_PID)"
 
 # Start AO daemon
-AO_PROJ="${AO_PROJECT:-yclaw}"
+AO_PROJ="${YCLAW_AO_PROJECT:-${AO_PROJECT:-yclaw}}"
 echo "[ao-entrypoint] Starting AO daemon (project: $AO_PROJ)..."
 gosu ao ao start "$AO_PROJ" &
 AO_PID=$!

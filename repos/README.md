@@ -8,7 +8,8 @@ Static repository configuration files for the YClaw agent system's **Repo Regist
 
 | File | Repo | Risk Tier | Deployment | Description |
 |------|------|-----------|------------|-------------|
-| `yclaw.yaml` | `YClawAI/YClaw` | `critical` | ECS Fargate (`yclaw-cluster-production`) | The agents' own monorepo. 14 AI agents, TypeScript/Express, npm. Codegen-excluded (self-modification protection). |
+| `yclaw.yaml` | `YClawAI/YClaw` | `critical` | ECS Fargate (`yclaw-cluster-production`) | The agents' own monorepo. 14 AI agents, TypeScript/Express, npm. Protected by CI/review gates. |
+| `yclaw-site.yaml` | `YClawAI/yclaw-site` | `auto` | GitHub Pages | Static YCLAW landing page. |
 
 
 ---
@@ -84,4 +85,9 @@ Call `repo:register` with the config object. The config persists to MongoDB and 
 
 ## Codegen Exclusion
 
-The `yclaw` repo is excluded from subprocess codegen (`codegen:execute`, `codegen:direct`) as a self-modification defense. The exclusion is enforced by `isRepoExcluded()` in `packages/core/src/config/repo-loader.ts`. Direct GitHub API actions remain available.
+No repository is currently hardcoded as codegen-excluded. Self-modification safety
+for YCLAW itself is enforced by protected-path CI policy and review gates rather
+than by removing the repo from the registry. If a deployment needs to block
+codegen for a specific repo, add it to `isRepoExcluded()` in
+`packages/core/src/config/repo-loader.ts` and include a test that webhook
+processing still loads the repo for event handling.

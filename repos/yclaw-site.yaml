@@ -8,12 +8,12 @@ github:
 tech_stack:
   language: html
   framework: static
-  package_manager: none
+  package_manager: npm
   build_command: ""
   test_command: ""
   lint_command: ""
 
-risk_tier: low
+risk_tier: auto
 trust_level: sandboxed
 
 deployment:
