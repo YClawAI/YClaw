@@ -64,6 +64,13 @@ describe('generateEnvFile', () => {
     expect(env).toMatch(/EVENT_BUS_SECRET=[0-9a-f]{64}/);
   });
 
+  it('includes Mission Control auth secret for docker-compose installs', () => {
+    const plan = resolveInitPlan(getPreset('local-demo'));
+    const env = generateEnvFile(plan);
+    expect(env).toMatch(/NEXTAUTH_SECRET=[0-9a-f]{64}/);
+    expect(env).toContain('NEXTAUTH_URL=http://localhost:3001');
+  });
+
   it('includes header comment', () => {
     const plan = resolveInitPlan(getPreset('local-demo'));
     const env = generateEnvFile(plan);
@@ -78,6 +85,8 @@ describe('generateDockerCompose', () => {
     const parsed = parseYaml(yaml);
 
     expect(parsed.services.yclaw).toBeDefined();
+    expect(parsed.services['mission-control']).toBeDefined();
+    expect(parsed.services.ao).toBeDefined();
     expect(parsed.services.mongodb).toBeDefined();
     expect(parsed.services.redis).toBeDefined();
     expect(parsed.services.postgres).toBeDefined();
@@ -91,6 +100,8 @@ describe('generateDockerCompose', () => {
     expect(parsed.services.mongodb.healthcheck).toBeDefined();
     expect(parsed.services.redis.healthcheck).toBeDefined();
     expect(parsed.services.postgres.healthcheck).toBeDefined();
+    expect(parsed.services.ao.healthcheck).toBeDefined();
+    expect(parsed.services['mission-control'].healthcheck).toBeDefined();
   });
 
   it('yclaw service depends on all infrastructure', () => {
@@ -101,6 +112,8 @@ describe('generateDockerCompose', () => {
     expect(parsed.services.yclaw.depends_on.mongodb).toBeDefined();
     expect(parsed.services.yclaw.depends_on.redis).toBeDefined();
     expect(parsed.services.yclaw.depends_on.postgres).toBeDefined();
+    expect(parsed.services.ao.depends_on.yclaw).toBeDefined();
+    expect(parsed.services['mission-control'].depends_on.yclaw).toBeDefined();
   });
 
   it('has named volumes', () => {
@@ -112,6 +125,7 @@ describe('generateDockerCompose', () => {
     expect('mongodb-data' in parsed.volumes).toBe(true);
     expect('redis-data' in parsed.volumes).toBe(true);
     expect('postgres-data' in parsed.volumes).toBe(true);
+    expect('ao-data' in parsed.volumes).toBe(true);
   });
 
   it('throws for non-docker-compose plans', () => {
