@@ -4,6 +4,7 @@ import { checkNodeVersion } from '../validators/node.js';
 import { checkDockerInstalled, checkDockerCompose } from '../validators/docker.js';
 import { checkDiskSpace, checkPortAvailable } from '../validators/system.js';
 import { checkRequiredCredentials } from '../validators/credentials.js';
+import { checkGitHubReadiness } from '../validators/github-readiness.js';
 import { checkConfigValid } from '../validators/config.js';
 import { loadConfig } from '../utils/load-config.js';
 import { loadProjectEnv } from '../utils/load-env.js';
@@ -119,6 +120,7 @@ export async function runDoctor(): Promise<DoctorCheckResult[]> {
     );
     const required = getRequiredCredentials(config);
     results.push(...checkRequiredCredentials(required, process.env));
+    results.push(...checkGitHubReadiness(process.env));
   }
 
   return results;
