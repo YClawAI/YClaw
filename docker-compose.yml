@@ -132,6 +132,45 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  # ─── Agent Orchestrator — Code execution + PR workflow ────────────────────
+  ao:
+    build:
+      context: ./ao
+      dockerfile: Dockerfile
+    image: yclaw/ao:local
+    container_name: yclaw-ao
+    env_file: [.env]
+    environment:
+      AO_AUTH_TOKEN: ${AO_AUTH_TOKEN:-}
+      AO_CALLBACK_URL: http://api:3000/api/ao/callback
+      AO_MAX_CONCURRENT: ${AO_MAX_CONCURRENT:-2}
+      REDIS_URL: redis://redis:6379
+      YCLAW_AO_PROJECT: ${YCLAW_AO_PROJECT:-yclaw}
+      YCLAW_REPOS: ${YCLAW_REPOS:-YClawAI/YClaw}
+      GITHUB_APP_ID: ${GITHUB_APP_ID:-}
+      GITHUB_APP_PRIVATE_KEY: ${GITHUB_APP_PRIVATE_KEY:-}
+      GITHUB_APP_INSTALLATION_ID: ${GITHUB_APP_INSTALLATION_ID:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "127.0.0.1:${AO_BRIDGE_PORT:-8420}:8420"
+      - "127.0.0.1:${AO_DASHBOARD_PORT:-3002}:3001"
+    volumes:
+      - ao-data:/data
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8420/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
   # ─── One-shot DB migration ────────────────────────────────────────────────
   # Hits POST /api/migrate after the API is healthy. Idempotent.
   # Replays packages/memory/migrations/*.sql against the postgres container.
@@ -191,3 +230,4 @@ volumes:
   postgres-data:
   api-objects:
   api-logs:
+  ao-data:
