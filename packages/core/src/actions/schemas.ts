@@ -255,6 +255,48 @@ const EVENT_SCHEMAS: Record<string, { description: string; parameters: Record<st
 // ─── Repo Action Schemas ─────────────────────────────────────────────────────
 
 const REPO_SCHEMAS: Record<string, { description: string; parameters: Record<string, ToolParameter> }> = {
+  'repo:register': {
+    description: 'Register a dynamic repository configuration so agents can work on an external repo without editing YCLAW infrastructure',
+    parameters: {
+      name: { type: 'string', description: 'Registry name, lowercase with hyphens/underscores (e.g., "my-app")', required: true },
+      github: {
+        type: 'object',
+        description: 'GitHub config for the target repository',
+        required: true,
+        properties: {
+          owner: { type: 'string', description: 'GitHub org or user', required: true },
+          repo: { type: 'string', description: 'GitHub repository name', required: true },
+          default_branch: { type: 'string', description: 'Default branch (default: main)' },
+          branch_prefix: { type: 'string', description: 'Prefix for agent-created branches (default: agent/)' },
+        },
+      },
+      tech_stack: {
+        type: 'object',
+        description: 'Build/test metadata for the target repository',
+        required: true,
+        properties: {
+          language: { type: 'string', description: 'Primary language (e.g., typescript, python)', required: true },
+          framework: { type: 'string', description: 'Framework, if any' },
+          package_manager: { type: 'string', description: 'npm, yarn, pnpm, or bun' },
+          build_command: { type: 'string', description: 'Build command' },
+          test_command: { type: 'string', description: 'Test command' },
+          lint_command: { type: 'string', description: 'Lint command' },
+        },
+      },
+      risk_tier: { type: 'string', description: 'auto, guarded, or critical (default: auto)' },
+      trust_level: { type: 'string', description: 'sandboxed or trusted (default: sandboxed)' },
+      deployment: { type: 'object', description: 'Deployment config: { type, environments, health_check_url, ... }' },
+      codegen: { type: 'object', description: 'Codegen config: { preferred_backend, timeout_minutes, max_workspace_mb, claude_md_path }' },
+      secrets: { type: 'object', description: 'Repo-scoped secret names for codegen/deploy access' },
+      metadata: { type: 'object', description: 'Description and primary reviewers' },
+    },
+  },
+  'repo:unregister': {
+    description: 'Remove a dynamic repository configuration by registry name or GitHub full name. Static YAML configs cannot be removed this way.',
+    parameters: {
+      repo: { type: 'string', description: 'Registry name or GitHub full name (e.g., "my-app" or "owner/repo")', required: true },
+    },
+  },
   'repo:list': {
     description: 'List repositories in the organization',
     parameters: {},
