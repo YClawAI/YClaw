@@ -6,11 +6,11 @@
 # RDS PostgreSQL is always provisioned for the memory system.
 
 locals {
-  use_documentdb     = var.database_type == "documentdb"
-  rds_instance       = var.rds_instance_class != "" ? var.rds_instance_class : (var.cost_tier == "production" ? "db.t4g.small" : "db.t4g.micro")
-  rds_multi_az       = var.cost_tier == "production"
-  docdb_instance     = var.documentdb_instance_class != "" ? var.documentdb_instance_class : (var.cost_tier == "production" ? "db.t4g.medium" : "db.t4g.medium")
-  docdb_count        = var.cost_tier == "production" ? 2 : 1
+  use_documentdb = var.database_type == "documentdb"
+  rds_instance   = var.rds_instance_class != "" ? var.rds_instance_class : (var.cost_tier == "production" ? "db.t4g.small" : "db.t4g.micro")
+  rds_multi_az   = var.cost_tier == "production"
+  docdb_instance = var.documentdb_instance_class != "" ? var.documentdb_instance_class : (var.cost_tier == "production" ? "db.t4g.medium" : "db.t4g.medium")
+  docdb_count    = var.cost_tier == "production" ? 2 : 1
 }
 
 # ─── Subnet Groups ───────────────────────────────────────────────────────────
@@ -62,9 +62,9 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [var.security_group_id]
 
-  multi_az            = local.rds_multi_az
-  publicly_accessible = false
-  skip_final_snapshot = var.cost_tier != "production"
+  multi_az                  = local.rds_multi_az
+  publicly_accessible       = false
+  skip_final_snapshot       = var.cost_tier != "production"
   final_snapshot_identifier = var.cost_tier == "production" ? "${var.project_name}-memory-final" : null
   deletion_protection       = var.cost_tier == "production"
 
@@ -86,8 +86,8 @@ resource "aws_docdb_cluster" "main" {
   db_subnet_group_name   = aws_docdb_subnet_group.main[0].name
   vpc_security_group_ids = [var.security_group_id]
 
-  storage_encrypted   = true
-  skip_final_snapshot = var.cost_tier != "production"
+  storage_encrypted         = true
+  skip_final_snapshot       = var.cost_tier != "production"
   final_snapshot_identifier = var.cost_tier == "production" ? "${var.project_name}-docdb-final" : null
   deletion_protection       = var.cost_tier == "production"
 

@@ -11,10 +11,10 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  azs              = slice(data.aws_availability_zones.available.names, 0, 2)
-  use_nat          = var.cost_tier == "production"
-  public_subnets   = [for i, az in local.azs : cidrsubnet(var.vpc_cidr, 8, i)]
-  private_subnets  = [for i, az in local.azs : cidrsubnet(var.vpc_cidr, 8, i + 10)]
+  azs             = slice(data.aws_availability_zones.available.names, 0, 2)
+  use_nat         = var.cost_tier == "production"
+  public_subnets  = [for i, az in local.azs : cidrsubnet(var.vpc_cidr, 8, i)]
+  private_subnets = [for i, az in local.azs : cidrsubnet(var.vpc_cidr, 8, i + 10)]
 }
 
 # ─── VPC ──────────────────────────────────────────────────────────────────────
@@ -141,12 +141,27 @@ resource "aws_security_group" "ecs" {
   name_prefix = "${var.project_name}-ecs-"
   vpc_id      = aws_vpc.main.id
 
-  # Only accept traffic from ALB
+  # Public UI/API traffic from the ALB.
   ingress {
     from_port       = 3000
     to_port         = 3001
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
+  }
+
+  # Private service-to-service traffic between Core, Mission Control, and AO.
+  ingress {
+    from_port = 3000
+    to_port   = 3001
+    protocol  = "tcp"
+    self      = true
+  }
+
+  ingress {
+    from_port = 8420
+    to_port   = 8420
+    protocol  = "tcp"
+    self      = true
   }
 
   egress {

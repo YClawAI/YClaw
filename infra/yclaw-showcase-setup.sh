@@ -10,11 +10,11 @@
 set -euo pipefail
 
 REGION="us-east-1"
-ACCOUNT="862974744285"
-VPC_ID="vpc-073bfb3fea4bf6c6e"
+ACCOUNT="<AWS_ACCOUNT_ID>"
+VPC_ID="<VPC_ID>"
 ECS_CLUSTER="yclaw-cluster-production"
-ECS_SG="sg-0acd17c5db21318b8"
-PRIVATE_SUBNETS="subnet-048fa741545cd5571 subnet-09fdbcba9b85fee5c subnet-095e4d44d6ab976c6"
+ECS_SG="<ECS_SECURITY_GROUP_ID>"
+PRIVATE_SUBNETS="<PRIVATE_SUBNET_1> <PRIVATE_SUBNET_2> <PRIVATE_SUBNET_3>"
 
 # ============================================================================
 # Step 1: ECR Repository
@@ -69,15 +69,15 @@ echo ""
 # ============================================================================
 echo "--- Step 3: Register Task Definition ---"
 
-cat > /tmp/yclaw-taskdef-showcase.json << 'TASKDEF'
+cat > /tmp/yclaw-taskdef-showcase.json << TASKDEF
 {
   "family": "yclaw-showcase-production",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
   "memory": "1024",
-  "executionRoleArn": "arn:aws:iam::862974744285:role/yclaw-ecs-task-execution-role",
-  "taskRoleArn": "arn:aws:iam::862974744285:role/yclaw-ecs-task-role",
+  "executionRoleArn": "arn:aws:iam::${ACCOUNT}:role/yclaw-ecs-task-execution-role",
+  "taskRoleArn": "arn:aws:iam::${ACCOUNT}:role/yclaw-ecs-task-role",
   "containerDefinitions": [
     {
       "name": "showcase",

@@ -51,7 +51,7 @@ description: What success looks like
 department: Which department owns this (development, marketing, operations, finance, support)
 priority: P0 (must ship) | P1 (should ship) | P2 (stretch) | P3 (backlog)
 createdBy: "human:[executive]" or "strategist"
-ownerAgentId: Which agent is responsible (e.g., "builder", "architect", "deployer")
+ownerAgentId: Which agent is responsible (e.g., "architect", "sentinel", "ember")
 costBudgetCents: Maximum spend allowed (in cents). Defaults to 0 (no budget cap). Set a value to enable budget alerts.
 kpis: Optional measurable targets. Each needs metric, target, and unit. "current" defaults to 0 if omitted.
 ```
@@ -73,7 +73,7 @@ Note: `costBudgetCents: 0` means uncapped — no budget alerts will fire. Set a 
 When dispatching work to agents, include `objectiveId` in the event payload:
 
 ```
-event:publish source="strategist" type="builder_directive" payload={
+event:publish source="strategist" type="architect_directive" payload={
   "task": "fix_prompt_caching",
   "objectiveId": "<objective-id>",
   "parentTaskId": null,
@@ -99,7 +99,7 @@ In every heartbeat report, include a section for active objectives:
 Objectives Status:
 - [P0] Fix prompt caching — active, 2/5 tasks complete, $4.20 spent of $50 budget
 - [P0] Reduce LLM spend — active, KPI: $52/day → target $30/day
-- [P1] Resolve Builder DLQ — paused (stale loop detected)
+- [P1] Resolve AO queue backlog — paused (stale loop detected)
 ```
 
 Use `GET /api/objectives?status=active` to retrieve current objectives.

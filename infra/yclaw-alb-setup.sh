@@ -3,9 +3,8 @@
 # Run these commands manually (or in order) from a shell with AWS CLI configured.
 #
 # Prerequisites:
-#   - AWS CLI v2 configured for account 862974744285, us-east-1
-#   - VPC: vpc-073bfb3fea4bf6c6e
-#   - ECS SG: sg-0acd17c5db21318b8
+#   - AWS CLI v2 configured for your target AWS account and region
+#   - VPC, public/private subnet IDs, and ECS security group ID
 #   - ECS cluster: yclaw-cluster-production (3 services running)
 #
 # Architecture:
@@ -16,14 +15,14 @@
 set -euo pipefail
 
 REGION="us-east-1"
-VPC_ID="vpc-073bfb3fea4bf6c6e"
-ECS_SG="sg-0acd17c5db21318b8"
+VPC_ID="<VPC_ID>"
+ECS_SG="<ECS_SECURITY_GROUP_ID>"
 
 # Public subnets (for public ALB)
-PUBLIC_SUBNETS="subnet-0dfd5229751fb1535 subnet-00afaacdd2e258cb8 subnet-07e8b090cc8c0ac76"
+PUBLIC_SUBNETS="<PUBLIC_SUBNET_1> <PUBLIC_SUBNET_2> <PUBLIC_SUBNET_3>"
 
 # Private subnets (for internal ALB + ECS tasks)
-PRIVATE_SUBNETS="subnet-048fa741545cd5571 subnet-09fdbcba9b85fee5c subnet-095e4d44d6ab976c6"
+PRIVATE_SUBNETS="<PRIVATE_SUBNET_1> <PRIVATE_SUBNET_2> <PRIVATE_SUBNET_3>"
 
 ACM_CERT_ARN="<ACM_CERT_ARN>"  # TODO: Replace after Step 1
 ZONE_ID="<HOSTED_ZONE_ID>"     # TODO: Replace with yclaw.ai Route 53 hosted zone ID
@@ -86,8 +85,8 @@ echo "Internal ALB SG: $INT_ALB_SG"
 # Inbound: HTTPS + HTTP from VPC CIDR only (Tailscale access via EC2 bridge)
 aws ec2 authorize-security-group-ingress --group-id "$INT_ALB_SG" \
   --ip-permissions \
-    IpProtocol=tcp,FromPort=443,ToPort=443,IpRanges='[{CidrIp=10.0.0.0/16,Description="HTTPS from VPC (Tailscale)"}]' \
-    IpProtocol=tcp,FromPort=80,ToPort=80,IpRanges='[{CidrIp=10.0.0.0/16,Description="HTTP redirect from VPC"}]'
+    IpProtocol=tcp,FromPort=443,ToPort=443,IpRanges='[{CidrIp=<VPC_CIDR>,Description="HTTPS from VPC (Tailscale)"}]' \
+    IpProtocol=tcp,FromPort=80,ToPort=80,IpRanges='[{CidrIp=<VPC_CIDR>,Description="HTTP redirect from VPC"}]'
 
 # Outbound: to ECS SG on port 3001 only (MC)
 aws ec2 authorize-security-group-egress --group-id "$INT_ALB_SG" \
@@ -391,29 +390,23 @@ After ALBs are created and services are registered, update these env vars
 in each ECS task definition via aws ecs register-task-definition:
 
 --- Core (yclaw-production) ---
-  No URL changes needed (Core is the API server).
-  Optional: AO_BRIDGE_URL=http://<ao-task-private-ip>:8420
-  Note: For now use task private IPs. Set up Cloud Map / ECS Service
-  Connect as a follow-up for stable internal DNS names.
+  AO_BRIDGE_URL=http://ao.yclaw.local:8420
+  Use Cloud Map / ECS Service Connect for stable internal DNS names.
 
 --- MC (yclaw-mission-control-production) ---
-  YCLAW_API_URL=http://<core-task-private-ip>:3000               # server-side (internal)
+  YCLAW_API_URL=http://core.yclaw.local:3000                    # server-side (internal)
   NEXT_PUBLIC_YCLAW_API_URL=https://agents.yclaw.ai              # browser-side (public, /api/* path)
   NEXTAUTH_URL=https://<internal-alb-dns>                        # NextAuth callback base (Tailscale)
 
 --- AO (yclaw-ao-production) ---
-  AO_CALLBACK_URL=http://<core-task-private-ip>:3000/api/ao/callback
+  AO_CALLBACK_URL=http://core.yclaw.local:3000/api/ao/callback
 
 --- Service Discovery Note ---
-  <core-task-private-ip> and <ao-task-private-ip> are ECS task private IPs.
-  These change on every deployment. For stable names, set up:
-  - AWS Cloud Map namespace (e.g., yclaw.local)
-  - ECS Service Connect or service discovery
-  This is a follow-up task, not part of this go-live.
-
-  Workaround until then: use the public ALB for internal calls too:
-  - YCLAW_API_URL=https://agents.yclaw.ai (adds ALB round-trip but stable)
-  - AO_CALLBACK_URL=https://agents.yclaw.ai/api/ao/callback
+  Do not use ECS task private IPs for service-to-service URLs. They change on
+  every deployment. Set up AWS Cloud Map / ECS Service Connect first, then use:
+  - Core: core.yclaw.local:3000
+  - MC: mc.yclaw.local:3001
+  - AO: ao.yclaw.local:8420
 
 --- Showcase (yclaw-showcase-production) ---
   YCLAW_PUBLIC_API_URL=https://agents.yclaw.ai    # Public Core API
@@ -427,8 +420,8 @@ Issue: Core gets "connect ETIMEDOUT" on Redis Cloud.
 
 1. NAT Gateway IP Allowlist
    ECS tasks in private subnets egress through NAT gateway.
-   NAT public IP: 100.28.108.39
-   ACTION: Add 100.28.108.39 to Redis Cloud database access list at:
+   NAT public IP: <NAT_GATEWAY_PUBLIC_IP>
+   ACTION: Add the NAT gateway public IP to Redis Cloud database access list at:
    https://app.redislabs.com → Database → Configuration → Security → Access Control
 
 2. TLS Requirement

@@ -20,6 +20,15 @@ output "mc_service" {
   value = module.compute.mc_service_name
 }
 
+output "ao_service" {
+  value = module.compute.ao_service_name
+}
+
+output "ao_service_url" {
+  value       = module.compute.ao_service_url
+  description = "Private AO bridge URL used by Core"
+}
+
 output "s3_bucket" {
   value = module.storage.bucket_name
 }

@@ -10,6 +10,14 @@ output "mc_service_name" {
   value = aws_ecs_service.mc.name
 }
 
+output "ao_service_name" {
+  value = aws_ecs_service.ao.name
+}
+
+output "ao_service_url" {
+  value = local.ao_url
+}
+
 output "alb_dns_name" {
   value = aws_lb.main.dns_name
 }

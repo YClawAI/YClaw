@@ -7,9 +7,9 @@
 # Before first `terraform apply`, import them:
 #
 #   terraform import aws_cloudwatch_log_group.showcase /ecs/yclaw-showcase
-#   terraform import aws_lb_target_group.showcase arn:aws:elasticloadbalancing:us-east-1:862974744285:targetgroup/yclaw-showcase-tg/3b98956b0d2c06f2
-#   terraform import aws_ecs_task_definition.showcase arn:aws:ecs:us-east-1:862974744285:task-definition/yclaw-showcase-production:1
-#   terraform import aws_ecs_service.showcase arn:aws:ecs:us-east-1:862974744285:service/yclaw-cluster-production/yclaw-showcase-production
+#   terraform import aws_lb_target_group.showcase arn:aws:elasticloadbalancing:<AWS_REGION>:<AWS_ACCOUNT_ID>:targetgroup/yclaw-showcase-tg/<TARGET_GROUP_ID>
+#   terraform import aws_ecs_task_definition.showcase arn:aws:ecs:<AWS_REGION>:<AWS_ACCOUNT_ID>:task-definition/yclaw-showcase-production:1
+#   terraform import aws_ecs_service.showcase arn:aws:ecs:<AWS_REGION>:<AWS_ACCOUNT_ID>:service/yclaw-cluster-production/yclaw-showcase-production
 
 # ─── Internal ALB reference ───────────────────────────────────────────────────
 # The internal ALB and its security group were created outside this Terraform
@@ -18,13 +18,13 @@
 variable "internal_alb_sg_id" {
   description = "Security group ID for the internal ALB (yclaw-internal-production)"
   type        = string
-  default     = "sg-00d9de36aef93810f"
+  default     = ""
 }
 
 variable "internal_https_listener_arn" {
   description = "HTTPS listener ARN on the internal ALB"
   type        = string
-  default     = "arn:aws:elasticloadbalancing:us-east-1:862974744285:listener/app/yclaw-internal-production/cb504b06cf6ed0ba/65ddc17d8d426a03"
+  default     = ""
 }
 
 # ─── Route53 reference ────────────────────────────────────────────────────────

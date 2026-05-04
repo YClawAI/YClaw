@@ -185,8 +185,6 @@ event_publications:
   - strategist:weekly_directive
   - strategist:midweek_adjustment
   - strategist:architect_directive
-  - strategist:builder_directive
-  - strategist:deployer_directive
   - strategist:designer_directive
   - strategist:design_generate
   - strategist:standup_synthesis

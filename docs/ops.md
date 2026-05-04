@@ -124,7 +124,7 @@ Mission Control is the Next.js dashboard for managing and monitoring agents.
 Mission Control is behind an internal ALB (`yclaw-internal-production`). DNS resolves
 to private VPC IPs (`<VPC_IP>`), only routable through the Tailscale subnet router.
 
-**Requirements**: Tailscale connected to the YClaw tailnet.
+**Requirements**: Tailscale connected to your configured tailnet.
 
 If DNS cache is stale after changes:
 ```bash
