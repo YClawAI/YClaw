@@ -9,6 +9,7 @@ const logger = createLogger('repo-executor');
 //
 // Actions:
 //   repo:register — Register a new repo config (persists to MongoDB)
+//   repo:unregister — Remove a dynamic repo config from MongoDB and memory
 //   repo:list     — List all registered repo configs
 //
 // Enables agents to register new repos at runtime without modifying
@@ -34,9 +35,16 @@ export class RepoExecutor implements ActionExecutor {
           name: { type: 'string', description: 'Repository name (e.g., "my-app")', required: true },
           github: { type: 'object', description: 'GitHub config: { owner, repo, default_branch, branch_prefix }', required: true },
           tech_stack: { type: 'object', description: 'Tech stack config: { language, framework, package_manager, build_command, test_command, lint_command }', required: true },
-          risk_tier: { type: 'string', description: 'Risk tier: "low", "medium", "high", or "auto" (default: auto)' },
+          risk_tier: { type: 'string', description: 'Risk tier: "auto", "guarded", or "critical" (default: auto)' },
           deployment: { type: 'object', description: 'Deployment config: { type, environments }' },
           codegen: { type: 'object', description: 'Codegen config: { preferred_backend, timeout_minutes, max_workspace_mb }' },
+        },
+      },
+      {
+        name: 'repo:unregister',
+        description: 'Unregister a dynamic repository configuration by registry name or GitHub full name',
+        parameters: {
+          repo: { type: 'string', description: 'Registry name or GitHub full name (e.g., "my-app" or "owner/repo")', required: true },
         },
       },
       {
@@ -54,6 +62,8 @@ export class RepoExecutor implements ActionExecutor {
     switch (action) {
       case 'register':
         return this.registerRepo(params);
+      case 'unregister':
+        return this.unregisterRepo(params);
       case 'list':
         return this.listRepos();
       default:
@@ -87,6 +97,39 @@ export class RepoExecutor implements ActionExecutor {
       const msg = err instanceof Error ? err.message : String(err);
       logger.error('Failed to register repo', { error: msg });
       return { success: false, error: `Failed to register repo: ${msg}` };
+    }
+  }
+
+  // ─── repo:unregister ───────────────────────────────────────────────────
+
+  private async unregisterRepo(params: Record<string, unknown>): Promise<ActionResult> {
+    const repo = typeof params.repo === 'string'
+      ? params.repo
+      : typeof params.name === 'string'
+        ? params.name
+        : undefined;
+
+    if (!repo) {
+      return { success: false, error: 'Missing required parameter: repo' };
+    }
+
+    try {
+      const result = await this.registry.unregister(repo);
+      if (!result.removed) {
+        return { success: false, error: result.reason ?? `Repo not found: ${repo}` };
+      }
+      logger.info('Repo unregistered via action', {
+        name: result.name,
+        github: result.github,
+      });
+      return {
+        success: true,
+        data: result as unknown as Record<string, unknown>,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger.error('Failed to unregister repo', { error: msg });
+      return { success: false, error: `Failed to unregister repo: ${msg}` };
     }
   }
 

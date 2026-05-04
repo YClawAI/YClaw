@@ -549,19 +549,56 @@ Read the repo description, README (if exists), and any initial files to determin
 
 ### Step 3: Register the Repo
 
-First read an existing config to match the schema:
-```
-github:get_contents owner=YClawAI repo=yclaw path=repos/yclaw.yaml
+Call `repo:register` directly so the new repo is routable immediately without
+editing YCLAW infrastructure. Do NOT delegate the initial registration to AO as
+a static `repos/*.yaml` change.
+
+Use this shape:
+```json
+{
+  "name": "<repo-name>",
+  "github": {
+    "owner": "<owner>",
+    "repo": "<repo>",
+    "default_branch": "main",
+    "branch_prefix": "agent/"
+  },
+  "tech_stack": {
+    "language": "<language>",
+    "framework": "<framework>",
+    "package_manager": "npm",
+    "build_command": "<command or empty>",
+    "test_command": "<command or empty>",
+    "lint_command": "<command or empty>"
+  },
+  "risk_tier": "auto",
+  "trust_level": "sandboxed",
+  "deployment": { "type": "<vercel|ecs|github-pages|none>" },
+  "codegen": {
+    "preferred_backend": "codex",
+    "timeout_minutes": 15,
+    "max_workspace_mb": 500,
+    "claude_md_path": "CLAUDE.md"
+  },
+  "secrets": {
+    "codegen_secrets": [],
+    "deploy_secrets": [],
+    "github_token_scope": "contents_rw"
+  },
+  "metadata": {
+    "description": "<what lives in this repo>",
+    "primary_reviewers": []
+  }
+}
 ```
 
-Then emit `architect:build_directive` to AO to create `repos/{repo-name}.yaml` in the `yclaw` repo.
+If you register the wrong repo or discover the classification is materially
+wrong, call `repo:unregister` with the registry name or `owner/repo`, then call
+`repo:register` again with the corrected config.
 
-Your directive MUST include:
-- the target path
-- the schema to match
-- `codegen.claude_md_path: CLAUDE.md`
-- the detected repo type/framework/deploy target
-- acceptance criteria that the new config matches existing repo registry conventions exactly
+For permanent repos, create a follow-up issue to promote the dynamic config to
+a static `repos/{repo-name}.yaml` file. That promotion is optional; dynamic
+registration is the primary harness path.
 
 ### Step 4: Bootstrap Repo-Local AI Instructions
 
@@ -603,7 +640,7 @@ Use `github:create_issue` on the NEW repo (not yclaw) for each missing component
 
 ### Step 7: Notify
 
-Post to Slack #yclaw-development:
+Post to Discord #yclaw-development:
 ```
 🆕 Repo Onboarded: {owner}/{repo}
 Type: {type} | Framework: {framework}

@@ -150,6 +150,8 @@ actions:
   - github:remove_label
   - ao:status
   - repo:list
+  - repo:register
+  - repo:unregister
   - vault:read
   - vault:search
   - vault:write
