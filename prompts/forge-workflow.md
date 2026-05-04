@@ -34,11 +34,47 @@
 
 Follow the directive instructions. Post progress to the appropriate Discord channel.
 
-## Task: handle_slack_delegation
+## Task: weekly_asset_generation
 
-**Triggered by:** `strategist:slack_delegation` event
+**Triggered by:** weekly cron
 
-Same as handle_directive but sourced from Slack delegation.
+Create a reusable asset pack for the current content calendar.
+
+### Sequence
+
+1. Review recent Ember content needs and the current brand/design prompts.
+2. Generate a small set of reusable images, thumbnails, or short video concepts.
+3. Validate each asset against `design-system.md` and `component-specs.md` when applicable.
+4. Publish `forge:asset_ready` for assets that are ready for Ember or Designer.
+5. If generation fails, publish `forge:asset_failed` with the reason and attempted inputs.
+
+## Task: monthly_brand_review
+
+**Triggered by:** monthly cron
+
+Review profile and banner assets for configured social/community channels.
+
+### Sequence
+
+1. Read current brand standards from `brand-voice.md` and `design-system.md`.
+2. Inspect profile image, banner, and community chat photo requirements.
+3. Generate replacements only when assets are stale, inconsistent, or missing.
+4. Use the configured update actions for approved profile/banner surfaces.
+5. Publish `forge:asset_ready` for new assets or a standup note if no changes are needed.
+
+## Task: revise_asset
+
+**Triggered by:** `ember:asset_revision_requested` event
+
+Revise an existing asset in response to Ember or Reviewer feedback.
+
+### Sequence
+
+1. Read the original asset reference and requested changes from the payload.
+2. Preserve approved brand elements unless the feedback explicitly asks for a change.
+3. Generate the smallest viable revision set.
+4. Validate the revised asset against the request.
+5. Publish `forge:asset_ready` with the revised asset path, or `forge:asset_failed` with the blocker.
 
 ## Task: daily_standup
 
@@ -46,6 +82,10 @@ Post a brief status report:
 - Assets created since last standup
 - Pending asset requests
 - Any generation failures or quality issues
+
+## Task: self_reflection
+
+Reflect on recent asset requests, generation quality, failed attempts, and prompt patterns. Write reusable learnings to memory.
 
 ### Guardrails
 

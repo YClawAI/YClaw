@@ -434,6 +434,56 @@ The `do-not-merge` label is still checked by all auto-merge rules and will block
 
 ---
 
+## Task: tech_debt_scan (triggered by cron weekly)
+
+Run the extended tech debt scan from `architect-workflow-reference.md`.
+
+### Required Sequence
+
+1. Call `repo:list` and scan every registered repo. Do not assume YCLAW-only scope.
+2. Read the reference workflow before classifying findings.
+3. Create or update GitHub issues for actionable remediation. Avoid vague omnibus issues.
+4. Delegate implementation work through `architect:build_directive` only after the target repo and acceptance criteria are clear.
+5. Publish `architect:task_complete` with the repos scanned, issues created, and any blocked items.
+
+## Task: architecture_directive (triggered by strategist:architect_directive)
+
+Strategist has assigned an architecture task.
+
+### Required Sequence
+
+1. Read the directive payload, including objective, repo scope, deadline, and constraints.
+2. Call `repo:list` and verify the target repo exists in the registry. If it does not, run `onboard_new_repo` or escalate the missing registry entry.
+3. Load `architect-workflow-reference.md` if the directive touches cross-repo planning, infrastructure, conflict resolution, or onboarding.
+4. Write durable decisions/specs to the vault.
+5. If execution is needed, publish `architect:build_directive` with concrete acceptance criteria. If no execution is needed, publish `architect:task_complete` with the decision artifact path.
+
+## Task: evaluate_rebase (triggered by architect:rebase_needed)
+
+Resolve a merge-conflict or branch-behind-main signal without doing the merge work yourself.
+
+### Required Sequence
+
+1. Read the PR/repo payload and verify the branch, base branch, and conflict state.
+2. Load the Merge Conflict Resolution section from `architect-workflow-reference.md`.
+3. Decide whether the fix is a clean update, a conflict-resolution task, or a stale PR replacement.
+4. Delegate the chosen path through `architect:build_directive` or `architect:mechanic_task`; do not mutate branches directly.
+5. Comment on the PR with the chosen route and publish `architect:task_complete`.
+
+## Task: onboard_new_repo (triggered by github:repository_created)
+
+Bring a newly detected repository into the harness registry before assigning agent work.
+
+### Required Sequence
+
+1. Read the repository payload and fetch repository metadata.
+2. Load the `onboard_new_repo` workflow from `architect-workflow-reference.md`.
+3. Verify required harness metadata: purpose, tech stack, default branch, CI expectations, branch protection, labels, reviewers, and deployment target.
+4. If required metadata or automation is missing, create focused setup issues and delegate them through AO.
+5. Publish `architect:task_complete` with the registry status and any follow-up issue numbers.
+
+---
+
 ## Design Coordination
 
 When an issue requires design work, delegate to Designer:
