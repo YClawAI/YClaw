@@ -31,6 +31,34 @@ check "acm_requires_domain" {
   }
 }
 
+check "github_repo_identity_required" {
+  assert {
+    condition     = length(var.github_owner) > 0 && length(var.github_repo) > 0
+    error_message = "github_owner and github_repo are required so agents cannot silently target stale fork defaults."
+  }
+}
+
+check "github_auth_required" {
+  assert {
+    condition = (
+      length(var.github_token) > 0 ||
+      (
+        length(var.github_app_id) > 0 &&
+        length(var.github_app_private_key) > 0 &&
+        length(var.github_app_installation_id) > 0
+      )
+    )
+    error_message = "Configure either github_token or the GitHub App id/private key/installation id for autonomous repo work."
+  }
+}
+
+check "ao_auth_token_required" {
+  assert {
+    condition     = length(var.ao_auth_token) > 0
+    error_message = "ao_auth_token is required so Core and AO do not start with an unauthenticated bridge."
+  }
+}
+
 # ─── Monitoring (first — log group needed by compute) ─────────────────────────
 
 module "monitoring" {
@@ -94,11 +122,16 @@ module "secrets" {
 
   project_name = var.project_name
   secret_values = {
-    MONGODB_URI           = local.mongodb_uri
-    MEMORY_DATABASE_URL   = module.database.rds_connection_string
-    YCLAW_SETUP_TOKEN     = var.setup_token
-    EVENT_BUS_SECRET      = var.event_bus_secret
-    (local.llm_api_key_name) = var.llm_api_key
+    MONGODB_URI                = local.mongodb_uri
+    MEMORY_DATABASE_URL        = module.database.rds_connection_string
+    YCLAW_SETUP_TOKEN          = var.setup_token
+    EVENT_BUS_SECRET           = var.event_bus_secret
+    AO_AUTH_TOKEN              = var.ao_auth_token
+    GITHUB_APP_ID              = var.github_app_id
+    GITHUB_APP_PRIVATE_KEY     = var.github_app_private_key
+    GITHUB_APP_INSTALLATION_ID = var.github_app_installation_id
+    GITHUB_TOKEN               = var.github_token
+    (local.llm_api_key_name)   = var.llm_api_key
   }
 }
 
@@ -107,28 +140,36 @@ module "secrets" {
 module "compute" {
   source = "./modules/compute"
 
-  project_name          = var.project_name
-  aws_region            = var.aws_region
-  cost_tier             = var.cost_tier
-  vpc_id                = module.networking.vpc_id
-  public_subnet_ids     = module.networking.public_subnet_ids
-  ecs_subnet_ids        = module.networking.ecs_subnet_ids
-  assign_public_ip      = module.networking.assign_public_ip
-  alb_security_group_id = module.networking.alb_security_group_id
-  ecs_security_group_id = module.networking.ecs_security_group_id
-  ecs_cpu               = var.ecs_cpu
-  ecs_memory            = var.ecs_memory
-  core_image            = var.core_image
-  mc_image              = var.mc_image
-  mongodb_uri           = local.mongodb_uri
-  redis_url             = module.cache.redis_connection_string
-  memory_database_url   = module.database.rds_connection_string
-  s3_bucket             = module.storage.bucket_name
-  secret_arns           = module.secrets.secret_arns
-  all_secret_arns       = module.secrets.all_secret_arns
-  log_group_name        = module.monitoring.log_group_name
-  acm_certificate_arn   = var.acm_certificate_arn
-  domain_name           = var.domain_name
+  project_name             = var.project_name
+  aws_region               = var.aws_region
+  cost_tier                = var.cost_tier
+  vpc_id                   = module.networking.vpc_id
+  public_subnet_ids        = module.networking.public_subnet_ids
+  ecs_subnet_ids           = module.networking.ecs_subnet_ids
+  assign_public_ip         = module.networking.assign_public_ip
+  alb_security_group_id    = module.networking.alb_security_group_id
+  ecs_security_group_id    = module.networking.ecs_security_group_id
+  ecs_cpu                  = var.ecs_cpu
+  ecs_memory               = var.ecs_memory
+  core_image               = var.core_image
+  mc_image                 = var.mc_image
+  ao_image                 = var.ao_image
+  ao_max_concurrent        = var.ao_max_concurrent
+  ao_default_agent         = var.ao_default_agent
+  ao_ephemeral_storage_gib = var.ao_ephemeral_storage_gib
+  yclaw_ao_project         = var.yclaw_ao_project
+  yclaw_repos              = var.yclaw_repos
+  github_owner             = var.github_owner
+  github_repo              = var.github_repo
+  mongodb_uri              = local.mongodb_uri
+  redis_url                = module.cache.redis_connection_string
+  memory_database_url      = module.database.rds_connection_string
+  s3_bucket                = module.storage.bucket_name
+  secret_arns              = module.secrets.secret_arns
+  all_secret_arns          = module.secrets.all_secret_arns
+  log_group_name           = module.monitoring.log_group_name
+  acm_certificate_arn      = var.acm_certificate_arn
+  domain_name              = var.domain_name
   # Discord channel routing
   discord_channel_general     = var.discord_channel_general
   discord_channel_executive   = var.discord_channel_executive

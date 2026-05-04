@@ -26,7 +26,7 @@ For each repo, use `github:get_contents` to inspect machine-verifiable signals:
 
 ### Step 3: Triage and Report
 
-- **High severity**: publish `sentinel:alert` event + Discord alert to `1489421639274729502`
+- **High severity**: publish `sentinel:alert` event + Discord alert to the configured alerts channel.
 - **Medium severity**: aggregate into weekly summary
 - **Low severity**: log only, include in next daily_summary
 
@@ -47,7 +47,7 @@ For high-severity findings, call `event:publish` with:
 Then notify via `discord:alert`:
 ```json
 {
-  "channel": "1489421639274729502",
+  "channel": "<DISCORD_CHANNEL_ALERTS>",
   "text": "Quality Alert: <repo> has <count> high-severity issues:\n<top 3 findings>"
 }
 ```

@@ -38,14 +38,14 @@ variable "ecs_security_group_id" {
 }
 
 variable "ecs_cpu" {
-  type    = number
-  default = 0
+  type        = number
+  default     = 0
   description = "Override Fargate CPU units. 0 = auto from cost_tier."
 }
 
 variable "ecs_memory" {
-  type    = number
-  default = 0
+  type        = number
+  default     = 0
   description = "Override Fargate memory (MB). 0 = auto from cost_tier."
 }
 
@@ -57,6 +57,51 @@ variable "core_image" {
 variable "mc_image" {
   type    = string
   default = "yclaw/mission-control:latest"
+}
+
+variable "ao_image" {
+  type    = string
+  default = "yclaw/ao:latest"
+}
+
+variable "ao_max_concurrent" {
+  type    = number
+  default = 2
+}
+
+variable "ao_default_agent" {
+  type    = string
+  default = "claude-code"
+}
+
+variable "ao_ephemeral_storage_gib" {
+  type        = number
+  default     = 50
+  description = "Fargate ephemeral storage for AO worktrees and build artifacts"
+
+  validation {
+    condition     = var.ao_ephemeral_storage_gib >= 21 && var.ao_ephemeral_storage_gib <= 200
+    error_message = "ao_ephemeral_storage_gib must be between 21 and 200."
+  }
+}
+
+variable "yclaw_ao_project" {
+  type    = string
+  default = "yclaw"
+}
+
+variable "yclaw_repos" {
+  type        = string
+  default     = ""
+  description = "Comma-separated owner/repo entries AO should bootstrap at startup"
+}
+
+variable "github_owner" {
+  type = string
+}
+
+variable "github_repo" {
+  type = string
 }
 
 # ─── Connection strings (from other modules) ─────────────────────────────────
@@ -145,14 +190,13 @@ variable "log_group_name" {
 # ─── HTTPS (optional) ────────────────────────────────────────────────────────
 
 variable "acm_certificate_arn" {
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
   description = "ACM certificate ARN for HTTPS. Empty = HTTP only (dev/test)."
 }
 
 variable "domain_name" {
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
   description = "Domain name for Route53 alias. Empty = use ALB DNS name."
 }
-

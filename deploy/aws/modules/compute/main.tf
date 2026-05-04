@@ -15,6 +15,9 @@ locals {
   # so the https://<alb-dns> fallback is intentionally omitted — ACM certs
   # won't match *.elb.amazonaws.com hostnames.
   public_base_url = local.use_https ? "https://${var.domain_name}" : "http://${aws_lb.main.dns_name}"
+  namespace_name  = "${var.project_name}.local"
+  core_url        = "http://core.${local.namespace_name}:3000"
+  ao_url          = "http://ao.${local.namespace_name}:8420"
 }
 
 data "aws_caller_identity" "current" {}
@@ -104,6 +107,52 @@ resource "aws_ecs_cluster" "main" {
   }
 
   tags = { Name = "${var.project_name}-cluster" }
+}
+
+# ─── Private Service Discovery ────────────────────────────────────────────────
+
+resource "aws_service_discovery_private_dns_namespace" "main" {
+  name        = local.namespace_name
+  description = "Private service discovery for YCLAW ECS services"
+  vpc         = var.vpc_id
+}
+
+resource "aws_service_discovery_service" "core" {
+  name = "core"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.main.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+resource "aws_service_discovery_service" "ao" {
+  name = "ao"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.main.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
 }
 
 # ─── ALB ──────────────────────────────────────────────────────────────────────
@@ -250,6 +299,9 @@ resource "aws_ecs_task_definition" "core" {
       { name = "YCLAW_S3_BUCKET", value = var.s3_bucket },
       { name = "AWS_REGION", value = var.aws_region },
       { name = "REDIS_URL", value = var.redis_url },
+      { name = "AO_SERVICE_URL", value = local.ao_url },
+      { name = "GITHUB_OWNER", value = var.github_owner },
+      { name = "GITHUB_REPO", value = var.github_repo },
       # Discord channel routing — agents are Discord-only
       { name = "DISCORD_CHANNEL_GENERAL", value = var.discord_channel_general },
       { name = "DISCORD_CHANNEL_EXECUTIVE", value = var.discord_channel_executive },
@@ -336,6 +388,67 @@ resource "aws_ecs_task_definition" "mc" {
   tags = { Name = "${var.project_name}-mc-task" }
 }
 
+resource "aws_ecs_task_definition" "ao" {
+  family                   = "${var.project_name}-ao"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = local.cpu
+  memory                   = local.memory
+  execution_role_arn       = aws_iam_role.ecs_execution.arn
+  task_role_arn            = aws_iam_role.ecs_task.arn
+
+  ephemeral_storage {
+    size_in_gib = var.ao_ephemeral_storage_gib
+  }
+
+  container_definitions = jsonencode([{
+    name      = "ao"
+    image     = var.ao_image
+    essential = true
+
+    portMappings = [{
+      containerPort = 8420
+      protocol      = "tcp"
+    }]
+
+    environment = [
+      { name = "NODE_ENV", value = "production" },
+      { name = "AO_BRIDGE_PORT", value = "8420" },
+      { name = "AO_CALLBACK_URL", value = "${local.core_url}/api/ao/callback" },
+      { name = "AO_DEFAULT_AGENT", value = var.ao_default_agent },
+      { name = "AO_MAX_CONCURRENT", value = tostring(var.ao_max_concurrent) },
+      { name = "REDIS_URL", value = var.redis_url },
+      { name = "YCLAW_AO_PROJECT", value = var.yclaw_ao_project },
+      { name = "YCLAW_REPOS", value = var.yclaw_repos },
+      { name = "GITHUB_OWNER", value = var.github_owner },
+      { name = "GITHUB_REPO", value = var.github_repo },
+    ]
+
+    secrets = [
+      for name, arn in var.secret_arns : { name = name, valueFrom = arn }
+    ]
+
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = var.log_group_name
+        "awslogs-region"        = var.aws_region
+        "awslogs-stream-prefix" = "ao"
+      }
+    }
+
+    healthCheck = {
+      command     = ["CMD-SHELL", "curl -f http://localhost:8420/health || exit 1"]
+      interval    = 30
+      timeout     = 5
+      retries     = 3
+      startPeriod = 60
+    }
+  }])
+
+  tags = { Name = "${var.project_name}-ao-task" }
+}
+
 # ─── ECS Services ─────────────────────────────────────────────────────────────
 
 resource "aws_ecs_service" "core" {
@@ -355,6 +468,10 @@ resource "aws_ecs_service" "core" {
     target_group_arn = aws_lb_target_group.api.arn
     container_name   = "core"
     container_port   = 3000
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.core.arn
   }
 
   depends_on = [aws_lb_listener.http]
@@ -384,4 +501,24 @@ resource "aws_ecs_service" "mc" {
   depends_on = [aws_lb_listener.http]
 
   tags = { Name = "${var.project_name}-mc-service" }
+}
+
+resource "aws_ecs_service" "ao" {
+  name            = "${var.project_name}-ao"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.ao.arn
+  desired_count   = var.cost_tier == "production" ? 2 : 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = var.ecs_subnet_ids
+    security_groups  = [var.ecs_security_group_id]
+    assign_public_ip = var.assign_public_ip
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.ao.arn
+  }
+
+  tags = { Name = "${var.project_name}-ao-service" }
 }
