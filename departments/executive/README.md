@@ -15,7 +15,6 @@ The Executive department provides strategic direction and brand governance for t
 flowchart TD
     subgraph Inputs
         STANDUPS[standup:report<br/>from all agents]
-        SLACK[slack:app_mention]
         CONTENT[review:pending /<br/>ember:content_ready /<br/>scout:outreach_ready]
     end
 
@@ -25,14 +24,12 @@ flowchart TD
     end
 
     STANDUPS --> STRATEGIST
-    SLACK --> STRATEGIST
 
     STRATEGIST -- strategist:*_directive --> DEV[Development]
     STRATEGIST -- strategist:*_directive --> MKT[Marketing]
     STRATEGIST -- strategist:*_directive --> OPS[Operations]
     STRATEGIST -- strategist:*_directive --> FIN[Finance]
     STRATEGIST -- strategist:*_directive --> SUP[Support]
-    STRATEGIST -- strategist:slack_delegation --> FORGE_MKT[Forge<br/>Marketing]
 
     CONTENT --> REVIEWER
     REVIEWER -- reviewer:approved --> EMBER[Ember<br/>Marketing]
@@ -45,7 +42,7 @@ flowchart TD
 
 | Direction | Event |
 |-----------|-------|
-| Subscribes | `standup:report` (batch, min 10, 30-min timeout), `slack:app_mention`, `claudeception:reflect` |
+| Subscribes | `standup:report` (batch, min 8, 20-min timeout), `claudeception:reflect`, `sentinel:alert`, `ao:task_failed`, `ao:spawn_failed`, `architect:task_blocked` |
 | Publishes | `strategist:weekly_directive`, `strategist:midweek_adjustment`, `strategist:standup_synthesis`, and per-agent directives (`strategist:{agent}_directive` for each agent in the organization) |
 
 ### Reviewer
@@ -87,10 +84,6 @@ The Reviewer operates at temperature 0 for deterministic evaluation. All externa
 2. Reviewer evaluates against brand voice, terminology, and legal guidelines.
 3. Approved content triggers `reviewer:approved` (Ember publishes it).
 4. Flagged content triggers `reviewer:flagged` (Ember revises it).
-
-### Strategist: Slack Integration
-
-The Strategist handles `slack:app_mention` events, enabling team members to interact with the agent system directly from Slack. It can also delegate Slack tasks to Forge via `strategist:slack_delegation`.
 
 ## Actions Available
 

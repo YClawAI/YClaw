@@ -87,12 +87,13 @@ const FORGE: AgentCardConfig = {
     { platform: 'Internal', actions: ['event:publish'] },
   ],
   cronTriggers: [
-    { task: 'daily_standup', cron: '14 13 * * *' },
+    { task: 'weekly_asset_generation', cron: '0 10 * * 1' },
+    { task: 'monthly_brand_review', cron: '0 9 1 * *' },
   ],
   eventTriggers: [
     { event: 'ember:needs_asset', label: 'Create Asset' },
-    { event: 'strategist:slack_delegation', label: 'Handle Slack Delegation' },
-    { event: 'forge:directive', label: 'Handle Directive' },
+    { event: 'ember:asset_revision_requested', label: 'Revise Asset' },
+    { event: 'strategist:forge_directive', label: 'Handle Directive' },
     { event: 'claudeception:reflect', label: 'Self Reflection' },
   ],
 };
