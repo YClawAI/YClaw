@@ -1,4 +1,5 @@
 import { createLogger } from '../logging/logger.js';
+import { ContentDedupGate } from './content-dedup.js';
 
 const logger = createLogger('outbound-safety');
 
@@ -63,7 +64,7 @@ const SEMI_TRUSTED_ACTIONS = new Set([
 export interface SafetyCheckResult {
   safe: boolean;
   reason: string;
-  blocked_by: 'deterministic' | null;
+  blocked_by: 'deterministic' | 'dedup' | null;
   details?: string[];
 }
 
@@ -71,6 +72,7 @@ export interface SafetyCheckResult {
 
 export class OutboundSafetyGate {
   private slackAlerter: ((message: string, severity: string) => Promise<void>) | null = null;
+  private dedupGate = new ContentDedupGate();
 
   setSlackAlerter(alerter: (message: string, severity: string) => Promise<void>): void {
     this.slackAlerter = alerter;
@@ -114,7 +116,59 @@ export class OutboundSafetyGate {
       return deterministicResult;
     }
 
+    // Dedup check — block near-identical content posted to the same platform
+    const dedupResult = this.dedupCheck(agentName, actionName, params);
+    if (!dedupResult.safe) {
+      await this.alert(agentName, actionName, dedupResult);
+      return dedupResult;
+    }
+
     return { safe: true, reason: 'Deterministic checks passed', blocked_by: null };
+  }
+
+  /**
+   * Record content that was successfully posted so future calls to `check`
+   * can detect duplicates. Call this AFTER a successful outbound action.
+   */
+  recordOutboundContent(actionName: string, params: Record<string, unknown>): void {
+    const actionPrefix = actionName.split(':')[0];
+    if (!OUTBOUND_ACTIONS.has(actionPrefix)) return;
+
+    const content = this.extractContentFields(params).join(' ');
+    if (!content.trim()) return;
+
+    this.dedupGate.recordOutboundContent(content, actionPrefix);
+  }
+
+  // ─── Dedup Check ──────────────────────────────────────────────────────────
+
+  private dedupCheck(
+    agentName: string,
+    actionName: string,
+    params: Record<string, unknown>,
+  ): SafetyCheckResult {
+    try {
+      const platform = actionName.split(':')[0];
+      const content = this.extractContentFields(params).join(' ');
+      if (!content.trim()) {
+        return { safe: true, reason: 'No content to dedup-check', blocked_by: null };
+      }
+
+      const result = this.dedupGate.check(content, platform);
+      if (result.isDuplicate) {
+        const reason = result.reason === 'exact'
+          ? 'Duplicate content detected (exact match) — blocking to prevent duplicate post'
+          : `Near-duplicate content detected (${Math.round((result.similarity ?? 0) * 100)}% similarity) — blocking to prevent duplicate post`;
+        logger.warn(`BLOCKED (dedup): ${agentName} → ${actionName}`, { reason, similarity: result.similarity });
+        return { safe: false, reason, blocked_by: 'dedup' };
+      }
+
+      return { safe: true, reason: 'Dedup check passed', blocked_by: null };
+    } catch (err) {
+      // Fail-open: dedup errors must not block legitimate posts
+      logger.warn('Dedup check error (fail-open)', { error: err instanceof Error ? err.message : String(err) });
+      return { safe: true, reason: 'Dedup check error (fail-open)', blocked_by: null };
+    }
   }
 
   // ─── Deterministic Checks ─────────────────────────────────────────────────

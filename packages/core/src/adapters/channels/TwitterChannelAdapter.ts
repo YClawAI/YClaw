@@ -14,20 +14,41 @@ import type {
 } from '../../interfaces/IChannel.js';
 import { TwitterExecutor } from '../../actions/twitter.js';
 import { createLogger } from '../../logging/logger.js';
+import { Redis as IORedis } from 'ioredis';
 
 const logger = createLogger('twitter-channel-adapter');
 
 export class TwitterChannelAdapter implements IChannel {
   readonly name = 'twitter';
   private executor: TwitterExecutor | null = null;
+  private dedupRedis: IORedis | null = null;
 
   async connect(_config: ChannelConfig): Promise<void> {
-    this.executor = new TwitterExecutor();
+    // Spin up a dedicated dedup Redis connection for the channel adapter path
+    const redisUrl = process.env.REDIS_URL;
+    if (redisUrl && (redisUrl.startsWith('redis://') || redisUrl.startsWith('rediss://'))) {
+      try {
+        this.dedupRedis = new IORedis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 3 });
+        await this.dedupRedis.connect();
+        logger.info('TwitterChannelAdapter: dedup Redis connected');
+      } catch (err) {
+        logger.warn('TwitterChannelAdapter: dedup Redis unavailable — dedup disabled', {
+          error: err instanceof Error ? err.message : String(err),
+        });
+        this.dedupRedis = null;
+      }
+    }
+
+    this.executor = new TwitterExecutor(this.dedupRedis);
     logger.info('TwitterChannelAdapter connected');
   }
 
   async disconnect(): Promise<void> {
     this.executor = null;
+    if (this.dedupRedis) {
+      this.dedupRedis.disconnect();
+      this.dedupRedis = null;
+    }
     logger.info('TwitterChannelAdapter disconnected');
   }
 
