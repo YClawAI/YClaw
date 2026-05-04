@@ -31,13 +31,13 @@ variable "security_group_id" {
 }
 
 variable "rds_instance_class" {
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
   description = "Override RDS instance class. Empty = auto from cost_tier."
 }
 
 variable "documentdb_instance_class" {
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
   description = "Override DocumentDB instance class. Empty = auto from cost_tier."
 }

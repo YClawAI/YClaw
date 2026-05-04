@@ -7,7 +7,7 @@ output "public_subnet_ids" {
 }
 
 output "private_subnet_ids" {
-  value = local.use_nat ? aws_subnet.private[*].id : aws_subnet.public[*].id
+  value       = local.use_nat ? aws_subnet.private[*].id : aws_subnet.public[*].id
   description = "Private subnets if NAT exists, otherwise public subnets (starter tier)"
 }
 

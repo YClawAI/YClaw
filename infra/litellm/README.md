@@ -45,7 +45,7 @@ DB_PASS=$(aws secretsmanager get-secret-value \
   --secret-id yclaw/production/secrets \
   --query 'SecretString' --output text | jq -r '.DB_PASSWORD')
 
-psql "postgresql://yclaw_admin:${DB_PASS}@yclaw-memory-production.cv3nsndexxru.us-east-1.rds.amazonaws.com:5432/postgres" \
+psql "postgresql://yclaw_admin:${DB_PASS}@<RDS_ENDPOINT>:5432/postgres" \
   -c "CREATE DATABASE litellm;" \
   -c "GRANT ALL PRIVILEGES ON DATABASE litellm TO yclaw_admin;"
 ```
@@ -81,7 +81,7 @@ DB_PASS=$(aws secretsmanager get-secret-value \
 aws secretsmanager create-secret \
   --name yclaw/production/litellm-db-url \
   --region us-east-1 \
-  --secret-string "postgresql://yclaw_admin:${DB_PASS}@yclaw-memory-production.cv3nsndexxru.us-east-1.rds.amazonaws.com:5432/litellm"
+  --secret-string "postgresql://yclaw_admin:${DB_PASS}@<RDS_ENDPOINT>:5432/litellm"
 ```
 
 ### 4. Grant the task execution role access to the new secret
@@ -144,7 +144,7 @@ aws ecs create-service \
   --launch-type FARGATE \
   --network-configuration "awsvpcConfiguration={
     subnets=[<SUBNET_ID_1>,<SUBNET_ID_2>],
-    securityGroups=[sg-0acd17c5db21318b8],
+    securityGroups=[<ECS_SECURITY_GROUP_ID>],
     assignPublicIp=DISABLED
   }" \
   --service-connect-configuration '{

@@ -18,6 +18,14 @@ mongodb_uri   = "mongodb+srv://user:pass@cluster.mongodb.net/yclaw_agents"
 # Compute
 core_image = "yclaw/core:latest"
 mc_image   = "yclaw/mission-control:latest"
+ao_image   = "yclaw/ao:latest"
+ao_ephemeral_storage_gib = 50
+
+# GitHub + AO autonomy
+github_owner  = "YourOrg"
+github_repo   = "your-repo"
+yclaw_repos   = "YourOrg/your-repo"
+# ao_auth_token = "generate-with-openssl-rand-base64-32"
 
 # HTTPS (recommended for production)
 # acm_certificate_arn = "arn:aws:acm:us-east-1:123456789:certificate/abc-123"
@@ -27,3 +35,7 @@ mc_image   = "yclaw/mission-control:latest"
 # setup_token      = "..."
 # event_bus_secret = "..."
 # llm_api_key      = "..."
+# github_app_id              = "..."
+# github_app_private_key     = "..."
+# github_app_installation_id = "..."
+# github_token               = "..."

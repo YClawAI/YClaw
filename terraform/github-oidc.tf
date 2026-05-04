@@ -1,7 +1,7 @@
 # ─── GitHub Actions OIDC ──────────────────────────────────────────────────────
 #
 # STATUS: Deployed and active. GitHub Actions CI/CD uses OIDC federation.
-# Role ARN: arn:aws:iam::862974744285:role/yclaw-github-actions-deploy
+# Role ARN: arn:aws:iam::<AWS_ACCOUNT_ID>:role/yclaw-github-actions-deploy
 # GitHub secret AWS_ROLE_ARN is set.
 #
 # Allows GitHub Actions to assume an IAM role via OIDC federation — no static

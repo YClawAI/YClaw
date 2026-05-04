@@ -17,8 +17,8 @@
 #   terraform import aws_efs_access_point.agenthub fsap-099d64d4bcde89fa2
 #
 #   # Security Groups
-#   terraform import aws_security_group.agenthub sg-096f4cc78ac6cf0a8
-#   terraform import aws_security_group.efs_agenthub sg-0b1da01471a2eec1b
+#   terraform import aws_security_group.agenthub <AGENTHUB_SECURITY_GROUP_ID>
+#   terraform import aws_security_group.efs_agenthub <AGENTHUB_EFS_SECURITY_GROUP_ID>
 #
 #   # IAM (new dedicated roles — skip if not yet created)
 #   terraform import aws_iam_role.agenthub_task_execution yclaw-agenthub-task-execution

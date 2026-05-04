@@ -16,7 +16,7 @@ variable "security_group_id" {
 }
 
 variable "redis_node_type" {
-  type    = string
-  default = ""
+  type        = string
+  default     = ""
   description = "Override Redis node type. Empty = auto from cost_tier."
 }
