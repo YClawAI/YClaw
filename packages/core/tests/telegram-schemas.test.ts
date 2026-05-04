@@ -332,12 +332,12 @@ describe('Full schema registry with telegram', () => {
     expect(githubCount).toBe(13);
     expect(slackCount).toBe(6);
     expect(eventCount).toBe(1);
-    expect(repoCount).toBe(1);
+    expect(repoCount).toBe(3);
     expect(twitterCount).toBe(12);
     expect(xCount).toBe(4);
     expect(telegramCount).toBe(13);
 
-    // Total: 13 + 6 + 1 + 1 + 12 + 4 + 13 + 4 (task) + 3 (deploy) = 57
-    expect(allActions.length).toBe(57);
+    // Total: 13 + 6 + 1 + 3 + 12 + 4 + 13 + 4 (task) + 3 (deploy) = 59
+    expect(allActions.length).toBe(59);
   });
 });

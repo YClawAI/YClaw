@@ -126,11 +126,35 @@ function buildEnv(state: WizardState): Record<string, string> {
   env.EVENT_BUS_SECRET = randomHex(32);
   env.YCLAW_SETUP_TOKEN = randomHex(32);
 
+  // Autonomous operation defaults. These match the harness goal: agents should
+  // act by default in local installs, while budget enforcement stays disabled
+  // until a LiteLLM database is configured.
+  env.GOVERNANCE_MODE = 'off';
+  env.REACTION_LOOP_ENABLED = 'true';
+  env.BUDGET_ENFORCEMENT_ENABLED = 'false';
+
+  // GitHub repo identity is required for real work. Leave blank for the wizard
+  // to collect/fill later instead of falling back to stale fork defaults.
+  env.GITHUB_OWNER = '';
+  env.GITHUB_REPO = '';
+  env.GITHUB_APP_ID = state.credentials.GITHUB_APP_ID ?? '';
+  env.GITHUB_APP_PRIVATE_KEY = state.credentials.GITHUB_APP_PRIVATE_KEY ?? '';
+  env.GITHUB_APP_INSTALLATION_ID = state.credentials.GITHUB_APP_INSTALLATION_ID ?? '';
+  env.GITHUB_TOKEN = state.credentials.GITHUB_TOKEN ?? '';
+
   // Docker Compose profiles — bundled infrastructure by default
   if (state.deployment.target === 'docker-compose') {
     env.COMPOSE_PROFILES = 'bundled';
     env.POSTGRES_PASSWORD = 'yclaw_dev';
     env.MC_PORT = '3001';
+    env.NEXTAUTH_SECRET = randomHex(32);
+    env.NEXTAUTH_URL = 'http://localhost:3001';
+    env.AO_SERVICE_URL = 'http://ao:8420';
+    env.AO_AUTH_TOKEN = randomHex(32);
+    env.AO_CALLBACK_URL = 'http://yclaw:3000/api/ao/callback';
+    env.AO_MAX_CONCURRENT = '2';
+    env.YCLAW_AO_PROJECT = 'yclaw';
+    env.YCLAW_REPOS = 'YClawAI/YClaw';
   }
 
   return env;
@@ -150,7 +174,7 @@ function buildCompose(state: WizardState): DockerComposeSpec {
   services.yclaw = {
     build: '.',
     ports: [
-      `\${PORT:-${state.networking.ports.api}}:3000`,
+      `\${API_PORT:-${state.networking.ports.api}}:3000`,
     ],
     env_file: ['.env'],
     depends_on: {
@@ -164,6 +188,73 @@ function buildCompose(state: WizardState): DockerComposeSpec {
       'yclaw-objects:/app/data/objects',
       'yclaw-logs:/app/logs',
     ],
+  };
+
+  services['mission-control'] = {
+    build: {
+      context: '.',
+      dockerfile: 'packages/mission-control/Dockerfile',
+    },
+    ports: [
+      '${MC_PORT:-3001}:3001',
+    ],
+    environment: {
+      NODE_ENV: '${NODE_ENV:-production}',
+      PORT: '3001',
+      HOSTNAME: '0.0.0.0',
+      YCLAW_API_URL: 'http://yclaw:3000',
+      NEXT_PUBLIC_YCLAW_API_URL: `http://localhost:\${API_PORT:-${state.networking.ports.api}}`,
+      NEXTAUTH_URL: 'http://localhost:${MC_PORT:-3001}',
+    },
+    env_file: ['.env'],
+    depends_on: {
+      yclaw: { condition: 'service_healthy' },
+    },
+    healthcheck: {
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3001/login'],
+      interval: '15s',
+      timeout: '5s',
+      retries: 5,
+    },
+  };
+
+  services.ao = {
+    build: {
+      context: './ao',
+      dockerfile: 'Dockerfile',
+    },
+    ports: [
+      '${AO_BRIDGE_PORT:-8420}:8420',
+      '${AO_DASHBOARD_PORT:-3002}:3001',
+    ],
+    env_file: ['.env'],
+    environment: {
+      AO_AUTH_TOKEN: '${AO_AUTH_TOKEN}',
+      AO_CALLBACK_URL: '${AO_CALLBACK_URL}',
+      AO_MAX_CONCURRENT: '${AO_MAX_CONCURRENT:-2}',
+      REDIS_URL: 'redis://redis:6379',
+      YCLAW_AO_PROJECT: '${YCLAW_AO_PROJECT:-yclaw}',
+      YCLAW_REPOS: '${YCLAW_REPOS:-YClawAI/YClaw}',
+      GITHUB_APP_ID: '${GITHUB_APP_ID}',
+      GITHUB_APP_PRIVATE_KEY: '${GITHUB_APP_PRIVATE_KEY}',
+      GITHUB_APP_INSTALLATION_ID: '${GITHUB_APP_INSTALLATION_ID}',
+      GITHUB_TOKEN: '${GITHUB_TOKEN}',
+      ANTHROPIC_API_KEY: '${ANTHROPIC_API_KEY}',
+      OPENAI_API_KEY: '${OPENAI_API_KEY}',
+    },
+    depends_on: {
+      yclaw: { condition: 'service_healthy' },
+      redis: { condition: 'service_healthy' },
+    },
+    volumes: [
+      'ao-data:/data',
+    ],
+    healthcheck: {
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:8420/health'],
+      interval: '15s',
+      timeout: '5s',
+      retries: 5,
+    },
   };
 
   // MongoDB
@@ -216,6 +307,7 @@ function buildCompose(state: WizardState): DockerComposeSpec {
   // Object storage volume
   volumes['yclaw-objects'] = {};
   volumes['yclaw-logs'] = {};
+  volumes['ao-data'] = {};
 
   return { services, volumes };
 }
@@ -302,7 +394,7 @@ function buildRequirements(state: WizardState): ResolvedInitPlan['requirements']
     state.networking.ports.api,
   ];
   if (dockerRequired) {
-    portsRequired.push(27017, 6379, 5432);
+    portsRequired.push(27017, 6379, 5432, 3001, 8420, 3002);
   }
 
   return { dockerRequired, credentialsRequired, portsRequired };
