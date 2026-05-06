@@ -17,10 +17,40 @@ This guide gets you from nothing to a running YCLAW instance with Mission Contro
 
 ---
 
-## Step 1: Initialize
+## One-Line Guided Install
 
 ```bash
-npx yclaw init --preset local-demo
+curl -fsSL https://raw.githubusercontent.com/YClawAI/YClaw/main/install.sh | bash
+```
+
+This clones YCLAW into `~/yclaw`, installs dependencies, builds the local CLI,
+runs `yclaw init`, and runs `yclaw doctor`. The installer refuses to deploy
+until doctor passes, so missing LLM/GitHub credentials stop before any unhealthy
+containers are started.
+
+Useful variants:
+
+```bash
+# Generate local-demo config without prompts
+curl -fsSL https://raw.githubusercontent.com/YClawAI/YClaw/main/install.sh | bash -s -- --preset local-demo --non-interactive
+
+# Start an AWS/Terraform config
+curl -fsSL https://raw.githubusercontent.com/YClawAI/YClaw/main/install.sh | bash -s -- --preset aws-production
+
+# Choose a target directory
+curl -fsSL https://raw.githubusercontent.com/YClawAI/YClaw/main/install.sh | bash -s -- --dir ./yclaw
+```
+
+---
+
+## Manual Step 1: Initialize
+
+```bash
+git clone https://github.com/YClawAI/YClaw.git
+cd YClaw
+npm ci
+npm run build --workspace=packages/cli
+npx --no-install yclaw init --preset local-demo
 ```
 
 This generates three files:
@@ -31,24 +61,29 @@ This generates three files:
 | `.env` | Credentials and secrets (mode 0600) |
 | `.yclaw-cli.json` | CLI metadata sidecar |
 
-Edit `.env` and set your `ANTHROPIC_API_KEY` (or whichever LLM provider you chose).
+Edit `.env` and set:
+
+- one LLM key, such as `ANTHROPIC_API_KEY`
+- `GITHUB_OWNER`, `GITHUB_REPO`, and `YCLAW_REPOS`
+- GitHub App credentials or a local-only `GITHUB_TOKEN`
+- `GITHUB_WEBHOOK_SECRET`, also configured on the GitHub App webhook
 
 ---
 
-## Step 2: Validate
+## Manual Step 2: Validate
 
 ```bash
-npx yclaw doctor
+npx --no-install yclaw doctor
 ```
 
 The doctor runs 10+ checks: Node version, Docker availability, port availability, config schema validation, credential format. Fix anything marked FAIL before proceeding.
 
 ---
 
-## Step 3: Deploy
+## Manual Step 3: Deploy
 
 ```bash
-npx yclaw deploy --detach
+npx --no-install yclaw deploy --detach --bootstrap-output-file ./yclaw-root-bootstrap.json
 ```
 
 This starts Docker Compose with MongoDB, Redis, PostgreSQL, the Core runtime, and Mission Control. The `--detach` flag runs containers in the background.
@@ -68,7 +103,7 @@ You'll see the dashboard with system health, agent status, and the onboarding pr
 ## Step 5: Check Status
 
 ```bash
-npx yclaw status
+npx --no-install yclaw status
 ```
 
 Shows infrastructure health, channel status, agent counts, and recent errors. Exit code 0 means healthy.
@@ -91,8 +126,8 @@ In Mission Control, walk through the onboarding flow. Answer questions about you
 ## Step 7: Tear Down (when done)
 
 ```bash
-npx yclaw destroy              # Stop containers
-npx yclaw destroy --volumes    # Stop containers AND delete data
+npx --no-install yclaw destroy              # Stop containers
+npx --no-install yclaw destroy --volumes    # Stop containers AND delete data
 ```
 
 ---

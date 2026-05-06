@@ -64,6 +64,12 @@ describe('generateEnvFile', () => {
     expect(env).toMatch(/EVENT_BUS_SECRET=[0-9a-f]{64}/);
   });
 
+  it('includes GitHub webhook secret for doctor readiness', () => {
+    const plan = resolveInitPlan(getPreset('local-demo'));
+    const env = generateEnvFile(plan);
+    expect(env).toMatch(/GITHUB_WEBHOOK_SECRET=[0-9a-f]{64}/);
+  });
+
   it('includes Mission Control auth secret for docker-compose installs', () => {
     const plan = resolveInitPlan(getPreset('local-demo'));
     const env = generateEnvFile(plan);
