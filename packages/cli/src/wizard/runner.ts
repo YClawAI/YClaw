@@ -107,7 +107,13 @@ export function runNonInteractive(presetName: string): ResolvedInitPlan {
     'TWITTER_APP_SECRET',
     'TWITTER_ACCESS_TOKEN',
     'TWITTER_ACCESS_SECRET',
+    'GITHUB_OWNER',
+    'GITHUB_REPO',
+    'GITHUB_APP_ID',
+    'GITHUB_APP_PRIVATE_KEY',
+    'GITHUB_APP_INSTALLATION_ID',
     'GITHUB_TOKEN',
+    'GITHUB_WEBHOOK_SECRET',
   ]);
 
   const credentials: Record<string, string> = {};

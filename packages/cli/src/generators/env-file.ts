@@ -68,6 +68,7 @@ export function generateEnvFile(plan: ResolvedInitPlan): string {
         'GITHUB_APP_PRIVATE_KEY',
         'GITHUB_APP_INSTALLATION_ID',
         'GITHUB_TOKEN',
+        'GITHUB_WEBHOOK_SECRET',
       ],
     },
     {

@@ -135,12 +135,13 @@ function buildEnv(state: WizardState): Record<string, string> {
 
   // GitHub repo identity is required for real work. Leave blank for the wizard
   // to collect/fill later instead of falling back to stale fork defaults.
-  env.GITHUB_OWNER = '';
-  env.GITHUB_REPO = '';
+  env.GITHUB_OWNER = state.credentials.GITHUB_OWNER ?? '';
+  env.GITHUB_REPO = state.credentials.GITHUB_REPO ?? '';
   env.GITHUB_APP_ID = state.credentials.GITHUB_APP_ID ?? '';
   env.GITHUB_APP_PRIVATE_KEY = state.credentials.GITHUB_APP_PRIVATE_KEY ?? '';
   env.GITHUB_APP_INSTALLATION_ID = state.credentials.GITHUB_APP_INSTALLATION_ID ?? '';
   env.GITHUB_TOKEN = state.credentials.GITHUB_TOKEN ?? '';
+  env.GITHUB_WEBHOOK_SECRET = state.credentials.GITHUB_WEBHOOK_SECRET ?? randomHex(32);
 
   // Docker Compose profiles — bundled infrastructure by default
   if (state.deployment.target === 'docker-compose') {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { runNonInteractive } from '../src/wizard/runner.js';
 import { generateConfigYaml } from '../src/generators/config-yaml.js';
@@ -6,6 +6,34 @@ import { generateEnvFile } from '../src/generators/env-file.js';
 import { generateDockerCompose } from '../src/generators/docker-compose.js';
 import { CliConfigSchema } from '../src/schema/cli-config-schema.js';
 import { YclawConfigSchema } from '@yclaw/core/infrastructure';
+
+const GITHUB_ENV_KEYS = [
+  'GITHUB_OWNER',
+  'GITHUB_REPO',
+  'GITHUB_APP_ID',
+  'GITHUB_APP_PRIVATE_KEY',
+  'GITHUB_APP_INSTALLATION_ID',
+  'GITHUB_TOKEN',
+  'GITHUB_WEBHOOK_SECRET',
+];
+
+const originalEnv: Record<string, string | undefined> = {};
+
+beforeEach(() => {
+  for (const key of GITHUB_ENV_KEYS) {
+    originalEnv[key] = process.env[key];
+  }
+});
+
+afterEach(() => {
+  for (const key of GITHUB_ENV_KEYS) {
+    if (originalEnv[key] === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = originalEnv[key];
+    }
+  }
+});
 
 describe('Non-interactive init', () => {
   it('local-demo: produces valid config + env + compose', () => {
@@ -88,5 +116,22 @@ describe('Non-interactive init', () => {
   it('aws-production: secrets provider is env (not aws-secrets-manager)', () => {
     const plan = runNonInteractive('aws-production');
     expect(plan.config.secrets.provider).toBe('env');
+  });
+
+  it('passes GitHub readiness values from environment into generated env', () => {
+    process.env.GITHUB_OWNER = 'ExampleOrg';
+    process.env.GITHUB_REPO = 'example-repo';
+    process.env.GITHUB_APP_ID = '12345';
+    process.env.GITHUB_APP_PRIVATE_KEY = '-----BEGIN PRIVATE KEY-----\\nabc\\n-----END PRIVATE KEY-----';
+    process.env.GITHUB_APP_INSTALLATION_ID = '67890';
+    process.env.GITHUB_WEBHOOK_SECRET = 'from-env-webhook-secret';
+
+    const plan = runNonInteractive('local-demo');
+
+    expect(plan.env.GITHUB_OWNER).toBe('ExampleOrg');
+    expect(plan.env.GITHUB_REPO).toBe('example-repo');
+    expect(plan.env.GITHUB_APP_ID).toBe('12345');
+    expect(plan.env.GITHUB_APP_INSTALLATION_ID).toBe('67890');
+    expect(plan.env.GITHUB_WEBHOOK_SECRET).toBe('from-env-webhook-secret');
   });
 });

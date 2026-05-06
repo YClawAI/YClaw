@@ -133,16 +133,45 @@ See [`AI-HANDSHAKE.md`](./AI-HANDSHAKE.md) for the full flow your assistant shou
 ## Quick Start
 
 ```bash
-git clone https://github.com/YClawAI/yclaw.git
-cd yclaw
-cp .env.example .env
-# Edit .env — add ANTHROPIC_API_KEY (or OPENAI_API_KEY)
-docker compose up -d --build
+curl -fsSL https://raw.githubusercontent.com/YClawAI/YClaw/main/install.sh | bash
 ```
 
-> **First boot takes 2-3 minutes** while Docker builds the API and dashboard
-> images and the migrate one-shot runs against postgres. Watch progress with
-> `docker compose logs -f api`. Subsequent runs can drop the `--build` flag.
+The installer clones YCLAW into `~/yclaw`, installs dependencies, builds the
+local CLI, runs `yclaw init`, and runs `yclaw doctor`. It will not deploy until
+doctor passes, so missing GitHub/LLM credentials stop before a broken system can
+start.
+
+Useful variants:
+
+```bash
+# Non-interactive local config generation
+curl -fsSL https://raw.githubusercontent.com/YClawAI/YClaw/main/install.sh | bash -s -- --preset local-demo --non-interactive
+
+# AWS/Terraform starter
+curl -fsSL https://raw.githubusercontent.com/YClawAI/YClaw/main/install.sh | bash -s -- --preset aws-production
+
+# Custom install directory
+curl -fsSL https://raw.githubusercontent.com/YClawAI/YClaw/main/install.sh | bash -s -- --dir ./yclaw
+```
+
+Before deployment, fill `~/yclaw/.env` with:
+
+- one LLM key, such as `ANTHROPIC_API_KEY`
+- `GITHUB_OWNER`, `GITHUB_REPO`, and `YCLAW_REPOS`
+- GitHub App credentials or a local-only `GITHUB_TOKEN`
+- `GITHUB_WEBHOOK_SECRET`, also configured on the GitHub App webhook
+
+Manual source install:
+
+```bash
+git clone https://github.com/YClawAI/YClaw.git
+cd YClaw
+npm ci
+npm run build --workspace=packages/cli
+npx --no-install yclaw init --preset local-demo
+npx --no-install yclaw doctor
+npx --no-install yclaw deploy --detach --bootstrap-output-file ./yclaw-root-bootstrap.json
+```
 
 ### Verify
 
