@@ -60,27 +60,24 @@ export async function initActions(services: ServiceContext): Promise<ActionConte
   // ─── Action Registry ─────────────────────────────────────────────────
   const actionRegistry = new ActionRegistryImpl();
 
-  // Shared dedup Redis for Twitter, Slack, and Discord
-  let dedupRedis: IORedis | null = null;
-  const dedupRedisUrl = process.env.REDIS_URL;
-  if (dedupRedisUrl && (dedupRedisUrl.startsWith('redis://') || dedupRedisUrl.startsWith('rediss://'))) {
-    try {
-      dedupRedis = new IORedis(dedupRedisUrl, { lazyConnect: true, maxRetriesPerRequest: 3 });
-      await dedupRedis.connect();
-      logger.info('Dedup Redis connected (shared by Twitter, Slack, Discord)');
-    } catch (redisErr) {
-      logger.warn('Dedup Redis unavailable — dedup disabled for all channels', {
-        error: redisErr instanceof Error ? redisErr.message : String(redisErr),
-      });
-      dedupRedis = null;
-    }
-  }
-
-  actionRegistry.register('twitter', new TwitterExecutor(dedupRedis));
+  actionRegistry.register('twitter', new TwitterExecutor());
   actionRegistry.register('telegram', new TelegramExecutor());
 
-  // Keep backward-compat alias for Slack/Discord
-  const slackDedupRedis = dedupRedis;
+  // Slack dedup Redis
+  let slackDedupRedis: IORedis | null = null;
+  const slackRedisUrl = process.env.REDIS_URL;
+  if (slackRedisUrl && (slackRedisUrl.startsWith('redis://') || slackRedisUrl.startsWith('rediss://'))) {
+    try {
+      slackDedupRedis = new IORedis(slackRedisUrl, { lazyConnect: true, maxRetriesPerRequest: 3 });
+      await slackDedupRedis.connect();
+      logger.info('Slack dedup Redis connected');
+    } catch (redisErr) {
+      logger.warn('Slack dedup Redis unavailable — dedup disabled', {
+        error: redisErr instanceof Error ? redisErr.message : String(redisErr),
+      });
+      slackDedupRedis = null;
+    }
+  }
 
   actionRegistry.register('slack', new SlackExecutor(slackDedupRedis));
 
