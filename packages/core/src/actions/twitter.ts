@@ -1,9 +1,7 @@
 import { TwitterApi } from 'twitter-api-v2';
-import type { Redis } from 'ioredis';
 import type { ActionResult, ActionExecutor } from './types.js';
 import type { ToolDefinition } from '../config/schema.js';
 import { createLogger } from '../logging/logger.js';
-import { checkTwitterDedup, recordPostedTweet } from './twitter-dedup.js';
 
 const logger = createLogger('twitter-executor');
 
@@ -27,11 +25,8 @@ const logger = createLogger('twitter-executor');
 export class TwitterExecutor implements ActionExecutor {
   readonly name = 'twitter';
   private client: TwitterApi | null = null;
-  private readonly redis: Redis | null;
 
-  constructor(redis?: Redis | null) {
-    this.redis = redis ?? null;
-
+  constructor() {
     const appKey = process.env.TWITTER_APP_KEY;
     const appSecret = process.env.TWITTER_APP_SECRET;
     const accessToken = process.env.TWITTER_ACCESS_TOKEN;
@@ -53,7 +48,7 @@ export class TwitterExecutor implements ActionExecutor {
     });
   }
 
-  // ─── Tool Definitions (colocated schemas) ─────────────────────────────────
+  // ─── Tool Definitions (colocated schemas) ─────────────────────────────────────
 
   getToolDefinitions(): ToolDefinition[] {
     return [
@@ -207,7 +202,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Post a single tweet ──────────────────────────────────────────────────
+  // ─── Post a single tweet ──────────────────────────────────────────────────────
 
   private async post(params: Record<string, unknown>): Promise<ActionResult> {
     const text = params.text as string | undefined;
@@ -215,32 +210,11 @@ export class TwitterExecutor implements ActionExecutor {
       return { success: false, error: 'Missing required parameter: text' };
     }
 
-    // ── Dedup gate ─────────────────────────────────────────────────────────
-    const dedup = await checkTwitterDedup(this.redis, text);
-    if (dedup.isDuplicate) {
-      const simPct = dedup.similarity !== undefined
-        ? `${(dedup.similarity * 100).toFixed(1)}%`
-        : 'exact';
-      logger.warn('Tweet blocked by dedup gate', {
-        similarity: simPct,
-        textPreview: text.slice(0, 80),
-      });
-      return {
-        success: false,
-        error: `Duplicate post blocked by dedup gate (similarity: ${simPct}). ` +
-               'Near-identical content was posted within the last 12 hours.',
-      };
-    }
-
     logger.info('Posting tweet', { textLength: text.length });
 
     try {
       const result = await this.client!.v2.tweet(text);
       logger.info('Tweet posted successfully', { tweetId: result.data.id });
-
-      // Record in dedup store so subsequent near-identical posts are blocked
-      await recordPostedTweet(this.redis, text);
-
       return {
         success: true,
         data: { tweetId: result.data.id, text: result.data.text },
@@ -253,30 +227,12 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Post a thread (array of tweets with 1s delay) ───────────────────────
+  // ─── Post a thread (array of tweets with 1s delay) ─────────────────────────────
 
   private async thread(params: Record<string, unknown>): Promise<ActionResult> {
     const tweets = params.tweets as string[] | undefined;
     if (!tweets || !Array.isArray(tweets) || tweets.length === 0) {
       return { success: false, error: 'Missing required parameter: tweets (non-empty array of strings)' };
-    }
-
-    // ── Dedup gate (check against the combined thread text) ────────────────
-    const threadText = tweets.join('\n');
-    const dedup = await checkTwitterDedup(this.redis, threadText);
-    if (dedup.isDuplicate) {
-      const simPct = dedup.similarity !== undefined
-        ? `${(dedup.similarity * 100).toFixed(1)}%`
-        : 'exact';
-      logger.warn('Thread blocked by dedup gate', {
-        similarity: simPct,
-        tweetCount: tweets.length,
-      });
-      return {
-        success: false,
-        error: `Duplicate thread blocked by dedup gate (similarity: ${simPct}). ` +
-               'Near-identical content was posted within the last 12 hours.',
-      };
     }
 
     logger.info('Posting thread', { tweetCount: tweets.length });
@@ -308,9 +264,6 @@ export class TwitterExecutor implements ActionExecutor {
         logger.info(`Thread tweet ${i + 1}/${tweets.length} posted`, { tweetId: result.data.id });
       }
 
-      // Record the combined thread text so near-identical threads are blocked
-      await recordPostedTweet(this.redis, threadText);
-
       return {
         success: true,
         data: { tweetIds: postedIds, threadLength: postedIds.length },
@@ -326,7 +279,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Reply to a specific tweet ────────────────────────────────────────────
+  // ─── Reply to a specific tweet ────────────────────────────────────────────────
 
   private async reply(params: Record<string, unknown>): Promise<ActionResult> {
     const text = params.text as string | undefined;
@@ -356,7 +309,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Like a tweet ─────────────────────────────────────────────────────────
+  // ─── Like a tweet ───────────────────────────────────────────────────────────────
 
   private async like(params: Record<string, unknown>): Promise<ActionResult> {
     const tweetId = params.tweetId as string | undefined;
@@ -379,7 +332,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Retweet a tweet ──────────────────────────────────────────────────────
+  // ─── Retweet a tweet ──────────────────────────────────────────────────────────
 
   private async retweet(params: Record<string, unknown>): Promise<ActionResult> {
     const tweetId = params.tweetId as string | undefined;
@@ -402,7 +355,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Follow a user ──────────────────────────────────────────────────────
+  // ─── Follow a user ──────────────────────────────────────────────────────────
 
   private async follow(params: Record<string, unknown>): Promise<ActionResult> {
     const targetUserId = params.targetUserId as string | undefined;
@@ -425,7 +378,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Send a direct message ─────────────────────────────────────────────
+  // ─── Send a direct message ──────────────────────────────────────────────────
 
   private async dm(params: Record<string, unknown>): Promise<ActionResult> {
     const participantId = params.participantId as string | undefined;
@@ -461,7 +414,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Upload media and post tweet with it ───────────────────────────────
+  // ─── Upload media and post tweet with it ────────────────────────────────────────
 
   private async mediaUpload(params: Record<string, unknown>): Promise<ActionResult> {
     const text = params.text as string | undefined;
@@ -507,7 +460,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Update profile (name, bio, url, location) ─────────────────────────
+  // ─── Update profile (name, bio, url, location) ───────────────────────────────────
 
   private async updateProfile(params: Record<string, unknown>): Promise<ActionResult> {
     const updates: Record<string, string> = {};
@@ -541,7 +494,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Update profile image ──────────────────────────────────────────────
+  // ─── Update profile image ────────────────────────────────────────────────────
 
   private async updateProfileImage(params: Record<string, unknown>): Promise<ActionResult> {
     const imageBase64 = params.image as string | undefined;
@@ -564,7 +517,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Update profile banner ─────────────────────────────────────────────
+  // ─── Update profile banner ─────────────────────────────────────────────────
 
   private async updateProfileBanner(params: Record<string, unknown>): Promise<ActionResult> {
     const bannerBase64 = params.banner as string | undefined;
@@ -587,7 +540,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Read tweet engagement metrics ─────────────────────────────────────
+  // ─── Read tweet engagement metrics ───────────────────────────────────────────
 
   private async readMetrics(params: Record<string, unknown>): Promise<ActionResult> {
     const tweetIds = params.tweetIds as string[] | undefined;
@@ -621,7 +574,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
+  // ─── Helpers ────────────────────────────────────────────────────────────────
 
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
