@@ -400,6 +400,20 @@ platform-specific rules based on the `targetPlatform` parameter:
 - Can be invoked directly via `OutboundSafetyFilter.check()` for pre-flight checks
 - Results are logged to the audit trail with full check details
 
+### Content Deduplication
+
+`ContentDedupGate` (`src/review/content-dedup.ts`) is the **canonical** dedup
+mechanism for all outbound content. It runs inside `OutboundSafetyGate.check()`
+and blocks exact duplicates (SHA-256) and near-duplicates (>85% Jaccard
+character-bigram similarity) within a 12-hour TTL window, scoped per platform.
+`AgentExecutor` calls `recordOutboundContent()` after every successful outbound
+action to keep the window current. The gate fails open: errors log a warning
+and never block a post.
+
+The earlier Redis-backed, Twitter-only `actions/twitter-dedup.ts` module was
+removed (issue #182) — do not reintroduce per-platform dedup layers; extend
+`ContentDedupGate` instead.
+
 ---
 
 ## Repo Registry
