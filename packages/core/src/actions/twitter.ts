@@ -48,7 +48,7 @@ export class TwitterExecutor implements ActionExecutor {
     });
   }
 
-  // ─── Tool Definitions (colocated schemas) ─────────────────────────────────
+  // ─── Tool Definitions (colocated schemas) ─────────────────────────────────────
 
   getToolDefinitions(): ToolDefinition[] {
     return [
@@ -202,7 +202,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Post a single tweet ──────────────────────────────────────────────────
+  // ─── Post a single tweet ──────────────────────────────────────────────────────
 
   private async post(params: Record<string, unknown>): Promise<ActionResult> {
     const text = params.text as string | undefined;
@@ -227,7 +227,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Post a thread (array of tweets with 1s delay) ───────────────────────
+  // ─── Post a thread (array of tweets with 1s delay) ─────────────────────────────
 
   private async thread(params: Record<string, unknown>): Promise<ActionResult> {
     const tweets = params.tweets as string[] | undefined;
@@ -279,7 +279,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Reply to a specific tweet ────────────────────────────────────────────
+  // ─── Reply to a specific tweet ────────────────────────────────────────────────
 
   private async reply(params: Record<string, unknown>): Promise<ActionResult> {
     const text = params.text as string | undefined;
@@ -309,7 +309,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Like a tweet ─────────────────────────────────────────────────────────
+  // ─── Like a tweet ───────────────────────────────────────────────────────────────
 
   private async like(params: Record<string, unknown>): Promise<ActionResult> {
     const tweetId = params.tweetId as string | undefined;
@@ -332,7 +332,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Retweet a tweet ──────────────────────────────────────────────────────
+  // ─── Retweet a tweet ──────────────────────────────────────────────────────────
 
   private async retweet(params: Record<string, unknown>): Promise<ActionResult> {
     const tweetId = params.tweetId as string | undefined;
@@ -355,7 +355,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Follow a user ──────────────────────────────────────────────────────
+  // ─── Follow a user ──────────────────────────────────────────────────────────
 
   private async follow(params: Record<string, unknown>): Promise<ActionResult> {
     const targetUserId = params.targetUserId as string | undefined;
@@ -378,7 +378,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Send a direct message ─────────────────────────────────────────────
+  // ─── Send a direct message ──────────────────────────────────────────────────
 
   private async dm(params: Record<string, unknown>): Promise<ActionResult> {
     const participantId = params.participantId as string | undefined;
@@ -414,7 +414,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Upload media and post tweet with it ───────────────────────────────
+  // ─── Upload media and post tweet with it ────────────────────────────────────────
 
   private async mediaUpload(params: Record<string, unknown>): Promise<ActionResult> {
     const text = params.text as string | undefined;
@@ -460,7 +460,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Update profile (name, bio, url, location) ─────────────────────────
+  // ─── Update profile (name, bio, url, location) ───────────────────────────────────
 
   private async updateProfile(params: Record<string, unknown>): Promise<ActionResult> {
     const updates: Record<string, string> = {};
@@ -494,7 +494,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Update profile image ──────────────────────────────────────────────
+  // ─── Update profile image ────────────────────────────────────────────────────
 
   private async updateProfileImage(params: Record<string, unknown>): Promise<ActionResult> {
     const imageBase64 = params.image as string | undefined;
@@ -517,7 +517,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Update profile banner ─────────────────────────────────────────────
+  // ─── Update profile banner ─────────────────────────────────────────────────
 
   private async updateProfileBanner(params: Record<string, unknown>): Promise<ActionResult> {
     const bannerBase64 = params.banner as string | undefined;
@@ -540,7 +540,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Read tweet engagement metrics ─────────────────────────────────────
+  // ─── Read tweet engagement metrics ───────────────────────────────────────────
 
   private async readMetrics(params: Record<string, unknown>): Promise<ActionResult> {
     const tweetIds = params.tweetIds as string[] | undefined;
@@ -574,7 +574,7 @@ export class TwitterExecutor implements ActionExecutor {
     }
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
+  // ─── Helpers ────────────────────────────────────────────────────────────────
 
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));

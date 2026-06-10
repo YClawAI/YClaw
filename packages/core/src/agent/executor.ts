@@ -1105,6 +1105,11 @@ export class AgentExecutor {
       actionResultCache.set(cacheKey, result);
     }
 
+    // Record successfully posted content for dedup gate (prevents duplicate posts)
+    if (result.success) {
+      this.outboundSafety.recordOutboundContent(actionName, args);
+    }
+
     record.actionsTaken.push({
       action: actionName,
       result: result.success ? 'success' : 'failure',
